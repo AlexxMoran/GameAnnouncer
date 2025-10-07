@@ -1,11 +1,11 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 
 from models.game import Game
-from schemas.game import GameCreate, GameResponse, GameUpdate
+from schemas.game import GameCreate, GameUpdate
 
 
 class GameCRUD:

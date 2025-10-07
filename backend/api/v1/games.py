@@ -2,9 +2,7 @@ from fastapi import APIRouter, HTTPException
 
 from core.deps import SessionDep
 from api.v1.crud.game import game_crud
-from schemas.game import GameListResponse, GameCreate, GameResponse, GameUpdate
-from core.config import settings
-
+from schemas.game import GameCreate, GameResponse, GameUpdate
 
 router = APIRouter(prefix="/games", tags=["games"])
 
