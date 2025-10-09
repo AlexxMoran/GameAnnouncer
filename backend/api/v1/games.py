@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, UploadFile, File
 
+from services.avatar_uploader import AvatarUploader
 from core.deps import SessionDep
 from api.v1.crud.game import game_crud
 from schemas.game import GameCreate, GameResponse, GameUpdate
@@ -37,3 +38,20 @@ async def update_game(session: SessionDep, game_id: int, game: GameUpdate):
     game = await game_crud.update(session=session, game=game_object, game_in=game)
 
     return game
+
+@router.post("/{game_id}/upload_image", response_model=GameUpdate)
+async def upload_game_image(session: SessionDep, game_id: int, file: UploadFile = File(...)):
+    game = await game_crud.get_by_id(session=session, game_id=game_id)
+
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+
+    image_url = await AvatarUploader.upload_avatar(object_type="game", object_id=game_id, file=file)
+
+    game.image_url = image_url
+    
+    await session.commit()
+    await session.refresh(game)
+
+    return game
+

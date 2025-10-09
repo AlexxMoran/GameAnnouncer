@@ -1,3 +1,4 @@
+from typing import Optional
 from .base import Base
 from sqlalchemy.orm import mapped_column, Mapped, relationship, declarative_base
 from sqlalchemy import ForeignKey, String, Text
@@ -12,6 +13,7 @@ class Announcement(Base):
         ForeignKey("games.id", ondelete="CASCADE"),
         nullable=False
     )
+    image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     game: Mapped["Game"] = relationship("Game", back_populates="announcements")
 

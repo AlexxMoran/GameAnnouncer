@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from .base import Base
 from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -9,6 +9,7 @@ class Game(Base):
 
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
+    image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     announcements: Mapped[List["Announcement"]] = relationship(
         "Announcement",

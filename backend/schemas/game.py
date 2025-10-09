@@ -5,6 +5,7 @@ from datetime import datetime
 class GameBase(BaseModel):
     name: str = Field(..., max_length=100, description="The name of the game")
     description: Optional[str] = Field(None, description="A brief description of the game")
+    image_url: Optional[str] = Field(None, max_length=500, description="URL to the game's image")
 
 class GameCreate(GameBase):
     pass
