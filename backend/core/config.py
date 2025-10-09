@@ -1,11 +1,10 @@
-
+import os
 from pydantic import ( BaseModel, PostgresDsn, computed_field )
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 class RunConfig(BaseModel):
     host: str = "localhost"
-    port: int = 8000
+    port: int = 3000
 
 class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
@@ -56,6 +55,23 @@ class DatabaseConfig(BaseModel):
             port=self.port,
             path=self.database
         )
+class CORSConfig(BaseModel):
+    backend_cors_origins: list[str] = []
+    frontend_host: str = ""
+    allow_credentials: bool = True
+    allow_methods: list[str] = ["*"]
+    allow_headers: list[str] = ["*"]
+
+    @computed_field
+    @property
+    def all_cors_origins(self) -> list[str]:
+        cleaned = [origin.rstrip("/") for origin in self.backend_cors_origins]
+
+        if self.frontend_host not in cleaned:
+            cleaned.append(self.frontend_host.rstrip("/"))
+
+        return cleaned
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -66,6 +82,6 @@ class Settings(BaseSettings):
     run: RunConfig = RunConfig()
     api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig
-
+    cors: CORSConfig = CORSConfig()
 
 settings = Settings()
