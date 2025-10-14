@@ -1,11 +1,12 @@
-import { Component, signal } from '@angular/core';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { Component } from '@angular/core';
+import { ThemeToggle } from './theme/theme-toggle';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
-  imports: [MatButtonToggleModule],
+  imports: [ThemeToggle],
+  host: {
+    class: 'w-screen h-screen flex flex-col',
+  },
 })
-export class App {
-  protected readonly title = signal('frontend');
-}
+export class App {}
