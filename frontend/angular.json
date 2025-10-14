@@ -10,6 +10,7 @@
           "style": "scss"
         }
       },
+      "i18n": {"sourceLocale": "ru"},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -69,8 +70,7 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "open": true,
-            "port": 3000
+            "open": true
           }
         },
         "extract-i18n": {
