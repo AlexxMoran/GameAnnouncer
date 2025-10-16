@@ -10,7 +10,6 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent))
 
-from core.deps import SessionDep
 from core.db import db
 from core.config import settings
 from sqlalchemy import select
@@ -19,7 +18,7 @@ from sqlalchemy import select
 async def main():
     """Simple database console"""
     session = await db.get_session()
-    
+
     print(f"✅ Connected to database: {settings.db.database}")
     print("⚙️  Database session available as 'session'")
     print("🔧 Settings available as 'settings'")
@@ -31,23 +30,25 @@ async def main():
     print("  games = result.scalars().all()")
     print("\n📚 Use 'await' for async operations!")
     print("🔍 Type 'help()' for Python help\n")
-    
+
     locals_dict = {
-        'session': session,
-        'db': db,
-        'settings': settings,
-        'select': select,
-        'asyncio': asyncio,
+        "session": session,
+        "db": db,
+        "settings": settings,
+        "select": select,
+        "asyncio": asyncio,
     }
-    
+
     try:
         import IPython
         import nest_asyncio
+
         nest_asyncio.apply()
-        
+
         IPython.start_ipython(argv=[], user_ns=locals_dict)
     except ImportError:
         import code
+
         code.interact(local=locals_dict)
     finally:
         await db.dispose()

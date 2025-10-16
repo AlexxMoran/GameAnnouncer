@@ -5,16 +5,19 @@ from fastapi import UploadFile, File, HTTPException
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif"}
 
+
 class AvatarUploader:
     BASE_DIR = "static/images"
 
     @staticmethod
-    async def upload_avatar(object_type: str, object_id: int, file: UploadFile = File(...)) -> str:
+    async def upload_avatar(
+        object_type: str, object_id: int, file: UploadFile = File(...)
+    ) -> str:
         ext = os.path.splitext(file.filename)[1].lower()
 
         if ext not in ALLOWED_EXTENSIONS:
             raise HTTPException(status_code=400, detail="Invalid image format")
-  
+
         target_dir = os.path.join(AvatarUploader.BASE_DIR, f"{object_type}s")
         os.makedirs(target_dir, exist_ok=True)
 
@@ -26,4 +29,3 @@ class AvatarUploader:
                 await image_file.write(chunk)
 
         return f"/{file_path}"
-    

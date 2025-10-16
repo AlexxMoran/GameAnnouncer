@@ -12,7 +12,5 @@ class Game(Base):
     image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     announcements: Mapped[List["Announcement"]] = relationship(
-        "Announcement",
-        back_populates="game",
-        cascade="all, delete-orphan"
+        "Announcement", back_populates="game", cascade="all, delete-orphan"
     )

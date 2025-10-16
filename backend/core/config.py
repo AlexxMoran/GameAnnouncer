@@ -1,17 +1,20 @@
-import os
-from pydantic import ( BaseModel, PostgresDsn, computed_field )
+from pydantic import BaseModel, PostgresDsn, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
 
 class RunConfig(BaseModel):
     host: str = "localhost"
     port: int = 3000
 
+
 class ApiV1Prefix(BaseModel):
     prefix: str = "/v1"
+
 
 class ApiPrefix(BaseModel):
     prefix: str = "/api"
     v1: ApiV1Prefix = ApiV1Prefix()
+
 
 class DatabaseConfig(BaseModel):
     server: str
@@ -29,32 +32,34 @@ class DatabaseConfig(BaseModel):
         "uq": "uq_%(table_name)s_%(column_0_N_name)s",
         "ck": "ck_%(table_name)s_%(constraint_name)s",
         "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-        "pk": "pk_%(table_name)s"
+        "pk": "pk_%(table_name)s",
     }
 
     @computed_field
     @property
     def url(self) -> PostgresDsn:
         return PostgresDsn.build(
-            scheme="postgresql+asyncpg", 
+            scheme="postgresql+asyncpg",
             username=self.user,
             password=self.password,
             host=self.server,
             port=self.port,
-            path=self.database
+            path=self.database,
         )
-    
+
     @computed_field
     @property
     def sync_url(self) -> PostgresDsn:
         return PostgresDsn.build(
-            scheme="postgresql", 
+            scheme="postgresql",
             username=self.user,
             password=self.password,
             host=self.server,
             port=self.port,
-            path=self.database
+            path=self.database,
         )
+
+
 class CORSConfig(BaseModel):
     backend_cors_origins: list[str] = []
     frontend_host: str = ""
@@ -83,5 +88,6 @@ class Settings(BaseSettings):
     api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig
     cors: CORSConfig = CORSConfig()
+
 
 settings = Settings()

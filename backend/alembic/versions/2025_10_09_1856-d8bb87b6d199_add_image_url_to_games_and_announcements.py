@@ -26,9 +26,7 @@ def upgrade() -> None:
         "announcements",
         sa.Column("image_url", sa.String(length=500), nullable=True),
     )
-    op.add_column(
-        "games", sa.Column("image_url", sa.String(length=500), nullable=True)
-    )
+    op.add_column("games", sa.Column("image_url", sa.String(length=500), nullable=True))
     # ### end Alembic commands ###
 
 

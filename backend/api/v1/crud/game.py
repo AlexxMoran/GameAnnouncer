@@ -17,15 +17,14 @@ class GameCRUD:
         )
         return result.scalar_one_or_none()
 
-    async def get_all(self, session: AsyncSession, skip: int = 0, limit: int = 10) -> list[Game]:
+    async def get_all(
+        self, session: AsyncSession, skip: int = 0, limit: int = 10
+    ) -> list[Game]:
         result = await session.execute(
-            select(Game)
-            .offset(skip)
-            .limit(limit)
-            .order_by(Game.name.asc())
+            select(Game).offset(skip).limit(limit).order_by(Game.name.asc())
         )
         return list(result.scalars().all())
-    
+
     async def create(self, session: AsyncSession, game_in: GameCreate) -> Game:
         game = Game(**game_in.model_dump())
         session.add(game)
@@ -34,7 +33,9 @@ class GameCRUD:
 
         return game
 
-    async def update(self, session: AsyncSession, game: Game, game_in: GameUpdate) -> Game:
+    async def update(
+        self, session: AsyncSession, game: Game, game_in: GameUpdate
+    ) -> Game:
         update_data = game_in.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(game, field, value)
@@ -44,9 +45,9 @@ class GameCRUD:
 
         return game
 
-
     async def delete(self, session: AsyncSession, game: Game) -> None:
         await session.delete(game)
         await session.commit()
+
 
 game_crud = GameCRUD()

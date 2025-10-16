@@ -28,16 +28,8 @@ if settings.cors.all_cors_origins:
         allow_headers=settings.cors.allow_headers,
     )
 
-app.include_router(
-    api_router,
-    prefix=settings.api.prefix
-)
+app.include_router(api_router, prefix=settings.api.prefix)
 
 
 if __name__ == "__main__":
-    uvicorn.run(
-        "main:app",
-        host=settings.run.host,
-        port=settings.run.port, 
-        reload=True
-    )
+    uvicorn.run("main:app", host=settings.run.host, port=settings.run.port, reload=True)

@@ -26,9 +26,7 @@ def upgrade() -> None:
         "announcements",
         sa.Column("title", sa.String(length=100), nullable=False),
     )
-    op.add_column(
-        "announcements", sa.Column("content", sa.Text(), nullable=True)
-    )
+    op.add_column("announcements", sa.Column("content", sa.Text(), nullable=True))
     # ### end Alembic commands ###
 
 
