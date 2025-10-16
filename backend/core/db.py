@@ -32,6 +32,9 @@ class Database:
         async with self.session_factory() as session:
             yield session
 
+    async def get_session(self) -> AsyncSession:
+        return self.session_factory()
+
 db = Database(
     url=str(settings.db.url),
     echo=settings.db.echo,

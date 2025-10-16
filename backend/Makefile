@@ -17,6 +17,9 @@ dev: ## Start development server with hot reload
 start: ## Start production server
 	$(UVICORN) main:app --host 0.0.0.0 --port 8000
 
+console:
+	$(PYTHON) console.py
+
 # Database
 migrate: ## Apply database migrations
 	$(ALEMBIC) upgrade head
