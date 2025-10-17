@@ -7,7 +7,7 @@ class Database:
     def __init__(
         self,
         url: str,
-        echo: bool = False,
+        echo: bool = True,
         echo_pool: bool = False,
         pool_size: int = 5,
         max_overflow: int = 10,

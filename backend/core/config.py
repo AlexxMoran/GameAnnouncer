@@ -22,7 +22,7 @@ class DatabaseConfig(BaseModel):
     user: str
     password: str
     database: str
-    echo: bool = False
+    echo: bool = True
     echo_pool: bool = False
     pool_size: int = 50
     max_overflow: int = 10
@@ -78,6 +78,16 @@ class CORSConfig(BaseModel):
         return cleaned
 
 
+class AuthConfig(BaseModel):
+    secret_key: str
+    refresh_secret_key: str
+    access_token_expire_minutes: int = 30
+    refresh_token_expire_days: int = 7
+    algorithm: str = "HS256"
+    verification_token_secret: str
+    reset_password_token_secret: str
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -88,6 +98,7 @@ class Settings(BaseSettings):
     api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig
     cors: CORSConfig = CORSConfig()
+    auth: AuthConfig
 
 
 settings = Settings()
