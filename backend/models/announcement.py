@@ -1,7 +1,10 @@
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 from .base import Base
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import ForeignKey, String, Text
+
+if TYPE_CHECKING:
+    from .game import Game
 
 
 class Announcement(Base):

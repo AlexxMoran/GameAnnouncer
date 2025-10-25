@@ -1,5 +1,7 @@
+from core.logger import logger
 from typing import Optional
 from core.config import settings
+
 
 from fastapi import Request
 from fastapi_users import BaseUserManager, IntegerIDMixin
@@ -21,4 +23,6 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
     async def on_after_request_verify(
         self, user: User, token: str, request: Optional[Request] = None
     ):
-        print(f"Verification requested for user {user.id}. Verification token: {token}")
+        logger.info(
+            f"Verification requested for user {user.id}. Verification token: {token}"
+        )

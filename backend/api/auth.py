@@ -1,9 +1,14 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from fastapi.security import HTTPBearer
 from core.users import fastapi_users
 from core.auth import auth_backend
 from schemas.user import UserResponse, UserCreate, UserUpdate
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+http_bearer = HTTPBearer(auto_error=False)
+
+router = APIRouter(
+    prefix="/auth", tags=["Authentication"], dependencies=[Depends(http_bearer)]
+)
 
 router.include_router(
     fastapi_users.get_register_router(UserResponse, UserCreate),
