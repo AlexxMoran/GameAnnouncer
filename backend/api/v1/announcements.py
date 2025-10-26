@@ -54,10 +54,16 @@ async def create_announcement(
 
 @router.put("/{announcement_id}", response_model=AnnouncementUpdate)
 async def update_announcement(
-    session: SessionDep, announcement_id: int, announcement: AnnouncementUpdate
+    session: SessionDep,
+    announcement_id: int,
+    announcement: AnnouncementUpdate,
+    current_user: User = Depends(current_user),
 ):
     announcement_object = await announcement_crud.get_by_id(
-        session=session, announcement_id=announcement_id
+        session=session,
+        announcement_id=announcement_id,
+        user=current_user,
+        action="edit",
     )
 
     if not announcement_object:
@@ -72,10 +78,17 @@ async def update_announcement(
 
 @router.post("/{announcement_id}/upload_image", response_model=AnnouncementUpdate)
 async def upload_announcement_image(
-    session: SessionDep, announcement_id: int, file: UploadFile = File(...)
+    session: SessionDep,
+    announcement_id: int,
+    file: UploadFile = File(...),
+    current_user: User = Depends(current_user),
 ):
+
     announcement = await announcement_crud.get_by_id(
-        session=session, announcement_id=announcement_id
+        session=session,
+        announcement_id=announcement_id,
+        current_user=current_user,
+        action="edit",
     )
 
     if not announcement:

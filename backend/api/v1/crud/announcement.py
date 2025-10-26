@@ -21,12 +21,24 @@ class AnnouncementCRUD:
         return list(result.scalars().all())
 
     async def get_by_id(
-        self, session: AsyncSession, announcement_id: int
+        self,
+        session: AsyncSession,
+        announcement_id: int,
+        user: Optional[User] = None,
+        action: Optional[str] = None,
     ) -> Optional[Announcement]:
         result = await session.execute(
             select(Announcement).where(Announcement.id == announcement_id)
         )
-        return result.scalar_one_or_none()
+
+        announcement = result.scalar_one_or_none()
+
+        if announcement and user and action:
+            from core.policies.authorize_action import authorize_action
+
+            authorize_action(user, announcement, action)
+
+        return announcement
 
     async def create(
         self, session: AsyncSession, announcement_in: AnnouncementCreate, user: User
