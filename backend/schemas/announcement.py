@@ -9,9 +9,6 @@ class AnnouncementBase(BaseModel):
     game_id: int = Field(
         ..., description="The ID of the game this announcement belongs to"
     )
-    image_url: Optional[str] = Field(
-        None, max_length=500, description="URL to the announcement's image"
-    )
 
 
 class AnnouncementCreate(AnnouncementBase):
@@ -23,6 +20,9 @@ class AnnouncementUpdate(BaseModel):
         None, max_length=200, description="The title of the announcement"
     )
     content: Optional[str] = None
+
+
+class AnnouncementAvatarUpdate(BaseModel):
     image_url: Optional[str] = Field(
         None, max_length=500, description="URL to the announcement's image"
     )
@@ -32,3 +32,9 @@ class AnnouncementResponse(AnnouncementBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    image_url: Optional[str] = Field(
+        None, max_length=500, description="URL to the announcement's image"
+    )
+    organizer_id: int = Field(
+        ..., description="The ID of the user who organized the announcement"
+    )

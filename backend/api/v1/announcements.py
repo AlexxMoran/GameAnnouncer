@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 
+from models.user import User
 from services.avatar_uploader import AvatarUploader
 from schemas.announcement import (
     AnnouncementCreate,
@@ -8,6 +9,8 @@ from schemas.announcement import (
 )
 from core.deps import SessionDep
 from api.v1.crud.announcement import announcement_crud
+
+from core.users import current_user
 
 
 router = APIRouter(prefix="/games/{game_id}/announcements", tags=["announcements"])
@@ -37,9 +40,13 @@ async def get_announcement(session: SessionDep, announcement_id: int):
 
 
 @router.post("/", response_model=AnnouncementCreate)
-async def create_announcement(session: SessionDep, announcement: AnnouncementCreate):
+async def create_announcement(
+    session: SessionDep,
+    announcement: AnnouncementCreate,
+    current_user: User = Depends(current_user),
+):
     announcement = await announcement_crud.create(
-        session=session, announcement_in=announcement
+        session=session, announcement_in=announcement, user=current_user
     )
 
     return announcement

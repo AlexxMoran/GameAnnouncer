@@ -1,4 +1,5 @@
 from typing import Optional
+from models.user import User
 from models.announcement import Announcement
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,9 +29,10 @@ class AnnouncementCRUD:
         return result.scalar_one_or_none()
 
     async def create(
-        self, session: AsyncSession, announcement_in: AnnouncementCreate
+        self, session: AsyncSession, announcement_in: AnnouncementCreate, user: User
     ) -> Announcement:
         announcement = Announcement(**announcement_in.model_dump())
+        announcement.organizer = user
         session.add(announcement)
         await session.commit()
         await session.refresh(announcement)
