@@ -5,7 +5,7 @@ services:
       - "5433:5432"
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB__USER} -d ${DB__DATABASE}"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       retries: 5
       start_period: 30s
@@ -19,6 +19,25 @@ services:
       - POSTGRES_PASSWORD=${DB__PASSWORD?Variable not set}
       - POSTGRES_USER=${DB__USER?Variable not set}
       - POSTGRES_DB=${DB__DATABASE?Variable not set}
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gameannouncer_backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - /backend/.venv
+      - ./backend:/backend
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${DB__USER}:${DB__PASSWORD}@db:5432/${DB__DATABASE}
+      - ENVIRONMENT=development
+    depends_on:
+      db:
+        condition: service_healthy
+    
 
   pgadmin:
     image: dpage/pgadmin4
