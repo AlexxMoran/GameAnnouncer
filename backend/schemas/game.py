@@ -8,9 +8,6 @@ class GameBase(BaseModel):
     description: Optional[str] = Field(
         None, description="A brief description of the game"
     )
-    image_url: Optional[str] = Field(
-        None, max_length=500, description="URL to the game's image"
-    )
 
 
 class GameCreate(GameBase):
@@ -28,8 +25,17 @@ class GameResponse(GameBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    image_url: Optional[str] = Field(
+        None, max_length=500, description="URL to the game's image"
+    )
 
 
 class GameListResponse(BaseModel):
     games: list[GameResponse]
     count: int
+
+
+class GameAvatarUpdate(BaseModel):
+    image_url: Optional[str] = Field(
+        None, max_length=500, description="URL to the game's image"
+    )

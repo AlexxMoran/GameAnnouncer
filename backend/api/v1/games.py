@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 
+from models.user import User
 from services.avatar_uploader import AvatarUploader
 from core.deps import SessionDep
 from api.v1.crud.game import game_crud
 from schemas.game import GameCreate, GameResponse, GameUpdate
+from core.users import current_user
 
 router = APIRouter(prefix="/games", tags=["games"])
 
@@ -26,29 +28,49 @@ async def get_game(session: SessionDep, game_id: int):
 
 
 @router.post("/", response_model=GameCreate)
-async def create_game(session: SessionDep, game: GameCreate):
-    game = await game_crud.create(session=session, game_in=game)
+async def create_game(
+    session: SessionDep, game: GameCreate, current_user: User = Depends(current_user)
+):
+    game = await game_crud.create(
+        session=session, game_in=game, user=current_user, action="create"
+    )
 
     return game
 
 
 @router.put("/{game_id}", response_model=GameUpdate)
-async def update_game(session: SessionDep, game_id: int, game: GameUpdate):
+async def update_game(
+    session: SessionDep,
+    game_id: int,
+    game: GameUpdate,
+    current_user: User = Depends(current_user),
+):
     game_object = await game_crud.get_by_id(session=session, game_id=game_id)
 
     if not game_object:
         raise HTTPException(status_code=404, detail="Game not found")
 
-    game = await game_crud.update(session=session, game=game_object, game_in=game)
+    game = await game_crud.update(
+        session=session,
+        game=game_object,
+        game_in=game,
+        user=current_user,
+        action="update",
+    )
 
     return game
 
 
 @router.post("/{game_id}/upload_image", response_model=GameUpdate)
 async def upload_game_image(
-    session: SessionDep, game_id: int, file: UploadFile = File(...)
+    session: SessionDep,
+    game_id: int,
+    file: UploadFile = File(...),
+    current_user: User = Depends(current_user),
 ):
-    game = await game_crud.get_by_id(session=session, game_id=game_id)
+    game = await game_crud.get_by_id(
+        session=session, game_id=game_id, user=current_user, action="edit"
+    )
 
     if not game:
         raise HTTPException(status_code=404, detail="Game not found")

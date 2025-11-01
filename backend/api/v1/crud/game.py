@@ -4,17 +4,32 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
 
+from core.policies.authorize_action import authorize_action
 from models.game import Game
+from models.user import User
 from schemas.game import GameCreate, GameUpdate
 
 
 class GameCRUD:
-    async def get_by_id(self, session: AsyncSession, game_id: int) -> Optional[Game]:
+    async def get_by_id(
+        self,
+        session: AsyncSession,
+        game_id: int,
+        user: Optional[User] = None,
+        action: Optional[str] = None,
+    ) -> Optional[Game]:
         result = await session.execute(
             select(Game)
             .options(selectinload(Game.announcements))
             .where(Game.id == game_id)
         )
+
+        game = result.scalar_one_or_none()
+        if game and user and action:
+            from core.policies.authorize_action import authorize_action
+
+            authorize_action(user, game, action)
+
         return result.scalar_one_or_none()
 
     async def get_all(
@@ -25,7 +40,15 @@ class GameCRUD:
         )
         return list(result.scalars().all())
 
-    async def create(self, session: AsyncSession, game_in: GameCreate) -> Game:
+    async def create(
+        self,
+        session: AsyncSession,
+        game_in: GameCreate,
+        user: Optional[User] = None,
+        action: Optional[str] = None,
+    ) -> Game:
+        authorize_action(user, Game(), action)
+
         game = Game(**game_in.model_dump())
         session.add(game)
         await session.commit()
@@ -34,8 +57,15 @@ class GameCRUD:
         return game
 
     async def update(
-        self, session: AsyncSession, game: Game, game_in: GameUpdate
+        self,
+        session: AsyncSession,
+        game: Game,
+        game_in: GameUpdate,
+        user: Optional[User] = None,
+        action: Optional[str] = None,
     ) -> Game:
+        authorize_action(user, Game(), action)
+
         update_data = game_in.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(game, field, value)
