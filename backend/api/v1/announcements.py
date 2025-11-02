@@ -1,4 +1,3 @@
-from typing import Optional
 from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 
 from models.announcement import Announcement

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 
+from models.game import Game
 from models.user import User
 from services.avatar_uploader import AvatarUploader
 from core.deps import SessionDep
@@ -10,6 +11,34 @@ from core.users import current_user
 router = APIRouter(prefix="/games", tags=["games"])
 
 
+async def get_game_dependency(
+    session: SessionDep,
+    game_id: int,
+) -> Game:
+    game = await game_crud.get_by_id(session=session, game_id=game_id)
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+
+    return game
+
+
+async def get_game_for_edit_dependency(
+    session: SessionDep,
+    game_id: int,
+    user: User = Depends(current_user),
+) -> Game:
+    game = await game_crud.get_by_id(
+        session=session,
+        game_id=game_id,
+        user=user,
+        action="edit",
+    )
+    if not game:
+        raise HTTPException(status_code=404, detail="Game not found")
+
+    return game
+
+
 @router.get("/", response_model=list[GameResponse])
 async def get_games(session: SessionDep, skip: int = 0, limit: int = 10):
     games = await game_crud.get_all(session=session, skip=skip, limit=limit)
@@ -18,21 +47,16 @@ async def get_games(session: SessionDep, skip: int = 0, limit: int = 10):
 
 
 @router.get("/{game_id}", response_model=GameResponse)
-async def get_game(session: SessionDep, game_id: int):
-    game = await game_crud.get_by_id(session=session, game_id=game_id)
-
-    if not game:
-        raise HTTPException(status_code=404, detail="Game not found")
-
+async def get_game(game: Game = Depends(get_game_dependency)):
     return game
 
 
 @router.post("/", response_model=GameCreate)
 async def create_game(
-    session: SessionDep, game: GameCreate, current_user: User = Depends(current_user)
+    session: SessionDep, game_in: GameCreate, current_user: User = Depends(current_user)
 ):
     game = await game_crud.create(
-        session=session, game_in=game, user=current_user, action="create"
+        session=session, game_in=game_in, user=current_user, action="create"
     )
 
     return game
@@ -41,42 +65,29 @@ async def create_game(
 @router.put("/{game_id}", response_model=GameUpdate)
 async def update_game(
     session: SessionDep,
-    game_id: int,
-    game: GameUpdate,
+    game_in: GameUpdate,
     current_user: User = Depends(current_user),
+    game: Game = Depends(get_game_for_edit_dependency),
 ):
-    game_object = await game_crud.get_by_id(session=session, game_id=game_id)
-
-    if not game_object:
-        raise HTTPException(status_code=404, detail="Game not found")
-
-    game = await game_crud.update(
+    updated_game = await game_crud.update(
         session=session,
-        game=game_object,
-        game_in=game,
+        game=game,
+        game_in=game_in,
         user=current_user,
-        action="update",
+        action="edit",
     )
 
-    return game
+    return updated_game
 
 
 @router.post("/{game_id}/upload_image", response_model=GameUpdate)
 async def upload_game_image(
     session: SessionDep,
-    game_id: int,
     file: UploadFile = File(...),
-    current_user: User = Depends(current_user),
+    game: Game = Depends(get_game_for_edit_dependency),
 ):
-    game = await game_crud.get_by_id(
-        session=session, game_id=game_id, user=current_user, action="edit"
-    )
-
-    if not game:
-        raise HTTPException(status_code=404, detail="Game not found")
-
     image_url = await AvatarUploader.upload_avatar(
-        object_type="game", object_id=game_id, file=file
+        object_type="game", object_id=game.id, file=file
     )
 
     game.image_url = image_url
