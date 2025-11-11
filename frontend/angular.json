@@ -10,7 +10,6 @@
           "style": "scss"
         }
       },
-      "i18n": {"sourceLocale": "ru"},
       "root": "",
       "sourceRoot": "src",
       "prefix": "app",
@@ -29,9 +28,6 @@
             ],
             "styles": [
               "src/styles.scss"
-            ],
-            "polyfills": [
-              "@angular/localize/init"
             ]
           },
           "configurations": {
@@ -73,9 +69,6 @@
             "open": true
           }
         },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
-        },
         "test": {
           "builder": "@angular/build:karma",
           "options": {
@@ -89,9 +82,6 @@
             ],
             "styles": [
               "src/styles.scss"
-            ],
-            "polyfills": [
-              "@angular/localize/init"
             ]
           }
         },

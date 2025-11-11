@@ -1,12 +1,15 @@
-import { DOCUMENT } from '@angular/common';
-import { inject, Injectable } from '@angular/core';
-import { THEME_TYPE_STORAGE_NAME } from './theme.constants';
-import { TThemeType } from './theme.types';
+import { Component, DOCUMENT, inject } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { THEME_TYPE_STORAGE_NAME } from 'src/app/theme-toggle/theme-toggle.constants';
+import { TThemeType } from 'src/app/theme-toggle/theme-toggle.types';
 
-@Injectable({
-  providedIn: 'root',
+@Component({
+  selector: 'theme-toggle',
+  templateUrl: './theme.toggle.html',
+  imports: [MatIconModule, MatButtonModule],
 })
-export class ThemeService {
+export class ThemeToggle {
   document = inject(DOCUMENT);
 
   constructor() {

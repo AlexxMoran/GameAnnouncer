@@ -1,27 +1,80 @@
 
 @use '@angular/material' as mat;
-@use "tailwindcss";
 @use "./theme-colors" as my-theme;
 
+@layer base, utilities, theme;
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+@import "tailwindcss/theme.css" layer(theme);
+
+@font-face {
+  font-family: 'Balsamiq Sans';
+  src: url('./assets/fonts/BalsamiqSans-Regular.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Balsamiq Sans';
+  src: url('./assets/fonts/BalsamiqSans-Italic.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Balsamiq Sans';
+  src: url('./assets/fonts/BalsamiqSans-Bold.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Balsamiq Sans';
+  src: url('./assets/fonts/BalsamiqSans-BoldItalic.ttf') format('truetype');
+  font-style: italic;
+}
+
+@layer base {
+  h1 {
+    font: var(--mat-sys-display-large);
+  }
+  h2 {
+    font: var(--mat-sys-display-medium);
+  }
+  h3 {
+    font: var(--mat-sys-display-small);
+  }
+  h4 {
+    font: var(--mat-sys-headline-large);
+  }
+  h5 {
+    font: var(--mat-sys-headline-medium);
+  }
+  h6 {
+    font: var(--mat-sys-headline-small);
+  }
+}
 
 html {
+  $my-typography: mat.define-typography();
+
   @include mat.theme((
     color: (
       primary: my-theme.$primary-palette,
       secondary: my-theme.$secondary-palette,
       tertiary: my-theme.$tertiary-palette,
     ),
-    typography: Roboto,
+    typography: Balsamiq Sans,
     density: -2,
   ));
+
+  @include mat.theme-overrides(());
+
+  @include mat.typography-hierarchy($my-typography);
 }
 
 body {
   color-scheme: dark;
   background-color: var(--mat-sys-surface-container);
   color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
 }
 
 html, body { height: 100%; }
-body { font-family: Roboto, "Helvetica Neue", sans-serif; }
+body { font-family: Balsamiq Sans, "Helvetica Neue", sans-serif; }
