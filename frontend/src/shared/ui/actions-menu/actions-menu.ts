@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IIconMenuOption } from 'src/components/actions-menu/actions-menu.types';
+import { IIconMenuOption } from '@shared/ui/actions-menu/actions-menu.types';
 
 @Component({
   selector: 'ui-actions-menu',

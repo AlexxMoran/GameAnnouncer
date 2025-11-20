@@ -1,13 +1,11 @@
-import { Component } from '@angular/core';
-import { ActionsMenu } from 'src/components/actions-menu/actions-menu';
-
-import { inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { LANG_STORAGE_NAME } from 'src/app/lang-toggle/lang-toggle.constants';
-import { TLang } from 'src/app/lang-toggle/lang-toggle.types';
-import { IIconMenuOption } from 'src/components/actions-menu/actions-menu.types';
-import translationsEn from '../../../public/i18n/en.json';
-import translationsRu from '../../../public/i18n/ru.json';
+import translationsEn from '@shared/i18n/en.json';
+import translationsRu from '@shared/i18n/ru.json';
+import { ActionsMenu } from '@shared/ui/actions-menu/actions-menu';
+import { IIconMenuOption } from '@shared/ui/actions-menu/actions-menu.types';
+import { LANG_STORAGE_NAME } from '@shared/ui/lang-toggle/lang-toggle.constants';
+import { TLang } from '@shared/ui/lang-toggle/lang-toggle.types';
 
 @Component({
   selector: 'lang-toggle',
