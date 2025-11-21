@@ -56,7 +56,7 @@ async def get_game(game: Game = Depends(get_game_dependency)):
     return game
 
 
-@router.post("/", response_model=GameCreate)
+@router.post("/", response_model=GameResponse)
 async def create_game(
     session: SessionDep, game_in: GameCreate, current_user: User = Depends(current_user)
 ):
@@ -67,7 +67,7 @@ async def create_game(
     return game
 
 
-@router.put("/{game_id}", response_model=GameUpdate)
+@router.put("/{game_id}", response_model=GameResponse)
 async def update_game(
     session: SessionDep,
     game_in: GameUpdate,
@@ -85,7 +85,7 @@ async def update_game(
     return updated_game
 
 
-@router.post("/{game_id}/upload_image", response_model=GameUpdate)
+@router.post("/{game_id}/upload_image", response_model=GameResponse)
 async def upload_game_image(
     session: SessionDep,
     file: UploadFile = File(...),

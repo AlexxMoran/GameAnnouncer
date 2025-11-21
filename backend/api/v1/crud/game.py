@@ -30,7 +30,7 @@ class GameCRUD:
 
             authorize_action(user, game, action)
 
-        return result.scalar_one_or_none()
+        return game
 
     async def get_all(
         self, session: AsyncSession, skip: int = 0, limit: int = 10

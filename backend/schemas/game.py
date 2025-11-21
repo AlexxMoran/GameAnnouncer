@@ -1,6 +1,31 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
+
+GAME_CATEGORIES = [
+    "RTS",
+    "TBS",
+    "MOBA",
+    "FPS",
+    "TPS",
+    "Fighting",
+    "Racing",
+    "Sports",
+    "Card",
+    "Battle Royale",
+    "Rhythm",
+    "Party",
+    "Simulation",
+]
+
+
+class CategoryValidator:
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, v):
+        if v not in GAME_CATEGORIES:
+            raise ValueError(f'Category must be one of: {", ".join(GAME_CATEGORIES)}')
+        return v
 
 
 class GameBase(BaseModel):
@@ -8,17 +33,19 @@ class GameBase(BaseModel):
     description: Optional[str] = Field(
         None, description="A brief description of the game"
     )
+    category: str = Field(..., description="The category of the game")
 
 
-class GameCreate(GameBase):
+class GameCreate(GameBase, CategoryValidator):
     pass
 
 
-class GameUpdate(GameBase):
+class GameUpdate(GameBase, CategoryValidator):
     name: Optional[str] = Field(
         None, max_length=100, description="The name of the game"
     )
     description: Optional[str] = None
+    category: Optional[str] = Field(None, description="The category of the game")
 
 
 class GameResponse(GameBase):

@@ -1,4 +1,4 @@
-from sqlalchemy import select, func
+from sqlalchemy import String, select, func
 from typing import Type
 
 
@@ -29,7 +29,10 @@ class BaseSearch:
             else:
                 column = getattr(self.model, field, None)
                 if column is not None:
-                    query = query.where(column == value)
+                    if isinstance(column.type, String):
+                        query = query.where(column.ilike(f"%{value}%"))
+                    else:
+                        query = query.where(column == value)
 
         return query
 
