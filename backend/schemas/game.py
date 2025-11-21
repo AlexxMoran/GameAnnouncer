@@ -30,13 +30,6 @@ class GameResponse(GameBase):
     )
 
 
-class GameListResponse(BaseModel):
-    games: list[GameResponse]
-    skip: int
-    limit: int
-    total: int
-
-
 class GameAvatarUpdate(BaseModel):
     image_url: Optional[str] = Field(
         None, max_length=500, description="URL to the game's image"

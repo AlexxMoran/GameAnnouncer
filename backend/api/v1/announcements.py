@@ -6,11 +6,11 @@ from models.user import User
 from services.avatar_uploader import AvatarUploader
 from schemas.announcement import (
     AnnouncementCreate,
-    AnnouncementListReponse,
     AnnouncementResponse,
     AnnouncementUpdate,
     AnnouncementAvatarUpdate,
 )
+from schemas.base import PaginatedResponse
 from core.deps import SessionDep
 from api.v1.crud.announcement import announcement_crud
 
@@ -49,7 +49,7 @@ async def get_announcement_for_edit_dependency(
     return announcement
 
 
-@router.get("/", response_model=AnnouncementListReponse)
+@router.get("/", response_model=PaginatedResponse)
 async def get_announcements(
     session: SessionDep, game_id: int, skip: int = 0, limit: int = 10
 ):
@@ -60,8 +60,8 @@ async def get_announcements(
         session=session, game_id=game_id
     )
 
-    return AnnouncementListReponse(
-        announcements=announcements, skip=skip, limit=limit, total=announcements_count
+    return PaginatedResponse(
+        data=announcements, skip=skip, limit=limit, total=announcements_count
     )
 
 
