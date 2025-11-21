@@ -3,7 +3,7 @@ from models.user import User
 from models.announcement import Announcement
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import func, select
 from schemas.announcement import (
     AnnouncementCreate,
     AnnouncementUpdate,
@@ -23,6 +23,14 @@ class AnnouncementCRUD:
             .order_by(Announcement.created_at.desc())
         )
         return list(result.scalars().all())
+
+    async def get_all_count_by_game_id(
+        self, session: AsyncSession, game_id: int
+    ) -> int:
+        result = await session.execute(
+            select(func.count(Announcement.id)).where(Announcement.game_id == game_id)
+        )
+        return result.scalar_one()
 
     async def get_all_by_organizer_id(
         self, session: AsyncSession, organizer_id: int, skip: int = 0, limit: int = 10

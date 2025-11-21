@@ -38,3 +38,10 @@ class AnnouncementResponse(AnnouncementBase):
     organizer_id: int = Field(
         ..., description="The ID of the user who organized the announcement"
     )
+
+
+class AnnouncementListReponse(BaseModel):
+    announcements: list[AnnouncementResponse]
+    skip: int
+    limit: int
+    total: int

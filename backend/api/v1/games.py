@@ -5,7 +5,7 @@ from models.user import User
 from services.avatar_uploader import AvatarUploader
 from core.deps import SessionDep
 from api.v1.crud.game import game_crud
-from schemas.game import GameCreate, GameResponse, GameUpdate
+from schemas.game import GameCreate, GameResponse, GameUpdate, GameListResponse
 from core.users import current_user
 
 router = APIRouter(prefix="/games", tags=["games"])
@@ -39,11 +39,12 @@ async def get_game_for_edit_dependency(
     return game
 
 
-@router.get("/", response_model=list[GameResponse])
+@router.get("/", response_model=GameListResponse)
 async def get_games(session: SessionDep, skip: int = 0, limit: int = 10):
     games = await game_crud.get_all(session=session, skip=skip, limit=limit)
+    games_count = await game_crud.get_all_count(session=session)
 
-    return games
+    return GameListResponse(games=games, skip=skip, limit=limit, total=games_count)
 
 
 @router.get("/{game_id}", response_model=GameResponse)

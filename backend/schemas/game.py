@@ -32,7 +32,9 @@ class GameResponse(GameBase):
 
 class GameListResponse(BaseModel):
     games: list[GameResponse]
-    count: int
+    skip: int
+    limit: int
+    total: int
 
 
 class GameAvatarUpdate(BaseModel):

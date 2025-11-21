@@ -6,6 +6,7 @@ from models.user import User
 from services.avatar_uploader import AvatarUploader
 from schemas.announcement import (
     AnnouncementCreate,
+    AnnouncementListReponse,
     AnnouncementResponse,
     AnnouncementUpdate,
     AnnouncementAvatarUpdate,
@@ -48,15 +49,20 @@ async def get_announcement_for_edit_dependency(
     return announcement
 
 
-@router.get("/", response_model=list[AnnouncementResponse])
+@router.get("/", response_model=AnnouncementListReponse)
 async def get_announcements(
     session: SessionDep, game_id: int, skip: int = 0, limit: int = 10
 ):
     announcements = await announcement_crud.get_all_by_game_id(
         session=session, game_id=game_id, skip=skip, limit=limit
     )
+    announcements_count = await announcement_crud.get_all_count_by_game_id(
+        session=session, game_id=game_id
+    )
 
-    return announcements
+    return AnnouncementListReponse(
+        announcements=announcements, skip=skip, limit=limit, total=announcements_count
+    )
 
 
 @router.get("/{announcement_id}", response_model=AnnouncementResponse)
@@ -81,11 +87,11 @@ async def get_announcement_participants(
 @router.post("/", response_model=AnnouncementCreate)
 async def create_announcement(
     session: SessionDep,
-    announcement: AnnouncementCreate,
+    announcement_in: AnnouncementCreate,
     user: User = Depends(current_user),
 ):
     announcement = await announcement_crud.create(
-        session=session, announcement_in=announcement, user=user
+        session=session, announcement_in=announcement_in, user=user
     )
 
     return announcement

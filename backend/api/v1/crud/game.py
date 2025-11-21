@@ -1,6 +1,6 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 
@@ -39,6 +39,10 @@ class GameCRUD:
             select(Game).offset(skip).limit(limit).order_by(Game.name.asc())
         )
         return list(result.scalars().all())
+
+    async def get_all_count(self, session: AsyncSession) -> int:
+        result = await session.execute(select(func.count(Game.id)))
+        return result.scalar_one()
 
     async def create(
         self,
