@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 
+from searches.game_search import GameSearch
 from models.game import Game
 from models.user import User
 from services.avatar_uploader import AvatarUploader
-from core.deps import SessionDep
+from core.deps import SessionDep, get_game_search
 from api.v1.crud.game import game_crud
 from schemas.game import GameCreate, GameResponse, GameUpdate
 from schemas.base import PaginatedResponse
@@ -40,10 +41,12 @@ async def get_game_for_edit_dependency(
     return game
 
 
-@router.get("/", response_model=PaginatedResponse)
-async def get_games(session: SessionDep, skip: int = 0, limit: int = 10):
-    games = await game_crud.get_all(session=session, skip=skip, limit=limit)
-    games_count = await game_crud.get_all_count(session=session)
+@router.get("/", response_model=PaginatedResponse[GameResponse])
+async def get_games(
+    search: GameSearch = Depends(get_game_search), skip: int = 0, limit: int = 10
+):
+    games = await search.results(skip=skip, limit=limit)
+    games_count = await search.count()
 
     return PaginatedResponse(data=games, skip=skip, limit=limit, total=games_count)
 
