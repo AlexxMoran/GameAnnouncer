@@ -79,6 +79,9 @@ class RegistrationRequestCRUD:
             select(RegistrationRequest).where(
                 RegistrationRequest.user_id == user_id,
                 RegistrationRequest.announcement_id == announcement_id,
+                RegistrationRequest.status.in_(
+                    [RegistrationStatus.PENDING, RegistrationStatus.APPROVED]
+                )
             )
         )
         return result.scalar_one_or_none()
