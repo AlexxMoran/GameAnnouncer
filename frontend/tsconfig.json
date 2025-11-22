@@ -16,9 +16,9 @@
     "target": "ES2022",
     "module": "preserve",
     "paths": {
-      "@components/*": ["src/components/*"],
-      "@assets/*": ["src/assets/*"],
-      "@app/*": ["src/app/*"]
+      "@app/*": ["src/app/*"],
+      "@shared/*": ["src/shared/*"],
+      "@pages/*": ["src/pages/*"]
     }
   },
   "angularCompilerOptions": {

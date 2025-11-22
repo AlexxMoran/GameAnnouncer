@@ -1,13 +1,13 @@
 import { Component } from '@angular/core';
-import { LangToggle } from 'src/app/lang-toggle/lang-toggle';
-import { ThemeToggle } from 'src/app/theme-toggle/theme-toggle';
+import { AppLayout } from '@app/app-layout/app-layout';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
-  imports: [ThemeToggle, LangToggle],
+  imports: [AppLayout],
+  styleUrl: './app.scss',
   host: {
-    class: 'w-screen h-screen flex flex-col',
+    class: 'w-full h-full flex flex-col',
   },
 })
 export class App {}

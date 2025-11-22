@@ -1,0 +1,10 @@
+:host::after {
+  content: '';
+  width: 100%;
+  height: 100%;
+  background-color: var(--mat-sys-primary-container);
+  position: absolute;
+  top: calc(-100%);
+  border-radius: 50%;
+  filter: blur(200px);
+}
