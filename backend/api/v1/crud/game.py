@@ -26,8 +26,6 @@ class GameCRUD:
 
         game = result.scalar_one_or_none()
         if game and user and action:
-            from core.policies.authorize_action import authorize_action
-
             authorize_action(user, game, action)
 
         return game

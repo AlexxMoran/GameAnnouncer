@@ -7,6 +7,7 @@ from sqlalchemy import String
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
     from .announcement import Announcement
+    from .registration_request import RegistrationRequest
 
 
 class User(Base, SQLAlchemyBaseUserTable[int]):
@@ -24,6 +25,10 @@ class User(Base, SQLAlchemyBaseUserTable[int]):
     )
     organized_announcements: Mapped[list["Announcement"]] = relationship(
         "Announcement", back_populates="organizer", passive_deletes=True
+    )
+
+    registration_requests: Mapped[list["RegistrationRequest"]] = relationship(
+        "RegistrationRequest", back_populates="user", passive_deletes=True
     )
 
     @classmethod

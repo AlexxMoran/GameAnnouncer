@@ -7,6 +7,7 @@ from sqlalchemy import ForeignKey, String, Text
 if TYPE_CHECKING:
     from .game import Game
     from .user import User
+    from .registration_request import RegistrationRequest
 
 
 class Announcement(Base):
@@ -35,4 +36,8 @@ class Announcement(Base):
         secondary="announcement_participants",
         back_populates="participated_announcements",
         passive_deletes=True,
+    )
+
+    registration_requests: Mapped[list["RegistrationRequest"]] = relationship(
+        "RegistrationRequest", back_populates="announcement", passive_deletes=True
     )

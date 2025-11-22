@@ -1,18 +1,19 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 
+from schemas.registration_request import RegistrationRequestResponse
 from models.announcement import Announcement
 from schemas.user import UserResponse
 from models.user import User
-from services.avatar_uploader import AvatarUploader
+from services.avatar_uploader import upload_avatar
 from schemas.announcement import (
     AnnouncementCreate,
     AnnouncementResponse,
     AnnouncementUpdate,
-    AnnouncementAvatarUpdate,
 )
 from schemas.base import PaginatedResponse
 from core.deps import SessionDep
 from api.v1.crud.announcement import announcement_crud
+from api.v1.crud.registration_request import registration_request_crud
 
 from core.users import current_user
 
@@ -84,7 +85,22 @@ async def get_announcement_participants(
     return participants
 
 
-@router.post("/", response_model=AnnouncementCreate)
+@router.get(
+    "/{announcement_id}/registration_requests",
+    response_model=list[RegistrationRequestResponse],
+)
+async def get_announcement_registration_requests(
+    session: SessionDep,
+    announcement: Announcement = Depends(get_announcement_dependency),
+):
+    registration_requests = await registration_request_crud.get_all_by_announcement_id(
+        session=session, announcement_id=announcement.id
+    )
+
+    return registration_requests
+
+
+@router.post("/", response_model=AnnouncementResponse)
 async def create_announcement(
     session: SessionDep,
     announcement_in: AnnouncementCreate,
@@ -97,7 +113,7 @@ async def create_announcement(
     return announcement
 
 
-@router.put("/{announcement_id}", response_model=AnnouncementUpdate)
+@router.patch("/{announcement_id}", response_model=AnnouncementResponse)
 async def update_announcement(
     session: SessionDep,
     announcement_in: AnnouncementUpdate,
@@ -110,13 +126,13 @@ async def update_announcement(
     return updated_announcement
 
 
-@router.post("/{announcement_id}/upload_image", response_model=AnnouncementAvatarUpdate)
+@router.post("/{announcement_id}/upload_image", response_model=AnnouncementResponse)
 async def upload_announcement_image(
     session: SessionDep,
     file: UploadFile = File(...),
     announcement: Announcement = Depends(get_announcement_for_edit_dependency),
 ):
-    image_url = await AvatarUploader.upload_avatar(
+    image_url = await upload_avatar(
         object_type="announcement", object_id=announcement.id, file=file
     )
 

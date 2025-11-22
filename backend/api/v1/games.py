@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
 from searches.game_search import GameSearch
 from models.game import Game
 from models.user import User
-from services.avatar_uploader import AvatarUploader
+from services.avatar_uploader import upload_avatar
 from core.deps import SessionDep, get_game_search
 from api.v1.crud.game import game_crud
 from schemas.game import GameCreate, GameResponse, GameUpdate
@@ -67,7 +67,7 @@ async def create_game(
     return game
 
 
-@router.put("/{game_id}", response_model=GameResponse)
+@router.patch("/{game_id}", response_model=GameResponse)
 async def update_game(
     session: SessionDep,
     game_in: GameUpdate,
@@ -91,9 +91,7 @@ async def upload_game_image(
     file: UploadFile = File(...),
     game: Game = Depends(get_game_for_edit_dependency),
 ):
-    image_url = await AvatarUploader.upload_avatar(
-        object_type="game", object_id=game.id, file=file
-    )
+    image_url = await upload_avatar(object_type="game", object_id=game.id, file=file)
 
     game.image_url = image_url
 

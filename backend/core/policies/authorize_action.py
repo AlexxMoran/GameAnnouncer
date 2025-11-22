@@ -1,5 +1,7 @@
+import re
 from fastapi import HTTPException, status
 from core.logger import logger
+from core.utils import camel_to_snake
 
 
 def authorize_action(user, record, action: str):
@@ -10,7 +12,8 @@ def authorize_action(user, record, action: str):
 
     record_class_name = record.__class__.__name__
     policy_class_name = f"{record_class_name}Policy"
-    policy_module_name = f"core.policies.{record_class_name.lower()}_policy"
+    snake_case_name = camel_to_snake(record_class_name)
+    policy_module_name = f"core.policies.{snake_case_name}_policy"
 
     try:
         module = __import__(policy_module_name, fromlist=[policy_class_name])

@@ -9,6 +9,7 @@ from schemas.announcement import (
     AnnouncementUpdate,
     AnnouncementResponse,
 )
+from core.policies.authorize_action import authorize_action
 
 
 class AnnouncementCRUD:
@@ -87,8 +88,6 @@ class AnnouncementCRUD:
         announcement = result.scalar_one_or_none()
 
         if announcement and user and action:
-            from core.policies.authorize_action import authorize_action
-
             authorize_action(user, announcement, action)
 
         return announcement

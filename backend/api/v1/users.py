@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends
 
+from schemas.registration_request import RegistrationRequestResponse
 from schemas.announcement import AnnouncementResponse
 from models.user import User
 
 from core.deps import SessionDep
 from api.v1.crud.announcement import announcement_crud
+from api.v1.crud.registration_request import registration_request_crud
 
 from core.users import current_user
 
@@ -37,6 +39,22 @@ async def get_my_participated_announcements(
     )
 
     return announcements
+
+
+@router.get(
+    "/me/registation_requests", response_model=list[RegistrationRequestResponse]
+)
+async def get_my_registration_requests(
+    session: SessionDep,
+    skip: int = 0,
+    limit: int = 10,
+    current_user: User = Depends(current_user),
+):
+    registration_requests = await registration_request_crud.get_all_by_user_id(
+        session, current_user.id, skip=skip, limit=limit
+    )
+
+    return registration_requests
 
 
 @router.get(
