@@ -199,6 +199,17 @@ body {
   color-scheme: dark;
   background-color: var(--mat-sys-surface-container-lowest);
   color: var(--mat-sys-on-surface);
+
+
+  .snack-bar__container_error .mdc-snackbar__surface {
+    background-color: var(--mat-sys-error-container) !important;
+    color: var(--mat-sys-on-error-container);
+  }
+
+  .snack-bar__container_success .mdc-snackbar__surface {
+    background-color: var(--mat-sys-primary-container) !important;
+    color: var(--mat-sys-on-primary-container);
+  }
 }
 
 html,
