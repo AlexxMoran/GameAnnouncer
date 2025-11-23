@@ -1,4 +1,3 @@
-import re
 from fastapi import HTTPException, status
 from core.logger import logger
 from core.utils import camel_to_snake

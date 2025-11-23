@@ -44,7 +44,7 @@ async def get_registration_request(
     return registration_request
 
 
-@router.post("/", response_model=RegistrationRequestResponse)
+@router.post("", response_model=RegistrationRequestResponse)
 async def create(
     session: SessionDep,
     registration_request_in: RegistrationRequestCreate,

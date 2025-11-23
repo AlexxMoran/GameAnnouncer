@@ -41,7 +41,7 @@ async def get_game_for_edit_dependency(
     return game
 
 
-@router.get("/", response_model=PaginatedResponse[GameResponse])
+@router.get("", response_model=PaginatedResponse[GameResponse])
 async def get_games(
     search: GameSearch = Depends(get_game_search), skip: int = 0, limit: int = 10
 ):
@@ -56,7 +56,7 @@ async def get_game(game: Game = Depends(get_game_dependency)):
     return game
 
 
-@router.post("/", response_model=GameResponse)
+@router.post("", response_model=GameResponse)
 async def create_game(
     session: SessionDep, game_in: GameCreate, current_user: User = Depends(current_user)
 ):
