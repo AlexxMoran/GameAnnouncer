@@ -45,7 +45,7 @@ async def get_game_for_edit_dependency(
 async def get_games(
     search: GameSearch = Depends(get_game_search), skip: int = 0, limit: int = 10
 ):
-    games = await search.results(skip=skip, limit=limit)
+    games = await search.results_with_announcements_count(skip=skip, limit=limit)
     games_count = await search.count()
 
     return PaginatedResponse(data=games, skip=skip, limit=limit, total=games_count)

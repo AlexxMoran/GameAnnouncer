@@ -50,7 +50,7 @@ async def get_announcement_for_edit_dependency(
     return announcement
 
 
-@router.get("", response_model=PaginatedResponse)
+@router.get("", response_model=PaginatedResponse[AnnouncementResponse])
 async def get_announcements(
     session: SessionDep, game_id: int, skip: int = 0, limit: int = 10
 ):

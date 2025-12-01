@@ -1,9 +1,9 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func, select
-from sqlalchemy.orm import selectinload
 
 
+from models.announcement import Announcement
 from core.policies.authorize_action import authorize_action
 from models.game import Game
 from models.user import User
@@ -19,16 +19,23 @@ class GameCRUD:
         action: Optional[str] = None,
     ) -> Optional[Game]:
         result = await session.execute(
-            select(Game)
-            .options(selectinload(Game.announcements))
+            select(Game, func.count(Announcement.id).label("announcements_count"))
+            .outerjoin(Announcement, Game.id == Announcement.game_id)
             .where(Game.id == game_id)
+            .group_by(Game.id)
         )
 
-        game = result.scalar_one_or_none()
-        if game and user and action:
-            authorize_action(user, game, action)
+        row = result.first()
+        if row:
+            game, count = row
+            game.announcements_count = count
 
-        return game
+            if user and action:
+                authorize_action(user, game, action)
+
+            return game
+
+        return None
 
     async def get_all(
         self, session: AsyncSession, skip: int = 0, limit: int = 10

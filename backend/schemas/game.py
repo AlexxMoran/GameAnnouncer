@@ -55,6 +55,9 @@ class GameResponse(GameBase):
     image_url: Optional[str] = Field(
         None, max_length=500, description="URL to the game's image"
     )
+    announcements_count: Optional[int] = Field(
+        None, description="Number of announcements for this game"
+    )
 
 
 class GameAvatarUpdate(BaseModel):
