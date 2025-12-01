@@ -3,6 +3,6 @@ export interface IPaginationParams {
   limit: number;
 }
 
-export interface IPagenationMeta {
-  total_count: number;
+export interface IPaginationMeta {
+  total: number;
 }

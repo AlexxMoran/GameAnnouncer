@@ -1,12 +1,12 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '@shared/config/environments/environment';
-import { IPagenationMeta } from '@shared/lib/api/offset-pagination.types';
+import { IPaginationMeta } from '@shared/lib/api/offset-pagination.types';
 import { TObjectAny } from '@shared/lib/utility-types/object.types';
 
-export type TApiResponseWrapper<TResponse, TWithOffesetPaginationMeta extends boolean = false> = {
+export interface TApiResponseWrapper<TResponse> {
   data: TResponse;
-} & (TWithOffesetPaginationMeta extends true ? IPagenationMeta : unknown);
+}
 
 @Injectable({ providedIn: 'root' })
 export class BaseApiService {
@@ -16,11 +16,15 @@ export class BaseApiService {
     return environment.apiUrl;
   }
 
-  get<TResponse, TWithOffesetPaginationMeta extends boolean = false>(
-    url: string,
-    queryParams?: TObjectAny,
-  ) {
-    return this.httpClient.get<TApiResponseWrapper<TResponse, TWithOffesetPaginationMeta>>(
+  getItem<TResponse>(url: string, queryParams?: TObjectAny) {
+    return this.httpClient.get<TApiResponseWrapper<TResponse>>(
+      `${this.apiUrl}${url}`,
+      this.prepareQueryParams(queryParams),
+    );
+  }
+
+  getList<TResponse>(url: string, queryParams?: TObjectAny) {
+    return this.httpClient.get<TApiResponseWrapper<TResponse> & IPaginationMeta>(
       `${this.apiUrl}${url}`,
       this.prepareQueryParams(queryParams),
     );

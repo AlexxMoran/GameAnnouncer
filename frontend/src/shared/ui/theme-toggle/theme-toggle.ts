@@ -1,7 +1,7 @@
 import { Component, DOCUMENT, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { THEME_TYPE_STORAGE_NAME } from '@shared/ui/theme-toggle/theme-toggle.constants';
+import { THEME_TYPE_STORAGE_NAME } from '@shared/ui/theme-toggle/theme-toggle.const';
 import { TThemeType } from '@shared/ui/theme-toggle/theme-toggle.types';
 
 @Component({

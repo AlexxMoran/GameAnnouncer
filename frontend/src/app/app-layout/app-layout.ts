@@ -8,5 +8,6 @@ import { ThemeToggle } from '@shared/ui/theme-toggle/theme-toggle';
   imports: [ThemeToggle, LangToggle, RouterOutlet],
   templateUrl: './app-layout.html',
   styleUrl: './app-layout.scss',
+  host: { class: 'w-full h-full flex flex-col' },
 })
 export class AppLayout {}

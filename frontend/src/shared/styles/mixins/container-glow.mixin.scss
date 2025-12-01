@@ -1,0 +1,20 @@
+@mixin container-glow($position: top) {
+  &::after {
+    content: '';
+    width: 100%;
+    height: 100%;
+    background-color: var(--mat-sys-primary-container);
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(200px);
+    pointer-events: none;
+
+    @if ($position==top) {
+      top: calc(-100%);
+    }
+
+    @else if ($position==bottom) {
+      bottom: calc(-100%);
+    }
+  }
+}

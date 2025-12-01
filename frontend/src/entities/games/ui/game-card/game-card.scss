@@ -1,0 +1,14 @@
+  @use '@shared/styles/mixins/container-glow.mixin.scss' as mixin;
+
+  :host {
+    position: relative;
+    border: 1px solid var(--mat-sys-outline);
+    background-color: var(--mat-sys-surface-container);
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    @include mixin.container-glow(bottom);
+  }

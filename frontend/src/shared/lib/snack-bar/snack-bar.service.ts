@@ -6,8 +6,8 @@ import { MAT_SNACK_BAR_DATA, MatSnackBar, MatSnackBarRef } from '@angular/materi
 @Component({
   selector: 'snack-bar-message',
   imports: [MatButtonModule, MatIconModule],
-  template: `<div class="flex">
-    <span>{{ data.message }}</span>
+  template: `<div class="flex justify-between">
+    <span class="mat-subtitle-1">{{ data.message }}</span>
     <button mat-icon-button (click)="dismiss()">
       <mat-icon>close</mat-icon>
     </button>

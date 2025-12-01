@@ -2,5 +2,13 @@
   "lang": {
     "ru": "Русский",
     "en": "Английский"
+  },
+  "entities": {},
+  "actions": {
+    "showMore": "Показать больше"
+  },
+  "texts": {
+    "allTournaments": "Все турниры",
+    "haveNoPhoto": "Фото отсутствует"
   }
 }

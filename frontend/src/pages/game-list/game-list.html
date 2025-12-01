@@ -1,0 +1,15 @@
+@if (isInitializeLoading) {
+  <mat-spinner class="m-auto"></mat-spinner>
+} @else {
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+    @for (game of gameList(); track $index) {
+      <game-card [game]="game"></game-card>
+    }
+  </div>
+}
+
+<div elementObserver (elementReached)="gameListService.paginate()"></div>
+
+@if (isPaginating) {
+  <mat-spinner diameter="60"></mat-spinner>
+}

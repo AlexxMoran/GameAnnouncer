@@ -1,0 +1,15 @@
+export enum EGameCategories {
+  RTS,
+  TBS,
+  MOBA,
+  FPS,
+  TPS,
+  Fighting,
+  Racing,
+  Sports,
+  Card,
+  BattleRoyale,
+  Rhythm,
+  Party,
+  Simulation,
+}

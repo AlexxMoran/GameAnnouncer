@@ -1,0 +1,22 @@
+@if (game()?.image_url) {
+  <div
+    class="w-full h-40 rounded-3xl bg-cover"
+    [style.background-image]="getBackgroundImageProperty"
+  ></div>
+} @else {
+  <div
+    class="w-full h-40 rounded-3xl flex items-center justify-center bg-[var(--mat-sys-surface-container-highest)]"
+  >
+    <p>{{ 'texts.haveNoPhoto' | translate }}</p>
+  </div>
+}
+
+<div class="p-3 overflow-hidden flex flex-col flex-1">
+  <p class="mat-headline-6 line-clamp-1">{{ game()?.name }}</p>
+
+  @if (game()?.description) {
+    <p class="mat-body-2 line-clamp-4 hyphens-auto">{{ game()?.description }}</p>
+  }
+
+  <button class="mt-auto" matButton="filled">{{ 'texts.allTournaments' | translate }}</button>
+</div>
