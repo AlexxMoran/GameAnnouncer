@@ -1,4 +1,5 @@
 from fastapi.concurrency import asynccontextmanager
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +25,7 @@ app = FastAPI(
 )
 
 app.add_middleware(RequestLoggingMiddleware)
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 if settings.cors.all_cors_origins:
     app.add_middleware(

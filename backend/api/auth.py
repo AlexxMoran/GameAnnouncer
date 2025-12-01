@@ -9,7 +9,8 @@ from core.users import fastapi_users
 from jwt.exceptions import InvalidTokenError
 from core.auth import auth_backend, get_refresh_jwt_strategy, get_jwt_strategy
 from schemas.user import UserResponse, UserCreate, UserUpdate
-from pydantic import BaseModel
+from schemas.auth import TokenResponse
+
 
 http_bearer = HTTPBearer(auto_error=False)
 
@@ -35,12 +36,6 @@ router.include_router(
 router.include_router(
     fastapi_users.get_verify_router(UserResponse),
 )
-
-
-class TokenResponse(BaseModel):
-    access_token: str
-    refresh_token: str
-    token_type: str = "bearer"
 
 
 @router.post("/login", response_model=TokenResponse)
