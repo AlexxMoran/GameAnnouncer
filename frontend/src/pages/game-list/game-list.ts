@@ -1,5 +1,4 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GAMES_ENDPOINT } from '@entities/games/api/games-endpoints.const';
 import { GameCard } from '@entities/games/ui/game-card/game-card';
@@ -8,7 +7,7 @@ import { ENDPOINT, OffsetPaginationService } from '@shared/lib/api/offset-pagina
 
 @Component({
   selector: 'game-list',
-  imports: [GameCard, MatButtonModule, MatProgressSpinnerModule, ElementObserverDirective],
+  imports: [GameCard, MatProgressSpinnerModule, ElementObserverDirective],
   providers: [
     OffsetPaginationService,
     {

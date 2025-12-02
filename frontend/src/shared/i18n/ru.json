@@ -6,11 +6,8 @@
   "entities": {
     "announcement": "{count, plural, =0{нет турниров} =1{1 турнир} few{# турнира} many{# турниров} other{# турнира}}"
   },
-  "actions": {
-    "showMore": "Показать больше"
-  },
+  "actions": {},
   "texts": {
-    "allTournaments": "Все турниры",
-    "haveNoPhoto": "Фото отсутствует"
+    "allTournaments": "Все турниры"
   }
 }

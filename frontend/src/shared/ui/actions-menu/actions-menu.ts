@@ -8,7 +8,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { IIconMenuOption } from '@shared/ui/actions-menu/actions-menu.types';
 
 @Component({
-  selector: 'ui-actions-menu',
+  selector: 'app-actions-menu',
   imports: [
     MatIconModule,
     MatMenuModule,

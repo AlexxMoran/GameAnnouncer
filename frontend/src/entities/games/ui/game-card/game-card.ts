@@ -1,15 +1,15 @@
 import { Component, input } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
 import { IGame } from '@entities/games/model/game.types';
 import { TranslatePipe } from '@ngx-translate/core';
 import { environment } from '@shared/config/environments/environment';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
+import { Button } from '@shared/ui/button/button';
 
 @Component({
   selector: 'game-card',
   templateUrl: './game-card.html',
   styleUrl: './game-card.scss',
-  imports: [MatButtonModule, TranslatePipe],
+  imports: [TranslatePipe, Button],
   host: { class: 'h-95 flex flex-col rounded-3xl p-1 overflow-hidden' },
 })
 export class GameCard {

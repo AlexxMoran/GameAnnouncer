@@ -1,1 +1,12 @@
-<button><ng-content></ng-content></button>
+<button
+  [matButton]="type()"
+  [disabled]="disabled()"
+  (click)="clicked.emit()"
+  [class]="fullWidthClasses()"
+>
+  @if (isLoading()) {
+    <mat-spinner diameter="20" />
+  } @else {
+    <ng-content />
+  }
+</button>

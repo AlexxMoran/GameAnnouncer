@@ -9,7 +9,7 @@ import { TLang } from '@shared/ui/lang-toggle/lang-toggle.types';
 
 @Component({
   selector: 'lang-toggle',
-  template: `<ui-actions-menu
+  template: `<app-actions-menu
     [optionList]="optionList"
     [icon]="icon"
     [selectedOptionName]="currentLang"

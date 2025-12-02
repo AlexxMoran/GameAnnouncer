@@ -7,7 +7,7 @@ import { catchError, throwError } from 'rxjs';
 export const SKIP_ERROR_HANDLING = new HttpContextToken<boolean>(() => false);
 
 export const errorInterceptor: HttpInterceptorFn = (request, next) => {
-  const { showErrorSnackBar } = inject(SnackBarService);
+  const snackBarService = inject(SnackBarService);
 
   return next(request).pipe(
     catchError((response: IApiErrorResponse) => {
@@ -20,12 +20,13 @@ export const errorInterceptor: HttpInterceptorFn = (request, next) => {
 
       if (detail) {
         if (typeof detail === 'string') {
-          showErrorSnackBar(detail);
+          console.log(detail);
+          snackBarService.showErrorSnackBar(detail);
         } else {
-          detail.forEach(({ msg }) => showErrorSnackBar(msg));
+          detail.forEach(({ msg }) => snackBarService.showErrorSnackBar(msg));
         }
       } else {
-        showErrorSnackBar(message);
+        snackBarService.showErrorSnackBar(message);
       }
 
       return throwError(() => response);

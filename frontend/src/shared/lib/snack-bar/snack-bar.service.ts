@@ -1,16 +1,13 @@
 import { Component, inject, Injectable } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MAT_SNACK_BAR_DATA, MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { IconButton } from '@shared/ui/icon-button/icon-button';
 
 @Component({
   selector: 'snack-bar-message',
-  imports: [MatButtonModule, MatIconModule],
+  imports: [IconButton],
   template: `<div class="flex justify-between">
     <span class="mat-subtitle-1">{{ data.message }}</span>
-    <button mat-icon-button (click)="dismiss()">
-      <mat-icon>close</mat-icon>
-    </button>
+    <app-icon-button (clicked)="dismiss()" fontIcon="close" />
   </div>`,
 })
 export class SnackBarMessage {

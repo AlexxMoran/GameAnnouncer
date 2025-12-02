@@ -14,9 +14,6 @@
       {{ 'entities.announcement' | translate: { count: game()?.announcements_count } }}
     </div>
   }
-  @if (!game()?.image_url) {
-    <p>{{ 'texts.haveNoPhoto' | translate }}</p>
-  }
 </div>
 
 <div class="p-3 overflow-hidden flex flex-col flex-1">
@@ -26,7 +23,12 @@
     <p class="mat-body-2 line-clamp-4 hyphens-auto">{{ game()?.description }}</p>
   }
 
-  <button class="mt-auto" matButton="filled" [disabled]="!game()?.announcements_count">
+  <app-button
+    class="mt-auto"
+    type="filled"
+    [disabled]="!game()?.announcements_count"
+    [fullWidth]="true"
+  >
     {{ 'texts.allTournaments' | translate }}
-  </button>
+  </app-button>
 </div>
