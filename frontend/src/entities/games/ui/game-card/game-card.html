@@ -1,15 +1,23 @@
-@if (game()?.image_url) {
-  <div
-    class="w-full h-40 rounded-3xl bg-cover"
-    [style.background-image]="getBackgroundImageProperty"
-  ></div>
-} @else {
-  <div
-    class="w-full h-40 rounded-3xl flex items-center justify-center bg-[var(--mat-sys-surface-container-highest)]"
-  >
+<div
+  class="w-full h-40 rounded-3xl relative"
+  [class]="
+    game()?.image_url
+      ? 'bg-cover'
+      : 'flex items-center justify-center bg-[var(--mat-sys-surface-container-low)]'
+  "
+  [style.background-image]="getBackgroundImageProperty"
+>
+  @if (game()?.announcements_count !== undefined) {
+    <div
+      class="px-3 py-1 w-fit absolute top-1 left-1 rounded-3xl mat-subtitle-2 bg-[var(--mat-sys-surface-container-highest)]"
+    >
+      {{ 'entities.announcement' | translate: { count: game()?.announcements_count } }}
+    </div>
+  }
+  @if (!game()?.image_url) {
     <p>{{ 'texts.haveNoPhoto' | translate }}</p>
-  </div>
-}
+  }
+</div>
 
 <div class="p-3 overflow-hidden flex flex-col flex-1">
   <p class="mat-headline-6 line-clamp-1">{{ game()?.name }}</p>
@@ -18,5 +26,7 @@
     <p class="mat-body-2 line-clamp-4 hyphens-auto">{{ game()?.description }}</p>
   }
 
-  <button class="mt-auto" matButton="filled">{{ 'texts.allTournaments' | translate }}</button>
+  <button class="mt-auto" matButton="filled" [disabled]="!game()?.announcements_count">
+    {{ 'texts.allTournaments' | translate }}
+  </button>
 </div>

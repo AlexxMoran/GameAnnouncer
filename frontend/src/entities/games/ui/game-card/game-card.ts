@@ -2,6 +2,7 @@ import { Component, input } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { IGame } from '@entities/games/model/game.types';
 import { TranslatePipe } from '@ngx-translate/core';
+import { environment } from '@shared/config/environments/environment';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 
 @Component({
@@ -17,6 +18,6 @@ export class GameCard {
   get getBackgroundImageProperty() {
     const url = this.game()?.image_url;
 
-    return url ? `url(http://localhost:3000${url})` : undefined;
+    return url ? `url(${environment.apiUrl}${url})` : undefined;
   }
 }

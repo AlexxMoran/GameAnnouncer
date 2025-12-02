@@ -5,6 +5,7 @@ export interface IGame extends IEntityDateFields {
   id: number;
   name: string;
   category: EGameCategories;
+  announcements_count: number;
   description?: string;
   image_url?: string;
 }

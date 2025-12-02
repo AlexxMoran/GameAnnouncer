@@ -6,7 +6,11 @@ import {
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { errorInterceptor } from '@app/interceptors/error.interceptor';
-import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateCompiler, provideTranslateService } from '@ngx-translate/core';
+import {
+  MESSAGE_FORMAT_CONFIG,
+  TranslateMessageFormatCompiler,
+} from 'ngx-translate-messageformat-compiler';
 import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
@@ -14,7 +18,18 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
-    provideTranslateService({ fallbackLang: 'ru', lang: 'ru' }),
+    provideTranslateService({
+      fallbackLang: 'ru',
+      lang: 'ru',
+      compiler: provideTranslateCompiler(TranslateMessageFormatCompiler),
+    }),
+    {
+      provide: MESSAGE_FORMAT_CONFIG,
+      useValue: {
+        throwOnError: true,
+        formatters: { upcase: (v: string) => v.toUpperCase() },
+      },
+    },
     provideHttpClient(withFetch(), withInterceptors([errorInterceptor])),
   ],
 };

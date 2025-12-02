@@ -2,7 +2,7 @@
   <mat-spinner class="m-auto"></mat-spinner>
 } @else {
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-    @for (game of gameList(); track $index) {
+    @for (game of gameList(); track game.id) {
       <game-card [game]="game"></game-card>
     }
   </div>

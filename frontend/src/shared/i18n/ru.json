@@ -3,7 +3,9 @@
     "ru": "Русский",
     "en": "Английский"
   },
-  "entities": {},
+  "entities": {
+    "announcement": "{count, plural, =0{нет турниров} =1{1 турнир} few{# турнира} many{# турниров} other{# турнира}}"
+  },
   "actions": {
     "showMore": "Показать больше"
   },
