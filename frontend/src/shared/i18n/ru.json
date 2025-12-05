@@ -4,10 +4,29 @@
     "en": "Английский"
   },
   "entities": {
-    "announcement": "{count, plural, =0{нет турниров} =1{1 турнир} few{# турнира} many{# турниров} other{# турнира}}"
+    "announcement": "{count, plural, =0{нет турниров} =1{1 турнир} few{# турнира} many{# турниров} other{# турнира}}",
+    "email": "электронная почта",
+    "password": "пароль",
+    "registration": "регистрация"
   },
-  "actions": {},
+  "actions": {
+    "login": "Войти",
+    "register": "Зарегистрироваться"
+  },
   "texts": {
-    "allTournaments": "Все турниры"
+    "allTournaments": "Все турниры",
+    "haveNoAccount": "У вас нет аккаунта?",
+    "haveAccount": "У вас уже есть аккаунт?"
+  },
+  "validationErrors": {
+    "unknown": "Непредвиденная ошибка",
+    "email": "Введите корректный адрес электронной почты",
+    "required": "Поле обязательно для заполнения",
+    "minLength": "{minLength, plural, one{Минимальная длина — # символ} few{Минимальная длина — # символа} many{Минимальная длина — # символов} other{Минимальная длина — # символа}}",
+    "maxLength": "{maxLength, plural, one{Максимальная длина — # символ} few{Максимальная длина — # символа} many{Максимальная длина — # символов} other{Максимальная длина — # символа}}"
+  },
+  "placeholders": {
+    "enter": "введите",
+    "select": "выберите"
   }
 }

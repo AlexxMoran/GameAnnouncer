@@ -1,0 +1,22 @@
+<form class="flex flex-col gap-4" [formGroup]="authForm">
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label class="capitalize-first">{{ 'entities.email' | translate }}</mat-label>
+    <input matInput formControlName="email" [placeholder]="'placeholders.enter' | translate" />
+    @if (getErrorMessage('email')) {
+      <mat-error>{{ getErrorMessage('email') }}</mat-error>
+    }
+  </mat-form-field>
+  <mat-form-field appearance="outline" class="w-100">
+    <mat-label class="capitalize-first">{{ 'entities.password' | translate }}</mat-label>
+    <input
+      matInput
+      formControlName="password"
+      [placeholder]="'placeholders.enter' | translate"
+      type="password"
+    />
+    @if (getErrorMessage('password')) {
+      <mat-error>{{ getErrorMessage('password') }}</mat-error>
+    }
+  </mat-form-field>
+  <app-button class="w-100" [fullWidth]="true" (clicked)="submit()">{{ buttonText() }}</app-button>
+</form>

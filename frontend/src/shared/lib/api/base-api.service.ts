@@ -16,7 +16,7 @@ export class BaseApiService {
     return environment.apiUrl;
   }
 
-  getItem<TResponse>(url: string, queryParams?: TObjectAny) {
+  get<TResponse>(url: string, queryParams?: TObjectAny) {
     return this.httpClient.get<TApiResponseWrapper<TResponse>>(
       `${this.apiUrl}${url}`,
       this.prepareQueryParams(queryParams),

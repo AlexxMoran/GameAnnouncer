@@ -6,8 +6,8 @@ import { ThemeToggle } from '@shared/ui/theme-toggle/theme-toggle';
 @Component({
   selector: 'app-layout',
   imports: [ThemeToggle, LangToggle, RouterOutlet],
-  templateUrl: './app-layout.html',
-  styleUrl: './app-layout.scss',
+  templateUrl: './layout.html',
+  styleUrl: './layout.scss',
   host: { class: 'w-full h-full flex flex-col' },
 })
-export class AppLayout {}
+export class Layout {}

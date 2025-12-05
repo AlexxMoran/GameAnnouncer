@@ -1,0 +1,12 @@
+<div
+  class="flex flex-col gap-3 w-150 h-100 rounded-3xl items-center justify-center bg-[var(--mat-sys-surface-container-low)] mb-12"
+>
+  <p class="mat-headline-5">{{ 'actions.login' | translate }}</p>
+  <app-auth-form [buttonText]="'actions.login' | translate"></app-auth-form>
+  <p class="mat-subtitle-1">
+    {{ 'texts.haveNoAccount' | translate }}
+    <a routerLink="/registration" class="text-[var(--mat-sys-primary)] cursor-pointer">{{
+      'actions.register' | translate
+    }}</a>
+  </p>
+</div>

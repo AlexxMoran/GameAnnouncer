@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   templateUrl: './button.html',
 })
 export class Button {
-  type = input<MatButtonAppearance>('filled');
+  appearance = input<MatButtonAppearance>('filled');
   disabled = input<boolean>(false);
   isLoading = input<boolean>(false);
   fullWidth = input<boolean>(false);

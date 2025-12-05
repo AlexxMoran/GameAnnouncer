@@ -6,7 +6,7 @@ import { ElementObserverDirective } from '@shared/directives/element-observer.di
 import { ENDPOINT, OffsetPaginationService } from '@shared/lib/api/offset-pagination.service';
 
 @Component({
-  selector: 'game-list',
+  selector: 'app-game-list',
   imports: [GameCard, MatProgressSpinnerModule, ElementObserverDirective],
   providers: [
     OffsetPaginationService,
@@ -16,7 +16,6 @@ import { ENDPOINT, OffsetPaginationService } from '@shared/lib/api/offset-pagina
     },
   ],
   templateUrl: './game-list.html',
-  styleUrl: './game-list.scss',
   host: { class: 'flex flex-col items-center gap-10 w-full h-full' },
 })
 export class GameList implements OnInit {

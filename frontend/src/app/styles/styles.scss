@@ -1,18 +1,13 @@
+@use './normalize.scss';
 @use '@angular/material' as mat;
-@use "@app/styles/theme-colors.scss" as my-theme;
 @use "animate.css";
-@use "@app/styles/fonts.scss";
+@use "./theme-colors.scss" as my-theme;
+@use "./fonts.scss";
+@use "./utils.scss";
 
 @layer base, utilities, theme;
-@import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css" layer(utilities);
 @import "tailwindcss/theme.css" layer(theme);
-
-@layer base {
-  button {
-    line-height: 1;
-  }
-}
 
 html {
   $my-typography: mat.m2-define-typography-config($font-family: 'Montserrat');
@@ -24,7 +19,6 @@ html {
       density: -2,
     ));
 
-  @include mat.theme-overrides(());
   @include mat.typography-hierarchy($my-typography);
 }
 
