@@ -1,21 +1,27 @@
-import { computed, inject, Injectable, InjectionToken, signal } from '@angular/core';
-import { BaseApiService } from '@shared/lib/api/base-api.service';
-import { IPaginationParams } from '@shared/lib/api/offset-pagination.types';
+import { computed, signal } from '@angular/core';
+import {
+  IPaginationConfig,
+  IPaginationParams,
+  TLoadDataFn,
+} from '@shared/lib/pagination/offset-pagination.types';
 import { TObjectAny } from '@shared/lib/utility-types/object.types';
 
-export const ENDPOINT = new InjectionToken<string>('endpoint');
-export const PAGINATION_LIMIT = new InjectionToken<number | undefined>('pagination-limit');
-
-@Injectable()
 export class OffsetPaginationService<TEntity extends TObjectAny> {
-  private baseApiService = inject(BaseApiService);
-  private url = inject(ENDPOINT);
-  private limit = signal(inject(PAGINATION_LIMIT, { optional: true }) || 10);
+  private loadDataFn: TLoadDataFn<TEntity>;
+  private limit = signal(25);
   private skip = signal(0);
   private totalCount = signal(0);
   list = signal<TEntity[]>([]);
   isInitializeLoading = signal(false);
   isPaginating = signal(false);
+
+  constructor(config: IPaginationConfig<TEntity>) {
+    this.loadDataFn = config.loadDataFn;
+
+    if (config.limit) {
+      this.limit.set(config.limit);
+    }
+  }
 
   canPaginate = computed(() => this.list().length < this.totalCount() && !this.isPaginating());
 
@@ -24,7 +30,7 @@ export class OffsetPaginationService<TEntity extends TObjectAny> {
 
     this.setLoading(isNext, true);
 
-    this.baseApiService.getList<TEntity[]>(this.url, paginationParams).subscribe({
+    this.loadDataFn(paginationParams).subscribe({
       next: ({ data, total }) => {
         if (isNext) {
           this.list.update((list) => [...list, ...data]);

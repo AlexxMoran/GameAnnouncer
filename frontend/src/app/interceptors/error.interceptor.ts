@@ -1,7 +1,7 @@
 import { HttpContextToken, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { IApiErrorResponse } from '@shared/lib/api/error.types';
 import { SnackBarService } from '@shared/lib/snack-bar/snack-bar.service';
+import { IApiErrorResponse } from '@shared/lib/utility-types/api-errors.types';
 import { catchError, throwError } from 'rxjs';
 
 export const SKIP_ERROR_HANDLING = new HttpContextToken<boolean>(() => false);
@@ -20,7 +20,6 @@ export const errorInterceptor: HttpInterceptorFn = (request, next) => {
 
       if (detail) {
         if (typeof detail === 'string') {
-          console.log(detail);
           snackBarService.showErrorSnackBar(detail);
         } else {
           detail.forEach(({ msg }) => snackBarService.showErrorSnackBar(msg));

@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { IGame } from '@entities/games/model/game.types';
+import { IGame } from '@entities/game/model/game.types';
 import { TranslatePipe } from '@ngx-translate/core';
 import { environment } from '@shared/config/environments/environment';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';

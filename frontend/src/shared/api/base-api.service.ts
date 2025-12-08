@@ -1,7 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '@shared/config/environments/environment';
-import { IPaginationMeta } from '@shared/lib/api/offset-pagination.types';
 import { TObjectAny } from '@shared/lib/utility-types/object.types';
 
 export interface TApiResponseWrapper<TResponse> {
@@ -10,21 +9,18 @@ export interface TApiResponseWrapper<TResponse> {
 
 @Injectable({ providedIn: 'root' })
 export class BaseApiService {
-  httpClient = inject(HttpClient);
+  private httpClient = inject(HttpClient);
 
-  get apiUrl() {
+  private get apiUrl() {
     return environment.apiUrl;
   }
 
-  get<TResponse>(url: string, queryParams?: TObjectAny) {
-    return this.httpClient.get<TApiResponseWrapper<TResponse>>(
-      `${this.apiUrl}${url}`,
-      this.prepareQueryParams(queryParams),
-    );
+  private prepareQueryParams(queryParams?: TObjectAny) {
+    return { params: new HttpParams({ fromObject: queryParams }) };
   }
 
-  getList<TResponse>(url: string, queryParams?: TObjectAny) {
-    return this.httpClient.get<TApiResponseWrapper<TResponse> & IPaginationMeta>(
+  get<TResponse, TMeta = unknown>(url: string, queryParams?: TObjectAny) {
+    return this.httpClient.get<TApiResponseWrapper<TResponse> & TMeta>(
       `${this.apiUrl}${url}`,
       this.prepareQueryParams(queryParams),
     );
@@ -59,9 +55,5 @@ export class BaseApiService {
       `${this.apiUrl}${url}`,
       this.prepareQueryParams(queryParams),
     );
-  }
-
-  private prepareQueryParams(queryParams?: TObjectAny) {
-    return { params: new HttpParams({ fromObject: queryParams }) };
   }
 }

@@ -1,5 +1,5 @@
 import { inject, Injectable, signal } from '@angular/core';
-import { BaseApiService } from '@shared/lib/api/base-api.service';
+import { BaseApiService } from '@shared/api/base-api.service';
 import { AUTH_ENDPOINT } from '@shared/lib/auth/auth.const';
 import { IAccessToken, ILoginParams } from '@shared/lib/auth/auth.types';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';

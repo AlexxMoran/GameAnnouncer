@@ -1,18 +1,23 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { GAMES_ENDPOINT } from '@entities/games/api/games-endpoints.const';
-import { GameCard } from '@entities/games/ui/game-card/game-card';
+import { GameCard } from '@entities/game/ui/game-card/game-card';
+import { GamesApiService } from '@shared/api/games/games-api.service';
 import { ElementObserverDirective } from '@shared/directives/element-observer.directive';
-import { ENDPOINT, OffsetPaginationService } from '@shared/lib/api/offset-pagination.service';
+import { OffsetPaginationService } from '@shared/lib/pagination/offset-pagination.service';
 
 @Component({
   selector: 'app-game-list',
   imports: [GameCard, MatProgressSpinnerModule, ElementObserverDirective],
   providers: [
-    OffsetPaginationService,
     {
-      provide: ENDPOINT,
-      useValue: GAMES_ENDPOINT,
+      provide: OffsetPaginationService,
+      useFactory: () => {
+        const gamesApiService = inject(GamesApiService);
+
+        return new OffsetPaginationService({
+          loadDataFn: gamesApiService.getGameList.bind(gamesApiService),
+        });
+      },
     },
   ],
   templateUrl: './game-list.html',
