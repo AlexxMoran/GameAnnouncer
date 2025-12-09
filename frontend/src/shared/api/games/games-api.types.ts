@@ -1,4 +1,5 @@
 import { EGameCategories } from '@shared/api/games/games-api.const';
+import { IPaginationParams } from '@shared/lib/pagination/pagination.types';
 import { IEntityDateFields } from '@shared/lib/utility-types/base-entity.types';
 
 export interface IGameDto extends IEntityDateFields {
@@ -9,3 +10,5 @@ export interface IGameDto extends IEntityDateFields {
   description?: string;
   image_url?: string;
 }
+
+export interface IGetGameListDto extends IPaginationParams {}

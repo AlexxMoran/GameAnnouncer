@@ -1,15 +1,21 @@
+<p class="mat-headline-4">{{ 'pageTitles.games' | translate }}</p>
+
 @if (isInitializeLoading) {
   <mat-spinner class="m-auto"></mat-spinner>
-} @else {
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-    @for (game of gameList(); track game.id) {
-      <game-card [game]="game"></game-card>
-    }
-  </div>
 }
 
-<div elementObserver (elementReached)="gameListService.paginate()"></div>
+@if (hasNoData) {
+  <div>{{ 'texts.haveNoData' | translate }}</div>
+}
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+  @for (game of list$ | async; track game.id) {
+    <game-card [game]="game"></game-card>
+  }
+</div>
+
+<div elementObserver (elementReached)="paginate()"></div>
 
 @if (isPaginating) {
-  <mat-spinner diameter="60"></mat-spinner>
+  <mat-spinner class="mx-auto mt-6" diameter="60"></mat-spinner>
 }

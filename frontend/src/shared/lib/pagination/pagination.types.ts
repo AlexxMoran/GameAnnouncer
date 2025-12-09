@@ -12,7 +12,7 @@ export interface IPaginationMeta {
 }
 
 export type TLoadDataFn<TEntity extends TObjectAny> = (
-  params: TObjectAny & IPaginationParams,
+  params?: TObjectAny & IPaginationParams,
 ) => Observable<TApiResponseWrapper<TEntity[]> & IPaginationMeta>;
 
 export interface IPaginationConfig<TEntity extends TObjectAny> {

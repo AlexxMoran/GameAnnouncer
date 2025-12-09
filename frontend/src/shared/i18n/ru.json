@@ -16,7 +16,8 @@
   "texts": {
     "allTournaments": "Все турниры",
     "haveNoAccount": "У вас нет аккаунта?",
-    "haveAccount": "У вас уже есть аккаунт?"
+    "haveAccount": "У вас уже есть аккаунт?",
+    "haveNoData": "Нет данных для отображения"
   },
   "validationErrors": {
     "unknown": "Непредвиденная ошибка",
@@ -28,5 +29,8 @@
   "placeholders": {
     "enter": "введите",
     "select": "выберите"
+  },
+  "pageTitles": {
+    "games": "Все игры"
   }
 }

@@ -1,48 +1,46 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { AsyncPipe } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GameCard } from '@entities/game/ui/game-card/game-card';
+import { TranslatePipe } from '@ngx-translate/core';
 import { GamesApiService } from '@shared/api/games/games-api.service';
+import { IGameDto } from '@shared/api/games/games-api.types';
 import { ElementObserverDirective } from '@shared/directives/element-observer.directive';
-import { OffsetPaginationService } from '@shared/lib/pagination/offset-pagination.service';
+import { PaginationService } from '@shared/lib/pagination/pagination.service';
 
 @Component({
   selector: 'app-game-list',
-  imports: [GameCard, MatProgressSpinnerModule, ElementObserverDirective],
+  imports: [GameCard, MatProgressSpinnerModule, ElementObserverDirective, AsyncPipe, TranslatePipe],
   providers: [
     {
-      provide: OffsetPaginationService,
+      provide: PaginationService,
       useFactory: () => {
         const gamesApiService = inject(GamesApiService);
 
-        return new OffsetPaginationService({
+        return new PaginationService({
           loadDataFn: gamesApiService.getGameList.bind(gamesApiService),
         });
       },
     },
   ],
   templateUrl: './game-list.html',
-  host: { class: 'flex flex-col items-center gap-10 w-full h-full' },
+  host: { class: 'flex flex-col w-full h-full' },
 })
-export class GameList implements OnInit {
-  gameListService = inject(OffsetPaginationService);
+export class GameList {
+  gameListService = inject<PaginationService<IGameDto>>(PaginationService);
 
-  ngOnInit() {
-    this.gameListService.initDataLoading();
-  }
+  list$ = this.gameListService.list$;
+  paginate = this.gameListService.paginate;
 
-  get gameList() {
-    return this.gameListService.list;
-  }
-
-  get canPaginate() {
-    return this.gameListService.canPaginate();
+  get isInitializeLoading() {
+    return this.gameListService.isInitializeLoading();
   }
 
   get isPaginating() {
     return this.gameListService.isPaginating();
   }
 
-  get isInitializeLoading() {
-    return this.gameListService.isInitializeLoading();
+  get hasNoData() {
+    return !this.gameListService.total() && !this.isInitializeLoading;
   }
 }

@@ -1,5 +1,13 @@
-<header class="w-full min-h-12 px-5 flex items-center justify-end">
-  <div class="flex items-center gap-2"><theme-toggle /><lang-toggle /></div>
+<header class="w-full min-h-12 px-5 flex items-center">
+  <div class="flex items-center justify-between gap-6 w-full">
+    <a routerLink="/games" class="text-[var(--mat-sys-primary)] cursor-pointer mr-auto">{{
+      'pageTitles.games' | translate
+    }}</a>
+    <div class="flex items-center gap-1"><theme-toggle /> <lang-toggle /></div>
+    <a routerLink="/login" class="text-[var(--mat-sys-primary)] cursor-pointer">{{
+      'actions.login' | translate
+    }}</a>
+  </div>
 </header>
 <main class="max-w-7xl mix-h-full w-full mx-auto px-10 pt-10 pb-15 flex-1">
   <router-outlet></router-outlet>

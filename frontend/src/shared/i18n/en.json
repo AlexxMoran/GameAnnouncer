@@ -16,7 +16,8 @@
   "texts": {
     "allTournaments": "All tournaments",
     "haveNoAccount": "Don't have an account?",
-    "haveAccount": "Have you already have an account?"
+    "haveAccount": "Have you already have an account?",
+    "haveNoData": "No data to display"
   },
   "validationErrors": {
     "unknown": "Unexpected error",
@@ -28,5 +29,8 @@
   "placeholders": {
     "enter": "enter",
     "select": "select"
+  },
+  "pageTitles": {
+    "games": "All games"
   }
 }
