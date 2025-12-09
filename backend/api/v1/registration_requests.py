@@ -4,6 +4,7 @@ from schemas.registration_request import (
     RegistrationRequestCreate,
     RegistrationRequestResponse,
 )
+from schemas.base import DataResponse
 from core.deps import SessionDep
 from models.registration_request import RegistrationRequest
 from models.user import User
@@ -35,16 +36,19 @@ async def get_registration_request_dependency(
     return registration_request
 
 
-@router.get("/{registration_request_id}", response_model=RegistrationRequestResponse)
+@router.get(
+    "/{registration_request_id}",
+    response_model=DataResponse[RegistrationRequestResponse],
+)
 async def get_registration_request(
     registration_request: RegistrationRequest = Depends(
         get_registration_request_dependency
     ),
 ):
-    return registration_request
+    return DataResponse(data=registration_request)
 
 
-@router.post("", response_model=RegistrationRequestResponse)
+@router.post("", response_model=DataResponse[RegistrationRequestResponse])
 async def create(
     session: SessionDep,
     registration_request_in: RegistrationRequestCreate,
@@ -67,11 +71,12 @@ async def create(
         session=session, registration_request_in=registration_request_in, user=user
     )
 
-    return registration_request
+    return DataResponse(data=registration_request)
 
 
 @router.patch(
-    "/{registration_request_id}/{action}", response_model=RegistrationRequestResponse
+    "/{registration_request_id}/{action}",
+    response_model=DataResponse[RegistrationRequestResponse],
 )
 async def update_registration_request_status(
     action: RegistrationAction,
@@ -82,14 +87,16 @@ async def update_registration_request_status(
     current_user: User = Depends(current_user),
 ):
     if action == RegistrationAction.APPROVE:
-        return await registration_request_crud.approve(
+        result = await registration_request_crud.approve(
             session, registration_request, current_user
         )
     elif action == RegistrationAction.REJECT:
-        return await registration_request_crud.reject(
+        result = await registration_request_crud.reject(
             session, registration_request, current_user
         )
     elif action == RegistrationAction.CANCEL:
-        return await registration_request_crud.cancel(
+        result = await registration_request_crud.cancel(
             session, registration_request, current_user
         )
+
+    return DataResponse(data=result)

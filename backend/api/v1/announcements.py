@@ -10,7 +10,7 @@ from schemas.announcement import (
     AnnouncementResponse,
     AnnouncementUpdate,
 )
-from schemas.base import PaginatedResponse
+from schemas.base import PaginatedResponse, DataResponse
 from core.deps import SessionDep
 from api.v1.crud.announcement import announcement_crud
 from api.v1.crud.registration_request import registration_request_crud
@@ -66,14 +66,16 @@ async def get_announcements(
     )
 
 
-@router.get("/{announcement_id}", response_model=AnnouncementResponse)
+@router.get("/{announcement_id}", response_model=DataResponse[AnnouncementResponse])
 async def get_announcement(
     announcement: Announcement = Depends(get_announcement_dependency),
 ):
-    return announcement
+    return DataResponse(data=announcement)
 
 
-@router.get("/{announcement_id}/participants", response_model=list[UserResponse])
+@router.get(
+    "/{announcement_id}/participants", response_model=DataResponse[list[UserResponse]]
+)
 async def get_announcement_participants(
     session: SessionDep,
     announcement: Announcement = Depends(get_announcement_dependency),
@@ -82,12 +84,12 @@ async def get_announcement_participants(
         session=session, announcement=announcement
     )
 
-    return participants
+    return DataResponse(data=participants)
 
 
 @router.get(
     "/{announcement_id}/registration_requests",
-    response_model=list[RegistrationRequestResponse],
+    response_model=DataResponse[list[RegistrationRequestResponse]],
 )
 async def get_announcement_registration_requests(
     session: SessionDep,
@@ -97,10 +99,10 @@ async def get_announcement_registration_requests(
         session=session, announcement_id=announcement.id
     )
 
-    return registration_requests
+    return DataResponse(data=registration_requests)
 
 
-@router.post("", response_model=AnnouncementResponse)
+@router.post("", response_model=DataResponse[AnnouncementResponse])
 async def create_announcement(
     session: SessionDep,
     announcement_in: AnnouncementCreate,
@@ -110,10 +112,10 @@ async def create_announcement(
         session=session, announcement_in=announcement_in, user=user
     )
 
-    return announcement
+    return DataResponse(data=announcement)
 
 
-@router.patch("/{announcement_id}", response_model=AnnouncementResponse)
+@router.patch("/{announcement_id}", response_model=DataResponse[AnnouncementResponse])
 async def update_announcement(
     session: SessionDep,
     announcement_in: AnnouncementUpdate,
@@ -123,10 +125,12 @@ async def update_announcement(
         session=session, announcement=announcement, announcement_in=announcement_in
     )
 
-    return updated_announcement
+    return DataResponse(data=updated_announcement)
 
 
-@router.post("/{announcement_id}/upload_image", response_model=AnnouncementResponse)
+@router.post(
+    "/{announcement_id}/upload_image", response_model=DataResponse[AnnouncementResponse]
+)
 async def upload_announcement_image(
     session: SessionDep,
     file: UploadFile = File(...),
@@ -141,4 +145,4 @@ async def upload_announcement_image(
     await session.commit()
     await session.refresh(announcement)
 
-    return announcement
+    return DataResponse(data=announcement)

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 
 from schemas.registration_request import RegistrationRequestResponse
 from schemas.announcement import AnnouncementResponse
+from schemas.base import DataResponse
 from models.user import User
 
 from core.deps import SessionDep
@@ -13,7 +14,10 @@ from core.users import current_user
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("/me/organized_announcements", response_model=list[AnnouncementResponse])
+@router.get(
+    "/me/organized_announcements",
+    response_model=DataResponse[list[AnnouncementResponse]],
+)
 async def get_my_organized_announcements(
     session: SessionDep,
     skip: int = 0,
@@ -24,10 +28,13 @@ async def get_my_organized_announcements(
         session, current_user.id, skip=skip, limit=limit
     )
 
-    return announcements
+    return DataResponse(data=announcements)
 
 
-@router.get("/me/participated_announcements", response_model=list[AnnouncementResponse])
+@router.get(
+    "/me/participated_announcements",
+    response_model=DataResponse[list[AnnouncementResponse]],
+)
 async def get_my_participated_announcements(
     session: SessionDep,
     skip: int = 0,
@@ -38,11 +45,12 @@ async def get_my_participated_announcements(
         session, current_user.id, skip=skip, limit=limit
     )
 
-    return announcements
+    return DataResponse(data=announcements)
 
 
 @router.get(
-    "/me/registation_requests", response_model=list[RegistrationRequestResponse]
+    "/me/registation_requests",
+    response_model=DataResponse[list[RegistrationRequestResponse]],
 )
 async def get_my_registration_requests(
     session: SessionDep,
@@ -54,11 +62,12 @@ async def get_my_registration_requests(
         session, current_user.id, skip=skip, limit=limit
     )
 
-    return registration_requests
+    return DataResponse(data=registration_requests)
 
 
 @router.get(
-    "/{user_id}/organized_announcements", response_model=list[AnnouncementResponse]
+    "/{user_id}/organized_announcements",
+    response_model=DataResponse[list[AnnouncementResponse]],
 )
 async def get_user_organized_announcements(
     user_id: int,
@@ -71,4 +80,4 @@ async def get_user_organized_announcements(
         session, user_id, skip=skip, limit=limit
     )
 
-    return announcements
+    return DataResponse(data=announcements)

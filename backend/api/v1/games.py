@@ -7,7 +7,7 @@ from services.avatar_uploader import upload_avatar
 from core.deps import SessionDep, get_game_search
 from api.v1.crud.game import game_crud
 from schemas.game import GameCreate, GameResponse, GameUpdate
-from schemas.base import PaginatedResponse
+from schemas.base import PaginatedResponse, DataResponse
 from core.users import current_user
 
 router = APIRouter(prefix="/games", tags=["games"])
@@ -51,12 +51,12 @@ async def get_games(
     return PaginatedResponse(data=games, skip=skip, limit=limit, total=games_count)
 
 
-@router.get("/{game_id}", response_model=GameResponse)
+@router.get("/{game_id}", response_model=DataResponse[GameResponse])
 async def get_game(game: Game = Depends(get_game_dependency)):
-    return game
+    return DataResponse(data=game)
 
 
-@router.post("", response_model=GameResponse)
+@router.post("", response_model=DataResponse[GameResponse])
 async def create_game(
     session: SessionDep, game_in: GameCreate, current_user: User = Depends(current_user)
 ):
@@ -64,10 +64,10 @@ async def create_game(
         session=session, game_in=game_in, user=current_user, action="create"
     )
 
-    return game
+    return DataResponse(data=game)
 
 
-@router.patch("/{game_id}", response_model=GameResponse)
+@router.patch("/{game_id}", response_model=DataResponse[GameResponse])
 async def update_game(
     session: SessionDep,
     game_in: GameUpdate,
@@ -82,10 +82,10 @@ async def update_game(
         action="edit",
     )
 
-    return updated_game
+    return DataResponse(data=updated_game)
 
 
-@router.post("/{game_id}/upload_image", response_model=GameResponse)
+@router.post("/{game_id}/upload_image", response_model=DataResponse[GameResponse])
 async def upload_game_image(
     session: SessionDep,
     file: UploadFile = File(...),
@@ -97,5 +97,7 @@ async def upload_game_image(
 
     await session.commit()
     await session.refresh(game)
+
+    return DataResponse(data=game)
 
     return game

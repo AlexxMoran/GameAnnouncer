@@ -4,12 +4,14 @@ from fastapi.security import (
     HTTPBearer,
     OAuth2PasswordRequestForm,
 )
+from pydantic import EmailStr
 from core.deps import get_user_manager
-from core.users import fastapi_users, current_user
+from core.users import current_user
 from jwt.exceptions import InvalidTokenError
 from core.auth import auth_backend, get_refresh_jwt_strategy, get_jwt_strategy
 from schemas.user import UserResponse, UserCreate, UserUpdate
 from schemas.auth import TokenResponse
+from schemas.base import DataResponse
 from models.user import User
 
 
@@ -19,25 +21,90 @@ router = APIRouter(
     prefix="/auth", tags=["Authentication"], dependencies=[Depends(http_bearer)]
 )
 
-router.include_router(
-    fastapi_users.get_register_router(UserResponse, UserCreate),
-)
 
-router.include_router(
-    fastapi_users.get_users_router(UserResponse, UserUpdate),
-    prefix="/users",
-)
-
-router.include_router(
-    fastapi_users.get_reset_password_router(),
-)
-
-router.include_router(
-    fastapi_users.get_verify_router(UserResponse),
-)
+@router.post("/register", response_model=DataResponse[UserResponse])
+async def register(
+    user_create: UserCreate = Depends(), user_manager=Depends(get_user_manager)
+):
+    user = await user_manager.create(user_create, safe=True, request=None)
+    return DataResponse(data=user)
 
 
-@router.post("/login")
+@router.get("/users/me", response_model=DataResponse[UserResponse])
+async def get_current_user_wrapped(user: User = Depends(current_user)):
+    return DataResponse(data=user)
+
+
+@router.get("/users/{id}", response_model=DataResponse[UserResponse])
+async def get_user_wrapped(id: str, user_manager=Depends(get_user_manager)):
+    user = await user_manager.get(id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return DataResponse(data=user)
+
+
+@router.patch("/users/me", response_model=DataResponse[UserResponse])
+async def update_current_user_wrapped(
+    user_update: UserUpdate,
+    user: User = Depends(current_user),
+    user_manager=Depends(get_user_manager),
+):
+    user = await user_manager.update(user_update, user, safe=True, request=None)
+    return DataResponse(data=user)
+
+
+@router.post("/reset-password", response_model=DataResponse[dict])
+async def reset_password(
+    token: str,
+    password: str,
+    user_manager=Depends(get_user_manager),
+):
+    try:
+        await user_manager.reset_password(token, password)
+        return DataResponse(data={"detail": "Password successfully reset"})
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid or expired token")
+
+
+@router.post("/forgot-password", response_model=DataResponse[dict])
+async def forgot_password(
+    email: EmailStr,
+    request: Request,
+    user_manager=Depends(get_user_manager),
+):
+    user = await user_manager.get_by_email(email)
+    if user:
+        await user_manager.forgot_password(user, request)
+    return DataResponse(data={"detail": "Password reset email sent"})
+
+
+@router.post("/request-verify-token", response_model=DataResponse[dict])
+async def request_verify_token(
+    email: EmailStr,
+    request: Request,
+    user_manager=Depends(get_user_manager),
+):
+    user = await user_manager.get_by_email(email)
+    if user and not user.is_verified:
+        await user_manager.request_verify(user, request)
+    return DataResponse(data={"detail": "Verification email sent"})
+
+
+@router.post("/verify", response_model=DataResponse[UserResponse])
+async def verify(
+    token: str,
+    user_manager=Depends(get_user_manager),
+):
+    try:
+        user = await user_manager.verify(token)
+        return DataResponse(data=user)
+    except Exception:
+        raise HTTPException(
+            status_code=400, detail="Invalid or expired verification token"
+        )
+
+
+@router.post("/login", response_model=DataResponse[TokenResponse])
 async def login(
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -59,13 +126,15 @@ async def login(
         max_age=60 * 60 * 24 * 30,
     )
 
-    return TokenResponse(
+    token_response = TokenResponse(
         access_token=access_token,
         token_type="bearer",
     )
 
+    return DataResponse(data=token_response)
 
-@router.post("/logout")
+
+@router.post("/logout", response_model=DataResponse[dict])
 async def logout(
     response: Response,
     user: User = Depends(current_user),
@@ -76,10 +145,10 @@ async def logout(
     await auth_backend.logout(strategy, user, token)
     response.delete_cookie(key="refresh_token")
 
-    return {"detail": "Successfully logged out"}
+    return DataResponse(data={"detail": "Successfully logged out"})
 
 
-@router.post("/jwt/refresh", response_model=TokenResponse)
+@router.post("/jwt/refresh", response_model=DataResponse[TokenResponse])
 async def refresh_access_token(
     request: Request,
     response: Response,
@@ -110,7 +179,9 @@ async def refresh_access_token(
         max_age=60 * 60 * 24 * 30,
     )
 
-    return TokenResponse(
+    token_response = TokenResponse(
         access_token=access_token,
         token_type="bearer",
     )
+
+    return DataResponse(data=token_response)
