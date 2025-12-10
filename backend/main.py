@@ -3,7 +3,9 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
 from core.middleware.request_logging_middleware import RequestLoggingMiddleware
+from exceptions import EXCEPTION_HANDLERS, API_RESPONSES
 from core.config import settings
 from core.logger import setup_logging, logger
 from api import router as api_router
@@ -22,7 +24,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     lifespan=lifespan,
+    responses=API_RESPONSES,
 )
+
+for exc_class, handler in EXCEPTION_HANDLERS:
+    app.add_exception_handler(exc_class, handler)
 
 app.add_middleware(RequestLoggingMiddleware)
 app.mount("/static", StaticFiles(directory="static"), name="static")

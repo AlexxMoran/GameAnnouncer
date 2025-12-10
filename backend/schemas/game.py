@@ -23,7 +23,7 @@ class CategoryValidator:
     @field_validator("category")
     @classmethod
     def validate_category(cls, v):
-        if v not in GAME_CATEGORIES:
+        if v.lower() not in {c.lower() for c in GAME_CATEGORIES}:
             raise ValueError(f'Category must be one of: {", ".join(GAME_CATEGORIES)}')
         return v
 

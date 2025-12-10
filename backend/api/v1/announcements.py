@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
+from fastapi import APIRouter, UploadFile, File, Depends
+from exceptions import AppException
 
 from schemas.registration_request import RegistrationRequestResponse
 from models.announcement import Announcement
@@ -30,7 +31,7 @@ async def get_announcement_dependency(
         announcement_id=announcement_id,
     )
     if not announcement:
-        raise HTTPException(status_code=404, detail="Announcement not found")
+        raise AppException("Announcement not found", status_code=404)
     return announcement
 
 
@@ -46,7 +47,7 @@ async def get_announcement_for_edit_dependency(
         action="edit",
     )
     if not announcement:
-        raise HTTPException(status_code=404, detail="Announcement not found")
+        raise AppException("Announcement not found", status_code=404)
     return announcement
 
 

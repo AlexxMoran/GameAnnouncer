@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Response, Request
+from fastapi import APIRouter, Depends, Response, Request
 from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
     OAuth2PasswordRequestForm,
 )
 from pydantic import EmailStr
+from exceptions import AppException
 from core.deps import get_user_manager
 from core.users import current_user
 from jwt.exceptions import InvalidTokenError
@@ -39,7 +40,7 @@ async def get_current_user_wrapped(user: User = Depends(current_user)):
 async def get_user_wrapped(id: str, user_manager=Depends(get_user_manager)):
     user = await user_manager.get(id)
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise AppException("User not found", status_code=404)
     return DataResponse(data=user)
 
 
@@ -63,7 +64,7 @@ async def reset_password(
         await user_manager.reset_password(token, password)
         return DataResponse(data={"detail": "Password successfully reset"})
     except Exception:
-        raise HTTPException(status_code=400, detail="Invalid or expired token")
+        raise AppException("Invalid or expired token", status_code=400)
 
 
 @router.post("/forgot-password", response_model=DataResponse[dict])
@@ -99,9 +100,7 @@ async def verify(
         user = await user_manager.verify(token)
         return DataResponse(data=user)
     except Exception:
-        raise HTTPException(
-            status_code=400, detail="Invalid or expired verification token"
-        )
+        raise AppException("Invalid or expired verification token", status_code=400)
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -112,7 +111,7 @@ async def login(
 ):
     user = await user_manager.authenticate(form_data)
     if not user or not user.is_active:
-        raise HTTPException(status_code=400, detail="Incorrect credentials")
+        raise AppException("Incorrect credentials", status_code=401)
 
     access_token = await get_jwt_strategy().write_token(user)
     refresh_token = await get_refresh_jwt_strategy().write_token(user)
@@ -154,15 +153,15 @@ async def refresh_access_token(
 ):
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
-        raise HTTPException(status_code=401, detail="Refresh token missing")
+        raise AppException("Refresh token missing", status_code=401)
 
     refresh_strategy = get_refresh_jwt_strategy()
     try:
         user = await refresh_strategy.read_token(refresh_token, user_manager)
         if not user:
-            raise HTTPException(status_code=401, detail="User not found")
+            raise AppException("User not found", status_code=401)
     except InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
+        raise AppException("Invalid refresh token", status_code=401)
 
     access_strategy = get_jwt_strategy()
     access_token = await access_strategy.write_token(user)

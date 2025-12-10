@@ -1,4 +1,5 @@
-from fastapi import HTTPException, status
+from fastapi import status
+from exceptions import AppException
 
 
 class BasePolicy:
@@ -7,9 +8,9 @@ class BasePolicy:
         self.record = record
 
     def deny(self):
-        raise HTTPException(
+        raise AppException(
+            "You do not have permission to perform this action",
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have permission to perform this action.",
         )
 
     @property

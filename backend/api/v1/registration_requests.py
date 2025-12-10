@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from enum import Enum
+from exceptions import AppException
 from schemas.registration_request import (
     RegistrationRequestCreate,
     RegistrationRequestResponse,
@@ -31,7 +32,7 @@ async def get_registration_request_dependency(
         registration_request_id=registration_request_id,
     )
     if not registration_request:
-        raise HTTPException(status_code=404, detail="Registration Request not found")
+        raise AppException("Registration Request not found", status_code=404)
 
     return registration_request
 
@@ -62,9 +63,9 @@ async def create(
         announcement_id=registration_request_in.announcement_id,
     )
     if existing_request:
-        raise HTTPException(
+        raise AppException(
+            "Registration request already exists for this user and announcement",
             status_code=400,
-            detail="Registration request already exists for this user and announcement.",
         )
 
     registration_request = await registration_request_crud.create(

@@ -1,8 +1,9 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Depends
+from fastapi import APIRouter, UploadFile, File, Depends
 
 from searches.game_search import GameSearch
 from models.game import Game
 from models.user import User
+from exceptions import AppException
 from services.avatar_uploader import upload_avatar
 from core.deps import SessionDep, get_game_search
 from api.v1.crud.game import game_crud
@@ -19,7 +20,7 @@ async def get_game_dependency(
 ) -> Game:
     game = await game_crud.get_by_id(session=session, game_id=game_id)
     if not game:
-        raise HTTPException(status_code=404, detail="Game not found")
+        raise AppException("Game not found", status_code=404)
 
     return game
 
@@ -36,7 +37,7 @@ async def get_game_for_edit_dependency(
         action="edit",
     )
     if not game:
-        raise HTTPException(status_code=404, detail="Game not found")
+        raise AppException("Game not found", status_code=404)
 
     return game
 
