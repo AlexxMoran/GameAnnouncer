@@ -104,7 +104,7 @@ async def verify(
         )
 
 
-@router.post("/login", response_model=DataResponse[TokenResponse])
+@router.post("/login", response_model=TokenResponse)
 async def login(
     response: Response,
     form_data: OAuth2PasswordRequestForm = Depends(),
@@ -126,15 +126,13 @@ async def login(
         max_age=60 * 60 * 24 * 30,
     )
 
-    token_response = TokenResponse(
+    return TokenResponse(
         access_token=access_token,
         token_type="bearer",
     )
 
-    return DataResponse(data=token_response)
 
-
-@router.post("/logout", response_model=DataResponse[dict])
+@router.post("/logout")
 async def logout(
     response: Response,
     user: User = Depends(current_user),
@@ -145,10 +143,10 @@ async def logout(
     await auth_backend.logout(strategy, user, token)
     response.delete_cookie(key="refresh_token")
 
-    return DataResponse(data={"detail": "Successfully logged out"})
+    return {"detail": "Successfully logged out"}
 
 
-@router.post("/jwt/refresh", response_model=DataResponse[TokenResponse])
+@router.post("/jwt/refresh", response_model=TokenResponse)
 async def refresh_access_token(
     request: Request,
     response: Response,
@@ -179,9 +177,7 @@ async def refresh_access_token(
         max_age=60 * 60 * 24 * 30,
     )
 
-    token_response = TokenResponse(
+    return TokenResponse(
         access_token=access_token,
         token_type="bearer",
     )
-
-    return DataResponse(data=token_response)
