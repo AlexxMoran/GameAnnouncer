@@ -11,4 +11,8 @@ export interface IGameDto extends IEntityDateFields {
   image_url?: string;
 }
 
-export interface IGetGameListDto extends IPaginationParams {}
+export interface IGameListFilters {
+  category: EGameCategories;
+}
+
+export interface IGetGameListDto extends IPaginationParams, Partial<IGameListFilters> {}
