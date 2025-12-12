@@ -18,7 +18,9 @@
     "paths": {
       "@app/*": ["src/app/*"],
       "@shared/*": ["src/shared/*"],
-      "@pages/*": ["src/pages/*"]
+      "@pages/*": ["src/pages/*"],
+      "@entities/*": ["src/entities/*"],
+      "@features/*": ["src/features/*"]
     }
   },
   "angularCompilerOptions": {
