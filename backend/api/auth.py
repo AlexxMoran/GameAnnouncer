@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, Response, Request
 from fastapi.security import (
-    HTTPAuthorizationCredentials,
     HTTPBearer,
     OAuth2PasswordRequestForm,
 )
@@ -9,7 +8,7 @@ from exceptions import AppException
 from core.deps import get_user_manager
 from core.users import current_user
 from jwt.exceptions import InvalidTokenError
-from core.auth import auth_backend, get_refresh_jwt_strategy, get_jwt_strategy
+from core.auth import get_refresh_jwt_strategy, get_jwt_strategy
 from schemas.user import UserResponse, UserCreate, UserUpdate
 from schemas.auth import TokenResponse
 from schemas.base import DataResponse
@@ -111,7 +110,9 @@ async def login(
 ):
     user = await user_manager.authenticate(form_data)
     if not user or not user.is_active:
-        raise AppException("Incorrect credentials", status_code=401)
+        raise AppException(
+            "Incorrect credentials", status_code=401, error_type="invalid_credentials"
+        )
 
     access_token = await get_jwt_strategy().write_token(user)
     refresh_token = await get_refresh_jwt_strategy().write_token(user)
@@ -132,14 +133,7 @@ async def login(
 
 
 @router.post("/logout")
-async def logout(
-    response: Response,
-    user: User = Depends(current_user),
-    credentials: HTTPAuthorizationCredentials = Depends(http_bearer),
-    strategy=Depends(auth_backend.get_strategy),
-):
-    token = credentials.credentials
-    await auth_backend.logout(strategy, user, token)
+async def logout(response: Response):
     response.delete_cookie(key="refresh_token")
 
     return {"detail": "Successfully logged out"}
@@ -153,15 +147,19 @@ async def refresh_access_token(
 ):
     refresh_token = request.cookies.get("refresh_token")
     if not refresh_token:
-        raise AppException("Refresh token missing", status_code=401)
+        raise AppException(
+            "Refresh token missing", status_code=401, error_type="missing_token"
+        )
 
     refresh_strategy = get_refresh_jwt_strategy()
     try:
         user = await refresh_strategy.read_token(refresh_token, user_manager)
         if not user:
-            raise AppException("User not found", status_code=401)
+            raise AppException("User not found", status_code=404)
     except InvalidTokenError:
-        raise AppException("Invalid refresh token", status_code=401)
+        raise AppException(
+            "Invalid refresh token", status_code=401, error_type="invalid_token"
+        )
 
     access_strategy = get_jwt_strategy()
     access_token = await access_strategy.write_token(user)

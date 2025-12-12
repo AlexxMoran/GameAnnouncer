@@ -16,6 +16,9 @@ async def app_exception_handler(request: Request, exc: AppException) -> JSONResp
     logger.error(f"AppException on {request.method} {request.url.path}: {exc.message}")
 
     content = {"detail": exc.message}
+    if exc.error_type:
+        content["error_type"] = exc.error_type
+
     if exc.error:
         content["error"] = exc.error
 

@@ -7,10 +7,15 @@ class AppException(Exception):
     """
 
     def __init__(
-        self, message: str, status_code: int = 500, error: Optional[Any] = None
+        self,
+        message: str,
+        status_code: int = 500,
+        error_type: Optional[Any] = None,
+        error: Optional[Any] = None,
     ):
         self.status_code = status_code
         self.message = message
+        self.error_type = error_type
         self.error = error
         super().__init__(self.message)
 
