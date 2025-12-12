@@ -55,12 +55,20 @@ def authorize_action(user, record, action: str):
 
 
 def get_permissions_from_policy(
-    user: User | None, record: Any, policy_class
+    user: User | None, record: Any, policy_class, include_global: bool = False
 ) -> dict[str, bool]:
     """
-    Automatically extract permissions from policy class for a specific object.
+    Automatically extract permissions from policy class.
     Finds all methods starting with 'can_' and checks them.
-    Excludes global permissions (like 'can_create') that don't require a record.
+
+    Args:
+        user: User to check permissions for
+        record: Object to check permissions against (can be None for global permissions)
+        policy_class: Policy class to use
+        include_global: If True, include only global permissions. If False, exclude global permissions.
+
+    Returns:
+        Dictionary of permissions like {"edit": True, "delete": False}
     """
 
     if not user:
@@ -70,8 +78,11 @@ def get_permissions_from_policy(
             if method_name.startswith("can_"):
                 action = method_name.replace("can_", "")
 
-                if action in GLOBAL_PERMISSIONS:
+                # Filter based on include_global flag
+                is_global = action in GLOBAL_PERMISSIONS
+                if include_global != is_global:
                     continue
+
                 permissions[action] = False
         return permissions
 
@@ -81,7 +92,9 @@ def get_permissions_from_policy(
     for method_name in dir(policy_instance):
         if method_name.startswith("can_"):
             action = method_name.replace("can_", "")
-            if action in GLOBAL_PERMISSIONS:
+
+            is_global = action in GLOBAL_PERMISSIONS
+            if include_global != is_global:
                 continue
 
             try:
@@ -158,7 +171,7 @@ def get_user_permissions(user: User | None) -> dict[str, dict[str, bool]]:
     Methods that require a specific object (like 'can_edit', 'can_delete') are excluded.
 
     Returns: {
-        "game": {"create": True, "view_list": False},
+        "game": {"create": True},
         "announcement": {"create": True}
     }
     """
@@ -170,29 +183,9 @@ def get_user_permissions(user: User | None) -> dict[str, dict[str, bool]]:
     permissions = {}
 
     for model_name, policy_class in all_policies.items():
-        policy_instance = policy_class(user=user, record=None)
-        model_permissions = {}
-
-        for method_name in dir(policy_instance):
-            if not method_name.startswith("can_"):
-                continue
-
-            action = method_name.replace("can_", "")
-
-            if action not in GLOBAL_PERMISSIONS:
-                continue
-
-            method = getattr(policy_instance, method_name)
-            if not callable(method):
-                continue
-
-            try:
-                model_permissions[action] = method()
-            except Exception as e:
-                logger.warning(
-                    f"Error checking global permission '{model_name}.{action}': {e}"
-                )
-                model_permissions[action] = False
+        model_permissions = get_permissions_from_policy(
+            user=user, record=None, policy_class=policy_class, include_global=True
+        )
 
         if model_permissions:
             permissions[model_name.lower()] = model_permissions
