@@ -1,9 +1,15 @@
 from typing import Any
+import importlib
+import pkgutil
+from pathlib import Path
+import inspect
 from fastapi import status
 from exceptions import AppException
 from core.logger import logger
 from core.utils import camel_to_snake
 from models.user import User
+
+GLOBAL_PERMISSIONS = ["create"]
 
 
 def authorize_action(user, record, action: str):
@@ -52,8 +58,9 @@ def get_permissions_from_policy(
     user: User | None, record: Any, policy_class
 ) -> dict[str, bool]:
     """
-    Automatically extract permissions from policy class.
+    Automatically extract permissions from policy class for a specific object.
     Finds all methods starting with 'can_' and checks them.
+    Excludes global permissions (like 'can_create') that don't require a record.
     """
 
     if not user:
@@ -62,6 +69,9 @@ def get_permissions_from_policy(
         for method_name in dir(policy_instance):
             if method_name.startswith("can_"):
                 action = method_name.replace("can_", "")
+
+                if action in GLOBAL_PERMISSIONS:
+                    continue
                 permissions[action] = False
         return permissions
 
@@ -71,6 +81,9 @@ def get_permissions_from_policy(
     for method_name in dir(policy_instance):
         if method_name.startswith("can_"):
             action = method_name.replace("can_", "")
+            if action in GLOBAL_PERMISSIONS:
+                continue
+
             try:
                 method = getattr(policy_instance, method_name)
                 if callable(method):
@@ -103,3 +116,85 @@ def get_permissions(user: User | None, record: Any) -> dict[str, bool]:
         return {}
 
     return get_permissions_from_policy(user, record, policy_class)
+
+
+def _discover_all_policies() -> dict[str, type]:
+    """
+    Automatically discover all policy classes in core/policies/ directory.
+    Returns: {"Game": GamePolicy, "Announcement": AnnouncementPolicy, ...}
+    """
+    policies = {}
+    policies_dir = Path(__file__).parent
+
+    for module_info in pkgutil.iter_modules([str(policies_dir)]):
+        if module_info.name in ("base_policy", "permissions", "authorize_action"):
+            continue
+
+        module_name = f"core.policies.{module_info.name}"
+
+        try:
+            module = importlib.import_module(module_name)
+
+            for attr_name in dir(module):
+                if attr_name.endswith("Policy") and attr_name != "BasePolicy":
+                    policy_class = getattr(module, attr_name)
+
+                    if inspect.isclass(policy_class):
+                        model_name = attr_name.replace("Policy", "")
+                        policies[model_name] = policy_class
+
+        except Exception as e:
+            logger.warning(f"Failed to import policy module {module_name}: {e}")
+
+    return policies
+
+
+def get_user_permissions(user: User | None) -> dict[str, dict[str, bool]]:
+    """
+    Get global permissions for user that are not tied to specific objects.
+    Automatically discovers all policies and checks methods defined in GLOBAL_PERMISSIONS.
+
+    Only processes methods matching GLOBAL_PERMISSIONS list (like 'can_create').
+    Methods that require a specific object (like 'can_edit', 'can_delete') are excluded.
+
+    Returns: {
+        "game": {"create": True, "view_list": False},
+        "announcement": {"create": True}
+    }
+    """
+
+    if not user:
+        return {}
+
+    all_policies = _discover_all_policies()
+    permissions = {}
+
+    for model_name, policy_class in all_policies.items():
+        policy_instance = policy_class(user=user, record=None)
+        model_permissions = {}
+
+        for method_name in dir(policy_instance):
+            if not method_name.startswith("can_"):
+                continue
+
+            action = method_name.replace("can_", "")
+
+            if action not in GLOBAL_PERMISSIONS:
+                continue
+
+            method = getattr(policy_instance, method_name)
+            if not callable(method):
+                continue
+
+            try:
+                model_permissions[action] = method()
+            except Exception as e:
+                logger.warning(
+                    f"Error checking global permission '{model_name}.{action}': {e}"
+                )
+                model_permissions[action] = False
+
+        if model_permissions:
+            permissions[model_name.lower()] = model_permissions
+
+    return permissions

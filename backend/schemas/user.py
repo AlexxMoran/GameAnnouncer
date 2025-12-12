@@ -1,4 +1,5 @@
 from typing import Optional
+from pydantic import Field
 
 from fastapi_users import schemas
 
@@ -10,7 +11,7 @@ class UserBaseFieldsMixin:
 
 
 class UserResponse(schemas.BaseUser[int], UserBaseFieldsMixin):
-    pass
+    global_permissions: dict[str, dict[str, bool]] = Field(default_factory=dict)
 
 
 class UserCreate(schemas.BaseUserCreate, UserBaseFieldsMixin):
