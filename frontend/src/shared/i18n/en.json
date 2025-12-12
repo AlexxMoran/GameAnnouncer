@@ -11,13 +11,15 @@
   },
   "actions": {
     "login": "Login",
+    "logout": "Logout",
     "register": "Register"
   },
   "texts": {
     "allTournaments": "All tournaments",
     "haveNoAccount": "Don't have an account?",
     "haveAccount": "Have you already have an account?",
-    "haveNoData": "No data to display"
+    "haveNoData": "No data to display",
+    "successLogin": "You have successfully logged in"
   },
   "validationErrors": {
     "unknown": "Unexpected error",

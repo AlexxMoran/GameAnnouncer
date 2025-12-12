@@ -3,10 +3,6 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '@shared/config/environments/environment';
 import { TObjectAny } from '@shared/lib/utility-types/object.types';
 
-export interface TApiResponseWrapper<TResponse> {
-  data: TResponse;
-}
-
 @Injectable({ providedIn: 'root' })
 export class BaseApiService {
   private httpClient = inject(HttpClient);
@@ -20,40 +16,25 @@ export class BaseApiService {
   }
 
   get<TResponse, TMeta = unknown>(url: string, queryParams?: TObjectAny) {
-    return this.httpClient.get<TApiResponseWrapper<TResponse> & TMeta>(
+    return this.httpClient.get<TResponse & TMeta>(
       `${this.apiUrl}${url}`,
       this.prepareQueryParams(queryParams),
     );
   }
 
-  post<TResponse>(url: string, body: TObjectAny, queryParams?: TObjectAny) {
-    return this.httpClient.post<TApiResponseWrapper<TResponse>>(
-      `${this.apiUrl}${url}`,
-      body,
-      this.prepareQueryParams(queryParams),
-    );
+  post<TResponse>(url: string, body?: TObjectAny, queryParams?: TObjectAny) {
+    return this.httpClient.post<TResponse>(`${this.apiUrl}${url}`, body, queryParams);
   }
 
   put<TResponse>(url: string, body: TObjectAny, queryParams?: TObjectAny) {
-    return this.httpClient.put<TApiResponseWrapper<TResponse>>(
-      `${this.apiUrl}${url}`,
-      body,
-      this.prepareQueryParams(queryParams),
-    );
+    return this.httpClient.put<TResponse>(`${this.apiUrl}${url}`, body, queryParams);
   }
 
   patch<TResponse>(url: string, body: TObjectAny, queryParams?: TObjectAny) {
-    return this.httpClient.patch<TApiResponseWrapper<TResponse>>(
-      `${this.apiUrl}${url}`,
-      body,
-      this.prepareQueryParams(queryParams),
-    );
+    return this.httpClient.patch<TResponse>(`${this.apiUrl}${url}`, body, queryParams);
   }
 
   delete<TResponse>(url: string, queryParams?: TObjectAny) {
-    return this.httpClient.delete<TApiResponseWrapper<TResponse>>(
-      `${this.apiUrl}${url}`,
-      this.prepareQueryParams(queryParams),
-    );
+    return this.httpClient.delete<TResponse>(`${this.apiUrl}${url}`, queryParams);
   }
 }

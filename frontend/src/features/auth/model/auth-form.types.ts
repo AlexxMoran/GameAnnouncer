@@ -1,4 +1,4 @@
 export interface IAuthFormValues {
-  email: string;
+  username: string;
   password: string;
 }

@@ -5,6 +5,7 @@ import {
   provideZonelessChangeDetection,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
+import { authInterceptor } from '@app/interceptors/auth.interceptor';
 import { errorInterceptor } from '@app/interceptors/error.interceptor';
 import { provideTranslateCompiler, provideTranslateService } from '@ngx-translate/core';
 import {
@@ -30,6 +31,6 @@ export const appConfig: ApplicationConfig = {
         formatters: { upcase: (v: string) => v.toUpperCase() },
       },
     },
-    provideHttpClient(withFetch(), withInterceptors([errorInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, errorInterceptor])),
   ],
 };

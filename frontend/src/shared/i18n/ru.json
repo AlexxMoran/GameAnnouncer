@@ -11,13 +11,15 @@
   },
   "actions": {
     "login": "Войти",
+    "logout": "Выйти",
     "register": "Зарегистрироваться"
   },
   "texts": {
     "allTournaments": "Все турниры",
     "haveNoAccount": "У вас нет аккаунта?",
     "haveAccount": "У вас уже есть аккаунт?",
-    "haveNoData": "Нет данных для отображения"
+    "haveNoData": "Нет данных для отображения",
+    "successLogin": "Вы успешно вошли в систему"
   },
   "validationErrors": {
     "unknown": "Непредвиденная ошибка",

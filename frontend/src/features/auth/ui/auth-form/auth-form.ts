@@ -24,9 +24,10 @@ export class AuthForm {
   private validationErrorsService = inject(ValidationErrorsService);
   submitted = output<IAuthFormValues>();
   buttonText = input<string>();
+  isLoading = input<boolean>(false);
 
   authForm = this.formBuilder.group({
-    email: ['', [Validators.required, Validators.email]],
+    username: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(8)]],
   });
 
@@ -38,14 +39,14 @@ export class AuthForm {
     const formData = this.authForm.value;
 
     const values = {
-      email: formData.email || '',
+      username: formData.username || '',
       password: formData.password || '',
     };
 
     this.submitted.emit(values);
   }
 
-  getErrorMessage(controlName: 'email' | 'password') {
+  getErrorMessage(controlName: 'username' | 'password') {
     const control = this.authForm.get(controlName);
 
     return this.validationErrorsService.getMessage(control);

@@ -1,4 +1,4 @@
-import { TApiResponseWrapper } from '@shared/api/base-api.service';
+import { TApiResponseWrapper } from '@shared/api/base-api.types';
 import { TObjectAny } from '@shared/lib/utility-types/object.types';
 import { Observable } from 'rxjs';
 

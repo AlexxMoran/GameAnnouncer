@@ -1,14 +1,35 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterModule, RouterOutlet } from '@angular/router';
+import { LangToggle } from '@features/layout/ui/lang-toggle/lang-toggle';
+import { ThemeToggle } from '@features/layout/ui/theme-toggle/theme-toggle';
+import { UserInfo } from '@features/layout/ui/user-info/user-info';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LangToggle } from '@shared/ui/lang-toggle/lang-toggle';
-import { ThemeToggle } from '@shared/ui/theme-toggle/theme-toggle';
+import { AuthService } from '@shared/lib/auth/auth.service';
 
 @Component({
   selector: 'app-layout',
-  imports: [ThemeToggle, LangToggle, RouterOutlet, TranslatePipe, RouterModule],
+  imports: [
+    MatProgressSpinnerModule,
+    ThemeToggle,
+    LangToggle,
+    RouterOutlet,
+    TranslatePipe,
+    RouterModule,
+    UserInfo,
+  ],
   templateUrl: './layout.html',
   styleUrl: './layout.scss',
   host: { class: 'w-full h-full flex flex-col' },
 })
-export class Layout {}
+export class Layout {
+  private authService = inject(AuthService);
+
+  get hasToken() {
+    return this.authService.hasToken();
+  }
+
+  get isLoading() {
+    return this.authService.isMeLoading();
+  }
+}

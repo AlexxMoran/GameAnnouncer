@@ -14,12 +14,12 @@ import { Chips } from '@shared/ui/chips/chips';
 @Component({
   selector: 'app-game-list',
   imports: [
-    GameCard,
     MatProgressSpinnerModule,
-    Chips,
     ElementObserverDirective,
-    AsyncPipe,
     TranslatePipe,
+    AsyncPipe,
+    GameCard,
+    Chips,
   ],
   providers: [
     {

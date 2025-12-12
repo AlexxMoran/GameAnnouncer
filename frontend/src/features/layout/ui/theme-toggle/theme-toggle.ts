@@ -1,12 +1,12 @@
 import { Component, DOCUMENT, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { THEME_TYPE_STORAGE_NAME } from '@shared/ui/theme-toggle/theme-toggle.const';
-import { TThemeType } from '@shared/ui/theme-toggle/theme-toggle.types';
+import { THEME_TYPE_STORAGE_NAME } from '@features/layout/ui/theme-toggle/theme-toggle.const';
+import { TThemeType } from '@features/layout/ui/theme-toggle/theme-toggle.types';
 
 @Component({
   selector: 'theme-toggle',
-  templateUrl: './theme.toggle.html',
+  templateUrl: './theme-toggle.html',
   imports: [MatIconModule, MatButtonModule],
 })
 export class ThemeToggle {
