@@ -2,6 +2,8 @@ from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import datetime
 
+from schemas.base import BaseSchemaWithPermissions
+
 GAME_CATEGORIES = [
     "RTS",
     "TBS",
@@ -48,7 +50,7 @@ class GameUpdate(GameBase, CategoryValidator):
     category: Optional[str] = Field(None, description="The category of the game")
 
 
-class GameResponse(GameBase):
+class GameResponse(GameBase, BaseSchemaWithPermissions):
     id: int
     created_at: datetime
     updated_at: datetime

@@ -16,7 +16,8 @@ from core.deps import SessionDep
 from api.v1.crud.announcement import announcement_crud
 from api.v1.crud.registration_request import registration_request_crud
 
-from core.users import current_user
+from core.users import current_user, current_user_or_none
+from core.policies.permissions import get_permissions
 
 
 router = APIRouter(prefix="/games/{game_id}/announcements", tags=["announcements"])
@@ -53,11 +54,18 @@ async def get_announcement_for_edit_dependency(
 
 @router.get("", response_model=PaginatedResponse[AnnouncementResponse])
 async def get_announcements(
-    session: SessionDep, game_id: int, skip: int = 0, limit: int = 10
+    session: SessionDep,
+    game_id: int,
+    user: User | None = Depends(current_user_or_none),
+    skip: int = 0,
+    limit: int = 10,
 ):
     announcements = await announcement_crud.get_all_by_game_id(
         session=session, game_id=game_id, skip=skip, limit=limit
     )
+    for announcement in announcements:
+        announcement.permissions = get_permissions(user, announcement)
+
     announcements_count = await announcement_crud.get_all_count_by_game_id(
         session=session, game_id=game_id
     )
@@ -70,7 +78,9 @@ async def get_announcements(
 @router.get("/{announcement_id}", response_model=DataResponse[AnnouncementResponse])
 async def get_announcement(
     announcement: Announcement = Depends(get_announcement_dependency),
+    user: User | None = Depends(current_user_or_none),
 ):
+    announcement.permissions = get_permissions(user, announcement)
     return DataResponse(data=announcement)
 
 

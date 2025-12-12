@@ -4,7 +4,7 @@ from sqlalchemy import func, select
 
 
 from models.announcement import Announcement
-from core.policies.authorize_action import authorize_action
+from core.policies.permissions import authorize_action
 from models.game import Game
 from models.user import User
 from schemas.game import GameCreate, GameUpdate
