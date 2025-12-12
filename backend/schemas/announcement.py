@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import datetime
+from schemas.base import BaseSchemaWithPermissions
 
 
 class AnnouncementBase(BaseModel):
@@ -28,7 +29,7 @@ class AnnouncementAvatarUpdate(BaseModel):
     )
 
 
-class AnnouncementResponse(AnnouncementBase):
+class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
     id: int
     created_at: datetime
     updated_at: datetime
