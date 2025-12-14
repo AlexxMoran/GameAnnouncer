@@ -11,7 +11,7 @@ class UserBaseFieldsMixin:
 
 
 class UserResponse(schemas.BaseUser[int], UserBaseFieldsMixin):
-    global_permissions: dict[str, dict[str, bool]] = Field(default_factory=dict)
+    permissions: dict[str, dict[str, bool]] = Field(default_factory=dict)
 
 
 class UserCreate(schemas.BaseUserCreate, UserBaseFieldsMixin):

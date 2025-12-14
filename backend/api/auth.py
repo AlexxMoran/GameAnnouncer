@@ -33,7 +33,7 @@ async def register(
 
 @router.get("/users/me", response_model=DataResponse[UserResponse])
 async def get_current_user_wrapped(user: User = Depends(current_user)):
-    user.global_permissions = get_user_permissions(user)
+    user.permissions = get_user_permissions(user)
 
     return DataResponse(data=user)
 

@@ -4,6 +4,7 @@ import pkgutil
 from pathlib import Path
 import inspect
 from fastapi import status
+from functools import lru_cache
 from exceptions import AppException
 from core.logger import logger
 from core.utils import camel_to_snake
@@ -11,13 +12,27 @@ from models.user import User
 
 GLOBAL_PERMISSIONS = ["create"]
 
+_POLICIES_CACHE = None
 
-def authorize_action(user, record, action: str):
-    """
-    Automatically finds and executes the right policy method.
-    Example: authorize_action(current_user, announcement, "edit")
-    """
 
+@lru_cache(maxsize=128)
+def _get_policy_methods(policy_class: type) -> dict[str, bool]:
+    """
+    Cache policy methods for a given policy class.
+    Returns: {"edit": False, "delete": False, "create": True} where value indicates if it's global.
+    """
+    methods = {}
+    for method_name in dir(policy_class):
+        if method_name.startswith("can_") and not method_name.startswith("_"):
+            action = method_name.replace("can_", "")
+            methods[action] = action in GLOBAL_PERMISSIONS
+    return methods
+
+
+def _get_policy_class(record: Any) -> type:
+    """
+    Find and import policy class for a given record.
+    """
     record_class_name = record.__class__.__name__
     policy_class_name = f"{record_class_name}Policy"
     snake_case_name = camel_to_snake(record_class_name)
@@ -26,18 +41,27 @@ def authorize_action(user, record, action: str):
     try:
         module = __import__(policy_module_name, fromlist=[policy_class_name])
         policy_class = getattr(module, policy_class_name)
-    except (ModuleNotFoundError, AttributeError):
+        return policy_class
+    except (ModuleNotFoundError, AttributeError) as e:
         raise AppException(
-            f"Policy class '{policy_class_name}' not found for record type '{record.__class__.__name__}'",
+            f"Policy class '{policy_class_name}' not found for record type '{record_class_name}'",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        )
+        ) from e
 
+
+def authorize_action(user, record, action: str):
+    """
+    Automatically finds and executes the right policy method.
+    Example: authorize_action(current_user, announcement, "edit")
+    """
+
+    policy_class = _get_policy_class(record)
     policy = policy_class(user, record)
     method_name = f"can_{action}"
 
     if not hasattr(policy, method_name):
         raise AppException(
-            f"Policy method '{method_name}' not found in '{policy_class_name}'",
+            f"Policy method '{method_name}' not found in '{policy_class.__name__}'",
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
@@ -59,7 +83,7 @@ def get_permissions_from_policy(
 ) -> dict[str, bool]:
     """
     Automatically extract permissions from policy class.
-    Finds all methods starting with 'can_' and checks them.
+    Uses cached method discovery for performance.
 
     Args:
         user: User to check permissions for
@@ -71,39 +95,26 @@ def get_permissions_from_policy(
         Dictionary of permissions like {"edit": True, "delete": False}
     """
 
-    if not user:
-        permissions = {}
-        policy_instance = policy_class(user=None, record=record)
-        for method_name in dir(policy_instance):
-            if method_name.startswith("can_"):
-                action = method_name.replace("can_", "")
-
-                # Filter based on include_global flag
-                is_global = action in GLOBAL_PERMISSIONS
-                if include_global != is_global:
-                    continue
-
-                permissions[action] = False
-        return permissions
+    available_methods = _get_policy_methods(policy_class)
 
     policy_instance = policy_class(user=user, record=record)
     permissions = {}
 
-    for method_name in dir(policy_instance):
-        if method_name.startswith("can_"):
-            action = method_name.replace("can_", "")
+    for action, is_global in available_methods.items():
+        if include_global != is_global:
+            continue
 
-            is_global = action in GLOBAL_PERMISSIONS
-            if include_global != is_global:
-                continue
+        if not user:
+            permissions[action] = False
+            continue
 
-            try:
-                method = getattr(policy_instance, method_name)
-                if callable(method):
-                    permissions[action] = method()
-            except Exception as e:
-                logger.error(f"Error checking permission '{action}': {e}")
-                permissions[action] = False
+        try:
+            method = getattr(policy_instance, f"can_{action}")
+            if callable(method):
+                permissions[action] = method()
+        except Exception as e:
+            logger.error(f"Error checking permission '{action}': {e}")
+            permissions[action] = False
 
     return permissions
 
@@ -114,17 +125,11 @@ def get_permissions(user: User | None, record: Any) -> dict[str, bool]:
     Usage: game.permissions = get_permissions(current_user, game)
     """
 
-    record_class_name = record.__class__.__name__
-    policy_class_name = f"{record_class_name}Policy"
-    snake_case_name = camel_to_snake(record_class_name)
-    policy_module_name = f"core.policies.{snake_case_name}_policy"
-
     try:
-        module = __import__(policy_module_name, fromlist=[policy_class_name])
-        policy_class = getattr(module, policy_class_name)
-    except (ModuleNotFoundError, AttributeError):
+        policy_class = _get_policy_class(record)
+    except AppException:
         logger.warning(
-            f"Policy class '{policy_class_name}' not found for record type '{record_class_name}'"
+            f"Policy class not found for record type '{record.__class__.__name__}'"
         )
         return {}
 
@@ -136,6 +141,11 @@ def _discover_all_policies() -> dict[str, type]:
     Automatically discover all policy classes in core/policies/ directory.
     Returns: {"Game": GamePolicy, "Announcement": AnnouncementPolicy, ...}
     """
+    global _POLICIES_CACHE
+
+    if _POLICIES_CACHE is not None:
+        return _POLICIES_CACHE
+
     policies = {}
     policies_dir = Path(__file__).parent
 
@@ -159,6 +169,7 @@ def _discover_all_policies() -> dict[str, type]:
         except Exception as e:
             logger.warning(f"Failed to import policy module {module_name}: {e}")
 
+    _POLICIES_CACHE = policies
     return policies
 
 
