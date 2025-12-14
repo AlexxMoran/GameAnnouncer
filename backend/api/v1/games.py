@@ -9,7 +9,8 @@ from core.deps import SessionDep, get_game_search
 from api.v1.crud.game import game_crud
 from schemas.game import GameCreate, GameResponse, GameUpdate
 from schemas.base import PaginatedResponse, DataResponse
-from core.users import current_user
+from core.users import current_user, current_user_or_none
+from core.permissions import get_permissions, get_batch_permissions
 
 router = APIRouter(prefix="/games", tags=["games"])
 
@@ -44,16 +45,26 @@ async def get_game_for_edit_dependency(
 
 @router.get("", response_model=PaginatedResponse[GameResponse])
 async def get_games(
-    search: GameSearch = Depends(get_game_search), skip: int = 0, limit: int = 10
+    search: GameSearch = Depends(get_game_search),
+    user: User | None = Depends(current_user_or_none),
+    skip: int = 0,
+    limit: int = 10,
 ):
     games = await search.results_with_announcements_count(skip=skip, limit=limit)
+    get_batch_permissions(user, games)
+
     games_count = await search.count()
 
     return PaginatedResponse(data=games, skip=skip, limit=limit, total=games_count)
 
 
 @router.get("/{game_id}", response_model=DataResponse[GameResponse])
-async def get_game(game: Game = Depends(get_game_dependency)):
+async def get_game(
+    game: Game = Depends(get_game_dependency),
+    user: User | None = Depends(current_user_or_none),
+):
+    game.permissions = get_permissions(user, game)
+
     return DataResponse(data=game)
 
 

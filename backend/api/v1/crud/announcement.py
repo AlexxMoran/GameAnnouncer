@@ -9,7 +9,7 @@ from schemas.announcement import (
     AnnouncementUpdate,
     AnnouncementResponse,
 )
-from core.policies.authorize_action import authorize_action
+from core.permissions import authorize_action
 
 
 class AnnouncementCRUD:

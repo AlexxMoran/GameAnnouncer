@@ -13,6 +13,7 @@ from schemas.user import UserResponse, UserCreate, UserUpdate
 from schemas.auth import TokenResponse
 from schemas.base import DataResponse
 from models.user import User
+from core.permissions import get_user_permissions
 
 
 http_bearer = HTTPBearer(auto_error=False)
@@ -32,6 +33,8 @@ async def register(
 
 @router.get("/users/me", response_model=DataResponse[UserResponse])
 async def get_current_user_wrapped(user: User = Depends(current_user)):
+    user.permissions = get_user_permissions(user)
+
     return DataResponse(data=user)
 
 
