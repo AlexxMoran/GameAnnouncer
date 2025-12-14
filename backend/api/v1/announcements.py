@@ -17,7 +17,7 @@ from api.v1.crud.announcement import announcement_crud
 from api.v1.crud.registration_request import registration_request_crud
 
 from core.users import current_user, current_user_or_none
-from core.policies.permissions import get_permissions
+from core.permissions import get_permissions
 
 
 router = APIRouter(prefix="/games/{game_id}/announcements", tags=["announcements"])

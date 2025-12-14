@@ -10,7 +10,7 @@ from api.v1.crud.game import game_crud
 from schemas.game import GameCreate, GameResponse, GameUpdate
 from schemas.base import PaginatedResponse, DataResponse
 from core.users import current_user, current_user_or_none
-from core.policies.permissions import get_permissions
+from core.permissions import get_permissions
 
 router = APIRouter(prefix="/games", tags=["games"])
 

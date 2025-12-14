@@ -8,7 +8,7 @@ from models.user import User
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-from core.policies.permissions import authorize_action
+from core.permissions import authorize_action
 
 
 class RegistrationRequestCRUD:
