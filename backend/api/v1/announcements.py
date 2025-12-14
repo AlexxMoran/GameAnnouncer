@@ -17,7 +17,7 @@ from api.v1.crud.announcement import announcement_crud
 from api.v1.crud.registration_request import registration_request_crud
 
 from core.users import current_user, current_user_or_none
-from core.permissions import get_permissions
+from core.permissions import get_permissions, get_batch_permissions
 
 
 router = APIRouter(prefix="/games/{game_id}/announcements", tags=["announcements"])
@@ -63,8 +63,7 @@ async def get_announcements(
     announcements = await announcement_crud.get_all_by_game_id(
         session=session, game_id=game_id, skip=skip, limit=limit
     )
-    for announcement in announcements:
-        announcement.permissions = get_permissions(user, announcement)
+    get_batch_permissions(user, announcements)
 
     announcements_count = await announcement_crud.get_all_count_by_game_id(
         session=session, game_id=game_id

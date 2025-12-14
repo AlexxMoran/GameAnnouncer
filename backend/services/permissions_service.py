@@ -36,7 +36,7 @@ class PermissionsService:
                 method = getattr(policy_instance, f"can_{action}")
                 if callable(method):
                     permissions[action] = method()
-            except Exception as e:
+            except (AttributeError, TypeError, ValueError) as e:
                 logger.error(f"Error checking permission '{action}': {e}")
                 permissions[action] = False
 
@@ -55,6 +55,20 @@ class PermissionsService:
         return self.get_permissions_from_policy(
             user, record, policy_class, include_global=False
         )
+
+    def get_batch_permissions(self, user: User | None, records: list[Any]) -> None:
+        if not records:
+            return
+
+        policy_class = self.registry.get_policy_for_record(records[0])
+
+        for record in records:
+            record.permissions = self.get_permissions_from_policy(
+                user=user,
+                record=record,
+                policy_class=policy_class,
+                include_global=False,
+            )
 
     def get_global_permissions(self, user: User | None) -> dict[str, dict[str, bool]]:
         """Get global permissions (not tied to objects)."""

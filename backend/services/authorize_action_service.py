@@ -14,6 +14,13 @@ class AuthorizationService:
 
     def authorize(self, user: Any, record: Any, action: str) -> bool:
         """Authorize action. Raises AppException if denied."""
+        if user is None:
+            raise AppException(
+                "Authentication required to perform this action",
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                error_type="missing_token",
+            )
+
         policy_class = self.registry.get_policy_for_record(record)
         policy = policy_class(user, record)
         method_name = f"can_{action}"

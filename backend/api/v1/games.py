@@ -10,7 +10,7 @@ from api.v1.crud.game import game_crud
 from schemas.game import GameCreate, GameResponse, GameUpdate
 from schemas.base import PaginatedResponse, DataResponse
 from core.users import current_user, current_user_or_none
-from core.permissions import get_permissions
+from core.permissions import get_permissions, get_batch_permissions
 
 router = APIRouter(prefix="/games", tags=["games"])
 
@@ -51,9 +51,7 @@ async def get_games(
     limit: int = 10,
 ):
     games = await search.results_with_announcements_count(skip=skip, limit=limit)
-
-    for game in games:
-        game.permissions = get_permissions(user, game)
+    get_batch_permissions(user, games)
 
     games_count = await search.count()
 

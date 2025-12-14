@@ -77,7 +77,7 @@ class PoliciesRegistry:
                                 model_name = attr_name.replace("Policy", "")
                                 policies[model_name] = policy_class
 
-                except Exception as e:
+                except (ImportError, ModuleNotFoundError, AttributeError) as e:
                     logger.warning(f"Failed to import policy module {module_name}: {e}")
 
             self._cache = policies

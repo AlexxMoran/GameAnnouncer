@@ -3,6 +3,7 @@
 from core.permissions.facade import (
     authorize_action,
     get_permissions,
+    get_batch_permissions,
     get_user_permissions,
     initialize_policies_cache,
 )
@@ -10,6 +11,7 @@ from core.permissions.facade import (
 __all__ = [
     "authorize_action",
     "get_permissions",
+    "get_batch_permissions",
     "get_user_permissions",
     "initialize_policies_cache",
 ]
