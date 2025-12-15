@@ -5,6 +5,7 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException
 from sqlalchemy.exc import IntegrityError, DataError
 import re
+import jwt
 
 from .app_exception import AppException
 
@@ -31,7 +32,24 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
         f"HTTPException on {request.method} {request.url.path}: {exc.detail}"
     )
 
-    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+    content = {"detail": exc.detail}
+
+    if exc.status_code == status.HTTP_401_UNAUTHORIZED:
+        authorization = request.headers.get("authorization", "")
+
+        if not authorization or not authorization.startswith("Bearer "):
+            content["error_type"] = "missing_token"
+        else:
+            token = authorization.replace("Bearer ", "")
+            try:
+                jwt.decode(token, options={"verify_signature": False})
+                content["error_type"] = "invalid_token"
+            except jwt.ExpiredSignatureError:
+                content["error_type"] = "token_expired"
+            except Exception:
+                content["error_type"] = "invalid_token"
+
+    return JSONResponse(status_code=exc.status_code, content=content)
 
 
 async def validation_exception_handler(
@@ -42,7 +60,6 @@ async def validation_exception_handler(
         f"ValidationError on {request.method} {request.url.path}: {exc.errors()}"
     )
 
-    # Format errors into a single readable string
     error_messages = []
     for error in exc.errors():
         field = ".".join(str(loc) for loc in error["loc"] if loc != "body")
