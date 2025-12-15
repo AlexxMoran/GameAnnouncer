@@ -1,6 +1,4 @@
-<div
-  class="flex flex-col gap-3 w-150 h-100 rounded-3xl items-center justify-center bg-[var(--mat-sys-surface-container-low)] mb-12"
->
+<div [class]="cardClasses">
   <p class="mat-headline-5">{{ 'actions.login' | translate }}</p>
   <app-auth-form
     (submitted)="login($event)"

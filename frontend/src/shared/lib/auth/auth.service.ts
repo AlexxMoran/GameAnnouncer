@@ -1,13 +1,16 @@
-import { computed, effect, inject, Injectable, signal } from '@angular/core';
+import { HttpContext } from '@angular/common/http';
+import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { SKIP_ERROR_HANDLING } from '@app/interceptors/error.interceptor';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthApiService } from '@shared/api/auth/auth-api.service';
 import { ILoginDto } from '@shared/api/auth/auth.types';
 import { IUserDto } from '@shared/api/users/users-api.types';
-import { STORAGE_TOKEN_KEY } from '@shared/lib/auth/storage.const';
+import { EAuthErrorTypes } from '@shared/lib/auth/auth-error-types.const';
 import { SnackBarService } from '@shared/lib/snack-bar/snack-bar.service';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
-import { catchError, finalize, tap, throwError } from 'rxjs';
+import { IApiErrorResponse } from '@shared/lib/utility-types/api-errors.types';
+import { catchError, EMPTY, finalize, map, of, switchMap, tap, throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -15,37 +18,22 @@ export class AuthService {
   private router = inject(Router);
   private snackBarService = inject(SnackBarService);
   private translateService = inject(TranslateService);
-  private accessToken = signal<TMaybe<string>>(null);
+  hasAttemptToLogin = false;
+  accessToken = signal<TMaybe<string>>(null);
   me = signal<TMaybe<IUserDto>>(null);
-  isMeLoading = signal(false);
-  hasToken = computed(() => Boolean(this.getAccessToken()));
-
-  constructor() {
-    effect(() => {
-      if (this.hasToken()) {
-        this.isMeLoading.set(true);
-        this.authApiService
-          .getMe()
-          .pipe(finalize(() => this.isMeLoading.set(false)))
-          .subscribe({ next: (me) => this.me.set(me) });
-      } else {
-        this.me.set(null);
-      }
-    });
-  }
-
-  get hasMe() {
-    return !!this.me();
-  }
+  isAuthenticated = computed(() => Boolean(this.accessToken()));
 
   login = (params: ILoginDto) => {
     return this.authApiService.login(params).pipe(
       tap(({ access_token }) => {
         const successLoginText = this.translateService.instant('texts.successLogin');
+
         this.router.navigateByUrl('/games');
         this.setToken(access_token);
         this.snackBarService.showSuccessSnackBar(successLoginText);
+        this.hasAttemptToLogin = true;
       }),
+      switchMap(() => this.getMe()),
     );
   };
 
@@ -54,39 +42,44 @@ export class AuthService {
       .logout()
       .pipe(
         finalize(() => {
-          localStorage.removeItem(STORAGE_TOKEN_KEY);
+          this.hasAttemptToLogin = false;
           this.router.navigateByUrl('/login');
           this.accessToken.set(null);
+          this.me.set(null);
         }),
       )
       .subscribe();
   };
 
   refreshToken = () => {
-    return this.authApiService.refreshToken().pipe(
-      tap(({ access_token }) => this.setToken(access_token)),
-      catchError((error) => {
-        this.logout();
+    return this.authApiService
+      .refreshToken({ context: new HttpContext().set(SKIP_ERROR_HANDLING, true) })
+      .pipe(
+        tap(({ access_token }) => this.setToken(access_token)),
+        catchError((response: IApiErrorResponse) => {
+          const { error } = response;
 
-        return throwError(() => error);
-      }),
-    );
+          if (error.error_type === EAuthErrorTypes.TokenMissing) {
+            return EMPTY;
+          } else {
+            this.logout();
+            this.snackBarService.showErrorSnackBar(error.detail);
+
+            return throwError(() => error);
+          }
+        }),
+        switchMap((access_token) =>
+          this.me() ? of(access_token) : this.getMe().pipe(map(() => access_token)),
+        ),
+        finalize(() => (this.hasAttemptToLogin = true)),
+      );
   };
 
-  private setTokenInStorage = (token: string) => {
-    localStorage.setItem(STORAGE_TOKEN_KEY, token);
-  };
-
-  private getTokenFromStorage = () => {
-    return localStorage.getItem(STORAGE_TOKEN_KEY);
+  getMe = () => {
+    return this.authApiService.getMe().pipe(tap(({ data }) => this.me.set(data)));
   };
 
   private setToken = (token: string) => {
     this.accessToken.set(token);
-    this.setTokenInStorage(token);
-  };
-
-  getAccessToken = () => {
-    return this.accessToken() || this.getTokenFromStorage();
   };
 }

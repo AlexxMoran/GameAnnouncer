@@ -12,7 +12,7 @@ export class GamesApiService {
   getGameList = (params?: IGetGameListDto) => {
     return this.baseApiService.get<TApiResponseWrapper<IGameDto[]>, IPaginationMeta>(
       GAMES_ENDPOINT,
-      params,
+      { params },
     );
   };
 }

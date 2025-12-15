@@ -1,6 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { IUserDto } from '@shared/api/users/users-api.types';
 import { AuthService } from '@shared/lib/auth/auth.service';
+import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { Menu } from '@shared/ui/menu/menu';
 import { IIconMenuOption } from '@shared/ui/menu/menu.types';
 
@@ -11,17 +13,14 @@ import { IIconMenuOption } from '@shared/ui/menu/menu.types';
 })
 export class UserInfo {
   private authService = inject(AuthService);
+  me = input<TMaybe<IUserDto>>(null);
 
   get optionList(): IIconMenuOption[] {
     return [{ name: 'logout', label: 'actions.logout', click: this.logout }];
   }
 
-  get me() {
-    return this.authService.me();
-  }
-
   get email() {
-    return this.me?.email || '';
+    return this.me()?.email || '';
   }
 
   logout = () => {

@@ -19,13 +19,7 @@ export const errorInterceptor: HttpInterceptorFn = (request, next) => {
       const { detail } = error;
 
       if (detail) {
-        if (typeof detail === 'string') {
-          snackBarService.showErrorSnackBar(detail);
-        } else {
-          detail.forEach(({ msg }) => snackBarService.showErrorSnackBar(msg));
-        }
-      } else {
-        snackBarService.showErrorSnackBar(message);
+        snackBarService.showErrorSnackBar(detail || message);
       }
 
       return throwError(() => response);

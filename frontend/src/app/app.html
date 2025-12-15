@@ -1,1 +1,7 @@
-<app-layout></app-layout>
+@if (!isAppInitialized()) {
+  <div class="w-full h-full flex items-center justify-center">
+    <mat-spinner class="m-auto"></mat-spinner>
+  </div>
+} @else {
+  <app-layout></app-layout>
+}

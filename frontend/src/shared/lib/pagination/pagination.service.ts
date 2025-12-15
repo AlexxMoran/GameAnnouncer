@@ -6,10 +6,10 @@ import { TObjectAny } from '@shared/lib/utility-types/object.types';
 import {
   BehaviorSubject,
   catchError,
+  EMPTY,
   finalize,
   map,
   Observable,
-  of,
   scan,
   switchMap,
   tap,
@@ -52,7 +52,7 @@ export class PaginationService<TEntity extends TObjectAny, TFilter extends TObje
                 this.total.set(0);
               }
               // чтобы поток не завершился при ошибке сети
-              return of([]);
+              return EMPTY;
             }),
             finalize(() => this.setLoading(next, false)),
           );

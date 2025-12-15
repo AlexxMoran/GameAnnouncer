@@ -3,13 +3,13 @@
   [class]="
     game()?.image_url
       ? 'bg-cover'
-      : 'flex items-center justify-center bg-[var(--mat-sys-surface-container-low)]'
+      : 'flex items-center justify-center bg-[var(--mat-sys-surface-container)]'
   "
   [style.background-image]="getBackgroundImageProperty"
 >
   @if (game()?.announcements_count !== undefined) {
     <div
-      class="px-3 py-1 w-fit absolute top-1 left-1 rounded-3xl mat-subtitle-2 bg-[var(--mat-sys-surface-container-highest)]"
+      class="px-3 py-1 w-fit absolute top-2 left-2 rounded-3xl mat-subtitle-2 bg-[var(--mat-sys-surface-container-highest)]"
     >
       {{ 'entities.announcement' | translate: { count: game()?.announcements_count } }}
     </div>

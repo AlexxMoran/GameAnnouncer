@@ -19,17 +19,16 @@ import { AuthService } from '@shared/lib/auth/auth.service';
     UserInfo,
   ],
   templateUrl: './layout.html',
-  styleUrl: './layout.scss',
   host: { class: 'w-full h-full flex flex-col' },
 })
 export class Layout {
   private authService = inject(AuthService);
 
-  get hasToken() {
-    return this.authService.hasToken();
+  get isAuthenticated() {
+    return this.authService.isAuthenticated();
   }
 
-  get isLoading() {
-    return this.authService.isMeLoading();
+  get me() {
+    return this.authService.me();
   }
 }
