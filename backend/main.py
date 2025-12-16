@@ -4,6 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from tasks.broker import startup_broker, shutdown_broker
 from core.initializers import initialize_all
 from core.middleware.request_logging_middleware import RequestLoggingMiddleware
 from exceptions import EXCEPTION_HANDLERS, API_RESPONSES
@@ -19,7 +20,11 @@ setup_logging()
 async def lifespan(app: FastAPI):
     logger.info("🚀 Starting GameAnnouncer API...")
     initialize_all()
+    await startup_broker()
+
     yield
+
+    await shutdown_broker()
     logger.info("🛑 Shutting down GameAnnouncer API...")
     await db.dispose()
 
