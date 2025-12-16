@@ -103,9 +103,10 @@ validate: check-backend-env ## ✅ Validate docker-compose configuration
 
 # Backend and DB only (without frontend)
 backend-up: check-backend-env ## 🔧 Start only backend and database
-	@echo "🔧 Starting backend services (DB + API)..."
+	@echo "🔧 Starting backend services (DB + Redis + API)..."
 	@echo "📦 Checking container status..."
 	@db_running=$$($(COMPOSE) --env-file backend/.env ps -q db 2>/dev/null | wc -l | tr -d ' '); \
+	redis_running=$$($(COMPOSE) --env-file backend/.env ps -q redis 2>/dev/null | wc -l | tr -d ' '); \
 	backend_running=$$($(COMPOSE) --env-file backend/.env ps -q backend 2>/dev/null | wc -l | tr -d ' '); \
 	services_to_start=""; \
 	if [ "$$db_running" -eq 0 ]; then \
@@ -113,6 +114,12 @@ backend-up: check-backend-env ## 🔧 Start only backend and database
 		services_to_start="$$services_to_start db"; \
 	else \
 		echo "✅ Database already running"; \
+	fi; \
+	if [ "$$redis_running" -eq 0 ]; then \
+		echo "🔴 Redis not running, will start it"; \
+		services_to_start="$$services_to_start redis"; \
+	else \
+		echo "✅ Redis already running"; \
 	fi; \
 	if [ "$$backend_running" -eq 0 ]; then \
 		echo "🔧 Backend not running, will start it"; \
@@ -139,15 +146,26 @@ backend-up: check-backend-env ## 🔧 Start only backend and database
 		fi; \
 		echo "⏳ Still waiting for database... ($$timeout seconds left)"; \
 	done
+	@echo "⏳ Waiting for Redis to accept connections..."
+	@timeout=30; \
+	while ! $(COMPOSE) --env-file backend/.env exec -T redis redis-cli ping >/dev/null 2>&1; do \
+		sleep 2; \
+		timeout=$$((timeout - 2)); \
+		if [ $$timeout -le 0 ]; then \
+			echo "❌ Redis timeout after 30 seconds"; \
+			exit 1; \
+		fi; \
+		echo "⏳ Still waiting for Redis... ($$timeout seconds left)"; \
+	done
 	@echo "📊 Running migrations..."
 	@$(COMPOSE) --env-file backend/.env exec backend uv run alembic upgrade head
 	@echo "✅ Backend services ready!"
 
 backend-down: ## 🛑 Stop only backend services
-	$(COMPOSE) stop backend db
+	$(COMPOSE) stop backend db redis
 
 backend-logs: ## 📊 Show backend services logs
-	$(COMPOSE) logs -f backend db
+	$(COMPOSE) logs -f backend db redis
 
 # Quick shortcuts for common actions
 up: project-up ## Alias for project-up

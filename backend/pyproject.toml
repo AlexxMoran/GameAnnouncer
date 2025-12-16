@@ -14,9 +14,13 @@ dependencies = [
     "pydantic-settings>=2.11.0",
     "pydantic[email]>=2.11.9",
     "python-multipart>=0.0.20",
+    "redis>=7.0.1",
     "rich>=14.2.0",
     "ruff>=0.14.0",
     "sqlalchemy[asyncio]>=2.0.43",
+    "taskiq>=0.12.1",
+    "taskiq-fastapi>=0.4.0",
+    "taskiq-redis>=1.2.0",
     "uvicorn[standard]>=0.37.0",
 ]
 

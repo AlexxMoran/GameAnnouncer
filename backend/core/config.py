@@ -88,6 +88,17 @@ class AuthConfig(BaseModel):
     reset_password_token_secret: str
 
 
+class RedisConfig(BaseModel):
+    host: str = "localhost"
+    port: int = 6379
+    db: int = 0
+
+    @computed_field
+    @property
+    def url(self) -> str:
+        return f"redis://{self.host}:{self.port}/{self.db}"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -99,6 +110,7 @@ class Settings(BaseSettings):
     db: DatabaseConfig
     cors: CORSConfig = CORSConfig()
     auth: AuthConfig
+    redis: RedisConfig = RedisConfig()
 
 
 settings = Settings()
