@@ -33,19 +33,11 @@ check-backend-env:
 # Project Management - Docker Commands
 project-up: backend-up ## 🚀 Complete setup - build and start everything!
 	@echo "🚀 Starting full GameAnnouncer development environment..."
-	@echo "📦 Checking PgAdmin status..."
-	@pgadmin_running=$$($(COMPOSE) --env-file backend/.env ps -q pgadmin 2>/dev/null | wc -l | tr -d ' '); \
-	if [ "$$pgadmin_running" -eq 0 ]; then \
-		echo "🎨 Starting PgAdmin..."; \
-		$(COMPOSE) --env-file backend/.env up -d pgadmin; \
-	else \
-		echo "✅ PgAdmin already running"; \
-	fi
 	@echo ""
 	@echo "🎉 Ready! Your full development environment is running:"
 	@echo "📱 API: http://localhost:3000"
 	@echo "📊 Docs: http://localhost:3000/docs"
-	@echo "🗄️  PgAdmin: http://localhost:5050"
+	@echo "📧 Mailpit: http://localhost:8025"
 
 project-down: ## 🛑 Stop all containers
 	@echo "🛑 Stopping GameAnnouncer containers..."
@@ -103,11 +95,13 @@ validate: check-backend-env ## ✅ Validate docker-compose configuration
 
 # Backend and DB only (without frontend)
 backend-up: check-backend-env ## 🔧 Start only backend and database
-	@echo "🔧 Starting backend services (DB + Redis + API)..."
+	@echo "🔧 Starting backend services (DB + Redis + Mailpit + API + Worker)..."
 	@echo "📦 Checking container status..."
 	@db_running=$$($(COMPOSE) --env-file backend/.env ps -q db 2>/dev/null | wc -l | tr -d ' '); \
 	redis_running=$$($(COMPOSE) --env-file backend/.env ps -q redis 2>/dev/null | wc -l | tr -d ' '); \
+	mailpit_running=$$($(COMPOSE) --env-file backend/.env ps -q mailpit 2>/dev/null | wc -l | tr -d ' '); \
 	backend_running=$$($(COMPOSE) --env-file backend/.env ps -q backend 2>/dev/null | wc -l | tr -d ' '); \
+	worker_running=$$($(COMPOSE) --env-file backend/.env ps -q worker 2>/dev/null | wc -l | tr -d ' '); \
 	services_to_start=""; \
 	if [ "$$db_running" -eq 0 ]; then \
 		echo "📊 Database not running, will start it"; \
@@ -121,11 +115,23 @@ backend-up: check-backend-env ## 🔧 Start only backend and database
 	else \
 		echo "✅ Redis already running"; \
 	fi; \
+	if [ "$$mailpit_running" -eq 0 ]; then \
+		echo "📧 Mailpit not running, will start it"; \
+		services_to_start="$$services_to_start mailpit"; \
+	else \
+		echo "✅ Mailpit already running"; \
+	fi; \
 	if [ "$$backend_running" -eq 0 ]; then \
 		echo "🔧 Backend not running, will start it"; \
 		services_to_start="$$services_to_start backend"; \
 	else \
 		echo "✅ Backend already running"; \
+	fi; \
+	if [ "$$worker_running" -eq 0 ]; then \
+		echo "⚙️  Worker not running, will start it"; \
+		services_to_start="$$services_to_start worker"; \
+	else \
+		echo "✅ Worker already running"; \
 	fi; \
 	if [ -n "$$services_to_start" ]; then \
 		echo "🚀 Starting:$$services_to_start"; \
@@ -162,10 +168,10 @@ backend-up: check-backend-env ## 🔧 Start only backend and database
 	@echo "✅ Backend services ready!"
 
 backend-down: ## 🛑 Stop only backend services
-	$(COMPOSE) stop backend db redis
+	$(COMPOSE) stop backend worker db redis mailpit
 
 backend-logs: ## 📊 Show backend services logs
-	$(COMPOSE) logs -f backend db redis
+	$(COMPOSE) logs -f backend worker db redis mailpit
 
 # Quick shortcuts for common actions
 up: project-up ## Alias for project-up

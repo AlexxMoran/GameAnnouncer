@@ -30,6 +30,18 @@ services:
     volumes:
       - redis-data:/data
 
+  mailpit:
+    image: axllent/mailpit
+    container_name: gameannouncer_mailpit
+    restart: always
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    environment:
+      MP_MAX_MESSAGES: 5000
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
   backend:
     build:
       context: ./backend
@@ -50,16 +62,27 @@ services:
         condition: service_healthy
     stdin_open: true
     tty: true
-    
 
-  pgadmin:
-    image: dpage/pgadmin4
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gameannouncer_worker
+    command: taskiq worker tasks.broker:broker --fs-discover
+    volumes:
+      - /backend/.venv
+      - ./backend:/backend
+    env_file:
+      - ./backend/.env
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.org
-      PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    ports:
-      - "5050:80"
+      - DATABASE_URL=postgresql+asyncpg://${DB__USER}:${DB__PASSWORD}@db:5432/${DB__DATABASE}
+      - ENVIRONMENT=development
+    depends_on:
+      - redis
+      - mailpit
+    stdin_open: true
+    tty: true
+
 
 
 volumes:

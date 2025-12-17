@@ -89,7 +89,7 @@ class AuthConfig(BaseModel):
 
 
 class RedisConfig(BaseModel):
-    host: str = "localhost"
+    host: str = "redis"
     port: int = 6379
     db: int = 0
 
@@ -97,6 +97,15 @@ class RedisConfig(BaseModel):
     @property
     def url(self) -> str:
         return f"redis://{self.host}:{self.port}/{self.db}"
+
+
+class EmailConfig(BaseModel):
+    smtp_host: str = "mailpit"
+    smtp_port: int = 1025
+    smtp_user: str = ""
+    smtp_password: str = ""
+    from_email: str = "noreply@gameannouncer.com"
+    from_name: str = "GameAnnouncer"
 
 
 class Settings(BaseSettings):
@@ -111,6 +120,7 @@ class Settings(BaseSettings):
     cors: CORSConfig = CORSConfig()
     auth: AuthConfig
     redis: RedisConfig = RedisConfig()
+    email: EmailConfig = EmailConfig()
 
 
 settings = Settings()

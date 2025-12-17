@@ -3,13 +3,11 @@ from core.logger import logger
 from taskiq_redis import RedisAsyncResultBackend, ListQueueBroker
 from taskiq import TaskiqScheduler
 
-
 redis_async_result = RedisAsyncResultBackend(
     redis_url=settings.redis.url,
 )
 
-broker = ListQueueBroker(
-    url=settings.redis.url).with_result_backend(redis_async_result)
+broker = ListQueueBroker(url=settings.redis.url).with_result_backend(redis_async_result)
 
 
 scheduler = TaskiqScheduler(broker=broker, sources=[])
