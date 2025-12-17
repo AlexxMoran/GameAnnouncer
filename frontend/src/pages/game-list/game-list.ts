@@ -1,23 +1,33 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GameCard } from '@entities/game/ui/game-card/game-card';
+import {
+  CreateGameDialog,
+  IDialogData,
+} from '@features/create-game/ui/create-game-dialog/create-game-dialog';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EGameCategories } from '@shared/api/games/games-api.const';
 import { GamesApiService } from '@shared/api/games/games-api.service';
-import { IGameDto, IGameListFilters } from '@shared/api/games/games-api.types';
+import { ICreateGameDto, IGameDto, IGameListFilters } from '@shared/api/games/games-api.types';
 import { ElementObserverDirective } from '@shared/directives/element-observer.directive';
 import { PaginationService } from '@shared/lib/pagination/pagination.service';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { Chips } from '@shared/ui/chips/chips';
+import { FabButton } from '@shared/ui/fab-button/fab-button';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-game-list',
   imports: [
     MatProgressSpinnerModule,
     ElementObserverDirective,
+    MatBadgeModule,
     TranslatePipe,
     AsyncPipe,
+    FabButton,
     GameCard,
     Chips,
   ],
@@ -28,7 +38,7 @@ import { Chips } from '@shared/ui/chips/chips';
         const gamesApiService = inject(GamesApiService);
 
         return new PaginationService({
-          loadDataFn: gamesApiService.getGameList.bind(gamesApiService),
+          loadDataFn: gamesApiService.getGameList,
         });
       },
     },
@@ -39,8 +49,13 @@ import { Chips } from '@shared/ui/chips/chips';
 export class GameList {
   private paginationService =
     inject<PaginationService<IGameDto, IGameListFilters>>(PaginationService);
+  private gameApiService = inject(GamesApiService);
+  private dialog = inject(MatDialog);
+
+  readonly isLoading = signal<boolean>(false);
+
+  readonly gameActionList = [{ name: 'create', label: 'actions.createTournament' }];
   list$ = this.paginationService.list$;
-  paginate = this.paginationService.paginate;
 
   get isInitializeLoading() {
     return this.paginationService.isInitializeLoading();
@@ -58,11 +73,37 @@ export class GameList {
     return Object.entries(EGameCategories).map(([label, name]) => ({ label, name }));
   }
 
-  addGameFilters(selectedChipName: TMaybe<string>) {
+  get total() {
+    return this.paginationService.total();
+  }
+
+  paginate = this.paginationService.paginate;
+
+  addGameFilters = (selectedChipName: TMaybe<string>) => {
     if (selectedChipName) {
       this.paginationService.addFilters({ category: selectedChipName as EGameCategories });
     } else {
       this.paginationService.clearFilters();
     }
-  }
+  };
+
+  createGame = (values: ICreateGameDto) => {
+    this.isLoading.set(true);
+
+    this.gameApiService
+      .createGame(values)
+      .pipe(finalize(() => this.isLoading.set(false)))
+      .subscribe({
+        complete: () => {
+          this.paginationService.reset();
+          this.dialog.closeAll();
+        },
+      });
+  };
+
+  openCreateDialog = () => {
+    this.dialog.open<CreateGameDialog, IDialogData>(CreateGameDialog, {
+      data: { submit: this.createGame, isLoading: this.isLoading },
+    });
+  };
 }

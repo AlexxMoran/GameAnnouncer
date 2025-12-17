@@ -16,6 +16,14 @@
   }
 </div>
 
+@if (gameActionList().length) {
+  <app-menu
+    class="absolute top-2 right-2"
+    icon="more_horiz"
+    [optionList]="gameActionList()"
+  ></app-menu>
+}
+
 <div class="p-3 overflow-hidden flex flex-col flex-1">
   <p class="mat-headline-6 line-clamp-1">{{ game()?.name }}</p>
 

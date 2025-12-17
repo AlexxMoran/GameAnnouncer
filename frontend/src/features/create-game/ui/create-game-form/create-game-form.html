@@ -1,0 +1,21 @@
+<form class="flex flex-col gap-4 w-full" [formGroup]="createGameForm">
+  <app-input-field [control]="nameControl" label="entities.name" />
+  <app-input-field
+    [control]="descriptionControl"
+    label="entities.description"
+    [isTextarea]="true"
+  />
+  <app-select-field
+    [control]="categoryControl"
+    label="entities.category"
+    [optionList]="optionList"
+  />
+  <app-button
+    [isLoading]="isLoading()"
+    (clicked)="submit()"
+    [disabled]="disabled"
+    [fullWidth]="true"
+  >
+    {{ buttonText() }}
+  </app-button>
+</form>

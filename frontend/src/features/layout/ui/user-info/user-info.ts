@@ -4,7 +4,6 @@ import { IUserDto } from '@shared/api/users/users-api.types';
 import { AuthService } from '@shared/lib/auth/auth.service';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { Menu } from '@shared/ui/menu/menu';
-import { IIconMenuOption } from '@shared/ui/menu/menu.types';
 
 @Component({
   selector: 'app-user-info',
@@ -15,7 +14,7 @@ export class UserInfo {
   private authService = inject(AuthService);
   me = input<TMaybe<IUserDto>>(null);
 
-  get optionList(): IIconMenuOption[] {
+  get optionList() {
     return [{ name: 'logout', label: 'actions.logout', click: this.logout }];
   }
 

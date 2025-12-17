@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { AbstractControl } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 
@@ -7,7 +7,7 @@ import { TMaybe } from '@shared/lib/utility-types/additional.types';
 export class ValidationErrorsService {
   private translateService = inject(TranslateService);
 
-  getMessage(control: TMaybe<AbstractControl>) {
+  getMessage(control: TMaybe<FormControl>) {
     const { errors } = control || {};
 
     if (!errors) return null;

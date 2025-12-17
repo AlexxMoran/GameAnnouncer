@@ -5,7 +5,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IIconMenuOption } from '@shared/ui/menu/menu.types';
+import { IOption } from '@shared/lib/utility-types/base-ui.types';
+
+export interface IIconMenuOption<TName extends string = string> extends IOption<TName> {
+  icon?: string;
+  click?: (name?: TName) => void;
+}
 
 @Component({
   selector: 'app-menu',

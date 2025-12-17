@@ -8,7 +8,7 @@ interface ICardVariants {
 export class StyleFactory {
   private static readonly classes = {
     card: {
-      base: 'flex flex-col relative rounded-3xl overflow-hidden',
+      base: 'flex flex-col relative overflow-hidden rounded-3xl',
       bg: {
         none: '',
         'container-low': 'bg-[var(--mat-sys-surface-container-low)]',
@@ -20,6 +20,8 @@ export class StyleFactory {
       shadow: {
         none: '',
         'shadow-sm': 'shadow-sm',
+        'shadow-md': 'shadow-md',
+        'shadow-lg': 'shadow-lg',
         'shadow-xl': 'shadow-xl',
       },
     },
