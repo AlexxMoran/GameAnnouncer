@@ -83,6 +83,20 @@ services:
     stdin_open: true
     tty: true
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gameannouncer_frontend
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
+    environment:
+      - ENVIRONMENT=development
+    stdin_open: true
+    tty: true
 
 
 volumes:

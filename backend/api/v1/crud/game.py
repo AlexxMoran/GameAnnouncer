@@ -53,8 +53,8 @@ class GameCRUD:
         self,
         session: AsyncSession,
         game_in: GameCreate,
-        user: Optional[User] = None,
-        action: Optional[str] = None,
+        user: User,
+        action: str,
     ) -> Game:
         authorize_action(user, Game(), action)
 
@@ -70,8 +70,8 @@ class GameCRUD:
         session: AsyncSession,
         game: Game,
         game_in: GameUpdate,
-        user: Optional[User] = None,
-        action: Optional[str] = None,
+        user: User,
+        action: str,
     ) -> Game:
         authorize_action(user, Game(), action)
 
@@ -84,7 +84,15 @@ class GameCRUD:
 
         return game
 
-    async def delete(self, session: AsyncSession, game: Game) -> None:
+    async def delete(
+        self,
+        session: AsyncSession,
+        game: Game,
+        user: User,
+        action: Optional[str] = None,
+    ) -> None:
+        authorize_action(user, game, action)
+
         await session.delete(game)
         await session.commit()
 

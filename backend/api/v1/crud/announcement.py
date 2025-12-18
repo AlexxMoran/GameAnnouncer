@@ -108,7 +108,10 @@ class AnnouncementCRUD:
         session: AsyncSession,
         announcement: Announcement,
         announcement_in: AnnouncementUpdate,
+        user: User,
+        action: str,
     ) -> Announcement:
+        authorize_action(user, announcement, action)
         update_data = announcement_in.model_dump(exclude_unset=True)
         for field, value in update_data.items():
             setattr(announcement, field, value)
@@ -118,7 +121,11 @@ class AnnouncementCRUD:
 
         return announcement
 
-    async def delete(self, session: AsyncSession, announcement: Announcement) -> None:
+    async def delete(
+        self, session: AsyncSession, announcement: Announcement, user: User, action: str
+    ) -> None:
+        authorize_action(user, announcement, action)
+
         await session.delete(announcement)
         await session.commit()
 

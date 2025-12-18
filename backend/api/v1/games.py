@@ -97,6 +97,19 @@ async def update_game(
     return DataResponse(data=updated_game)
 
 
+@router.delete("/{game_id}", response_model=DataResponse[str])
+async def delete_game(
+    session: SessionDep,
+    game: Game = Depends(get_game_for_edit_dependency),
+    current_user: User = Depends(current_user),
+):
+    await game_crud.delete(
+        session=session, game=game, user=current_user, action="delete"
+    )
+
+    return DataResponse(data="Game deleted successfully")
+
+
 @router.post("/{game_id}/upload_image", response_model=DataResponse[GameResponse])
 async def upload_game_image(
     session: SessionDep,

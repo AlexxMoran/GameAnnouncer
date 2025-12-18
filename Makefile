@@ -31,10 +31,11 @@ check-backend-env:
 	fi
 
 # Project Management - Docker Commands
-project-up: backend-up ## 🚀 Complete setup - build and start everything!
+project-up: backend-up frontend-up ## 🚀 Complete setup - build and start everything!
 	@echo "🚀 Starting full GameAnnouncer development environment..."
 	@echo ""
 	@echo "🎉 Ready! Your full development environment is running:"
+	@echo "🎨 Frontend: http://localhost:4200"
 	@echo "📱 API: http://localhost:3000"
 	@echo "📊 Docs: http://localhost:3000/docs"
 	@echo "📧 Mailpit: http://localhost:8025"
@@ -47,7 +48,10 @@ project-rebuild: check-backend-env ## 🔨 Force rebuild and restart containers
 	@echo "🔨 Force rebuilding containers..."
 	$(COMPOSE) up --build -d
 
-project-logs: ## 📊 Show backend logs
+project-logs: ## 📊 Show all services logs
+	$(COMPOSE) logs -f
+
+project-logs-backend: ## 📊 Show backend logs
 	$(COMPOSE) logs -f backend
 
 project-logs-all: ## 📊 Show all containers logs
@@ -172,6 +176,30 @@ backend-down: ## 🛑 Stop only backend services
 
 backend-logs: ## 📊 Show backend services logs
 	$(COMPOSE) logs -f backend worker db redis mailpit
+
+# Frontend Management
+frontend-up: ## 🎨 Start only frontend services
+	@echo "🎨 Starting frontend services..."
+	@echo "📦 Checking frontend container status..."
+	@frontend_running=$$($(COMPOSE) ps -q frontend 2>/dev/null | wc -l | tr -d ' '); \
+	if [ "$$frontend_running" -eq 0 ]; then \
+		echo "🎨 Frontend not running, will start it"; \
+		echo "🚀 Starting frontend..."; \
+		$(COMPOSE) up -d frontend; \
+		echo "⏳ Waiting for frontend to be ready..."; \
+		sleep 10; \
+		echo "✅ Frontend services ready!"; \
+		echo "🎉 Frontend running at: http://localhost:4200"; \
+	else \
+		echo "✅ Frontend already running"; \
+		echo "🎉 Frontend available at: http://localhost:4200"; \
+	fi
+
+frontend-down: ## 🛑 Stop only frontend services
+	$(COMPOSE) stop frontend
+
+frontend-logs: ## 📊 Show frontend services logs
+	$(COMPOSE) logs -f frontend
 
 # Quick shortcuts for common actions
 up: project-up ## Alias for project-up

@@ -130,12 +130,30 @@ async def update_announcement(
     session: SessionDep,
     announcement_in: AnnouncementUpdate,
     announcement: Announcement = Depends(get_announcement_for_edit_dependency),
+    current_user: User = Depends(current_user),
 ):
     updated_announcement = await announcement_crud.update(
-        session=session, announcement=announcement, announcement_in=announcement_in
+        session=session,
+        announcement=announcement,
+        announcement_in=announcement_in,
+        user=current_user,
+        action="edit",
     )
 
     return DataResponse(data=updated_announcement)
+
+
+@router.delete("/{announcement_id}", response_model=DataResponse[str])
+async def delete_announcement(
+    session: SessionDep,
+    announcement: Announcement = Depends(get_announcement_for_edit_dependency),
+    current_user: User = Depends(current_user),
+):
+    await announcement_crud.delete(
+        session=session, announcement=announcement, user=current_user, action="delete"
+    )
+
+    return DataResponse(data="Announcement deleted successfully")
 
 
 @router.post(
