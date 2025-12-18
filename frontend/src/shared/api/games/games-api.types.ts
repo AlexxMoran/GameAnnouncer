@@ -11,6 +11,11 @@ export interface IGameDto extends IEntityDateFields {
   image_url?: string;
 }
 
+export interface ICreateGameDto {
+  name: string;
+  description: string;
+  category: EGameCategories;
+}
 export interface IGameListFilters {
   category: EGameCategories;
 }

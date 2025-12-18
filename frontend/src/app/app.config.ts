@@ -31,6 +31,6 @@ export const appConfig: ApplicationConfig = {
         formatters: { upcase: (v: string) => v.toUpperCase() },
       },
     },
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor, errorInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([errorInterceptor, authInterceptor])),
   ],
 };

@@ -52,3 +52,9 @@ body {
 body {
   font-family: Montserrat, "Helvetica Neue", sans-serif;
 }
+
+:root {
+  --mat-dialog-container-min-width: 500px;
+  --mat-dialog-container-max-width: 700vw;
+  --mat-dialog-container-color: var(--mat-sys-surface-container)
+}

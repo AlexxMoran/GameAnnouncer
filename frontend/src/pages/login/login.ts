@@ -4,6 +4,7 @@ import { AuthForm } from '@features/auth/ui/auth-form/auth-form';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ILoginDto } from '@shared/api/auth/auth.types';
 import { AuthService } from '@shared/lib/auth/auth.service';
+import { StyleFactory } from '@shared/lib/style-factory/style-factory.service';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -25,4 +26,12 @@ export class Login {
       .pipe(finalize(() => this.isLoading.set(false)))
       .subscribe();
   };
+
+  get cardClasses() {
+    return StyleFactory.card({
+      bg: 'container-low',
+      shadow: 'shadow-xl',
+      classes: 'gap-3 w-150 h-100 items-center justify-center mb-12',
+    });
+  }
 }

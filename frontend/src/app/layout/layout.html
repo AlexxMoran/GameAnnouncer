@@ -1,25 +1,28 @@
-@if (isLoading) {
-  <div class="w-full h-full flex items-center justify-center">
-    <mat-spinner class="m-auto"></mat-spinner>
-  </div>
-} @else {
-  <header class="w-full min-h-12 px-10 flex items-center">
-    <div class="flex items-center justify-between gap-6 w-full">
-      <div class="flex items-center gap-4">
-        @if (!hasToken) {
-          <a routerLink="/login" class="text-[var(--mat-sys-primary)] cursor-pointer">{{
-            'actions.login' | translate
-          }}</a>
-        }
-        <a routerLink="/games" class="text-[var(--mat-sys-primary)] cursor-pointer">{{
-          'pageTitles.games' | translate
+<header
+  class="w-full min-h-12 px-10 flex items-center bg-[var(--mat-sys-surface)] sticky top-0 z-50 shadow-md"
+>
+  <div class="flex items-center justify-between gap-6 w-full">
+    <div class="flex items-center gap-4">
+      @if (!isAuthenticated) {
+        <a routerLink="/login" class="text-[var(--mat-sys-primary)] cursor-pointer">{{
+          'actions.login' | translate
         }}</a>
-      </div>
-      <div class="flex items-center gap-2"><theme-toggle /> <lang-toggle /> <app-user-info /></div>
+      }
+      <a routerLink="/games" class="text-[var(--mat-sys-primary)] cursor-pointer">{{
+        'pageTitles.games' | translate
+      }}</a>
     </div>
-  </header>
-  <main class="max-w-7xl mix-h-full w-full mx-auto px-10 pt-10 pb-15 flex-1">
-    <router-outlet></router-outlet>
-  </main>
-  <footer></footer>
-}
+    <div class="flex items-center gap-2">
+      <theme-toggle />
+      <lang-toggle />
+
+      @if (me) {
+        <app-user-info [me]="me" />
+      }
+    </div>
+  </div>
+</header>
+<main class="max-w-7xl mix-h-full w-full mx-auto px-10 pt-10 pb-15 flex-1">
+  <router-outlet></router-outlet>
+</main>
+<footer></footer>

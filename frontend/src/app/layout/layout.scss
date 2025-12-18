@@ -1,5 +1,0 @@
-@use '@shared/styles/mixins/container-glow.mixin.scss' as mixin;
-
-:host {
-  @include mixin.container-glow(top);
-}

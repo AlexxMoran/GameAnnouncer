@@ -1,0 +1,24 @@
+<mat-form-field appearance="outline" class="w-full">
+  <mat-label class="capitalize-first">
+    {{ label() | translate }}
+  </mat-label>
+
+  @if (isTextarea()) {
+    <textarea
+      matInput
+      [formControl]="control()"
+      [placeholder]="'placeholders.enter' | translate"
+    ></textarea>
+  } @else {
+    <input
+      matInput
+      [formControl]="control()"
+      [placeholder]="'placeholders.enter' | translate"
+      [type]="type()"
+    />
+  }
+
+  @if (errorMessage$ | async; as errorMessage) {
+    <mat-error>{{ errorMessage }}</mat-error>
+  }
+</mat-form-field>

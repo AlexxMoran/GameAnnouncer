@@ -1,4 +1,6 @@
-<p class="mat-headline-4">{{ 'pageTitles.games' | translate }}</p>
+<p class="mat-headline-4 inline-block" matBadgeOverlap="false" [matBadge]="total">
+  {{ 'pageTitles.games' | translate }}
+</p>
 
 <app-chips class="mb-8" [chipList]="chipList" (selected)="addGameFilters($event)" />
 
@@ -8,8 +10,9 @@
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 relative">
   @for (game of list$ | async; track game.id) {
-    <game-card [game]="game"></game-card>
+    <app-game-card [gameActionList]="gameActionList" [game]="game"></app-game-card>
   }
+
   @if (isInitializeLoading) {
     <div class="flex items-center justify-center h-100 w-full absolute top-0">
       <mat-spinner class="m-auto"></mat-spinner>
@@ -22,3 +25,10 @@
 @if (isPaginating) {
   <mat-spinner class="mx-auto mt-6" diameter="60"></mat-spinner>
 }
+
+<app-fab-button
+  icon="add"
+  [tooltip]="'actions.addGame' | translate"
+  (click)="openCreateDialog()"
+  class="fixed bottom-10 right-10"
+></app-fab-button>

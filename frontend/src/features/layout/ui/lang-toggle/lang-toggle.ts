@@ -1,16 +1,20 @@
 import { Component, inject } from '@angular/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { LANG_STORAGE_KEY } from '@features/layout/ui/lang-toggle/lang-toggle.constants';
 import { TLang } from '@features/layout/ui/lang-toggle/lang-toggle.types';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import translationsEn from '@shared/i18n/en.json';
 import translationsRu from '@shared/i18n/ru.json';
-import { Menu } from '@shared/ui/menu/menu';
-import { IIconMenuOption } from '@shared/ui/menu/menu.types';
+import { IIconMenuOption, Menu } from '@shared/ui/menu/menu';
 
 @Component({
   selector: 'lang-toggle',
-  template: `<app-menu [optionList]="optionList" [icon]="'language'" />`,
-  imports: [Menu],
+  template: `<app-menu
+    [matTooltip]="'actions.changeLanguage' | translate"
+    [optionList]="optionList"
+    [icon]="'language'"
+  />`,
+  imports: [Menu, MatTooltipModule, TranslatePipe],
 })
 export class LangToggle {
   translate = inject(TranslateService);

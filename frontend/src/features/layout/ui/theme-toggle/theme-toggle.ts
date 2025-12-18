@@ -1,13 +1,15 @@
 import { Component, DOCUMENT, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { THEME_TYPE_STORAGE_NAME } from '@features/layout/ui/theme-toggle/theme-toggle.const';
 import { TThemeType } from '@features/layout/ui/theme-toggle/theme-toggle.types';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'theme-toggle',
   templateUrl: './theme-toggle.html',
-  imports: [MatIconModule, MatButtonModule],
+  imports: [MatIconModule, MatButtonModule, MatTooltipModule, TranslatePipe],
 })
 export class ThemeToggle {
   document = inject(DOCUMENT);
@@ -18,6 +20,10 @@ export class ThemeToggle {
 
   get currentTheme(): TThemeType {
     return (localStorage.getItem(THEME_TYPE_STORAGE_NAME) as TThemeType) || 'light';
+  }
+
+  get tooltipText() {
+    return this.currentTheme === 'light' ? 'actions.enableDarkTheme' : 'actions.enableLightTheme';
   }
 
   setTheme(theme: TThemeType) {

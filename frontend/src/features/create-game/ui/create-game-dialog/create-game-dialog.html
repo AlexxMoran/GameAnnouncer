@@ -1,0 +1,7 @@
+<app-dialog-wrapper [title]="'actions.addGame' | translate">
+  <app-create-game-form
+    [buttonText]="'actions.add' | translate"
+    (submitted)="submit($event)"
+    [isLoading]="dialogData.isLoading()"
+  ></app-create-game-form>
+</app-dialog-wrapper>
