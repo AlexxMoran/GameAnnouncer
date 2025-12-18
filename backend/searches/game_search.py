@@ -17,7 +17,7 @@ class GameSearch(BaseSearch):
             .group_by(Game.id)
             .offset(skip)
             .limit(limit)
-            .order_by(Game.created_at)
+            .order_by(Game.created_at.desc())
         )
 
         result = await self.session.execute(query)
