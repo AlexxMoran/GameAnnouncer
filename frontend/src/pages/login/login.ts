@@ -4,7 +4,7 @@ import { AuthForm } from '@features/auth/ui/auth-form/auth-form';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ILoginDto } from '@shared/api/auth/auth.types';
 import { AuthService } from '@shared/lib/auth/auth.service';
-import { StyleFactory } from '@shared/lib/style-factory/style-factory.service';
+import { StyleFactory } from '@shared/lib/styles/style-factory.service';
 import { finalize } from 'rxjs';
 
 @Component({

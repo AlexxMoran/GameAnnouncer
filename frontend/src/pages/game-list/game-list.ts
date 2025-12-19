@@ -4,15 +4,13 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { GameCard } from '@entities/game/ui/game-card/game-card';
-import {
-  CreateGameDialog,
-  IDialogData,
-} from '@features/create-game/ui/create-game-dialog/create-game-dialog';
+import { CreateGameForm } from '@features/create-game/ui/create-game-form/create-game-form';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EGameCategories } from '@shared/api/games/games-api.const';
 import { GamesApiService } from '@shared/api/games/games-api.service';
 import { ICreateGameDto, IGameDto, IGameListFilters } from '@shared/api/games/games-api.types';
 import { ElementObserverDirective } from '@shared/directives/element-observer.directive';
+import { DialogService } from '@shared/lib/dialog/dialog.service';
 import { PaginationService } from '@shared/lib/pagination/pagination.service';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { Chips } from '@shared/ui/chips/chips';
@@ -51,8 +49,9 @@ export class GameList {
     inject<PaginationService<IGameDto, IGameListFilters>>(PaginationService);
   private gameApiService = inject(GamesApiService);
   private dialog = inject(MatDialog);
+  private dialogService = inject(DialogService);
 
-  readonly isLoading = signal<boolean>(false);
+  isLoading = signal<boolean>(false);
 
   readonly gameActionList = [{ name: 'create', label: 'actions.createTournament' }];
   list$ = this.paginationService.list$;
@@ -102,8 +101,13 @@ export class GameList {
   };
 
   openCreateDialog = () => {
-    this.dialog.open<CreateGameDialog, IDialogData>(CreateGameDialog, {
-      data: { submit: this.createGame, isLoading: this.isLoading },
+    this.dialogService.open(CreateGameForm, {
+      title: 'actions.addGame',
+      inputs: {
+        buttonText: 'actions.add',
+        isLoading: this.isLoading,
+      },
+      outputs: { submitted: this.createGame },
     });
   };
 }
