@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthForm } from '@features/auth/ui/auth-form/auth-form';
 import { TranslatePipe } from '@ngx-translate/core';
-import { StyleFactory } from '@shared/lib/style-factory/style-factory.service';
+import { StyleFactory } from '@shared/lib/styles/style-factory.service';
 
 @Component({
   selector: 'app-registration',

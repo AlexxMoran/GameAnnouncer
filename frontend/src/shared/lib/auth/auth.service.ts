@@ -2,7 +2,6 @@ import { HttpContext } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { SKIP_ERROR_HANDLING } from '@app/interceptors/error.interceptor';
-import { TranslateService } from '@ngx-translate/core';
 import { AuthApiService } from '@shared/api/auth/auth-api.service';
 import { ILoginDto } from '@shared/api/auth/auth.types';
 import { IUserDto } from '@shared/api/users/users-api.types';
@@ -17,7 +16,6 @@ export class AuthService {
   private authApiService = inject(AuthApiService);
   private router = inject(Router);
   private snackBarService = inject(SnackBarService);
-  private translateService = inject(TranslateService);
   hasAttemptToLogin = false;
   accessToken = signal<TMaybe<string>>(null);
   me = signal<TMaybe<IUserDto>>(null);
@@ -26,11 +24,9 @@ export class AuthService {
   login = (params: ILoginDto) => {
     return this.authApiService.login(params).pipe(
       tap(({ access_token }) => {
-        const successLoginText = this.translateService.instant('texts.successLogin');
-
         this.router.navigateByUrl('/games');
         this.setToken(access_token);
-        this.snackBarService.showSuccessSnackBar(successLoginText);
+        this.snackBarService.showSuccessSnackBar('texts.successLogin');
         this.hasAttemptToLogin = true;
       }),
       switchMap(() => this.getMe()),

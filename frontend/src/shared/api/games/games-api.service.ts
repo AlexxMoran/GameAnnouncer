@@ -2,7 +2,12 @@ import { inject, Injectable } from '@angular/core';
 import { BaseApiService } from '@shared/api/base-api.service';
 import { TApiResponseWrapper } from '@shared/api/base-api.types';
 import { GAMES_ENDPOINT } from '@shared/api/games/games-api.const';
-import { ICreateGameDto, IGameDto, IGetGameListDto } from '@shared/api/games/games-api.types';
+import {
+  ICreateGameDto,
+  IGameDto,
+  IGetGameListDto,
+  IUpdateGameDto,
+} from '@shared/api/games/games-api.types';
 import { IPaginationMeta } from '@shared/lib/pagination/pagination.types';
 
 @Injectable({ providedIn: 'root' })
@@ -18,5 +23,16 @@ export class GamesApiService {
 
   createGame = (params: ICreateGameDto) => {
     return this.baseApiService.post<TApiResponseWrapper<IGameDto>>(GAMES_ENDPOINT, params);
+  };
+
+  editGame = (id: number, params: IUpdateGameDto) => {
+    return this.baseApiService.patch<TApiResponseWrapper<IGameDto>>(
+      `${GAMES_ENDPOINT}/${id}`,
+      params,
+    );
+  };
+
+  deleteGame = (id: number) => {
+    return this.baseApiService.delete<TApiResponseWrapper<IGameDto>>(`${GAMES_ENDPOINT}/${id}`);
   };
 }

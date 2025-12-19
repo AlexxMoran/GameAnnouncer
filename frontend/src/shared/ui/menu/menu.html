@@ -7,7 +7,7 @@
 <mat-menu #menu="matMenu">
   <ng-content></ng-content>
   @for (option of optionList(); track $index) {
-    <button mat-menu-item (click)="option?.click(option.name)">
+    <button mat-menu-item (click)="option.click?.(option.name)">
       @if (option.icon) {
         <mat-icon>{{ option.icon }}</mat-icon>
       }

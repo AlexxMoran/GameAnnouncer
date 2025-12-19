@@ -1,0 +1,7 @@
+<p>{{ message() | translate }}</p>
+<div class="flex gap-4 self-end">
+  <app-button appearance="outlined" (clicked)="cancel()">{{
+    cancelButtonText() | translate
+  }}</app-button>
+  <app-button (clicked)="confirm()">{{ confirmButtonText() | translate }}</app-button>
+</div>

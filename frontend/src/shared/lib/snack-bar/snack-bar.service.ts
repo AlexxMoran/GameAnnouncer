@@ -1,22 +1,10 @@
-import { Component, inject, Injectable } from '@angular/core';
-import { MAT_SNACK_BAR_DATA, MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
-import { IconButton } from '@shared/ui/icon-button/icon-button';
+import { inject, Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackBarMessage } from '@shared/ui/snack-bar-message/snack-bar-message';
 
-@Component({
-  selector: 'snack-bar-message',
-  imports: [IconButton],
-  template: `<div class="flex justify-between">
-    <span class="mat-subtitle-1">{{ data.message }}</span>
-    <app-icon-button (clicked)="dismiss()" fontIcon="close" />
-  </div>`,
-})
-export class SnackBarMessage {
-  data = inject(MAT_SNACK_BAR_DATA);
-  snackBarRef = inject(MatSnackBarRef);
-
-  dismiss() {
-    this.snackBarRef.dismiss();
-  }
+interface ISnackBarMessage {
+  message: string;
+  panelClass: string;
 }
 
 @Injectable({
@@ -24,20 +12,20 @@ export class SnackBarMessage {
 })
 export class SnackBarService {
   private snackBar = inject(MatSnackBar);
-  private messageList: string[] = [];
+  private messageList: ISnackBarMessage[] = [];
 
-  openSnackBar(message: string, panelClass: string) {
-    this.messageList.push(message);
+  private openSnackBar(message: string, panelClass: string) {
+    this.messageList.push({ message, panelClass });
 
     if (this.messageList.length === 1) {
-      this.openNext(panelClass);
+      this.openNext();
     }
   }
 
-  openNext(panelClass: string) {
+  private openNext() {
     if (this.messageList.length === 0) return;
 
-    const message = this.messageList[0];
+    const { message, panelClass } = this.messageList[0];
 
     const ref = this.snackBar.openFromComponent(SnackBarMessage, {
       panelClass,
@@ -49,7 +37,7 @@ export class SnackBarService {
     ref.afterDismissed().subscribe(() => {
       setTimeout(() => {
         this.messageList.shift();
-        this.openNext(panelClass);
+        this.openNext();
       }, 300);
     });
   }

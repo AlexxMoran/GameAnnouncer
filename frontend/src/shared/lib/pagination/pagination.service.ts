@@ -10,17 +10,26 @@ import {
   finalize,
   map,
   Observable,
+  of,
   scan,
   switchMap,
   tap,
 } from 'rxjs';
 
-export class PaginationService<TEntity extends TObjectAny, TFilter extends TObjectAny = {}> {
-  private trigger$ = new BehaviorSubject<boolean>(false);
+interface ITriggerParams<TEntity extends TObjectAny> {
+  isNext: boolean;
+  entityToUpdate?: TEntity;
+}
+
+export interface IEntity {
+  id: number;
+}
+
+export class PaginationService<TEntity extends IEntity, TFilter extends TObjectAny = {}> {
+  private trigger$ = new BehaviorSubject<ITriggerParams<TEntity>>({ isNext: true });
   private skip = 0;
   private limit = DEFAULT_LIMIT;
   private filters = signal<TFilter>({} as TFilter);
-  hasError = false;
   total = signal<TMaybe<number>>(null);
   isInitializeLoading = signal(false);
   isPaginating = signal(false);
@@ -33,36 +42,50 @@ export class PaginationService<TEntity extends TObjectAny, TFilter extends TObje
       (this.total() === null || this.skip < this.total()!),
   );
 
-  constructor(config: IPaginationConfig<TEntity>) {
+  constructor(private config: IPaginationConfig<TEntity>) {
     if (config.limit) {
       this.limit = config.limit;
     }
 
     this.list$ = this.trigger$.pipe(
-      switchMap((next: boolean) => {
-        this.setLoading(next, true);
+      switchMap(({ isNext, entityToUpdate }) => {
+        if (entityToUpdate) {
+          return of({ data: [], isNext, entityToUpdate });
+        }
 
-        return config
-          .loadDataFn({ skip: next ? this.skip : 0, limit: this.limit, ...this.filters() })
-          .pipe(
-            tap((response) => this.total.set(response.total)),
-            map((response) => response.data),
-            catchError(() => {
-              if (!next) {
-                this.total.set(0);
-              }
-              // чтобы поток не завершился при ошибке сети
-              return EMPTY;
-            }),
-            finalize(() => this.setLoading(next, false)),
-          );
+        return this.createLoadingDataStream(isNext);
       }),
-      scan((acc, newList) => (this.skip === 0 ? newList : acc.concat(newList)), [] as TEntity[]),
+      scan((acc, { data, isNext, entityToUpdate }) => {
+        if (entityToUpdate) {
+          return acc.map((entity) => (entityToUpdate.id === entity.id ? entityToUpdate : entity));
+        }
+
+        return isNext ? acc.concat(data) : data;
+      }, [] as TEntity[]),
       tap({
         next: (list) => (this.skip = list.length),
       }),
     );
   }
+
+  private createLoadingDataStream = (isNext: boolean, entityToUpdate?: TEntity) => {
+    this.setLoading(isNext, true);
+
+    return this.config
+      .loadDataFn({ skip: isNext ? this.skip : 0, limit: this.limit, ...this.filters() })
+      .pipe(
+        tap((response) => this.total.set(response.total)),
+        map((response) => ({ ...response, isNext, entityToUpdate })),
+        catchError(() => {
+          if (!isNext) {
+            this.total.set(0);
+          }
+          // чтобы поток не завершился при ошибке сети
+          return EMPTY;
+        }),
+        finalize(() => this.setLoading(isNext, false)),
+      );
+  };
 
   private setLoading(next: boolean, value: boolean) {
     if (next) {
@@ -74,7 +97,7 @@ export class PaginationService<TEntity extends TObjectAny, TFilter extends TObje
 
   paginate = () => {
     if (this.canLoadMore()) {
-      this.trigger$.next(true);
+      this.trigger$.next({ isNext: true });
     }
   };
 
@@ -88,9 +111,13 @@ export class PaginationService<TEntity extends TObjectAny, TFilter extends TObje
     this.reset();
   };
 
+  editEntity = (entity: TEntity) => {
+    this.trigger$.next({ isNext: false, entityToUpdate: entity });
+  };
+
   reset = () => {
     this.skip = 0;
     this.total.set(null);
-    this.trigger$.next(false);
+    this.trigger$.next({ isNext: false });
   };
 }
