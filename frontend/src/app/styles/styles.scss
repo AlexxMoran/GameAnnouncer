@@ -33,7 +33,7 @@ body {
   }
 
   .snack-bar__container_success .mdc-snackbar__surface {
-    background-color: var(--mat-sys-primary-container) !important;
+    background-color: var(--mat-sys-success-container) !important;
     color: var(--mat-sys-on-primary-container);
   }
 
@@ -56,5 +56,6 @@ body {
 :root {
   --mat-dialog-container-min-width: 500px;
   --mat-dialog-container-max-width: 700vw;
-  --mat-dialog-container-color: var(--mat-sys-surface-container)
+  --mat-dialog-container-color: var(--mat-sys-surface-container);
+  --mat-sys-success-container: green;
 }
