@@ -4,10 +4,6 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-
-[tool.pytest.ini_options]
-pythonpath = ["."]
-
 dependencies = [
     "aiofiles>=24.1.0",
     "aiosmtplib>=5.0.0",
@@ -32,6 +28,9 @@ dependencies = [
     "taskiq-redis>=1.2.0",
     "uvicorn[standard]>=0.37.0",
 ]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
 
 [dependency-groups]
 dev = [
