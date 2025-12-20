@@ -38,4 +38,5 @@ dev = [
     "black>=25.9.0",
     "ipython>=9.6.0",
     "nest-asyncio>=1.6.0",
+    "ruff>=0.14.10",
 ]
