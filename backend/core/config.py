@@ -1,5 +1,6 @@
 from pydantic import BaseModel, PostgresDsn, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from functools import lru_cache
 
 
 class RunConfig(BaseModel):
@@ -123,4 +124,8 @@ class Settings(BaseSettings):
     email: EmailConfig = EmailConfig()
 
 
-settings = Settings()
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()
+
+settings = get_settings()
