@@ -7,8 +7,10 @@ from typing import Any
 from jinja2 import Environment, FileSystemLoader, TemplateNotFound
 from mjml import mjml_to_html
 
-from core.config import settings
+from core.config import get_settings
 from core.logger import logger
+
+settings = get_settings()
 
 
 @dataclass

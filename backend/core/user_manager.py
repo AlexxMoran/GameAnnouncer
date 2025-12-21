@@ -1,6 +1,6 @@
 from core.logger import logger
 from typing import Optional
-from core.config import settings
+from core.config import get_settings
 
 
 from fastapi import Request
@@ -10,6 +10,8 @@ from tasks import (
     send_verification_email_task,
     send_password_reset_email_task,
 )
+
+settings = get_settings()
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):

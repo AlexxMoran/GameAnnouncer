@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from core.config import settings
+from core.deps import SettingsDep
 from .v1 import router as v1_router
 from .auth import router as auth_router
 
@@ -14,7 +14,7 @@ async def root():
 
 
 @router.get("/health")
-async def health_check():
+async def health_check(settings: SettingsDep):
     return {
         "status": "healthy",
         "database_url": str(settings.db.url)[:50] + "...",

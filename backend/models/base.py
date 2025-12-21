@@ -2,7 +2,9 @@ from datetime import datetime
 from sqlalchemy import DateTime, func, MetaData
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from core.config import settings
+from core.config import get_settings
+
+settings = get_settings()
 
 
 class Base(DeclarativeBase):

@@ -8,12 +8,14 @@ from tasks.broker import startup_broker, shutdown_broker
 from core.initializers import initialize_all
 from core.middleware.request_logging_middleware import RequestLoggingMiddleware
 from exceptions import EXCEPTION_HANDLERS, API_RESPONSES
-from core.config import settings
+from core.config import get_settings
 from core.logger import setup_logging, logger
 from api import router as api_router
 from core.db import db
 
 setup_logging()
+
+settings = get_settings()
 
 
 @asynccontextmanager

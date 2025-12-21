@@ -1,7 +1,9 @@
-from core.config import settings
+from core.config import get_settings
 from core.logger import logger
 from taskiq_redis import RedisAsyncResultBackend, ListQueueBroker
 from taskiq import TaskiqScheduler
+
+settings = get_settings()
 
 redis_async_result = RedisAsyncResultBackend(
     redis_url=settings.redis.url,
