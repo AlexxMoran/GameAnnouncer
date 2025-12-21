@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from models import Base
-from core import db as core_db_mod
+from core.db import database as core_db_mod
 
 
 @pytest.fixture(scope="session")

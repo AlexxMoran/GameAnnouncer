@@ -1,8 +1,9 @@
 from datetime import datetime
-from sqlalchemy import DateTime, func, MetaData
+from sqlalchemy import DateTime, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from core.config import get_settings
+from core.db import metadata
 
 settings = get_settings()
 
@@ -10,7 +11,7 @@ settings = get_settings()
 class Base(DeclarativeBase):
     __abstract__ = True
 
-    metadata = MetaData(naming_convention=settings.db.naming_convention)
+    metadata = metadata
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
