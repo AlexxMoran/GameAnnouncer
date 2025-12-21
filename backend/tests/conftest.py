@@ -14,7 +14,7 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from models import Base
-from core.db.database import database as core_db_mod
+from core.config import Settings, get_settings
 
 
 @pytest.fixture(scope="session")
@@ -22,6 +22,38 @@ def event_loop():
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
+
+
+def make_test_settings() -> Settings:
+    return Settings(
+        db={
+            "server": "localhost",
+            "port": 5432,
+            "user": "test",
+            "password": "test",
+            "database": "test",
+            "echo": False,
+            "echo_pool": False,
+            "pool_size": 1,
+            "max_overflow": 0,
+        },
+        auth={
+            "secret_key": "test",
+            "refresh_secret_key": "test",
+            "verification_token_secret": "test",
+            "reset_password_token_secret": "test",
+        },
+    )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def settings_override(monkeypatch):
+    get_settings.cache_clear()
+
+    monkeypatch.setattr(
+        "core.config.get_settings",
+        lambda: make_test_settings(),
+    )
 
 
 @pytest_asyncio.fixture(scope="session")
@@ -90,10 +122,12 @@ async def async_client(db_session, monkeypatch):
     main = importlib.import_module("main")
     app = getattr(main, "app")
 
+    from core.db.container import db
+
     async def _override_session_getter():
         yield db_session
 
-    app.dependency_overrides[core_db_mod.db.session_getter] = _override_session_getter
+    app.dependency_overrides[db.session_getter] = _override_session_getter
 
     async with httpx.AsyncClient(app=app, base_url="http://testserver") as client:
         yield client
