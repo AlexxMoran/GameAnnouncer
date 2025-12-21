@@ -3,7 +3,7 @@ from sqlalchemy import DateTime, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from core.config import get_settings
-from core.db import metadata
+from core.db.metadata import metadata
 
 settings = get_settings()
 
