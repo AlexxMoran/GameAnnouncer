@@ -2,8 +2,8 @@ from datetime import datetime
 from sqlalchemy import DateTime, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from core.config import get_settings
 from core.db.metadata import metadata
+
 
 class Base(DeclarativeBase):
     __abstract__ = True
