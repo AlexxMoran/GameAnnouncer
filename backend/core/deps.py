@@ -5,7 +5,7 @@ from fastapi import Depends
 from schemas.filters.game_filter import GameFilter
 from searches.game_search import GameSearch
 from core.user_manager import UserManager
-from core.db import db
+from core.db.container import db
 from core.config import get_settings, Settings
 
 SessionDep = Annotated[AsyncSession, Depends(db.session_getter)]

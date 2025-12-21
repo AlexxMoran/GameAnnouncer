@@ -11,7 +11,7 @@ from exceptions import EXCEPTION_HANDLERS, API_RESPONSES
 from core.config import get_settings
 from core.logger import setup_logging, logger
 from api import router as api_router
-from core.db import db
+from core.db.container import db
 
 setup_logging()
 

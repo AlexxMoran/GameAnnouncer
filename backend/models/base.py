@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from core.db.metadata import metadata
+from core.db import metadata
 
 
 class Base(DeclarativeBase):
