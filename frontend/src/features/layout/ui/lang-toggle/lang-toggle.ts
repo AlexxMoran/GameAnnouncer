@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, DOCUMENT, inject } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LANG_STORAGE_KEY } from '@features/layout/ui/lang-toggle/lang-toggle.constants';
 import { TLang } from '@features/layout/ui/lang-toggle/lang-toggle.types';
@@ -19,6 +19,7 @@ import { IIconMenuOption } from '@shared/ui/menu/menu.types';
 })
 export class LangToggle {
   translate = inject(TranslateService);
+  document = inject(DOCUMENT);
 
   constructor() {
     this.translate.setTranslation('en', translationsEn);
@@ -41,8 +42,11 @@ export class LangToggle {
 
   changeLang = (lang?: TLang) => {
     if (lang) {
+      const htmlElement = this.document.documentElement;
+
       localStorage.setItem(LANG_STORAGE_KEY, lang);
       this.translate.use(lang);
+      htmlElement.setAttribute('lang', lang);
     }
   };
 }
