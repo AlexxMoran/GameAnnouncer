@@ -1,8 +1,8 @@
 import { HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { IAccessToken, ILoginDto, IRegisterDto } from '@shared/api/auth/auth.types';
+import { IAccessToken, ILoginDto, IRegisterDto } from '@shared/api/auth/auth-api-service.types';
+import { IHttpClientRequestOptions, TApiResponseWrapper } from '@shared/api/base-api-service.types';
 import { BaseApiService } from '@shared/api/base-api.service';
-import { IHttpClientRequestOptions, TApiResponseWrapper } from '@shared/api/base-api.types';
 import { IUserDto } from '@shared/api/users/users-api.types';
 
 const AUTH_ENDPOINT = '/api/auth';

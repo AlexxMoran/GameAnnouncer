@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
+import { GamesPage } from '@pages/games/ui/games-page/games-page';
 import { Login } from '@pages/login/login';
 import { Registration } from '@pages/registration/registration';
-import { GameList } from 'src/pages/game-list/game-list';
 import { NotFoundPage } from 'src/pages/not-found-page/not-found-page';
 
 export const routes: Routes = [
@@ -20,7 +20,7 @@ export const routes: Routes = [
   },
   {
     path: 'games',
-    component: GameList,
+    component: GamesPage,
   },
   { path: '**', component: NotFoundPage },
 ];

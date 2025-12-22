@@ -3,31 +3,31 @@ import { Component, inject, signal } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { IGame } from '@entities/game/model/game.types';
-import { GameCard } from '@entities/game/ui/game-card/game-card';
-import { CreateGameForm } from '@features/create-game/ui/create-game-form/create-game-form';
 import { TranslatePipe } from '@ngx-translate/core';
-import { EGameCategories } from '@shared/api/games/games-api.const';
-import { GamesApiService } from '@shared/api/games/games-api.service';
+import { IGame } from '@pages/games/model/game.types';
+import { GameCard } from '@pages/games/ui/game-card/game-card';
+import { GameCreationForm } from '@pages/games/ui/game-creation-form/game-creation-form';
 import {
   ICreateGameDto,
   IGameDto,
   IGameListFilters,
   IUpdateGameDto,
-} from '@shared/api/games/games-api.types';
+} from '@shared/api/games/games-api-service.types';
+import { EGameCategories } from '@shared/api/games/games-api.constants';
+import { GamesApiService } from '@shared/api/games/games-api.service';
 import { ElementObserverDirective } from '@shared/directives/element-observer.directive';
 import { DialogService } from '@shared/lib/dialog/dialog.service';
 import { PaginationService } from '@shared/lib/pagination/pagination.service';
 import { SnackBarService } from '@shared/lib/snack-bar/snack-bar.service';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { Chips } from '@shared/ui/chips/chips';
-import { SUCCESS_CONFIRM_RESULT } from '@shared/ui/dialog-confirm-content/dialog-confirm-content';
+import { SUCCESS_CONFIRM_RESULT } from '@shared/ui/dialog-confirm-content/dialog-confirm-content.constants';
 import { FabButton } from '@shared/ui/fab-button/fab-button';
-import { IIconMenuOption } from '@shared/ui/menu/menu';
+import { IIconMenuOption } from '@shared/ui/menu/menu.types';
 import { finalize } from 'rxjs';
 
 @Component({
-  selector: 'app-game-list',
+  selector: 'app-games-page',
   imports: [
     MatProgressSpinnerModule,
     ElementObserverDirective,
@@ -50,10 +50,10 @@ import { finalize } from 'rxjs';
       },
     },
   ],
-  templateUrl: './game-list.html',
+  templateUrl: './games-page.html',
   host: { class: 'w-full h-full' },
 })
-export class GameList {
+export class GamesPage {
   private paginationService =
     inject<PaginationService<IGameDto, IGameListFilters>>(PaginationService);
   private gameApiService = inject(GamesApiService);
@@ -151,7 +151,7 @@ export class GameList {
   };
 
   openCreateDialog = () => {
-    this.dialogService.open(CreateGameForm, {
+    this.dialogService.open(GameCreationForm, {
       title: 'actions.addGame',
       inputs: {
         buttonText: 'actions.add',
@@ -162,7 +162,7 @@ export class GameList {
   };
 
   openEditDialog = (game: IGame) => {
-    this.dialogService.open(CreateGameForm, {
+    this.dialogService.open(GameCreationForm, {
       title: 'actions.editGame',
       inputs: {
         buttonText: 'actions.save',

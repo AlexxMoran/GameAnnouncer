@@ -2,8 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Button } from '@shared/ui/button/button';
-
-export const SUCCESS_CONFIRM_RESULT = 'confirm';
+import { SUCCESS_CONFIRM_RESULT } from '@shared/ui/dialog-confirm-content/dialog-confirm-content.constants';
 
 @Component({
   selector: 'app-dialog-confirm-content',

@@ -1,11 +1,12 @@
 import { Component, input } from '@angular/core';
-import { IGame } from '@entities/game/model/game.types';
 import { TranslatePipe } from '@ngx-translate/core';
+import { IGame } from '@pages/games/model/game.types';
 import { environment } from '@shared/config/environments/environment';
 import { StyleFactory } from '@shared/lib/styles/style-factory.service';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { Button } from '@shared/ui/button/button';
-import { IIconMenuOption, Menu } from '@shared/ui/menu/menu';
+import { Menu } from '@shared/ui/menu/menu';
+import { IIconMenuOption } from '@shared/ui/menu/menu.types';
 
 @Component({
   selector: 'app-game-card',

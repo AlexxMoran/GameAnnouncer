@@ -1,13 +1,13 @@
 import { inject, Injectable } from '@angular/core';
+import { TApiResponseWrapper } from '@shared/api/base-api-service.types';
 import { BaseApiService } from '@shared/api/base-api.service';
-import { TApiResponseWrapper } from '@shared/api/base-api.types';
-import { GAMES_ENDPOINT } from '@shared/api/games/games-api.const';
 import {
   ICreateGameDto,
   IGameDto,
   IGetGameListDto,
   IUpdateGameDto,
-} from '@shared/api/games/games-api.types';
+} from '@shared/api/games/games-api-service.types';
+import { GAMES_ENDPOINT } from '@shared/api/games/games-api.constants';
 import { IPaginationMeta } from '@shared/lib/pagination/pagination.types';
 
 @Injectable({ providedIn: 'root' })

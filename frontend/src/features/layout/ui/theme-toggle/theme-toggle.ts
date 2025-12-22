@@ -2,7 +2,7 @@ import { Component, DOCUMENT, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { THEME_TYPE_STORAGE_NAME } from '@features/layout/ui/theme-toggle/theme-toggle.const';
+import { THEME_TYPE_STORAGE_NAME } from '@features/layout/ui/theme-toggle/theme-toggle.constants';
 import { TThemeType } from '@features/layout/ui/theme-toggle/theme-toggle.types';
 import { TranslatePipe } from '@ngx-translate/core';
 

@@ -5,7 +5,8 @@ import { TLang } from '@features/layout/ui/lang-toggle/lang-toggle.types';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import translationsEn from '@shared/i18n/en.json';
 import translationsRu from '@shared/i18n/ru.json';
-import { IIconMenuOption, Menu } from '@shared/ui/menu/menu';
+import { Menu } from '@shared/ui/menu/menu';
+import { IIconMenuOption } from '@shared/ui/menu/menu.types';
 
 @Component({
   selector: 'lang-toggle',

@@ -1,7 +1,8 @@
 import { computed, signal } from '@angular/core';
-import { DEFAULT_LIMIT } from '@shared/lib/pagination/pagination.const';
-import { IPaginationConfig } from '@shared/lib/pagination/pagination.types';
+import { DEFAULT_LIMIT } from '@shared/lib/pagination/pagination.constants';
+import { IPaginationConfig, ITriggerParams } from '@shared/lib/pagination/pagination.types';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
+import { IEntityIdField } from '@shared/lib/utility-types/base-entity.types';
 import { TObjectAny } from '@shared/lib/utility-types/object.types';
 import {
   BehaviorSubject,
@@ -16,16 +17,7 @@ import {
   tap,
 } from 'rxjs';
 
-interface ITriggerParams<TEntity extends TObjectAny> {
-  isNext: boolean;
-  entityToUpdate?: TEntity;
-}
-
-export interface IEntity {
-  id: number;
-}
-
-export class PaginationService<TEntity extends IEntity, TFilter extends TObjectAny = {}> {
+export class PaginationService<TEntity extends IEntityIdField, TFilter extends TObjectAny = {}> {
   private trigger$ = new BehaviorSubject<ITriggerParams<TEntity>>({ isNext: true });
   private skip = 0;
   private limit = DEFAULT_LIMIT;

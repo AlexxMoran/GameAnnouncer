@@ -2,10 +2,10 @@ import { HttpContext } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { SKIP_ERROR_HANDLING } from '@app/interceptors/error.interceptor';
+import { ILoginDto } from '@shared/api/auth/auth-api-service.types';
 import { AuthApiService } from '@shared/api/auth/auth-api.service';
-import { ILoginDto } from '@shared/api/auth/auth.types';
 import { IUserDto } from '@shared/api/users/users-api.types';
-import { EAuthErrorTypes } from '@shared/lib/auth/auth-error-types.const';
+import { EAuthErrorTypes } from '@shared/lib/auth/auth-error-types.constants';
 import { SnackBarService } from '@shared/lib/snack-bar/snack-bar.service';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { IApiErrorResponse } from '@shared/lib/utility-types/api-errors.types';
@@ -16,7 +16,6 @@ export class AuthService {
   private authApiService = inject(AuthApiService);
   private router = inject(Router);
   private snackBarService = inject(SnackBarService);
-  hasAttemptToLogin = false;
   accessToken = signal<TMaybe<string>>(null);
   me = signal<TMaybe<IUserDto>>(null);
   isAuthenticated = computed(() => Boolean(this.accessToken()));
@@ -27,7 +26,6 @@ export class AuthService {
         this.router.navigateByUrl('/games');
         this.setToken(access_token);
         this.snackBarService.showSuccessSnackBar('texts.successLogin');
-        this.hasAttemptToLogin = true;
       }),
       switchMap(() => this.getMe()),
     );
@@ -38,7 +36,6 @@ export class AuthService {
       .logout()
       .pipe(
         finalize(() => {
-          this.hasAttemptToLogin = false;
           this.router.navigateByUrl('/login');
           this.accessToken.set(null);
           this.me.set(null);
@@ -58,8 +55,8 @@ export class AuthService {
           if (error.error_type === EAuthErrorTypes.TokenMissing) {
             return EMPTY;
           } else {
-            this.logout();
             this.snackBarService.showErrorSnackBar(error.detail);
+            this.logout();
 
             return throwError(() => error);
           }
@@ -67,7 +64,6 @@ export class AuthService {
         switchMap((access_token) =>
           this.me() ? of(access_token) : this.getMe().pipe(map(() => access_token)),
         ),
-        finalize(() => (this.hasAttemptToLogin = true)),
       );
   };
 

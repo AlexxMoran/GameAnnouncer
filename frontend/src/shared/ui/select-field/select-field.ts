@@ -3,11 +3,9 @@ import { Component, inject, input, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { TranslatePipe } from '@ngx-translate/core';
-import { IOption } from '@shared/lib/utility-types/base-ui.types';
 import { ValidationErrorsService } from '@shared/lib/validation/validation-errors.service';
+import { ISelectFieldOption } from '@shared/ui/select-field/select-field.types';
 import { distinctUntilChanged, map, Observable, startWith } from 'rxjs';
-
-export interface ISelectFieldOption<TName extends string = string> extends IOption<TName> {}
 
 @Component({
   selector: 'app-select-field',

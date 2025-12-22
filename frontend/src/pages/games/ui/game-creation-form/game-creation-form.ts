@@ -1,16 +1,16 @@
 import { Component, inject, input, OnInit, output } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { IGame } from '@entities/game/model/game.types';
-import { ICreateGameParams } from '@features/create-game/model/create-game-form.types';
 import { TranslatePipe } from '@ngx-translate/core';
-import { EGameCategories } from '@shared/api/games/games-api.const';
+import { ICreateGameParams } from '@pages/games/model/game-creation-form.types';
+import { IGame } from '@pages/games/model/game.types';
+import { EGameCategories } from '@shared/api/games/games-api.constants';
 import { Button } from '@shared/ui/button/button';
 import { InputField } from '@shared/ui/input-field/input-field';
 import { SelectField } from '@shared/ui/select-field/select-field';
 
 @Component({
-  selector: 'app-create-game-form',
+  selector: 'app-game-creation-form',
   imports: [
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -20,10 +20,10 @@ import { SelectField } from '@shared/ui/select-field/select-field';
     InputField,
     Button,
   ],
-  templateUrl: './create-game-form.html',
+  templateUrl: './game-creation-form.html',
   host: { class: 'w-full' },
 })
-export class CreateGameForm implements OnInit {
+export class GameCreationForm implements OnInit {
   private formBuilder = inject(FormBuilder);
   submitted = output<ICreateGameParams>();
   buttonText = input.required<string>();

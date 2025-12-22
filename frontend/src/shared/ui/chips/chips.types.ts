@@ -1,4 +1,3 @@
-export interface IChip {
-  label: string;
-  name: string;
-}
+import { IOption } from '@shared/lib/utility-types/base-ui.types';
+
+export interface IChip extends IOption {}

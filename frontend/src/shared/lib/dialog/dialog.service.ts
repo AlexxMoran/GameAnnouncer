@@ -1,13 +1,9 @@
 import { inject, Injectable, Type } from '@angular/core';
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog';
+import { IConfirmOptions } from '@shared/lib/dialog/dialog-service.types';
 import { DialogConfirmContent } from '@shared/ui/dialog-confirm-content/dialog-confirm-content';
-import { DialogWrapper, IOpenDialogOptions } from '@shared/ui/dialog-wrapper/dialog-wrapper';
-
-export interface IConfirmOptions {
-  message: string;
-  confirmButtonText?: string;
-  cancelButtonText?: string;
-}
+import { DialogWrapper } from '@shared/ui/dialog-wrapper/dialog-wrapper';
+import { IOpenDialogOptions } from '@shared/ui/dialog-wrapper/dialog-wrapper.types';
 
 @Injectable({ providedIn: 'root' })
 export class DialogService {
