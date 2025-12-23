@@ -18,12 +18,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Set up uv
+      - name: Set up uv (project runner)
         uses: astral-sh/setup-uv@v3
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
-      - name: Install dependencies
+      - name: Ensure Docker is available
+        run: |
+          sudo systemctl start docker || true
+          docker info
+
+      - name: Install dependencies (uv sync)
         run: uv sync
 
       - name: Ruff (lint)
