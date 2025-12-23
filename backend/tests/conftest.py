@@ -18,36 +18,39 @@ from sqlalchemy.ext.asyncio import (
 )
 from testcontainers.postgres import PostgresContainer
 from core.config import get_settings
+import core.config as config
 
 
-def test_settings(sync_db_url: str) -> dict:
-    """Return a mapping of minimal test environment variables.
+def test_settings(sync_db_url: str) -> config.Settings:
+    """Build a minimal `Settings` instance for tests.
 
-    This centralizes test defaults so the `app` fixture can set them
-    via `os.environ.setdefault` before importing modules that call
-    `get_settings()` at import-time.
+    Returns a `Settings` object constructed from the provided sync
+    database URL and lightweight auth defaults. Tests will monkeypatch
+    `core.config.get_settings` to return this instance.
     """
 
     from urllib.parse import urlparse
 
     parsed = urlparse(sync_db_url)
-    user = parsed.username or "test"
-    password = parsed.password or "test"
-    host = parsed.hostname or "localhost"
-    port = parsed.port or 5432
-    dbname = (parsed.path or "").lstrip("/") or "test"
 
-    return {
-        "DB__SERVER": str(host),
-        "DB__PORT": str(port),
-        "DB__USER": str(user),
-        "DB__PASSWORD": str(password),
-        "DB__DATABASE": str(dbname),
-        "AUTH__SECRET_KEY": "test-secret",
-        "AUTH__REFRESH_SECRET_KEY": "test-refresh",
-        "AUTH__VERIFICATION_TOKEN_SECRET": "test-verify",
-        "AUTH__RESET_PASSWORD_TOKEN_SECRET": "test-reset",
+    settings_data = {
+        "db": {
+            "server": parsed.hostname or "localhost",
+            "port": parsed.port or 5432,
+            "user": parsed.username or "test",
+            "password": parsed.password or "test",
+            "database": (parsed.path or "").lstrip("/") or "test",
+            "echo": False,
+        },
+        "auth": {
+            "secret_key": "test-secret",
+            "refresh_secret_key": "test-refresh",
+            "verification_token_secret": "test-verify",
+            "reset_password_token_secret": "test-reset",
+        },
     }
+
+    return config.Settings(**settings_data)
 
 
 @pytest.fixture(scope="session")
@@ -166,15 +169,12 @@ def app(async_db_url, sync_db_url, monkeypatch):
 
     get_settings.cache_clear()
 
-    # Export DB URLs used by the app runtime
     os.environ["DATABASE_URL"] = async_db_url
     os.environ["DATABASE_SYNC_URL"] = sync_db_url
 
-    # Apply centralized test defaults so imports that call
-    # `get_settings()` can succeed during testing.
-    for k, v in test_settings(sync_db_url).items():
-        os.environ.setdefault(k, v)
+    settings_instance = test_settings(sync_db_url)
 
+    monkeypatch.setattr(config, "get_settings", lambda: settings_instance)
     monkeypatch.setattr("core.initializers.initialize_all", lambda: None)
 
     async def _noop():
