@@ -8,7 +8,6 @@ from tests.factories import (
     GameDictFactory,
 )
 from models.user import User
-from core.user_manager import UserManager
 from schemas.user import UserCreate
 from pydantic import ValidationError
 
@@ -27,6 +26,7 @@ async def create_user(db_session):
     """
 
     async def _create(**overrides):
+        from core.user_manager import UserManager
         data = UserDictFactory(**overrides)
 
         try:
