@@ -51,4 +51,5 @@ dev = [
     "ruff>=0.14.10",
     "sqlalchemy>=2.0.45",
     "psycopg[binary]>=3.3.2",
+    "testcontainers>=4.13.3",
 ]
