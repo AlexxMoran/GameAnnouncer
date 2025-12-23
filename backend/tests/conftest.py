@@ -1,11 +1,12 @@
 import importlib
 import os
-from pathlib import Path
-from typing import AsyncGenerator, Generator
-
+import core.config as config
 import httpx
 import pytest
 import pytest_asyncio
+
+from pathlib import Path
+from typing import AsyncGenerator, Generator
 from alembic import command
 from alembic.config import Config
 from sqlalchemy import event
@@ -18,7 +19,8 @@ from sqlalchemy.ext.asyncio import (
 )
 from testcontainers.postgres import PostgresContainer
 from core.config import get_settings
-import core.config as config
+
+pytest_plugins = ["tests.factory_fixtures"]
 
 
 def test_settings(sync_db_url: str) -> config.Settings:
@@ -182,6 +184,20 @@ def app(async_db_url, sync_db_url, monkeypatch):
 
     monkeypatch.setattr("tasks.broker.startup_broker", _noop)
     monkeypatch.setattr("tasks.broker.shutdown_broker", _noop)
+
+    try:
+        from tasks.email_tasks import (
+            send_verification_email_task,
+            send_password_reset_email_task,
+        )
+
+        async def _noop_task(*args, **kwargs):
+            return None
+
+        setattr(send_verification_email_task, "kiq", _noop_task)
+        setattr(send_password_reset_email_task, "kiq", _noop_task)
+    except Exception:
+        pass
 
     main = importlib.import_module("main")
 

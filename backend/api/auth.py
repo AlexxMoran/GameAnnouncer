@@ -39,7 +39,7 @@ async def get_current_user_wrapped(user: User = Depends(current_user)):
 
 
 @router.get("/users/{id}", response_model=DataResponse[UserResponse])
-async def get_user_wrapped(id: str, user_manager=Depends(get_user_manager)):
+async def get_user_wrapped(id: int, user_manager=Depends(get_user_manager)):
     user = await user_manager.get(id)
     if not user:
         raise AppException("User not found", status_code=404)
