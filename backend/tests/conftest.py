@@ -18,7 +18,6 @@ from sqlalchemy.ext.asyncio import (
 )
 from testcontainers.postgres import PostgresContainer
 from core.config import get_settings
-from core.db.container import db
 
 
 @pytest.fixture(scope="session")
@@ -145,6 +144,7 @@ def app(async_db_url, sync_db_url, monkeypatch):
 @pytest_asyncio.fixture
 async def async_client(app, db_session) -> AsyncGenerator[httpx.AsyncClient, None]:
     """Provide an httpx AsyncClient wired to the app and test DB session."""
+    from core.db.container import db
 
     async def override_session_getter():
         yield db_session
