@@ -27,6 +27,7 @@ async def create_user(db_session):
 
     async def _create(**overrides):
         from core.user_manager import UserManager
+
         data = UserDictFactory(**overrides)
 
         try:
