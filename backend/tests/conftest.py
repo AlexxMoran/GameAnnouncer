@@ -39,7 +39,15 @@ def postgres_container() -> Generator[PostgresContainer, None, None]:
 def sync_db_url(postgres_container) -> str:
     """Return sync SQLAlchemy connection URL from the Postgres container."""
 
-    return postgres_container.get_connection_url()
+    url = postgres_container.get_connection_url()
+
+    if url.startswith("postgresql://"):
+        return url.replace("postgresql://", "postgresql+psycopg://", 1)
+
+    if "postgresql+psycopg2" in url:
+        return url.replace("postgresql+psycopg2", "postgresql+psycopg")
+
+    return url
 
 
 @pytest.fixture(scope="session")
@@ -48,6 +56,9 @@ def async_db_url(sync_db_url) -> str:
 
     if "asyncpg" in sync_db_url:
         return sync_db_url
+
+    if "postgresql+psycopg" in sync_db_url:
+        return sync_db_url.replace("postgresql+psycopg", "postgresql+asyncpg")
 
     if "postgresql+psycopg2" in sync_db_url:
         return sync_db_url.replace("postgresql+psycopg2", "postgresql+asyncpg")
