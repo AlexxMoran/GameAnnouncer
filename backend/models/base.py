@@ -1,14 +1,14 @@
 from datetime import datetime
-from sqlalchemy import DateTime, func, MetaData
+from sqlalchemy import DateTime, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-from core.config import settings
+from core.db import metadata
 
 
 class Base(DeclarativeBase):
     __abstract__ = True
 
-    metadata = MetaData(naming_convention=settings.db.naming_convention)
+    metadata = metadata
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -17,7 +17,7 @@ class Base(DeclarativeBase):
     )
 
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
     def __repr__(self) -> str:

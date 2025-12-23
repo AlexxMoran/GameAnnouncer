@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from typing import AsyncGenerator
-from core.config import settings
 
 
 class Database:
@@ -32,12 +31,3 @@ class Database:
 
     async def get_session(self) -> AsyncSession:
         return self.session_factory()
-
-
-db = Database(
-    url=str(settings.db.url),
-    echo=settings.db.echo,
-    echo_pool=settings.db.echo_pool,
-    pool_size=settings.db.pool_size,
-    max_overflow=settings.db.max_overflow,
-)

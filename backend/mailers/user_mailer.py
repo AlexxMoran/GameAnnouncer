@@ -1,5 +1,7 @@
 from mailers.base_mailer import BaseMailer, Mail
-from core.config import settings
+from core.config import get_settings
+
+settings = get_settings()
 
 
 class UserMailer(BaseMailer):

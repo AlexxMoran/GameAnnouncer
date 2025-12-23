@@ -1,5 +1,6 @@
 from pydantic import BaseModel, PostgresDsn, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from functools import lru_cache
 
 
 class RunConfig(BaseModel):
@@ -27,14 +28,6 @@ class DatabaseConfig(BaseModel):
     pool_size: int = 50
     max_overflow: int = 10
 
-    naming_convention: dict[str, str] = {
-        "ix": "ix_%(column_0_label)s",
-        "uq": "uq_%(table_name)s_%(column_0_N_name)s",
-        "ck": "ck_%(table_name)s_%(constraint_name)s",
-        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
-        "pk": "pk_%(table_name)s",
-    }
-
     @computed_field
     @property
     def url(self) -> PostgresDsn:
@@ -51,7 +44,7 @@ class DatabaseConfig(BaseModel):
     @property
     def sync_url(self) -> PostgresDsn:
         return PostgresDsn.build(
-            scheme="postgresql",
+            scheme="postgresql+psycopg",
             username=self.user,
             password=self.password,
             host=self.server,
@@ -123,4 +116,6 @@ class Settings(BaseSettings):
     email: EmailConfig = EmailConfig()
 
 
-settings = Settings()
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()

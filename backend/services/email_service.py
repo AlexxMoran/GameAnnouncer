@@ -2,8 +2,10 @@ import aiosmtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from core.config import settings
+from core.config import get_settings
 from core.logger import logger
+
+settings = get_settings()
 
 
 class EmailService:
