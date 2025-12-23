@@ -217,3 +217,21 @@ async def async_client(app, db_session) -> AsyncGenerator[httpx.AsyncClient, Non
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
+
+
+@pytest.fixture
+def authenticated_client(async_client):
+    """Return a client fixture that can be authenticated with a user."""
+
+    def _authenticated_client(user):
+        async def _current_user():
+            return user
+
+        import core.users as users_mod
+
+        async_client._transport.app.dependency_overrides[users_mod.current_user] = (
+            _current_user
+        )
+        return async_client
+
+    return _authenticated_client

@@ -30,22 +30,17 @@ async def test_get_user_by_id(async_client, create_user):
 
 
 @pytest.mark.asyncio
-async def test_get_current_user_and_update(monkeypatch, async_client, create_user):
+async def test_get_current_user_and_update(
+    monkeypatch, async_client, create_user, authenticated_client
+):
     user = await create_user(email="me@example.com", password="secret")
 
-    async def _cu():
-        return user
+    client = authenticated_client(user)
 
-    import core.users as users_mod
-
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
-
-    r = await async_client.get("/api/auth/users/me")
+    r = await client.get("/api/auth/users/me")
     assert r.status_code == 200
 
-    r = await async_client.patch(
-        "/api/auth/users/me", json={"email": "new@example.com"}
-    )
+    r = await client.patch("/api/auth/users/me", json={"email": "new@example.com"})
     assert r.status_code == 200
     assert r.json()["data"]["email"] == "new@example.com"
 

@@ -42,6 +42,7 @@ async def test_create_registration_request_success(
     create_user,
     registration_request_factory,
     announcement_factory,
+    authenticated_client,
     monkeypatch,
 ):
     user = await create_user(email="u@example.com", password="x")
@@ -79,11 +80,9 @@ async def test_create_registration_request_success(
     async def _cu():
         return user
 
-    import core.users as users_mod
+    client = authenticated_client(user)
 
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
-
-    r = await async_client.post("/api/v1/registration_requests", json=rr_in)
+    r = await client.post("/api/v1/registration_requests", json=rr_in)
     assert r.status_code == 200
     assert r.json()["data"]["announcement_id"] == ann["id"]
 
@@ -94,6 +93,7 @@ async def test_create_registration_request_duplicate(
     create_user,
     registration_request_factory,
     announcement_factory,
+    authenticated_client,
     monkeypatch,
 ):
     user = await create_user(email="u2@example.com", password="x")
@@ -120,21 +120,16 @@ async def test_create_registration_request_duplicate(
         _fake_get_by_user_and_announcement,
     )
 
-    async def _cu():
-        return user
+    client = authenticated_client(user)
 
-    import core.users as users_mod
-
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
-
-    r = await async_client.post("/api/v1/registration_requests", json=rr_in)
+    r = await client.post("/api/v1/registration_requests", json=rr_in)
     assert r.status_code == 400
     assert "already exists" in r.json().get("detail", "")
 
 
 @pytest.mark.asyncio
 async def test_create_registration_request_announcement_not_found(
-    async_client, create_user, monkeypatch
+    async_client, create_user, authenticated_client, monkeypatch
 ):
     user = await create_user(email="u3@example.com", password="x")
 
@@ -146,14 +141,9 @@ async def test_create_registration_request_announcement_not_found(
         _fake_get_announcement_dependency,
     )
 
-    async def _cu():
-        return user
+    client = authenticated_client(user)
 
-    import core.users as users_mod
-
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
-
-    r = await async_client.post(
+    r = await client.post(
         "/api/v1/registration_requests", json={"announcement_id": 9999}
     )
     assert r.status_code == 404
@@ -162,7 +152,11 @@ async def test_create_registration_request_announcement_not_found(
 
 @pytest.mark.asyncio
 async def test_update_registration_request_status_actions(
-    async_client, create_user, registration_request_factory, monkeypatch
+    async_client,
+    create_user,
+    registration_request_factory,
+    authenticated_client,
+    monkeypatch,
 ):
     user = await create_user(email="actor@example.com", password="x")
     rr = registration_request_factory.build()
@@ -205,21 +199,19 @@ async def test_update_registration_request_status_actions(
     async def _cu():
         return user
 
-    import core.users as users_mod
+    client = authenticated_client(user)
 
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
-
-    r = await async_client.patch(f"/api/v1/registration_requests/{rr['id']}/approve")
+    r = await client.patch(f"/api/v1/registration_requests/{rr['id']}/approve")
     assert r.status_code == 200
     assert r.json()["data"]["status"] == "approved"
     assert called.get("approve")
 
-    r = await async_client.patch(f"/api/v1/registration_requests/{rr['id']}/reject")
+    r = await client.patch(f"/api/v1/registration_requests/{rr['id']}/reject")
     assert r.status_code == 200
     assert r.json()["data"]["status"] == "rejected"
     assert called.get("reject")
 
-    r = await async_client.patch(f"/api/v1/registration_requests/{rr['id']}/cancel")
+    r = await client.patch(f"/api/v1/registration_requests/{rr['id']}/cancel")
     assert r.status_code == 200
     assert r.json()["data"]["status"] == "cancelled"
     assert called.get("cancel")

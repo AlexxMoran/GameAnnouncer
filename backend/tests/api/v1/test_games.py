@@ -82,7 +82,9 @@ async def test_get_game_not_found(async_client, game_factory, monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_create_game(async_client, create_user, game_factory, monkeypatch):
+async def test_create_game(
+    async_client, create_user, game_factory, authenticated_client, monkeypatch
+):
     user = await create_user(email="creator@game.test", password="pw")
     game_payload = {"name": "MyGame", "category": "RTS", "description": "d"}
 
@@ -94,21 +96,16 @@ async def test_create_game(async_client, create_user, game_factory, monkeypatch)
 
     monkeypatch.setattr("api.v1.games.game_crud.create", _fake_create)
 
-    async def _cu():
-        return user
+    client = authenticated_client(user)
 
-    import core.users as users_mod
-
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
-
-    r = await async_client.post("/api/v1/games", json=game_payload)
+    r = await client.post("/api/v1/games", json=game_payload)
     assert r.status_code == 200
     assert r.json()["data"]["name"] == game_payload["name"]
 
 
 @pytest.mark.asyncio
 async def test_update_game_success(
-    async_client, create_user, game_factory, monkeypatch
+    async_client, create_user, game_factory, authenticated_client, monkeypatch
 ):
     user = await create_user(email="upd@game.test", password="pw")
     existing = game_factory.build(id=22)
@@ -142,21 +139,18 @@ async def test_update_game_success(
     monkeypatch.setattr("api.v1.games.game_crud.get_by_id", _fake_get_by_id_for_edit)
     monkeypatch.setattr("api.v1.games.game_crud.update", _fake_update)
 
-    async def _cu():
-        return user
-
-    import core.users as users_mod
-
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
+    client = authenticated_client(user)
 
     payload = {"name": "UpdatedName"}
-    r = await async_client.patch("/api/v1/games/1", json=payload)
+    r = await client.patch("/api/v1/games/1", json=payload)
     assert r.status_code == 200
     assert r.json()["data"]["name"] == "UpdatedName"
 
 
 @pytest.mark.asyncio
-async def test_update_game_not_found(async_client, create_user, monkeypatch):
+async def test_update_game_not_found(
+    async_client, create_user, authenticated_client, monkeypatch
+):
     user = await create_user(email="noexist@g.test", password="pw")
 
     async def _fake_get_by_id_for_edit(session, game_id, user=None, action=None):
@@ -164,20 +158,15 @@ async def test_update_game_not_found(async_client, create_user, monkeypatch):
 
     monkeypatch.setattr("api.v1.games.game_crud.get_by_id", _fake_get_by_id_for_edit)
 
-    async def _cu():
-        return user
+    client = authenticated_client(user)
 
-    import core.users as users_mod
-
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
-
-    r = await async_client.patch("/api/v1/games/999", json={"name": "X"})
+    r = await client.patch("/api/v1/games/999", json={"name": "X"})
     assert r.status_code == 404
 
 
 @pytest.mark.asyncio
 async def test_delete_game_success(
-    async_client, create_user, game_factory, monkeypatch
+    async_client, create_user, game_factory, authenticated_client, monkeypatch
 ):
     user = await create_user(email="del@g.test", password="pw")
     existing = game_factory.build(id=33)
@@ -192,20 +181,17 @@ async def test_delete_game_success(
     monkeypatch.setattr("api.v1.games.game_crud.get_by_id", _fake_get_by_id_for_edit)
     monkeypatch.setattr("api.v1.games.game_crud.delete", _fake_delete)
 
-    async def _cu():
-        return user
+    client = authenticated_client(user)
 
-    import core.users as users_mod
-
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
-
-    r = await async_client.delete("/api/v1/games/1")
+    r = await client.delete("/api/v1/games/1")
     assert r.status_code == 200
     assert r.json()["data"] == "Game deleted successfully"
 
 
 @pytest.mark.asyncio
-async def test_delete_game_not_found(async_client, create_user, monkeypatch):
+async def test_delete_game_not_found(
+    async_client, create_user, authenticated_client, monkeypatch
+):
     user = await create_user(email="dne@g.test", password="pw")
 
     async def _fake_get_by_id_for_edit(session, game_id, user=None, action=None):
@@ -213,14 +199,9 @@ async def test_delete_game_not_found(async_client, create_user, monkeypatch):
 
     monkeypatch.setattr("api.v1.games.game_crud.get_by_id", _fake_get_by_id_for_edit)
 
-    async def _cu():
-        return user
+    client = authenticated_client(user)
 
-    import core.users as users_mod
-
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
-
-    r = await async_client.delete("/api/v1/games/9999")
+    r = await client.delete("/api/v1/games/9999")
     assert r.status_code == 404
 
 

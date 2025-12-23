@@ -131,7 +131,7 @@ async def test_get_announcement_registration_requests(
 
 @pytest.mark.asyncio
 async def test_create_update_delete_announcement(
-    async_client, create_user, announcement_factory, monkeypatch
+    async_client, create_user, announcement_factory, authenticated_client, monkeypatch
 ):
     user = await create_user(email="creator@example.com", password="pw")
     ann_in = {"title": "T", "content": "C", "game_id": 55}
@@ -150,11 +150,9 @@ async def test_create_update_delete_announcement(
     async def _cu():
         return user
 
-    import core.users as users_mod
+    client = authenticated_client(user)
 
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
-
-    r = await async_client.post(
+    r = await client.post(
         f"/api/v1/games/{ann_in['game_id']}/announcements", json=ann_in
     )
     assert r.status_code == 200
@@ -193,7 +191,7 @@ async def test_create_update_delete_announcement(
     )
 
     updated_payload = {"title": "NewTitle"}
-    r = await async_client.patch(
+    r = await client.patch(
         f"/api/v1/games/{ann_in['game_id']}/announcements/{created['id']}",
         json=updated_payload,
     )
@@ -208,7 +206,7 @@ async def test_create_update_delete_announcement(
         _fake_delete,
     )
 
-    r = await async_client.delete(
+    r = await client.delete(
         f"/api/v1/games/{ann_in['game_id']}/announcements/{created['id']}"
     )
     assert r.status_code == 200

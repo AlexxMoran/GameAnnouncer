@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 @pytest.mark.asyncio
 async def test_get_my_organized_announcements(
-    async_client, create_user, announcement_factory, monkeypatch
+    async_client, create_user, announcement_factory, authenticated_client, monkeypatch
 ):
     user = await create_user(email="org@example.com", password="secret")
 
@@ -23,16 +23,9 @@ async def test_get_my_organized_announcements(
         _fake_get_all_by_organizer_id,
     )
 
-    async def _cu():
-        return user
+    client = authenticated_client(user)
 
-    import core.users as users_mod
-
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
-
-    r = await async_client.get(
-        "/api/v1/users/me/organized_announcements?skip=2&limit=5"
-    )
+    r = await client.get("/api/v1/users/me/organized_announcements?skip=2&limit=5")
     assert r.status_code == 200
     data = r.json()["data"]
     assert isinstance(data, list)
@@ -44,7 +37,7 @@ async def test_get_my_organized_announcements(
 
 @pytest.mark.asyncio
 async def test_get_my_participated_announcements(
-    async_client, create_user, announcement_factory, monkeypatch
+    async_client, create_user, announcement_factory, authenticated_client, monkeypatch
 ):
     user = await create_user(email="part@example.com", password="secret")
 
@@ -65,12 +58,7 @@ async def test_get_my_participated_announcements(
         _fake_get_all_by_participant_id,
     )
 
-    async def _cu():
-        return user
-
-    import core.users as users_mod
-
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
+    authenticated_client(user)
 
     r = await async_client.get(
         "/api/v1/users/me/participated_announcements?skip=1&limit=2"
@@ -85,7 +73,11 @@ async def test_get_my_participated_announcements(
 
 @pytest.mark.asyncio
 async def test_get_my_registration_requests(
-    async_client, create_user, registration_request_factory, monkeypatch
+    async_client,
+    create_user,
+    registration_request_factory,
+    authenticated_client,
+    monkeypatch,
 ):
     user = await create_user(email="rr@example.com", password="secret")
 
@@ -108,12 +100,7 @@ async def test_get_my_registration_requests(
         _fake_get_all_by_user_id,
     )
 
-    async def _cu():
-        return user
-
-    import core.users as users_mod
-
-    async_client._transport.app.dependency_overrides[users_mod.current_user] = _cu
+    authenticated_client(user)
 
     r = await async_client.get("/api/v1/users/me/registation_requests?skip=0&limit=10")
     assert r.status_code == 200
