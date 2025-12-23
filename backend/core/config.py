@@ -44,7 +44,7 @@ class DatabaseConfig(BaseModel):
     @property
     def sync_url(self) -> PostgresDsn:
         return PostgresDsn.build(
-            scheme="postgresql",
+            scheme="postgresql+psycopg",
             username=self.user,
             password=self.password,
             host=self.server,
