@@ -13,6 +13,39 @@ from .app_exception import AppException
 
 logger = logging.getLogger(__name__)
 
+ERROR_PATTERNS = [
+    {
+        "pattern": r"duplicate key value violates unique constraint",
+        "regex": r"Key\s*\(([^)]+)\)=\(([^)]+)\)",
+        "status": status.HTTP_409_CONFLICT,
+        "message": lambda key, _: f"{key}: Value already exists",
+    },
+    {
+        "pattern": r"foreign key",
+        "regex": r'Key \(([^)]+)\)=\([^)]+\) is not present in table "([^"]+)"',
+        "status": status.HTTP_400_BAD_REQUEST,
+        "message": lambda _, table: f"{table}: Referenced entity does not exist",
+    },
+    {
+        "pattern": r"not-null|null value",
+        "regex": r'column "([^"]+)"',
+        "status": status.HTTP_400_BAD_REQUEST,
+        "message": lambda field, _: f"{field}: Field is required",
+    },
+    {
+        "pattern": r"check constraint",
+        "regex": r'constraint "([^"]+)"',
+        "status": status.HTTP_400_BAD_REQUEST,
+        "message": lambda constraint, _: f"{constraint}: Value violates constraint",
+    },
+]
+
+
+def _extract_regex(pattern: str, text: str, group: int = 1):
+    match = re.search(pattern, text)
+
+    return match.group(group) if match else None
+
 
 async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
     """Handle custom AppException."""
@@ -78,65 +111,35 @@ async def validation_exception_handler(
 async def database_exception_handler(
     request: Request, exc: IntegrityError | DataError
 ) -> JSONResponse:
-    """Handle database exceptions with meaningful error messages."""
+    """Generic database exception handler for SQLAlchemy / asyncpg."""
     logger.error(f"Database error on {request.method} {request.url.path}: {exc}")
 
+    orig = getattr(exc, "orig", None)
+    error_detail = str(orig) if orig else str(exc)
+    error_detail_lower = error_detail.lower()
+
     if isinstance(exc, IntegrityError):
-        orig = getattr(exc, "orig", None)
-        error_detail = str(orig) if orig else str(exc)
-        error_detail_lower = error_detail.lower()
+        for pattern_def in ERROR_PATTERNS:
+            if pattern_def["pattern"] in error_detail_lower:
+                regex = pattern_def.get("regex")
+                status_code = pattern_def.get("status", status.HTTP_400_BAD_REQUEST)
+                message_func = pattern_def.get("message")
 
-        # Unique constraint violation
-        if (
-            "unique constraint" in error_detail_lower
-            or "duplicate key" in error_detail_lower
-        ):
-            field = None
-            match = re.search(r'"(\w+)_(\w+)_key"', error_detail)
-            if match:
-                field = match.group(2)
+                key = _extract_regex(regex, error_detail) if regex else None
+                value = None
 
-            message = (
-                f"{field.capitalize()} already exists"
-                if field
-                else "Value already exists"
-            )
+                match = re.search(regex, error_detail) if regex else None
+                if match and len(match.groups()) > 1:
+                    value = match.group(2)
 
-            return JSONResponse(
-                status_code=status.HTTP_409_CONFLICT, content={"detail": message}
-            )
-
-        # Foreign key violation
-        elif "foreign key" in error_detail_lower:
-            match = re.search(
-                r'Key \((\w+)\)=\(.*?\) is not present in table "(\w+)"', error_detail
-            )
-            table = match.group(2) if match else "related entity"
-
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content={"detail": f"Referenced {table} does not exist"},
-            )
-
-        # Not null violation
-        elif "not-null" in error_detail_lower or "null value" in error_detail_lower:
-            match = re.search(r'column "(\w+)"', error_detail)
-            field = match.group(1) if match else "field"
-
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content={"detail": f"{field.capitalize()} is required"},
-            )
-
-        # Check constraint violation
-        elif "check constraint" in error_detail_lower:
-            match = re.search(r'constraint "(\w+)"', error_detail)
-            constraint = match.group(1) if match else "constraint"
-
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content={"detail": f"Value violates constraint: {constraint}"},
-            )
+                message = (
+                    message_func(key, value)
+                    if message_func
+                    else "Data integrity violation"
+                )
+                return JSONResponse(
+                    status_code=status_code, content={"detail": message}
+                )
 
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
