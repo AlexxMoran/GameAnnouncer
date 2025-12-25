@@ -1,10 +1,11 @@
 import pytest
 
-from services.authorize_action_service import AuthorizationService
 from exceptions.app_exception import AppException
 
 
 def test_authorize_raises_if_user_none():
+    from services.authorize_action_service import AuthorizationService
+
     registry = type("R", (), {"get_policy_for_record": lambda self, r: None})()
     svc = AuthorizationService(registry)
     with pytest.raises(AppException):
@@ -12,6 +13,8 @@ def test_authorize_raises_if_user_none():
 
 
 def test_authorize_raises_if_policy_missing_method():
+    from services.authorize_action_service import AuthorizationService
+
     class FakeRegistry:
         def get_policy_for_record(self, record):
             class P:
@@ -26,6 +29,8 @@ def test_authorize_raises_if_policy_missing_method():
 
 
 def test_authorize_calls_policy_method_and_allows_true(monkeypatch):
+    from services.authorize_action_service import AuthorizationService
+
     called = {}
 
     class FakePolicy:
