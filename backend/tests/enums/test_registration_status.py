@@ -1,4 +1,3 @@
-
 from enums.registration_status import RegistrationStatus
 from enums import RegistrationStatus as RegistrationStatusFromPackage
 
