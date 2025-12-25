@@ -1,10 +1,11 @@
 import pytest
 from datetime import datetime, timezone
+from unittest.mock import AsyncMock, patch
 
 
 @pytest.mark.asyncio
 async def test_get_my_organized_announcements(
-    async_client, create_user, announcement_factory, authenticated_client, monkeypatch
+    async_client, create_user, announcement_factory, authenticated_client
 ):
     user = await create_user(email="org@example.com", password="secret")
 
@@ -18,14 +19,13 @@ async def test_get_my_organized_announcements(
         called["limit"] = limit
         return fake_announcements
 
-    monkeypatch.setattr(
+    with patch(
         "api.v1.users.announcement_crud.get_all_by_organizer_id",
-        _fake_get_all_by_organizer_id,
-    )
+        new=AsyncMock(side_effect=_fake_get_all_by_organizer_id),
+    ):
+        client = authenticated_client(user)
 
-    client = authenticated_client(user)
-
-    r = await client.get("/api/v1/users/me/organized_announcements?skip=2&limit=5")
+        r = await client.get("/api/v1/users/me/organized_announcements?skip=2&limit=5")
     assert r.status_code == 200
     data = r.json()["data"]
     assert isinstance(data, list)
@@ -37,7 +37,7 @@ async def test_get_my_organized_announcements(
 
 @pytest.mark.asyncio
 async def test_get_my_participated_announcements(
-    async_client, create_user, announcement_factory, authenticated_client, monkeypatch
+    async_client, create_user, announcement_factory, authenticated_client
 ):
     user = await create_user(email="part@example.com", password="secret")
 
@@ -53,16 +53,15 @@ async def test_get_my_participated_announcements(
         called["limit"] = limit
         return fake_announcements
 
-    monkeypatch.setattr(
+    with patch(
         "api.v1.users.announcement_crud.get_all_by_participant_id",
-        _fake_get_all_by_participant_id,
-    )
+        new=AsyncMock(side_effect=_fake_get_all_by_participant_id),
+    ):
+        authenticated_client(user)
 
-    authenticated_client(user)
-
-    r = await async_client.get(
-        "/api/v1/users/me/participated_announcements?skip=1&limit=2"
-    )
+        r = await async_client.get(
+            "/api/v1/users/me/participated_announcements?skip=1&limit=2"
+        )
     assert r.status_code == 200
     data = r.json()["data"]
     assert data[0]["title"] == fake_announcements[0]["title"]
@@ -77,7 +76,6 @@ async def test_get_my_registration_requests(
     create_user,
     registration_request_factory,
     authenticated_client,
-    monkeypatch,
 ):
     user = await create_user(email="rr@example.com", password="secret")
 
@@ -95,14 +93,15 @@ async def test_get_my_registration_requests(
         called["limit"] = limit
         return fake_requests
 
-    monkeypatch.setattr(
+    with patch(
         "api.v1.users.registration_request_crud.get_all_by_user_id",
-        _fake_get_all_by_user_id,
-    )
+        new=AsyncMock(side_effect=_fake_get_all_by_user_id),
+    ):
+        authenticated_client(user)
 
-    authenticated_client(user)
-
-    r = await async_client.get("/api/v1/users/me/registation_requests?skip=0&limit=10")
+        r = await async_client.get(
+            "/api/v1/users/me/registation_requests?skip=0&limit=10"
+        )
     assert r.status_code == 200
     data = r.json()["data"]
     assert data[0]["announcement_id"] == 5
@@ -111,7 +110,7 @@ async def test_get_my_registration_requests(
 
 @pytest.mark.asyncio
 async def test_get_user_organized_announcements(
-    async_client, create_user, announcement_factory, monkeypatch
+    async_client, create_user, announcement_factory
 ):
     target = await create_user(email="target@example.com", password="secret")
 
@@ -131,14 +130,13 @@ async def test_get_user_organized_announcements(
         called["limit"] = limit
         return fake_announcements
 
-    monkeypatch.setattr(
+    with patch(
         "api.v1.users.announcement_crud.get_all_by_organizer_id",
-        _fake_get_all_by_organizer_id,
-    )
-
-    r = await async_client.get(
-        f"/api/v1/users/{target.id}/organized_announcements?skip=0&limit=10"
-    )
+        new=AsyncMock(side_effect=_fake_get_all_by_organizer_id),
+    ):
+        r = await async_client.get(
+            f"/api/v1/users/{target.id}/organized_announcements?skip=0&limit=10"
+        )
     assert r.status_code == 200
     data = r.json()["data"]
     assert data[0]["title"] == "Target Ann"
