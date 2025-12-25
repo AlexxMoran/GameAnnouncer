@@ -1,7 +1,6 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
-import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
 import { GAME_CREATION_FORM_INPUTS } from '@pages/games/model/game-creation-form.constants';
@@ -21,11 +20,10 @@ import { PaginationService } from '@shared/lib/pagination/pagination.service';
 import { SnackBarService } from '@shared/lib/snack-bar/snack-bar.service';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { Chips } from '@shared/ui/chips/chips';
-import { SUCCESS_CONFIRM_RESULT } from '@shared/ui/dialog-confirm-content/dialog-confirm-content.constants';
 import { FabButton } from '@shared/ui/fab-button/fab-button';
 import { Form } from '@shared/ui/form/form';
 import { IIconMenuOption } from '@shared/ui/menu/menu.types';
-import { finalize } from 'rxjs';
+import { tap } from 'rxjs';
 
 @Component({
   selector: 'app-games-page',
@@ -58,11 +56,9 @@ export class GamesPage {
   private paginationService =
     inject<PaginationService<IGameDto, IGameListFilters>>(PaginationService);
   private gameApiService = inject(GamesApiService);
-  private dialog = inject(MatDialog);
   private dialogService = inject(DialogService);
   private snackBarService = inject(SnackBarService);
 
-  isLoading = signal<boolean>(false);
   list$ = this.paginationService.list$;
 
   getGameActionList = (game: IGame): IIconMenuOption[] => {
@@ -108,47 +104,34 @@ export class GamesPage {
   };
 
   createGame = (values: ICreateGameDto) => {
-    this.isLoading.set(true);
-
-    this.gameApiService
-      .createGame(values)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe({
-        complete: () => {
-          this.snackBarService.showSuccessSnackBar('texts.gameAddingSuccess');
-          this.paginationService.reset();
-          this.dialog.closeAll();
-        },
-      });
+    return this.gameApiService.createGame(values).pipe(
+      tap(() => {
+        this.snackBarService.showSuccessSnackBar('texts.gameAddingSuccess');
+        this.paginationService.reset();
+      }),
+    );
   };
 
   editGame = (id: number, values: IUpdateGameDto) => {
-    this.isLoading.set(true);
-
-    this.gameApiService
-      .editGame(id, values)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe(({ data }) => {
+    return this.gameApiService.editGame(id, values).pipe(
+      tap(({ data }) => {
         this.snackBarService.showSuccessSnackBar('texts.gameEditingSuccess');
         this.paginationService.editEntity(data);
-        this.dialog.closeAll();
-      });
+      }),
+    );
   };
 
   deleteGame = ({ id }: IGame) => {
-    this.dialogService
-      .confirm({ message: 'texts.deletionGameConfirmation' })
-      .afterClosed()
-      .subscribe((result) => {
-        if (result === SUCCESS_CONFIRM_RESULT) {
-          this.snackBarService.showSuccessSnackBar('texts.requestSendingSuccess');
-
-          this.gameApiService.deleteGame(id).subscribe(() => {
-            this.snackBarService.showSuccessSnackBar('texts.gameDeletingSuccess');
-            this.paginationService.reset();
-          });
-        }
-      });
+    this.dialogService.confirm({
+      message: 'texts.deletionGameConfirmation',
+      confirmButtonText: 'actions.delete',
+      confirmObservable: this.gameApiService.deleteGame(id).pipe(
+        tap(() => {
+          this.snackBarService.showSuccessSnackBar('texts.gameDeletingSuccess');
+          this.paginationService.reset();
+        }),
+      ),
+    });
   };
 
   openCreateDialog = () => {
@@ -157,9 +140,8 @@ export class GamesPage {
       inputs: {
         ...GAME_CREATION_FORM_INPUTS,
         buttonText: 'actions.add',
-        isLoading: this.isLoading,
+        createSubmitObservableFn: (values) => this.createGame(values),
       },
-      outputs: { submitted: this.createGame },
     });
   };
 
@@ -169,10 +151,9 @@ export class GamesPage {
       inputs: {
         ...GAME_CREATION_FORM_INPUTS,
         buttonText: 'actions.save',
-        isLoading: this.isLoading,
         initialValues: game,
+        createSubmitObservableFn: (values) => this.editGame(game.id, values),
       },
-      outputs: { submitted: (values) => this.editGame(game.id, values) },
     });
   };
 }

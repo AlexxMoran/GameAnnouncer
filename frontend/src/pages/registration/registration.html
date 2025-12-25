@@ -1,6 +1,12 @@
 <div [class]="cardClasses">
   <p class="mat-headline-5 capitalize-first">{{ 'entities.registration' | translate }}</p>
-  <app-auth-form [buttonText]="'actions.register' | translate"></app-auth-form>
+  <app-form
+    [controls]="authFormInputs.controls"
+    [formFieldList]="authFormInputs.formFieldList"
+    buttonText="actions.register"
+    [isDialogForm]="false"
+    class="px-15"
+  ></app-form>
   <p class="mat-subtitle-1">
     {{ 'texts.haveAccount' | translate }}
     <a routerLink="/login" class="text-[var(--mat-sys-primary)] cursor-pointer">

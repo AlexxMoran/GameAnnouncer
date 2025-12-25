@@ -1,6 +1,6 @@
 <button
   [matButton]="appearance()"
-  [disabled]="disabled()"
+  [disabled]="disabled() || isLoading()"
   (click)="clicked.emit()"
   [class]="fullWidthClasses()"
 >

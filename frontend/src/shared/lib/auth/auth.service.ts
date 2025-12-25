@@ -22,12 +22,15 @@ export class AuthService {
 
   login = (params: ILoginDto) => {
     return this.authApiService.login(params).pipe(
-      tap(({ access_token }) => {
-        this.router.navigateByUrl('/games');
-        this.setToken(access_token);
-        this.snackBarService.showSuccessSnackBar('texts.successLogin');
-      }),
-      switchMap(() => this.getMe()),
+      tap(({ access_token }) => this.setToken(access_token)),
+      switchMap(() =>
+        this.getMe().pipe(
+          tap(() => {
+            this.snackBarService.showSuccessSnackBar('texts.successLogin');
+            this.router.navigateByUrl('/games');
+          }),
+        ),
+      ),
     );
   };
 

@@ -2,25 +2,32 @@ import { FormControl, ValidatorFn } from '@angular/forms';
 import { TObjectAny } from '@shared/lib/utility-types/object.types';
 import { TInputType } from '@shared/ui/input-field/input-field.types';
 import { ISelectFieldOption } from '@shared/ui/select-field/select-field.types';
+import { Observable } from 'rxjs';
 
-export type TFormField<TValues extends TObjectAny> = IInputField<TValues> | ISelectField<TValues>;
+export type TFormField<TFormValues extends TObjectAny> =
+  | IInputField<TFormValues>
+  | ISelectField<TFormValues>;
 
-export interface IInputField<TValues extends TObjectAny> {
+export interface IInputField<TFormValues extends TObjectAny> {
   type: 'input';
-  name: keyof TValues;
+  name: keyof TFormValues;
   label?: string;
   isTextarea?: boolean;
   inputType?: TInputType;
 }
 
-export interface ISelectField<TValues extends TObjectAny> {
+export interface ISelectField<TFormValues extends TObjectAny> {
   type: 'select';
-  name: keyof TValues;
+  name: keyof TFormValues;
   optionList: ISelectFieldOption[];
   label?: string;
   multiple?: boolean;
 }
 
-export type TGroupControls<TValues extends TObjectAny> = {
-  [K in keyof TValues]: (TValues[K] | ValidatorFn[])[] | FormControl<K>;
+export type TGroupControls<TFormValues extends TObjectAny> = {
+  [K in keyof TFormValues]: (TFormValues[K] | ValidatorFn[])[] | FormControl<K>;
 };
+
+export type TCreateSubmitObservable<TFormValues extends TObjectAny> = (
+  values: TFormValues,
+) => Observable<unknown>;

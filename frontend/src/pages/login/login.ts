@@ -1,15 +1,15 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { AuthForm } from '@features/auth/ui/auth-form/auth-form';
+import { AUTH_FORM_INPUTS } from '@features/auth/model/auth-form.constants';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ILoginDto } from '@shared/api/auth/auth-api-service.types';
 import { AuthService } from '@shared/lib/auth/auth.service';
 import { StyleFactory } from '@shared/lib/styles/style-factory.service';
-import { finalize } from 'rxjs';
+import { Form } from '@shared/ui/form/form';
 
 @Component({
   selector: 'app-login',
-  imports: [AuthForm, RouterModule, TranslatePipe],
+  imports: [Form, RouterModule, TranslatePipe],
   templateUrl: './login.html',
   host: {
     class: 'flex flex-col justify-center items-center h-full',
@@ -17,15 +17,16 @@ import { finalize } from 'rxjs';
 })
 export class Login {
   private authService = inject(AuthService);
-  isLoading = signal(false);
+
+  createSubmitObservableFn = (values: ILoginDto) => this.login(values);
 
   login = (params: ILoginDto) => {
-    this.isLoading.set(true);
-    this.authService
-      .login(params)
-      .pipe(finalize(() => this.isLoading.set(false)))
-      .subscribe();
+    return this.authService.login(params);
   };
+
+  get authFormInputs() {
+    return AUTH_FORM_INPUTS;
+  }
 
   get cardClasses() {
     return StyleFactory.card({

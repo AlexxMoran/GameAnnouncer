@@ -21,7 +21,7 @@ export class DialogService {
     return dialogRef;
   };
 
-  confirm = (options: IConfirmOptions) => {
+  confirm = <TObservable>(options: IConfirmOptions<TObservable>) => {
     return this.open(DialogConfirmContent, { title: 'entities.confirmation', inputs: options });
   };
 }

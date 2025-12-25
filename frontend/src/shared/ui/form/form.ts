@@ -1,11 +1,14 @@
-import { Component, inject, input, OnInit, output, signal } from '@angular/core';
+import { Component, inject, input, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
+import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { TObjectAny } from '@shared/lib/utility-types/object.types';
 import { Button } from '@shared/ui/button/button';
-import { TFormField, TGroupControls } from '@shared/ui/form/form.types';
+import { TCreateSubmitObservable, TFormField, TGroupControls } from '@shared/ui/form/form.types';
 import { InputField } from '@shared/ui/input-field/input-field';
 import { SelectField } from '@shared/ui/select-field/select-field';
+import { finalize, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-form',
@@ -13,22 +16,29 @@ import { SelectField } from '@shared/ui/select-field/select-field';
   templateUrl: './form.html',
   host: { class: 'w-full' },
 })
-export class Form<TValues extends TObjectAny> implements OnInit {
+export class Form<TFormValues extends TObjectAny> implements OnInit, OnDestroy {
   private formBuilder = inject(FormBuilder);
+  private dialogRef: TMaybe<MatDialogRef<unknown>> = null;
 
-  readonly controls = input.required<TGroupControls<TValues>>();
-  readonly formFieldList = input.required<TFormField<TValues>[]>();
-  readonly initialValues = input<TValues>();
+  readonly controls = input.required<TGroupControls<TFormValues>>();
+  readonly formFieldList = input.required<TFormField<TFormValues>[]>();
+  readonly createSubmitObservableFn = input<TCreateSubmitObservable<TFormValues>>();
+  readonly initialValues = input<TFormValues>();
   readonly buttonText = input('');
-  readonly isLoading = input(false);
+  readonly isDialogForm = input(true);
 
-  readonly submitted = output<TValues>();
-
+  readonly isLoading = signal(false);
   readonly isSubmitted = signal(false);
+
+  private destroy$ = new Subject<void>();
 
   form!: FormGroup;
 
   ngOnInit() {
+    if (this.isDialogForm()) {
+      this.dialogRef = inject(MatDialogRef);
+    }
+
     this.form = this.formBuilder.group(this.controls());
 
     const initialValues = this.initialValues();
@@ -39,6 +49,11 @@ export class Form<TValues extends TObjectAny> implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   get isAllTouched() {
     return Object.keys(this.form.controls).every((key) => this.getControl(key).touched);
   }
@@ -47,7 +62,7 @@ export class Form<TValues extends TObjectAny> implements OnInit {
     return (this.form.invalid && this.isSubmitted()) || (this.form.invalid && this.isAllTouched);
   }
 
-  getControl(name: keyof TValues) {
+  getControl(name: keyof TFormValues) {
     return this.form.controls[name as string] as FormControl;
   }
 
@@ -59,7 +74,18 @@ export class Form<TValues extends TObjectAny> implements OnInit {
     }
 
     const values = this.form.value;
+    const createSubmitObservable = this.createSubmitObservableFn();
+    const observable = createSubmitObservable?.(values);
 
-    this.submitted.emit(values);
+    if (observable) {
+      this.isLoading.set(true);
+
+      observable
+        .pipe(
+          takeUntil(this.destroy$),
+          finalize(() => this.isLoading.set(false)),
+        )
+        .subscribe(() => this.dialogRef?.close());
+    }
   }
 }

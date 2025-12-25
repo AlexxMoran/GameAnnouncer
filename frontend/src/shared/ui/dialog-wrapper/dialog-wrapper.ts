@@ -1,12 +1,4 @@
-import {
-  Component,
-  inject,
-  inputBinding,
-  OnInit,
-  outputBinding,
-  ViewChild,
-  WritableSignal,
-} from '@angular/core';
+import { Component, inject, inputBinding, OnInit, outputBinding, ViewChild } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
 import { DynamicComponentDirective } from '@shared/directives/dynamic-component.directive';
@@ -34,10 +26,7 @@ export class DialogWrapper<TComponent> implements OnInit {
     const vcr = this.dialogContent.viewContainerRef;
 
     const inputBindingList = Object.entries(this.inputs || {}).map(([key, value]) =>
-      inputBinding(
-        key,
-        typeof value === 'function' ? (value as WritableSignal<unknown>) : () => value,
-      ),
+      inputBinding(key, () => value),
     );
 
     const outputBindingList = Object.entries(this.outputs || {}).map(([key, callback]) =>
