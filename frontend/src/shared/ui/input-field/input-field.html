@@ -7,18 +7,18 @@
     <textarea
       matInput
       [formControl]="control()"
+      [disabled]="disabled()"
       [placeholder]="'placeholders.enter' | translate"
     ></textarea>
   } @else {
     <input
       matInput
       [formControl]="control()"
+      [disabled]="disabled()"
       [placeholder]="'placeholders.enter' | translate"
       [type]="type()"
     />
   }
 
-  @if (errorMessage$ | async; as errorMessage) {
-    <mat-error>{{ errorMessage }}</mat-error>
-  }
+  <mat-error>{{ getErrorMessage() }}</mat-error>
 </mat-form-field>

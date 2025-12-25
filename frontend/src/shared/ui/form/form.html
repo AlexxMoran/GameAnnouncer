@@ -1,0 +1,31 @@
+<form class="flex flex-col gap-4 w-full" [formGroup]="form">
+  @for (field of formFieldList(); track field.name) {
+    @switch (field.type) {
+      @case ('input') {
+        <app-input-field
+          [control]="getControl(field.name)"
+          [label]="field.label || ''"
+          [isTextarea]="field.isTextarea || false"
+          [type]="field.inputType || 'text'"
+        />
+      }
+
+      @case ('select') {
+        <app-select-field
+          [control]="getControl(field.name)"
+          [label]="field.label || ''"
+          [optionList]="field.optionList"
+          [multiple]="field.multiple || false"
+        />
+      }
+    }
+  }
+  <app-button
+    [fullWidth]="true"
+    [disabled]="isButtonDisabled"
+    (click)="submitForm()"
+    [isLoading]="isLoading()"
+  >
+    {{ buttonText() | translate }}
+  </app-button>
+</form>

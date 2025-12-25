@@ -4,9 +4,9 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
+import { GAME_CREATION_FORM_INPUTS } from '@pages/games/model/game-creation-form.constants';
 import { IGame } from '@pages/games/model/game.types';
 import { GameCard } from '@pages/games/ui/game-card/game-card';
-import { GameCreationForm } from '@pages/games/ui/game-creation-form/game-creation-form';
 import {
   ICreateGameDto,
   IGameDto,
@@ -23,6 +23,7 @@ import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { Chips } from '@shared/ui/chips/chips';
 import { SUCCESS_CONFIRM_RESULT } from '@shared/ui/dialog-confirm-content/dialog-confirm-content.constants';
 import { FabButton } from '@shared/ui/fab-button/fab-button';
+import { Form } from '@shared/ui/form/form';
 import { IIconMenuOption } from '@shared/ui/menu/menu.types';
 import { finalize } from 'rxjs';
 
@@ -151,9 +152,10 @@ export class GamesPage {
   };
 
   openCreateDialog = () => {
-    this.dialogService.open(GameCreationForm, {
+    this.dialogService.open(Form<ICreateGameDto>, {
       title: 'actions.addGame',
       inputs: {
+        ...GAME_CREATION_FORM_INPUTS,
         buttonText: 'actions.add',
         isLoading: this.isLoading,
       },
@@ -162,12 +164,13 @@ export class GamesPage {
   };
 
   openEditDialog = (game: IGame) => {
-    this.dialogService.open(GameCreationForm, {
+    this.dialogService.open(Form<IUpdateGameDto>, {
       title: 'actions.editGame',
       inputs: {
+        ...GAME_CREATION_FORM_INPUTS,
         buttonText: 'actions.save',
         isLoading: this.isLoading,
-        gameToUpdate: game,
+        initialValues: game,
       },
       outputs: { submitted: (values) => this.editGame(game.id, values) },
     });

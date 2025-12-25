@@ -1,50 +1,26 @@
-import { Component, inject, input, output } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { Component, input, output } from '@angular/core';
+import { AUTH_FORM_INPUTS } from '@features/auth/model/auth-form.constants';
 import { IAuthFormValues } from '@features/auth/model/auth-form.types';
-import { Button } from '@shared/ui/button/button';
-import { InputField } from '@shared/ui/input-field/input-field';
+import { Form } from '@shared/ui/form/form';
 
 @Component({
   selector: 'app-auth-form',
-  imports: [ReactiveFormsModule, MatFormFieldModule, FormsModule, InputField, Button],
-  templateUrl: './auth-form.html',
+  imports: [Form],
+  template: `<app-form
+    [controls]="authFormInputs.controls"
+    [formFieldList]="authFormInputs.formFieldList"
+    [buttonText]="buttonText() || ''"
+    [isLoading]="isLoading() || false"
+    (submitted)="submitted.emit($event)"
+  ></app-form> `,
+  host: { class: 'w-100' },
 })
 export class AuthForm {
-  private formBuilder = inject(FormBuilder);
-  submitted = output<IAuthFormValues>();
-  buttonText = input<string>();
-  isLoading = input<boolean>(false);
+  readonly submitted = output<IAuthFormValues>();
+  readonly buttonText = input<string>();
+  readonly isLoading = input<boolean>(false);
 
-  authForm = this.formBuilder.group({
-    username: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-  });
-
-  get usernameControl() {
-    return this.authForm.controls['username'];
-  }
-
-  get passwordControl() {
-    return this.authForm.controls['password'];
-  }
-
-  get disabled() {
-    return this.authForm.invalid;
-  }
-
-  submit() {
-    if (this.authForm.invalid) {
-      return;
-    }
-
-    const formData = this.authForm.value;
-
-    const values = {
-      username: formData.username || '',
-      password: formData.password || '',
-    };
-
-    this.submitted.emit(values);
+  get authFormInputs() {
+    return AUTH_FORM_INPUTS;
   }
 }
