@@ -11,12 +11,15 @@ from tasks import (
     send_password_reset_email_task,
 )
 
-settings = get_settings()
-
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
-    reset_password_token_secret = settings.auth.reset_password_token_secret
-    verification_token_secret = settings.auth.verification_token_secret
+    @property
+    def reset_password_token_secret(self) -> str:
+        return get_settings().auth.reset_password_token_secret
+
+    @property
+    def verification_token_secret(self) -> str:
+        return get_settings().auth.verification_token_secret
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         logger.info(f"User {user.id} has registered. Generating verification token.")
