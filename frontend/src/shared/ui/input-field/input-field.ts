@@ -17,7 +17,6 @@ export class InputField {
   readonly type = input<TInputType>('text');
   readonly label = input('');
   readonly isTextarea = input(false);
-  readonly disabled = input(false);
 
   getErrorMessage() {
     const { errors } = this.control();

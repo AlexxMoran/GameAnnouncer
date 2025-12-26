@@ -25,7 +25,6 @@ export class Form<TFormValues extends TObjectAny> implements OnInit, OnDestroy {
   readonly createSubmitObservableFn = input<TCreateSubmitObservable<TFormValues>>();
   readonly initialValues = input<TFormValues>();
   readonly buttonText = input('');
-  readonly isDialogForm = input(true);
 
   readonly isLoading = signal(false);
   readonly isSubmitted = signal(false);
@@ -34,11 +33,16 @@ export class Form<TFormValues extends TObjectAny> implements OnInit, OnDestroy {
 
   form!: FormGroup;
 
-  ngOnInit() {
-    if (this.isDialogForm()) {
+  constructor() {
+    // if we not in dialog context - skip it
+    try {
       this.dialogRef = inject(MatDialogRef);
+    } catch {
+      /* empty */
     }
+  }
 
+  ngOnInit() {
     this.form = this.formBuilder.group(this.controls());
 
     const initialValues = this.initialValues();

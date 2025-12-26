@@ -7,7 +7,7 @@ import { IOpenDialogOptions } from '@shared/ui/dialog-wrapper/dialog-wrapper.typ
 
 @Injectable({ providedIn: 'root' })
 export class DialogService {
-  dialog = inject(MatDialog);
+  private dialog = inject(MatDialog);
 
   open = <TComponent>(
     component: Type<TComponent>,

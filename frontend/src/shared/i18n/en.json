@@ -29,7 +29,9 @@
     "delete": "Delete",
     "save": "Save",
     "confirm": "Confirm",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "uploadImage": "Upload image",
+    "upload": "Upload"
   },
   "texts": {
     "allTournaments": "All tournaments",
@@ -42,14 +44,19 @@
     "gameEditingSuccess": "Game successfully edited",
     "gameDeletingSuccess": "Game successfully deleted",
     "deletionGameConfirmation": "Are you sure you want to delete game?",
-    "requestSendingSuccess": "The request has sent successfully"
+    "requestSendingSuccess": "The request has sent successfully",
+    "gameUploadSuccess": "Image successfully uploaded",
+    "fileUploadTooltip": "Suitable formats - {formats}, size no more than {size} MB"
   },
   "validationErrors": {
     "unknown": "Unexpected error",
     "email": "Enter a valid email address",
     "required": "This field is required",
     "minLength": "{minLength, plural, one{Minimum length is # character} other{Minimum length is # characters}}",
-    "maxLength": "{maxLength, plural, one{Maximum length is # character} other{Maximum length is # characters}}"
+    "maxLength": "{maxLength, plural, one{Maximum length is # character} other{Maximum length is # characters}}",
+    "incorrectFileSize": "Incorrect file size",
+    "incorrectFileFormat": "Incorrect file format",
+    "incorrectFileCount": "Attempt to upload more than one file"
   },
   "placeholders": {
     "enter": "enter",

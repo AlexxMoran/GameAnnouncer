@@ -30,7 +30,9 @@
     "delete": "Удалить",
     "save": "Сохранить",
     "confirm": "Подтвердить",
-    "cancel": "Отменить"
+    "cancel": "Отменить",
+    "uploadImage": "Загрузить изображение",
+    "upload": "Загрузить"
   },
   "texts": {
     "allTournaments": "Все турниры",
@@ -43,14 +45,19 @@
     "gameEditingSuccess": "Игра успешно обновлена",
     "gameDeletingSuccess": "Игра успешно удалена",
     "deletionGameConfirmation": "Вы уверены, что хотите удалить игру?",
-    "requestSendingSuccess": "Запрос успешно отправлен"
+    "requestSendingSuccess": "Запрос успешно отправлен",
+    "gameUploadSuccess": "Изображение успешно загружено",
+    "fileUploadTooltip": "Подходящие форматы - {formats}, размер не более {size} MB"
   },
   "validationErrors": {
     "unknown": "Непредвиденная ошибка",
     "email": "Введите корректный адрес электронной почты",
     "required": "Поле обязательно для заполнения",
     "minLength": "{minLength, plural, one{Минимальная длина — # символ} few{Минимальная длина — # символа} many{Минимальная длина — # символов} other{Минимальная длина — # символа}}",
-    "maxLength": "{maxLength, plural, one{Максимальная длина — # символ} few{Максимальная длина — # символа} many{Максимальная длина — # символов} other{Максимальная длина — # символа}}"
+    "maxLength": "{maxLength, plural, one{Максимальная длина — # символ} few{Максимальная длина — # символа} many{Максимальная длина — # символов} other{Максимальная длина — # символа}}",
+    "incorrectFileSize": "Не подходящий размер файла",
+    "incorrectFileFormat": "Не подходящий формат файла",
+    "incorrectFileCount": "Попытка загрузки более одного файла"
   },
   "placeholders": {
     "enter": "введите",

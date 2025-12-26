@@ -16,7 +16,7 @@ export interface ICreateGameDto {
   category: EGameCategories;
 }
 
-export interface IUpdateGameDto extends Partial<ICreateGameDto> {}
+export interface IEditGameDto extends Partial<ICreateGameDto> {}
 
 export interface IGameListFilters {
   category: EGameCategories;

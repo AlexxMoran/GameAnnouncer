@@ -17,7 +17,6 @@ export class SelectField {
   readonly control = input.required<FormControl>();
   readonly label = input('');
   readonly multiple = input(false);
-  readonly disabled = input(false);
 
   getErrorMessage() {
     const { errors } = this.control();

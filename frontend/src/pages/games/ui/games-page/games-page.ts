@@ -3,15 +3,14 @@ import { Component, inject } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
-import { GAME_CREATION_FORM_INPUTS } from '@pages/games/model/game-creation-form.constants';
+import {
+  GAME_CREATION_FORM_INPUTS,
+  GAME_EDITING_FORM_INPUTS,
+} from '@pages/games/model/game-creation-form.constants';
+import { ICreateGameParams, IEditGameParams } from '@pages/games/model/game-creation-form.types';
 import { IGame } from '@pages/games/model/game.types';
 import { GameCard } from '@pages/games/ui/game-card/game-card';
-import {
-  ICreateGameDto,
-  IGameDto,
-  IGameListFilters,
-  IUpdateGameDto,
-} from '@shared/api/games/games-api-service.types';
+import { IGameDto, IGameListFilters } from '@shared/api/games/games-api-service.types';
 import { EGameCategories } from '@shared/api/games/games-api.constants';
 import { GamesApiService } from '@shared/api/games/games-api.service';
 import { ElementObserverDirective } from '@shared/directives/element-observer.directive';
@@ -22,6 +21,7 @@ import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { Chips } from '@shared/ui/chips/chips';
 import { FabButton } from '@shared/ui/fab-button/fab-button';
 import { Form } from '@shared/ui/form/form';
+import { ImageCropper } from '@shared/ui/image-cropper/image-cropper';
 import { IIconMenuOption } from '@shared/ui/menu/menu.types';
 import { tap } from 'rxjs';
 
@@ -69,6 +69,11 @@ export class GamesPage {
         label: 'actions.edit',
         click: () => this.openEditDialog(game),
       },
+      {
+        name: 'uploadImage',
+        label: 'actions.uploadImage',
+        click: () => this.openUploadImageModal(game),
+      },
       { name: 'delete', label: 'actions.delete', click: () => this.deleteGame(game) },
     ];
   };
@@ -103,7 +108,7 @@ export class GamesPage {
     }
   };
 
-  createGame = (values: ICreateGameDto) => {
+  createGame = (values: ICreateGameParams) => {
     return this.gameApiService.createGame(values).pipe(
       tap(() => {
         this.snackBarService.showSuccessSnackBar('texts.gameAddingSuccess');
@@ -112,10 +117,19 @@ export class GamesPage {
     );
   };
 
-  editGame = (id: number, values: IUpdateGameDto) => {
+  editGame = (id: number, values: IEditGameParams) => {
     return this.gameApiService.editGame(id, values).pipe(
       tap(({ data }) => {
         this.snackBarService.showSuccessSnackBar('texts.gameEditingSuccess');
+        this.paginationService.editEntity(data);
+      }),
+    );
+  };
+
+  uploadGameImage = (id: number, file: File) => {
+    return this.gameApiService.uploadGameImage(id, file).pipe(
+      tap(({ data }) => {
+        this.snackBarService.showSuccessSnackBar('texts.gameUploadSuccess');
         this.paginationService.editEntity(data);
       }),
     );
@@ -135,7 +149,7 @@ export class GamesPage {
   };
 
   openCreateDialog = () => {
-    this.dialogService.open(Form<ICreateGameDto>, {
+    this.dialogService.open(Form<ICreateGameParams>, {
       title: 'actions.addGame',
       inputs: {
         ...GAME_CREATION_FORM_INPUTS,
@@ -146,13 +160,23 @@ export class GamesPage {
   };
 
   openEditDialog = (game: IGame) => {
-    this.dialogService.open(Form<IUpdateGameDto>, {
+    this.dialogService.open(Form<IEditGameParams>, {
       title: 'actions.editGame',
       inputs: {
-        ...GAME_CREATION_FORM_INPUTS,
+        ...GAME_EDITING_FORM_INPUTS,
         buttonText: 'actions.save',
         initialValues: game,
         createSubmitObservableFn: (values) => this.editGame(game.id, values),
+      },
+    });
+  };
+
+  openUploadImageModal = (game: IGame) => {
+    this.dialogService.open(ImageCropper, {
+      title: 'actions.uploadImage',
+      inputs: {
+        buttonText: 'actions.upload',
+        createUploadObserver: (file) => this.uploadGameImage(game.id, file),
       },
     });
   };
