@@ -12,6 +12,3 @@ def create_db():
         pool_size=settings.db.pool_size,
         max_overflow=settings.db.max_overflow,
     )
-
-
-db = create_db()

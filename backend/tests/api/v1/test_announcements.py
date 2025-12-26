@@ -173,7 +173,7 @@ async def test_upload_announcement_image(
     a = announcement_factory.build()
     ann_obj = SimpleNamespace(**a)
 
-    from core.db import container as db_container
+    from core import deps as core_deps
 
     class FakeSession:
         async def commit(self):
@@ -185,7 +185,7 @@ async def test_upload_announcement_image(
     async def _fake_session_getter():
         yield FakeSession()
 
-    async_client._transport.app.dependency_overrides[db_container.db.session_getter] = (
+    async_client._transport.app.dependency_overrides[core_deps._session_getter_dep] = (
         _fake_session_getter
     )
 

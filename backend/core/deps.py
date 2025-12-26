@@ -5,10 +5,16 @@ from fastapi import Depends
 from schemas.filters.game_filter import GameFilter
 from searches.game_search import GameSearch
 from core.user_manager import UserManager
-from core.db.container import db
+from core.db.container import create_db
 from core.config import get_settings, Settings
 
-SessionDep = Annotated[AsyncSession, Depends(db.session_getter)]
+
+async def _session_getter_dep():
+    async for session in create_db().session_getter():
+        yield session
+
+
+SessionDep = Annotated[AsyncSession, Depends(_session_getter_dep)]
 
 
 async def get_user_db(session: SessionDep):

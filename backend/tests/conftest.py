@@ -177,6 +177,7 @@ def app(async_db_url, sync_db_url, monkeypatch):
     settings_instance = test_settings(sync_db_url)
 
     monkeypatch.setattr(config, "get_settings", lambda: settings_instance)
+    monkeypatch.setattr("core.db.container.get_settings", lambda: settings_instance)
     monkeypatch.setattr("core.initializers.initialize_all", lambda: None)
 
     async def _noop():
@@ -207,12 +208,12 @@ def app(async_db_url, sync_db_url, monkeypatch):
 @pytest_asyncio.fixture
 async def async_client(app, db_session) -> AsyncGenerator[httpx.AsyncClient, None]:
     """Provide an httpx AsyncClient wired to the app and test DB session."""
-    from core.db.container import db
+    from core import deps as core_deps
 
     async def override_session_getter():
         yield db_session
 
-    app.dependency_overrides[db.session_getter] = override_session_getter
+    app.dependency_overrides[core_deps._session_getter_dep] = override_session_getter
 
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:

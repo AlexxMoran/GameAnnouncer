@@ -179,7 +179,7 @@ async def test_upload_game_image(async_client, create_user, game_factory):
     g = game_factory.build()
     g_obj = SimpleNamespace(**g)
 
-    from core.db import container as db_container
+    from core import deps as core_deps
 
     class FakeSession:
         async def commit(self):
@@ -191,7 +191,7 @@ async def test_upload_game_image(async_client, create_user, game_factory):
     async def _fake_session_getter():
         yield FakeSession()
 
-    async_client._transport.app.dependency_overrides[db_container.db.session_getter] = (
+    async_client._transport.app.dependency_overrides[core_deps._session_getter_dep] = (
         _fake_session_getter
     )
 
