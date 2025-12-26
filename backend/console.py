@@ -13,16 +13,28 @@ sys.path.append(str(Path(__file__).parent))
 from core.db.container import create_db
 from core.config import get_settings
 from sqlalchemy import select
+from types import SimpleNamespace
 
-db = create_db()
-settings = get_settings()
+
+db = SimpleNamespace()
+settings = None
 
 
 async def main():
     """Simple database console"""
+    global db, settings
+
+    if not hasattr(db, "get_session"):
+        db = create_db()
+
+    if settings is None:
+        settings = get_settings()
+
     session = await db.get_session()
 
     print(f"✅ Connected to database: {settings.db.database}")
+    print("⚙️  Database session available as 'session'")
+    print("🔧 Settings available as 'settings'")
     print("⚙️  Database session available as 'session'")
     print("🔧 Settings available as 'settings'")
     print("\n💡 Import what you need:")
