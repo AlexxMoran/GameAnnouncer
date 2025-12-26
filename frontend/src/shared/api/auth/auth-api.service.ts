@@ -39,8 +39,24 @@ export class AuthApiService {
     );
   };
 
+  verifyEmail = (token: string) => {
+    const body = new URLSearchParams();
+
+    body.set('token', token);
+
+    return this.baseApiService.post<TApiResponseWrapper<IUserDto>>(
+      `${AUTH_ENDPOINT}/verify?${body}`,
+    );
+  };
+
   register = (params: IRegisterDto) => {
-    return this.baseApiService.post<IUserDto>(`${AUTH_ENDPOINT}/register`, params);
+    const body = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => body.set(key, value));
+
+    return this.baseApiService.post<TApiResponseWrapper<IUserDto>>(
+      `${AUTH_ENDPOINT}/register?${body}`,
+    );
   };
 
   refreshToken = (options?: IHttpClientRequestOptions) => {

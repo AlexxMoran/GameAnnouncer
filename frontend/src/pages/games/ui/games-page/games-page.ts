@@ -65,14 +65,14 @@ export class GamesPage {
     return [
       { name: 'create', label: 'actions.createTournament' },
       {
-        name: 'edit',
-        label: 'actions.edit',
-        click: () => this.openEditDialog(game),
-      },
-      {
         name: 'uploadImage',
         label: 'actions.uploadImage',
         click: () => this.openUploadImageModal(game),
+      },
+      {
+        name: 'edit',
+        label: 'actions.edit',
+        click: () => this.openEditDialog(game),
       },
       { name: 'delete', label: 'actions.delete', click: () => this.deleteGame(game) },
     ];

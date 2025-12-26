@@ -46,7 +46,13 @@
     "deletionGameConfirmation": "Are you sure you want to delete game?",
     "requestSendingSuccess": "The request has sent successfully",
     "gameUploadSuccess": "Image successfully uploaded",
-    "fileUploadTooltip": "Suitable formats - {formats}, size no more than {size} MB"
+    "fileUploadTooltip": "Suitable formats - {formats}, size no more than {size} MB",
+    "introduction": "Create tournaments of any size — from quick duels to full-fledged championships",
+    "welcome": "Welcome!",
+    "ok": "OK!",
+    "registrationConfirmation": "You have successfully registered. To continue logging in, you must confirm the email address you provided ({email}).",
+    "emptyVerifyTokenAlert": "Verification token could not be determined",
+    "emailVerificationSuccess": "Email verified successfully"
   },
   "validationErrors": {
     "unknown": "Unexpected error",

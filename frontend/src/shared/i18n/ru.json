@@ -47,7 +47,13 @@
     "deletionGameConfirmation": "Вы уверены, что хотите удалить игру?",
     "requestSendingSuccess": "Запрос успешно отправлен",
     "gameUploadSuccess": "Изображение успешно загружено",
-    "fileUploadTooltip": "Подходящие форматы - {formats}, размер не более {size} MB"
+    "fileUploadTooltip": "Подходящие форматы - {formats}, размер не более {size} MB",
+    "introduction": "Создавай турниры любого масштаба — от быстрых дуэлей до полноценных чемпионатов",
+    "welcome": "Добро пожаловать!",
+    "ok": "Хорошо!",
+    "registrationConfirmation": "Вы успешно зарегистрироовались. Для дальнейшего входа Вам необходимо подтвердить указанную Вами почту ({email}).",
+    "emptyVerifyTokenAlert": "Токен для верификации не удалось определить",
+    "emailVerificationSuccess": "Почта успешно верифицирована"
   },
   "validationErrors": {
     "unknown": "Непредвиденная ошибка",
