@@ -1,9 +1,8 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, OnDestroy, signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Button } from '@shared/ui/button/button';
-
-export const SUCCESS_CONFIRM_RESULT = 'confirm';
+import { finalize, Observable, Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-dialog-confirm-content',
@@ -11,17 +10,35 @@ export const SUCCESS_CONFIRM_RESULT = 'confirm';
   templateUrl: './dialog-confirm-content.html',
   host: { class: 'flex flex-col gap-9 w-full' },
 })
-export class DialogConfirmContent {
+export class DialogConfirmContent implements OnDestroy {
   private dialogRef = inject(MatDialogRef);
+
   readonly message = input.required<string>();
   readonly confirmButtonText = input('actions.confirm');
   readonly cancelButtonText = input('actions.cancel');
+  readonly confirmObservable = input<Observable<unknown>>();
+
+  readonly isLoading = signal(false);
+
+  private destroy$ = new Subject<void>();
 
   cancel() {
     this.dialogRef.close();
   }
 
   confirm() {
-    this.dialogRef.close(SUCCESS_CONFIRM_RESULT);
+    this.isLoading.set(true);
+
+    this.confirmObservable()
+      ?.pipe(
+        takeUntil(this.destroy$),
+        finalize(() => this.isLoading.set(false)),
+      )
+      .subscribe(() => this.dialogRef.close());
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

@@ -1,8 +1,8 @@
 <button
   [matButton]="appearance()"
-  [disabled]="disabled()"
+  [disabled]="disabled() || isLoading()"
   (click)="clicked.emit()"
-  [class]="fullWidthClasses()"
+  class="w-full"
 >
   @if (isLoading()) {
     <mat-spinner diameter="20" />

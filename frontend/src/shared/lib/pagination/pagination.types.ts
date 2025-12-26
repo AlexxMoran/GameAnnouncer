@@ -1,4 +1,4 @@
-import { TApiResponseWrapper } from '@shared/api/base-api.types';
+import { TApiResponseWrapper } from '@shared/api/base-api-service.types';
 import { TObjectAny } from '@shared/lib/utility-types/object.types';
 import { Observable } from 'rxjs';
 
@@ -18,4 +18,9 @@ export type TLoadDataFn<TEntity extends TObjectAny> = (
 export interface IPaginationConfig<TEntity extends TObjectAny> {
   loadDataFn: TLoadDataFn<TEntity>;
   limit?: number;
+}
+
+export interface ITriggerParams<TEntity extends TObjectAny> {
+  isNext: boolean;
+  entityToUpdate?: TEntity;
 }

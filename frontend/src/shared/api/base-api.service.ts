@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { IHttpClientRequestOptions } from '@shared/api/base-api.types';
+import { IHttpClientRequestOptions } from '@shared/api/base-api-service.types';
 import { environment } from '@shared/config/environments/environment';
 import { TObjectAny } from '@shared/lib/utility-types/object.types';
 

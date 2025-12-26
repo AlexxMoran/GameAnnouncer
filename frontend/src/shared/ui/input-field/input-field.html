@@ -18,7 +18,5 @@
     />
   }
 
-  @if (errorMessage$ | async; as errorMessage) {
-    <mat-error>{{ errorMessage }}</mat-error>
-  }
+  <mat-error>{{ getErrorMessage() }}</mat-error>
 </mat-form-field>

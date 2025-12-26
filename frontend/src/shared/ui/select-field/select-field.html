@@ -3,7 +3,11 @@
     {{ label() | translate }}
   </mat-label>
 
-  <mat-select [formControl]="control()" [placeholder]="'placeholders.select' | translate">
+  <mat-select
+    [placeholder]="'placeholders.select' | translate"
+    [multiple]="multiple()"
+    [formControl]="control()"
+  >
     @for (option of optionList(); track option.name) {
       <mat-option [value]="option.name">
         {{ option.label }}
@@ -17,7 +21,5 @@
     }
   </mat-select>
 
-  @if (errorMessage$ | async; as errorMessage) {
-    <mat-error>{{ errorMessage }}</mat-error>
-  }
+  <mat-error>{{ getErrorMessage() }}</mat-error>
 </mat-form-field>

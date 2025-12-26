@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
-import { Login } from '@pages/login/login';
-import { Registration } from '@pages/registration/registration';
-import { GameList } from 'src/pages/game-list/game-list';
+import { EmailVerificationPage } from '@pages/email-verification/ui/email-verification-page/email-verification-page';
+import { GamesPage } from '@pages/games/ui/games-page/games-page';
+import { LoginPage } from '@pages/login/ui/login-page/login-page';
+import { RegistrationPage } from '@pages/registration/ui/registration-page/registration-page';
 import { NotFoundPage } from 'src/pages/not-found-page/not-found-page';
 
 export const routes: Routes = [
@@ -12,15 +13,19 @@ export const routes: Routes = [
   },
   {
     path: 'login',
-    component: Login,
+    component: LoginPage,
   },
   {
     path: 'registration',
-    component: Registration,
+    component: RegistrationPage,
   },
   {
     path: 'games',
-    component: GameList,
+    component: GamesPage,
+  },
+  {
+    path: 'verify-email',
+    component: EmailVerificationPage,
   },
   { path: '**', component: NotFoundPage },
 ];

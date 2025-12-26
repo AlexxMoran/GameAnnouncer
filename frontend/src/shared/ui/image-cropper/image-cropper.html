@@ -1,0 +1,17 @@
+@if (imageChangedEvent) {
+  <image-cropper
+    [imageChangedEvent]="imageChangedEvent"
+    [maintainAspectRatio]="true"
+    [aspectRatio]="37 / 16"
+    format="png"
+    (imageCropped)="imageCropped($event)"
+  ></image-cropper>
+  <app-button [fullWidth]="true" (click)="uploadImage()" [isLoading]="isLoading()">
+    {{ buttonText() | translate }}
+  </app-button>
+} @else {
+  <div class="flex flex-col gap-2">
+    <input type="file" (change)="fileChangeEvent($event)" [accept]="allowedFileAccept" />
+    <span class="mat-body-2">{{ imageUploadTooltip }}</span>
+  </div>
+}

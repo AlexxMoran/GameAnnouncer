@@ -1,31 +1,30 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslatePipe } from '@ngx-translate/core';
-import { IOption } from '@shared/lib/utility-types/base-ui.types';
-import { ValidationErrorsService } from '@shared/lib/validation/validation-errors.service';
-import { distinctUntilChanged, map, Observable, startWith } from 'rxjs';
-
-export interface ISelectFieldOption<TName extends string = string> extends IOption<TName> {}
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { getValidationErrorMessage } from '@shared/lib/validation/get-validation-error-message.utils';
+import { ISelectFieldOption } from '@shared/ui/select-field/select-field.types';
 
 @Component({
   selector: 'app-select-field',
-  imports: [ReactiveFormsModule, MatSelectModule, TranslatePipe, AsyncPipe],
+  imports: [ReactiveFormsModule, MatSelectModule, TranslatePipe],
   templateUrl: './select-field.html',
+  host: { class: 'w-full' },
 })
-export class SelectField implements OnInit {
-  private validationErrorsService = inject(ValidationErrorsService);
-  control = input.required<FormControl>();
-  optionList = input.required<ISelectFieldOption[]>();
-  label = input('');
-  errorMessage$: Observable<string> | undefined;
+export class SelectField {
+  private translateService = inject(TranslateService);
+  readonly optionList = input.required<ISelectFieldOption[]>();
+  readonly control = input.required<FormControl>();
+  readonly label = input('');
+  readonly multiple = input(false);
 
-  ngOnInit() {
-    this.errorMessage$ = this.control().valueChanges.pipe(
-      startWith(null),
-      map(() => this.validationErrorsService.getMessage(this.control())),
-      distinctUntilChanged(),
-    );
+  getErrorMessage() {
+    const { errors } = this.control();
+
+    if (errors) {
+      return getValidationErrorMessage(errors, this.translateService);
+    }
+
+    return '';
   }
 }
