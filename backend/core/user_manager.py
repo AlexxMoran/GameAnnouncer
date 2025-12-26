@@ -6,10 +6,6 @@ from core.config import get_settings
 from fastapi import Request
 from fastapi_users import BaseUserManager, IntegerIDMixin
 from models.user import User
-from tasks import (
-    send_verification_email_task,
-    send_password_reset_email_task,
-)
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
@@ -32,6 +28,8 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         self, user: User, token: str, request: Optional[Request] = None
     ):
         logger.info(f"User {user.id} has forgot their password. Queueing reset email.")
+        from tasks import send_password_reset_email_task
+
         await send_password_reset_email_task.kiq(
             email=user.email, token=token, first_name=user.first_name
         )
@@ -42,6 +40,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         logger.info(
             f"Verification requested for user {user.id}. Queueing verification email."
         )
+        from tasks import send_verification_email_task
 
         await send_verification_email_task.kiq(
             email=user.email, token=token, first_name=user.first_name
