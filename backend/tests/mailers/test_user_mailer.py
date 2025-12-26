@@ -5,10 +5,11 @@ from unittest.mock import MagicMock, patch
 def test_verification_email_calls_mail_with_correct_url_and_subject():
     import mailers.user_mailer as um
 
-    with patch.object(
-        um,
-        "settings",
-        SimpleNamespace(cors=SimpleNamespace(frontend_host="https://app.test")),
+    with patch(
+        "mailers.user_mailer.get_settings",
+        return_value=SimpleNamespace(
+            cors=SimpleNamespace(frontend_host="https://app.test")
+        ),
     ):
         mail_mock = MagicMock(return_value=SimpleNamespace())
         with patch("mailers.base_mailer.BaseMailer.mail", new=mail_mock):
@@ -31,10 +32,11 @@ def test_verification_email_calls_mail_with_correct_url_and_subject():
 def test_password_reset_email_calls_mail_with_correct_url_and_subject():
     import mailers.user_mailer as um
 
-    with patch.object(
-        um,
-        "settings",
-        SimpleNamespace(cors=SimpleNamespace(frontend_host="https://app.test")),
+    with patch(
+        "mailers.user_mailer.get_settings",
+        return_value=SimpleNamespace(
+            cors=SimpleNamespace(frontend_host="https://app.test")
+        ),
     ):
         mail_mock = MagicMock(return_value=SimpleNamespace())
         with patch("mailers.base_mailer.BaseMailer.mail", new=mail_mock):

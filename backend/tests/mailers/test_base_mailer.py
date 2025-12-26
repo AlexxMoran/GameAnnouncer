@@ -5,13 +5,11 @@ import pytest
 
 
 def test_mail_defaults_and_to_list():
-    import mailers.base_mailer as bm
     from mailers.base_mailer import Mail
 
-    with patch.object(
-        bm,
-        "settings",
-        SimpleNamespace(
+    with patch(
+        "mailers.base_mailer.get_settings",
+        return_value=SimpleNamespace(
             email=SimpleNamespace(from_email="noreply@test", from_name="NoReply")
         ),
     ):

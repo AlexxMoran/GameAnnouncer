@@ -10,8 +10,6 @@ from mjml import mjml_to_html
 from core.config import get_settings
 from core.logger import logger
 
-settings = get_settings()
-
 
 @dataclass
 class Mail:
@@ -29,6 +27,7 @@ class Mail:
     attachments: list[dict[str, Any]] | None = None
 
     def __post_init__(self):
+        settings = get_settings()
         if self.from_email is None:
             self.from_email = settings.email.from_email
         if self.from_name is None:
@@ -41,8 +40,9 @@ class BaseMailer(ABC):
     """Base class for all mailers."""
 
     def __init__(self):
-        self.default_from_email = settings.email.from_email
-        self.default_from_name = settings.email.from_name
+        self.settings = get_settings()
+        self.default_from_email = self.settings.email.from_email
+        self.default_from_name = self.settings.email.from_name
         self.templates_dir = Path(__file__).parent / "templates"
         self.jinja_env = Environment(loader=FileSystemLoader(str(self.templates_dir)))
 
