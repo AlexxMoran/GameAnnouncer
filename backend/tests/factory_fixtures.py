@@ -43,7 +43,12 @@ async def create_user(db_session):
 
         user_db = User.get_db(db_session)
         manager = UserManager(user_db)
-        return await manager.create(user_create, safe=True, request=None)
+        created = await manager.create(user_create, safe=True, request=None)
+
+        if overrides.get("is_verified"):
+            created = await user_db.update(created, {"is_verified": True})
+
+        return created
 
     return _create
 

@@ -11,11 +11,11 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 from core.config import get_settings
+from core.db.container import create_db
 from sqlalchemy import select
-from types import SimpleNamespace
 
 
-db = SimpleNamespace()
+db = create_db()
 settings = get_settings()
 
 

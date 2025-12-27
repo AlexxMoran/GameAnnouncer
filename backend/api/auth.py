@@ -112,10 +112,12 @@ async def login(
     user_manager=Depends(get_user_manager),
 ):
     user = await user_manager.authenticate(form_data)
-    if not user or not user.is_active:
+    if not user:
         raise AppException(
             "Incorrect credentials", status_code=401, error_type="invalid_credentials"
         )
+    elif not user.is_verified:
+        raise AppException("Inactive user", status_code=403, error_type="inactive_user")
 
     access_token = await get_jwt_strategy().write_token(user)
     refresh_token = await get_refresh_jwt_strategy().write_token(user)
