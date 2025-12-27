@@ -16,6 +16,7 @@ In short: a full-stack web application with a FastAPI backend and an Angular fro
 - Testing: pytest, testcontainers
 - Containerization: Docker, Docker Compose
 - Frontend: Angular, TypeScript
+- Cache / message broker: Redis
 
 ---
 
@@ -23,16 +24,30 @@ In short: a full-stack web application with a FastAPI backend and an Angular fro
 
 ```
 GameAnnouncer/
-├── backend/           # FastAPI backend (API, models, migrations)
-│   ├── api/
-│   ├── core/
-│   ├── models/
-│   ├── schemas/
-│   ├── services/
-│   └── alembic/
-├── frontend/          # Angular application
-├── docker-compose.yml # Docker Compose configuration
-└── Makefile           # Development helpers (start, build, logs)
+├── backend/                # FastAPI backend and project code
+│   ├── alembic/            # DB migrations
+│   ├── api/                # API routers (v1, auth, endpoints)
+│   │   └── v1/
+│   ├── core/               # config, deps, middleware, utils
+│   ├── models/             # SQLAlchemy models
+│   ├── schemas/            # Pydantic schemas
+│   ├── services/           # business logic and helpers
+│   ├── tasks/              # background tasks / broker config
+│   ├── static/             # static assets (images, etc.)
+│   ├── tests/              # test suite (pytest)
+│   ├── main.py             # ASGI app entrypoint
+│   ├── console.py          # interactive console for devs
+│   └── pyproject.toml / Dockerfile / Makefile
+├── frontend/               # Angular application
+│   ├── angular.json
+│   ├── package.json
+│   └── src/
+│       ├── app/
+│       ├── features/
+│       ├── pages/
+│       └── shared/
+├── docker-compose.yml      # Docker Compose configuration for local env
+└── Makefile                # high-level project commands (project-up, project-rebuild...)
 ```
 
 ---
