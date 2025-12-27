@@ -10,25 +10,17 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent))
 
-from core.db.container import create_db
 from core.config import get_settings
 from sqlalchemy import select
 from types import SimpleNamespace
 
 
 db = SimpleNamespace()
-settings = None
+settings = get_settings()
 
 
 async def main():
     """Simple database console"""
-    global db, settings
-
-    if not hasattr(db, "get_session"):
-        db = create_db()
-
-    if settings is None:
-        settings = get_settings()
 
     session = await db.get_session()
 
