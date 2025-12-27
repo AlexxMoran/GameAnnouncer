@@ -82,3 +82,6 @@ async def shutdown_broker():
     if not broker.is_worker_process:
         await broker.shutdown()
         logger.info("✓ Taskiq broker stopped")
+
+
+broker = get_broker()

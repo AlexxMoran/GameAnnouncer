@@ -52,7 +52,7 @@ if settings.cors.all_cors_origins:
         allow_headers=settings.cors.allow_headers,
     )
 
-app.include_router(api_router, prefix=settings.api.prefix)
+app.include_router(api_router, prefix="/api")
 
 
 if __name__ == "__main__":
