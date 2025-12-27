@@ -2,6 +2,7 @@ from tasks.broker import get_broker
 from core.logger import logger
 from mailers.user_mailer import UserMailer
 
+
 broker = get_broker()
 
 

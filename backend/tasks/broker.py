@@ -5,9 +5,50 @@ from taskiq_redis import RedisAsyncResultBackend, ListQueueBroker
 from taskiq import TaskiqScheduler
 
 
-@lru_cache
+class DisabledBroker:
+    """Taskiq broker stub used when real broker cannot be initialized.
+
+    - Safe for imports (pytest, scripts, migrations)
+    - Tasks are registered but never executed
+    - Excluded from lifecycle
+    """
+
+    def task(self, func=None, **kwargs):
+        def decorator(f):
+            logger.debug(
+                "Task %s registered on DisabledBroker (skipped)",
+                f.__name__,
+            )
+            return f
+
+        return decorator(func) if func else decorator
+
+    @property
+    def is_worker_process(self) -> bool:
+        return True
+
+    async def startup(self) -> None:
+        return None
+
+    async def shutdown(self) -> None:
+        return None
+
+
+@lru_cache()
 def get_broker():
-    settings = get_settings()
+    """Return a Taskiq broker configured from settings.
+
+    If `get_settings()` raises (for example during pytest collection
+    before fixtures/monkeypatch run), return a lightweight disabled broker
+    so modules can be imported safely.
+    """
+
+    try:
+        settings = get_settings()
+    except Exception as e:
+        logger.warning("Taskiq broker disabled, using DisabledBroker", exc_info=e)
+
+        return DisabledBroker()
 
     redis_async_result = RedisAsyncResultBackend(
         redis_url=settings.redis.url,
@@ -20,7 +61,7 @@ def get_broker():
     return broker
 
 
-@lru_cache
+@lru_cache()
 def get_scheduler():
     return TaskiqScheduler(broker=get_broker(), sources=[])
 
