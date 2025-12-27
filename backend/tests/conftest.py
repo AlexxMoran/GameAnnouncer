@@ -1,5 +1,6 @@
-import importlib
 import os
+
+import importlib
 import core.config as config
 import httpx
 import pytest
@@ -55,19 +56,70 @@ def test_settings(sync_db_url: str) -> config.Settings:
     return config.Settings(**settings_data)
 
 
-@pytest.fixture(scope="session")
-def postgres_container() -> Generator[PostgresContainer, None, None]:
-    """Start a temporary Postgres container for the test session.
+@pytest.hookimpl(tryfirst=True)
+def pytest_sessionstart(session):
+    """Start a Postgres test container and patch `core.config.get_settings`.
 
-    Requires Docker.
+    Runs before other pytest session hooks to ensure test settings are
+    available during import/collection.
     """
-    with PostgresContainer(
-        image="postgres:15",
-        username="test",
-        password="test",
-        dbname="test",
-    ) as postgres:
-        yield postgres
+    container = PostgresContainer(
+        image="postgres:15", username="test", password="test", dbname="test"
+    )
+    container.start()
+
+    sync_url = container.get_connection_url()
+
+    if sync_url.startswith("postgresql://"):
+        sync_url = sync_url.replace("postgresql://", "postgresql+psycopg://", 1)
+
+    if "postgresql+psycopg2" in sync_url:
+        sync_url = sync_url.replace("postgresql+psycopg2", "postgresql+psycopg")
+
+    async_url = sync_url.replace("postgresql+psycopg", "postgresql+asyncpg")
+
+    os.environ["DATABASE_SYNC_URL"] = sync_url
+    os.environ["DATABASE_URL"] = async_url
+
+    settings_instance = test_settings(sync_url)
+
+    import core.db.container as db_container
+
+    config.get_settings = lambda: settings_instance
+    db_container.get_settings = lambda: settings_instance
+
+    session._test_postgres_container = container
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_sessionfinish(session, exitstatus):
+    container = getattr(session, "_test_postgres_container", None)
+    if container is not None:
+        try:
+            container.stop()
+        except Exception:
+            pass
+
+
+@pytest.fixture(scope="session")
+def postgres_container(request) -> Generator[PostgresContainer, None, None]:
+    """Return the Postgres container started in `pytest_sessionstart`.
+
+    If the session hook created a container, reuse it; otherwise start a
+    temporary container (for environments that don't run the session hook).
+    """
+    container = getattr(request.session, "_test_postgres_container", None)
+
+    if container is not None:
+        yield container
+    else:
+        with PostgresContainer(
+            image="postgres:15",
+            username="test",
+            password="test",
+            dbname="test",
+        ) as postgres:
+            yield postgres
 
 
 @pytest.fixture(scope="session")
@@ -170,13 +222,6 @@ def app(async_db_url, sync_db_url, monkeypatch):
     """Import FastAPI app with startup tasks disabled for testing."""
 
     get_settings.cache_clear()
-
-    os.environ["DATABASE_URL"] = async_db_url
-    os.environ["DATABASE_SYNC_URL"] = sync_db_url
-
-    settings_instance = test_settings(sync_db_url)
-
-    monkeypatch.setattr(config, "get_settings", lambda: settings_instance)
     monkeypatch.setattr("core.initializers.initialize_all", lambda: None)
 
     async def _noop():
@@ -207,12 +252,12 @@ def app(async_db_url, sync_db_url, monkeypatch):
 @pytest_asyncio.fixture
 async def async_client(app, db_session) -> AsyncGenerator[httpx.AsyncClient, None]:
     """Provide an httpx AsyncClient wired to the app and test DB session."""
-    from core.db.container import db
+    from core import deps as core_deps
 
     async def override_session_getter():
         yield db_session
 
-    app.dependency_overrides[db.session_getter] = override_session_getter
+    app.dependency_overrides[core_deps._session_getter_dep] = override_session_getter
 
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:

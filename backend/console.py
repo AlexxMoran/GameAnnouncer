@@ -10,18 +10,23 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).parent))
 
-from core.db.container import db
 from core.config import get_settings
 from sqlalchemy import select
+from types import SimpleNamespace
 
+
+db = SimpleNamespace()
 settings = get_settings()
 
 
 async def main():
     """Simple database console"""
+
     session = await db.get_session()
 
     print(f"✅ Connected to database: {settings.db.database}")
+    print("⚙️  Database session available as 'session'")
+    print("🔧 Settings available as 'settings'")
     print("⚙️  Database session available as 'session'")
     print("🔧 Settings available as 'settings'")
     print("\n💡 Import what you need:")

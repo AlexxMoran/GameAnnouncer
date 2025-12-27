@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch
 
 
 class FakeStrategy:
@@ -31,7 +32,7 @@ async def test_get_user_by_id(async_client, create_user):
 
 @pytest.mark.asyncio
 async def test_get_current_user_and_update(
-    monkeypatch, async_client, create_user, authenticated_client
+    async_client, create_user, authenticated_client
 ):
     user = await create_user(email="me@example.com", password="secret")
 
@@ -46,43 +47,43 @@ async def test_get_current_user_and_update(
 
 
 @pytest.mark.asyncio
-async def test_login_and_logout(monkeypatch, async_client, create_user):
+async def test_login_and_logout(async_client, create_user):
     user = await create_user(email="login@example.com", password="secret")
-
-    monkeypatch.setattr("api.auth.get_jwt_strategy", lambda: FakeStrategy())
-    monkeypatch.setattr("api.auth.get_refresh_jwt_strategy", lambda: FakeStrategy(user))
-
-    r = await async_client.post(
-        "/api/auth/login", data={"username": "noone", "password": "x"}
-    )
+    with patch("api.auth.get_jwt_strategy", return_value=FakeStrategy()), patch(
+        "api.auth.get_refresh_jwt_strategy", return_value=FakeStrategy(user)
+    ):
+        r = await async_client.post(
+            "/api/auth/login", data={"username": "noone", "password": "x"}
+        )
     assert r.status_code == 401
-
-    r = await async_client.post(
-        "/api/auth/login", data={"username": "login@example.com", "password": "secret"}
-    )
+    with patch("api.auth.get_jwt_strategy", return_value=FakeStrategy()), patch(
+        "api.auth.get_refresh_jwt_strategy", return_value=FakeStrategy(user)
+    ):
+        r = await async_client.post(
+            "/api/auth/login",
+            data={"username": "login@example.com", "password": "secret"},
+        )
     assert r.status_code == 200
     assert "access_token" in r.json()
-
     r = await async_client.post("/api/auth/logout")
     assert r.status_code == 200
 
 
 @pytest.mark.asyncio
-async def test_refresh_token_flow(monkeypatch, async_client, create_user):
+async def test_refresh_token_flow(async_client, create_user):
     user = await create_user(email="r@example.com", password="secret")
+    with patch(
+        "api.auth.get_refresh_jwt_strategy", return_value=FakeStrategy(user)
+    ), patch("api.auth.get_jwt_strategy", return_value=FakeStrategy()):
+        async_client.cookies.set("refresh_token", "any")
 
-    monkeypatch.setattr("api.auth.get_refresh_jwt_strategy", lambda: FakeStrategy(user))
-    monkeypatch.setattr("api.auth.get_jwt_strategy", lambda: FakeStrategy())
-
-    async_client.cookies.set("refresh_token", "any")
-
-    r = await async_client.post("/api/auth/jwt/refresh")
-    assert r.status_code == 200
-    assert "access_token" in r.json()
+        r = await async_client.post("/api/auth/jwt/refresh")
+        assert r.status_code == 200
+        assert "access_token" in r.json()
 
 
 @pytest.mark.asyncio
-async def test_forgot_and_reset_and_verify(monkeypatch, async_client, create_user):
+async def test_forgot_and_reset_and_verify(async_client, create_user):
     await create_user(email="fp@example.com", password="secret")
 
     r = await async_client.post(

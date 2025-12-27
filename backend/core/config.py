@@ -8,15 +8,6 @@ class RunConfig(BaseModel):
     port: int = 3000
 
 
-class ApiV1Prefix(BaseModel):
-    prefix: str = "/v1"
-
-
-class ApiPrefix(BaseModel):
-    prefix: str = "/api"
-    v1: ApiV1Prefix = ApiV1Prefix()
-
-
 class DatabaseConfig(BaseModel):
     server: str
     port: int = 5432
@@ -108,7 +99,6 @@ class Settings(BaseSettings):
         env_nested_delimiter="__",
     )
     run: RunConfig = RunConfig()
-    api: ApiPrefix = ApiPrefix()
     db: DatabaseConfig
     cors: CORSConfig = CORSConfig()
     auth: AuthConfig

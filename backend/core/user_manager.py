@@ -6,17 +6,16 @@ from core.config import get_settings
 from fastapi import Request
 from fastapi_users import BaseUserManager, IntegerIDMixin
 from models.user import User
-from tasks import (
-    send_verification_email_task,
-    send_password_reset_email_task,
-)
-
-settings = get_settings()
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
-    reset_password_token_secret = settings.auth.reset_password_token_secret
-    verification_token_secret = settings.auth.verification_token_secret
+    @property
+    def reset_password_token_secret(self) -> str:
+        return get_settings().auth.reset_password_token_secret
+
+    @property
+    def verification_token_secret(self) -> str:
+        return get_settings().auth.verification_token_secret
 
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         logger.info(f"User {user.id} has registered. Generating verification token.")
@@ -29,6 +28,8 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         self, user: User, token: str, request: Optional[Request] = None
     ):
         logger.info(f"User {user.id} has forgot their password. Queueing reset email.")
+        from tasks import send_password_reset_email_task
+
         await send_password_reset_email_task.kiq(
             email=user.email, token=token, first_name=user.first_name
         )
@@ -39,6 +40,7 @@ class UserManager(IntegerIDMixin, BaseUserManager[User, int]):
         logger.info(
             f"Verification requested for user {user.id}. Queueing verification email."
         )
+        from tasks import send_verification_email_task
 
         await send_verification_email_task.kiq(
             email=user.email, token=token, first_name=user.first_name

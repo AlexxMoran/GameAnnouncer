@@ -5,8 +5,6 @@ from email.mime.text import MIMEText
 from core.config import get_settings
 from core.logger import logger
 
-settings = get_settings()
-
 
 class EmailService:
     """Send emails via SMTP asynchronously."""
@@ -14,6 +12,8 @@ class EmailService:
     @staticmethod
     async def send_email(mail) -> bool:
         """Send email via SMTP asynchronously."""
+        settings = get_settings()
+
         try:
             msg = EmailService._build_message(mail)
 

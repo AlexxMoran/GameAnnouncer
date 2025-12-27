@@ -1,89 +1,68 @@
 import pytest
 from types import SimpleNamespace
+from unittest.mock import AsyncMock, MagicMock, patch
 
 
 @pytest.mark.asyncio
-async def test_get_games_paginated(async_client, game_factory, monkeypatch):
+async def test_get_games_paginated(async_client, game_factory):
     g1 = game_factory.build()
     g2 = game_factory.build()
     games = [g1, g2]
 
-    class FakeSearch:
-        async def results_with_announcements_count(self, skip=0, limit=10):
-            return games
+    fake_search = MagicMock()
+    fake_search.results_with_announcements_count = AsyncMock(return_value=games)
+    fake_search.count = AsyncMock(return_value=2)
 
-        async def count(self):
-            return 2
-
-    def _fake_get_game_search(session, filters=None):
-        return FakeSearch()
-
-    monkeypatch.setattr("api.v1.games.get_game_search", _fake_get_game_search)
-    monkeypatch.setattr("core.deps.get_game_search", _fake_get_game_search)
-
-    import api.v1.games as games_mod
-
-    async_client._transport.app.dependency_overrides[games_mod.get_game_search] = (
-        _fake_get_game_search
-    )
-    monkeypatch.setattr("api.v1.games.get_batch_permissions", lambda user, gs: None)
-
-    async def _fake_results(self, skip=0, limit=10):
-        return games
-
-    async def _fake_count(self):
-        return 2
-
-    monkeypatch.setattr(
+    with patch("api.v1.games.get_game_search", return_value=fake_search), patch(
+        "core.deps.get_game_search", return_value=fake_search
+    ), patch("api.v1.games.get_batch_permissions", return_value=None), patch(
         "searches.game_search.GameSearch.results_with_announcements_count",
-        _fake_results,
-    )
-    monkeypatch.setattr("searches.game_search.GameSearch.count", _fake_count)
-    r = await async_client.get("/api/v1/games?skip=0&limit=10")
-    assert r.status_code == 200
-    body = r.json()
+        new=AsyncMock(return_value=games),
+    ), patch(
+        "searches.game_search.GameSearch.count", new=AsyncMock(return_value=2)
+    ):
+        import api.v1.games as games_mod
 
-    assert body["total"] == 2
-    assert body["limit"] == 10
-    assert len(body["data"]) == 2
-    assert body["data"][0]["id"] == g1["id"]
-    assert body["data"][1]["id"] == g2["id"]
+        async_client._transport.app.dependency_overrides[games_mod.get_game_search] = (
+            lambda: fake_search
+        )
+
+        r = await async_client.get("/api/v1/games?skip=0&limit=10")
+        assert r.status_code == 200
+        body = r.json()
+
+        assert body["total"] == 2
+        assert body["limit"] == 10
+        assert len(body["data"]) == 2
+        assert body["data"][0]["id"] == g1["id"]
+        assert body["data"][1]["id"] == g2["id"]
 
 
 @pytest.mark.asyncio
-async def test_get_game_and_permissions(async_client, game_factory, monkeypatch):
+async def test_get_game_and_permissions(async_client, game_factory):
     g = game_factory.build()
     g_obj = SimpleNamespace(**g)
 
-    async def _fake_get_by_id(session, game_id):
-        return g_obj
-
-    monkeypatch.setattr("api.v1.games.game_crud.get_by_id", _fake_get_by_id)
-    monkeypatch.setattr(
-        "api.v1.games.get_permissions", lambda user, game: {"edit": True}
-    )
-
-    r = await async_client.get(f"/api/v1/games/{g['id']}")
-    assert r.status_code == 200
-    data = r.json()["data"]
-    assert data["id"] == g["id"]
-    assert data["permissions"]["edit"] is True
+    with patch(
+        "api.v1.games.game_crud.get_by_id", new=AsyncMock(return_value=g_obj)
+    ), patch("api.v1.games.get_permissions", return_value={"edit": True}):
+        r = await async_client.get(f"/api/v1/games/{g['id']}")
+        assert r.status_code == 200
+        data = r.json()["data"]
+        assert data["id"] == g["id"]
+        assert data["permissions"]["edit"] is True
 
 
 @pytest.mark.asyncio
-async def test_get_game_not_found(async_client, game_factory, monkeypatch):
-    async def _fake_get_by_id(session, game_id):
-        return None
-
-    monkeypatch.setattr("api.v1.games.game_crud.get_by_id", _fake_get_by_id)
-
-    r = await async_client.get("/api/v1/games/9999")
-    assert r.status_code == 404
+async def test_get_game_not_found(async_client):
+    with patch("api.v1.games.game_crud.get_by_id", new=AsyncMock(return_value=None)):
+        r = await async_client.get("/api/v1/games/9999")
+        assert r.status_code == 404
 
 
 @pytest.mark.asyncio
 async def test_create_game(
-    async_client, create_user, game_factory, authenticated_client, monkeypatch
+    async_client, create_user, game_factory, authenticated_client
 ):
     user = await create_user(email="creator@game.test", password="pw")
     game_payload = {"name": "MyGame", "category": "RTS", "description": "d"}
@@ -94,18 +73,17 @@ async def test_create_game(
         assert game_in.name == game_payload["name"]
         return SimpleNamespace(**created)
 
-    monkeypatch.setattr("api.v1.games.game_crud.create", _fake_create)
+    with patch("api.v1.games.game_crud.create", new=_fake_create):
+        client = authenticated_client(user)
 
-    client = authenticated_client(user)
-
-    r = await client.post("/api/v1/games", json=game_payload)
-    assert r.status_code == 200
-    assert r.json()["data"]["name"] == game_payload["name"]
+        r = await client.post("/api/v1/games", json=game_payload)
+        assert r.status_code == 200
+        assert r.json()["data"]["name"] == game_payload["name"]
 
 
 @pytest.mark.asyncio
 async def test_update_game_success(
-    async_client, create_user, game_factory, authenticated_client, monkeypatch
+    async_client, create_user, game_factory, authenticated_client
 ):
     user = await create_user(email="upd@game.test", password="pw")
     existing = game_factory.build(id=22)
@@ -136,37 +114,32 @@ async def test_update_game_success(
         merged = {**game.__dict__, **(upd or {})}
         return SimpleNamespace(**merged)
 
-    monkeypatch.setattr("api.v1.games.game_crud.get_by_id", _fake_get_by_id_for_edit)
-    monkeypatch.setattr("api.v1.games.game_crud.update", _fake_update)
+    with patch(
+        "api.v1.games.game_crud.get_by_id",
+        new=AsyncMock(side_effect=_fake_get_by_id_for_edit),
+    ), patch("api.v1.games.game_crud.update", new=_fake_update):
+        client = authenticated_client(user)
 
-    client = authenticated_client(user)
-
-    payload = {"name": "UpdatedName"}
-    r = await client.patch("/api/v1/games/1", json=payload)
-    assert r.status_code == 200
-    assert r.json()["data"]["name"] == "UpdatedName"
+        payload = {"name": "UpdatedName"}
+        r = await client.patch("/api/v1/games/1", json=payload)
+        assert r.status_code == 200
+        assert r.json()["data"]["name"] == "UpdatedName"
 
 
 @pytest.mark.asyncio
-async def test_update_game_not_found(
-    async_client, create_user, authenticated_client, monkeypatch
-):
+async def test_update_game_not_found(async_client, create_user, authenticated_client):
     user = await create_user(email="noexist@g.test", password="pw")
 
-    async def _fake_get_by_id_for_edit(session, game_id, user=None, action=None):
-        return None
+    with patch("api.v1.games.game_crud.get_by_id", new=AsyncMock(return_value=None)):
+        client = authenticated_client(user)
 
-    monkeypatch.setattr("api.v1.games.game_crud.get_by_id", _fake_get_by_id_for_edit)
-
-    client = authenticated_client(user)
-
-    r = await client.patch("/api/v1/games/999", json={"name": "X"})
-    assert r.status_code == 404
+        r = await client.patch("/api/v1/games/999", json={"name": "X"})
+        assert r.status_code == 404
 
 
 @pytest.mark.asyncio
 async def test_delete_game_success(
-    async_client, create_user, game_factory, authenticated_client, monkeypatch
+    async_client, create_user, game_factory, authenticated_client
 ):
     user = await create_user(email="del@g.test", password="pw")
     existing = game_factory.build(id=33)
@@ -178,50 +151,35 @@ async def test_delete_game_success(
     async def _fake_delete(session, game, user, action=None):
         return None
 
-    monkeypatch.setattr("api.v1.games.game_crud.get_by_id", _fake_get_by_id_for_edit)
-    monkeypatch.setattr("api.v1.games.game_crud.delete", _fake_delete)
+    with patch(
+        "api.v1.games.game_crud.get_by_id",
+        new=AsyncMock(side_effect=_fake_get_by_id_for_edit),
+    ), patch("api.v1.games.game_crud.delete", new=_fake_delete):
+        client = authenticated_client(user)
 
-    client = authenticated_client(user)
-
-    r = await client.delete("/api/v1/games/1")
-    assert r.status_code == 200
-    assert r.json()["data"] == "Game deleted successfully"
+        r = await client.delete("/api/v1/games/1")
+        assert r.status_code == 200
+        assert r.json()["data"] == "Game deleted successfully"
 
 
 @pytest.mark.asyncio
-async def test_delete_game_not_found(
-    async_client, create_user, authenticated_client, monkeypatch
-):
+async def test_delete_game_not_found(async_client, create_user, authenticated_client):
     user = await create_user(email="dne@g.test", password="pw")
 
-    async def _fake_get_by_id_for_edit(session, game_id, user=None, action=None):
-        return None
+    with patch("api.v1.games.game_crud.get_by_id", new=AsyncMock(return_value=None)):
+        client = authenticated_client(user)
 
-    monkeypatch.setattr("api.v1.games.game_crud.get_by_id", _fake_get_by_id_for_edit)
-
-    client = authenticated_client(user)
-
-    r = await client.delete("/api/v1/games/9999")
-    assert r.status_code == 404
+        r = await client.delete("/api/v1/games/9999")
+        assert r.status_code == 404
 
 
 @pytest.mark.asyncio
-async def test_upload_game_image(async_client, create_user, game_factory, monkeypatch):
+async def test_upload_game_image(async_client, create_user, game_factory):
     await create_user(email="img@g.test", password="pw")
     g = game_factory.build()
     g_obj = SimpleNamespace(**g)
 
-    async def _fake_get_by_id_for_edit(session, game_id, user=None, action=None):
-        return g_obj
-
-    monkeypatch.setattr("api.v1.games.game_crud.get_by_id", _fake_get_by_id_for_edit)
-
-    async def _fake_upload_avatar(**kwargs):
-        return "http://img/g.png"
-
-    monkeypatch.setattr("api.v1.games.upload_avatar", _fake_upload_avatar)
-
-    from core.db import container as db_container
+    from core import deps as core_deps
 
     class FakeSession:
         async def commit(self):
@@ -233,12 +191,19 @@ async def test_upload_game_image(async_client, create_user, game_factory, monkey
     async def _fake_session_getter():
         yield FakeSession()
 
-    async_client._transport.app.dependency_overrides[db_container.db.session_getter] = (
+    async_client._transport.app.dependency_overrides[core_deps._session_getter_dep] = (
         _fake_session_getter
     )
 
-    files = {"file": ("img.png", b"data", "image/png")}
+    with patch(
+        "api.v1.games.game_crud.get_by_id", new=AsyncMock(return_value=g_obj)
+    ), patch(
+        "api.v1.games.upload_avatar", new=AsyncMock(return_value="http://img/g.png")
+    ):
+        files = {"file": ("img.png", b"data", "image/png")}
 
-    r = await async_client.post(f"/api/v1/games/{g['id']}/upload_image", files=files)
-    assert r.status_code == 200
-    assert r.json()["data"]["image_url"] == "http://img/g.png"
+        r = await async_client.post(
+            f"/api/v1/games/{g['id']}/upload_image", files=files
+        )
+        assert r.status_code == 200
+        assert r.json()["data"]["image_url"] == "http://img/g.png"

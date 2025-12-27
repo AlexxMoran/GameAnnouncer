@@ -11,10 +11,11 @@ from exceptions import EXCEPTION_HANDLERS, API_RESPONSES
 from core.config import get_settings
 from core.logger import setup_logging, logger
 from api import router as api_router
-from core.db.container import db
+from core.db.container import create_db
 
 setup_logging()
 
+db = create_db()
 settings = get_settings()
 
 
@@ -51,7 +52,7 @@ if settings.cors.all_cors_origins:
         allow_headers=settings.cors.allow_headers,
     )
 
-app.include_router(api_router, prefix=settings.api.prefix)
+app.include_router(api_router, prefix="/api")
 
 
 if __name__ == "__main__":
