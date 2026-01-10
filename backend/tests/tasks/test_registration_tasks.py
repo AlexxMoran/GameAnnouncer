@@ -1,7 +1,6 @@
 import pytest
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, AsyncMock
-from sqlalchemy import select, and_
 from tasks.registration_request_tasks import expire_registration_requests_task
 from models.announcement import Announcement
 from models.game import Game
@@ -85,6 +84,7 @@ async def test_expire_registration_requests_with_expired(db_session, create_user
     mock_db.session_factory.return_value.__aexit__.return_value = AsyncMock()
 
     import tasks.registration_request_tasks
+
     original_create_db = tasks.registration_request_tasks.create_db
     tasks.registration_request_tasks.create_db = lambda: mock_db
 
@@ -143,6 +143,7 @@ async def test_expire_registration_requests_multiple_expired(db_session, create_
     mock_db.session_factory.return_value.__aexit__.return_value = AsyncMock()
 
     import tasks.registration_request_tasks
+
     original_create_db = tasks.registration_request_tasks.create_db
     tasks.registration_request_tasks.create_db = lambda: mock_db
 
@@ -249,6 +250,7 @@ async def test_expire_registration_requests_mixed_statuses(db_session, create_us
     mock_db.session_factory.return_value.__aexit__.return_value = AsyncMock()
 
     import tasks.registration_request_tasks
+
     original_create_db = tasks.registration_request_tasks.create_db
     tasks.registration_request_tasks.create_db = lambda: mock_db
 
