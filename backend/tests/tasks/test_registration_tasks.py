@@ -1,5 +1,6 @@
 import pytest
 from datetime import datetime, timedelta
+from unittest.mock import MagicMock, AsyncMock
 from sqlalchemy import select, and_
 from tasks.registration_request_tasks import expire_registration_requests_task
 from models.announcement import Announcement
@@ -76,33 +77,25 @@ async def test_expire_registration_requests_with_expired(db_session, create_user
     )
     db_session.add(registration_request)
     await db_session.commit()
-
-    from datetime import timezone as tz
-
-    now_utc = datetime.now(tz.utc)
-
-    result = await db_session.execute(
-        select(RegistrationRequest)
-        .join(Announcement)
-        .where(
-            and_(
-                RegistrationRequest.status == RegistrationStatus.PENDING,
-                Announcement.registration_end_at < now_utc,
-            )
-        )
-    )
-
-    expired_requests = result.scalars().all()
-
-    assert len(expired_requests) == 1  # 1 request should be expired
-    assert expired_requests[0].id == registration_request.id
-
-    for req in expired_requests:
-        req.status = RegistrationStatus.EXPIRED
-    await db_session.commit()
-
     await db_session.refresh(registration_request)
-    assert registration_request.status == RegistrationStatus.EXPIRED
+
+    # Mock create_db to return our test session
+    mock_db = MagicMock()
+    mock_db.session_factory.return_value.__aenter__.return_value = db_session
+    mock_db.session_factory.return_value.__aexit__.return_value = AsyncMock()
+
+    import tasks.registration_request_tasks
+    original_create_db = tasks.registration_request_tasks.create_db
+    tasks.registration_request_tasks.create_db = lambda: mock_db
+
+    try:
+        result = await expire_registration_requests_task()
+
+        assert result == 1
+        await db_session.refresh(registration_request)
+        assert registration_request.status == RegistrationStatus.EXPIRED
+    finally:
+        tasks.registration_request_tasks.create_db = original_create_db
 
 
 @pytest.mark.asyncio
@@ -142,34 +135,27 @@ async def test_expire_registration_requests_multiple_expired(db_session, create_
     db_session.add(request1)
     db_session.add(request2)
     await db_session.commit()
-
-    # Test the logic directly
-    from datetime import timezone as tz
-
-    now_utc = datetime.now(tz.utc)
-
-    result = await db_session.execute(
-        select(RegistrationRequest)
-        .join(Announcement)
-        .where(
-            and_(
-                RegistrationRequest.status == RegistrationStatus.PENDING,
-                Announcement.registration_end_at < now_utc,
-            )
-        )
-    )
-
-    expired_requests = result.scalars().all()
-    assert len(expired_requests) == 2  # 2 requests should be expired
-
-    for req in expired_requests:
-        req.status = RegistrationStatus.EXPIRED
-    await db_session.commit()
-
     await db_session.refresh(request1)
     await db_session.refresh(request2)
-    assert request1.status == RegistrationStatus.EXPIRED
-    assert request2.status == RegistrationStatus.EXPIRED
+
+    mock_db = MagicMock()
+    mock_db.session_factory.return_value.__aenter__.return_value = db_session
+    mock_db.session_factory.return_value.__aexit__.return_value = AsyncMock()
+
+    import tasks.registration_request_tasks
+    original_create_db = tasks.registration_request_tasks.create_db
+    tasks.registration_request_tasks.create_db = lambda: mock_db
+
+    try:
+        result = await expire_registration_requests_task()
+
+        assert result == 2
+        await db_session.refresh(request1)
+        await db_session.refresh(request2)
+        assert request1.status == RegistrationStatus.EXPIRED
+        assert request2.status == RegistrationStatus.EXPIRED
+    finally:
+        tasks.registration_request_tasks.create_db = original_create_db
 
 
 @pytest.mark.asyncio
@@ -254,32 +240,27 @@ async def test_expire_registration_requests_mixed_statuses(db_session, create_us
     db_session.add(approved_request)
     db_session.add(rejected_request)
     await db_session.commit()
-
-    from datetime import timezone as tz
-
-    now_utc = datetime.now(tz.utc)
-
-    result = await db_session.execute(
-        select(RegistrationRequest)
-        .join(Announcement)
-        .where(
-            and_(
-                RegistrationRequest.status == RegistrationStatus.PENDING,
-                Announcement.registration_end_at < now_utc,
-            )
-        )
-    )
-
-    expired_requests = result.scalars().all()
-    assert len(expired_requests) == 1
-
-    for req in expired_requests:
-        req.status = RegistrationStatus.EXPIRED
-    await db_session.commit()
-
     await db_session.refresh(pending_request)
     await db_session.refresh(approved_request)
     await db_session.refresh(rejected_request)
-    assert pending_request.status == RegistrationStatus.EXPIRED
-    assert approved_request.status == RegistrationStatus.APPROVED
-    assert rejected_request.status == RegistrationStatus.REJECTED
+
+    mock_db = MagicMock()
+    mock_db.session_factory.return_value.__aenter__.return_value = db_session
+    mock_db.session_factory.return_value.__aexit__.return_value = AsyncMock()
+
+    import tasks.registration_request_tasks
+    original_create_db = tasks.registration_request_tasks.create_db
+    tasks.registration_request_tasks.create_db = lambda: mock_db
+
+    try:
+        result = await expire_registration_requests_task()
+
+        assert result == 1
+        await db_session.refresh(pending_request)
+        await db_session.refresh(approved_request)
+        await db_session.refresh(rejected_request)
+        assert pending_request.status == RegistrationStatus.EXPIRED
+        assert approved_request.status == RegistrationStatus.APPROVED
+        assert rejected_request.status == RegistrationStatus.REJECTED
+    finally:
+        tasks.registration_request_tasks.create_db = original_create_db
