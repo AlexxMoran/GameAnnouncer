@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any
 
 
 class AppException(Exception):
@@ -10,8 +10,8 @@ class AppException(Exception):
         self,
         message: str,
         status_code: int = 500,
-        error_type: Optional[Any] = None,
-        error: Optional[Any] = None,
+        error_type: Any | None = None,
+        error: Any | None = None,
     ):
         self.status_code = status_code
         self.message = message
@@ -24,3 +24,14 @@ class AppException(Exception):
 
     def __repr__(self) -> str:
         return self.__str__()
+
+
+class ValidationException(AppException):
+    """
+    Custom exception for validation errors.
+    """
+
+    def __init__(self, message: str, error: Any | None = None):
+        super().__init__(
+            message, status_code=422, error_type="validation_error", error=error
+        )

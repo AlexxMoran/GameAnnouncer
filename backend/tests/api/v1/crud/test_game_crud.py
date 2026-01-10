@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import select
 from unittest.mock import patch
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from models.game import Game
 from models.announcement import Announcement
@@ -52,18 +52,18 @@ async def test_get_by_id_with_announcements_count(db_session, create_user):
         content="c1",
         game_id=game.id,
         organizer_id=user.id,
-        start_at=now,
+        start_at=now + timedelta(days=30),
         registration_start_at=now,
-        registration_end_at=now,
+        registration_end_at=now + timedelta(days=29),
     )
     a2 = Announcement(
         title="T2",
         content="c2",
         game_id=game.id,
         organizer_id=user.id,
-        start_at=now,
+        start_at=now + timedelta(days=30),
         registration_start_at=now,
-        registration_end_at=now,
+        registration_end_at=now + timedelta(days=29),
     )
     db_session.add_all([a1, a2])
     await db_session.commit()

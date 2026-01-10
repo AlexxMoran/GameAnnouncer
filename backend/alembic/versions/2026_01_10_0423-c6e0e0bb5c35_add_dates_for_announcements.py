@@ -21,25 +21,28 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    from datetime import datetime
+    from datetime import datetime, timezone
 
-    op.add_column("announcements", sa.Column("start_at", sa.DateTime(), nullable=True))
     op.add_column(
         "announcements",
-        sa.Column("registration_start_at", sa.DateTime(), nullable=True),
+        sa.Column("start_at", sa.DateTime(timezone=True), nullable=True),
     )
     op.add_column(
         "announcements",
-        sa.Column("registration_end_at", sa.DateTime(), nullable=True),
+        sa.Column("registration_start_at", sa.DateTime(timezone=True), nullable=True),
+    )
+    op.add_column(
+        "announcements",
+        sa.Column("registration_end_at", sa.DateTime(timezone=True), nullable=True),
     )
 
-    start_of_year = datetime(2026, 1, 1, 0, 0, 0)
-    end_of_year = datetime(2026, 12, 31, 23, 59, 59)
+    start_of_year = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+    end_of_year = datetime(2026, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
 
     op.execute(
         f"""
         UPDATE announcements 
-        SET start_at = '{start_of_year}'
+        SET start_at = '{end_of_year}'
         WHERE start_at IS NULL
         """
     )

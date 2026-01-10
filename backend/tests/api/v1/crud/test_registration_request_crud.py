@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import patch
 from sqlalchemy import select
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from models.game import Game
 from models.announcement import Announcement
@@ -25,9 +25,9 @@ async def test_create_registration_request(db_session, create_user):
         content="c",
         game_id=game.id,
         organizer_id=user.id,
-        start_at=now,
+        start_at=now + timedelta(days=30),
         registration_start_at=now,
-        registration_end_at=now,
+        registration_end_at=now + timedelta(days=29),
     )
     db_session.add(ann)
     await db_session.commit()
@@ -55,9 +55,9 @@ async def test_get_all_by_user_and_announcement(db_session, create_user):
         content="c",
         game_id=game.id,
         organizer_id=user.id,
-        start_at=now,
+        start_at=now + timedelta(days=30),
         registration_start_at=now,
-        registration_end_at=now,
+        registration_end_at=now + timedelta(days=29),
     )
     db_session.add(ann)
     await db_session.commit()
@@ -93,9 +93,9 @@ async def test_get_by_user_and_announcement(db_session, create_user):
         content="c",
         game_id=game.id,
         organizer_id=user.id,
-        start_at=now,
+        start_at=now + timedelta(days=30),
         registration_start_at=now,
-        registration_end_at=now,
+        registration_end_at=now + timedelta(days=29),
     )
     db_session.add(ann)
     await db_session.commit()
@@ -126,9 +126,9 @@ async def test_get_by_id_loads_relations(db_session, create_user):
         content="c",
         game_id=game.id,
         organizer_id=user.id,
-        start_at=now,
+        start_at=now + timedelta(days=30),
         registration_start_at=now,
-        registration_end_at=now,
+        registration_end_at=now + timedelta(days=29),
     )
     db_session.add(ann)
     await db_session.commit()
@@ -161,9 +161,9 @@ async def test_approve_registration_request(db_session, create_user):
         content="c",
         game_id=game.id,
         organizer_id=owner.id,
-        start_at=now,
+        start_at=now + timedelta(days=30),
         registration_start_at=now,
-        registration_end_at=now,
+        registration_end_at=now + timedelta(days=29),
     )
     db_session.add(ann)
     await db_session.commit()
@@ -207,9 +207,9 @@ async def test_reject_registration_request(db_session, create_user):
         content="c",
         game_id=game.id,
         organizer_id=owner.id,
-        start_at=now,
+        start_at=now + timedelta(days=30),
         registration_start_at=now,
-        registration_end_at=now,
+        registration_end_at=now + timedelta(days=29),
     )
     db_session.add(ann)
     await db_session.commit()
@@ -245,9 +245,9 @@ async def test_cancel_registration_request(db_session, create_user):
         content="c",
         game_id=game.id,
         organizer_id=owner.id,
-        start_at=now,
+        start_at=now + timedelta(days=30),
         registration_start_at=now,
-        registration_end_at=now,
+        registration_end_at=now + timedelta(days=29),
     )
     db_session.add(ann)
     await db_session.commit()
