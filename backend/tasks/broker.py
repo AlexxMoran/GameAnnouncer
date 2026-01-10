@@ -2,7 +2,7 @@ from functools import lru_cache
 from core.config import get_settings
 from core.logger import logger
 from taskiq_redis import RedisAsyncResultBackend, ListQueueBroker
-from taskiq import TaskiqScheduler
+from taskiq import TaskiqScheduler, ScheduleSource
 
 
 class DisabledBroker:
@@ -63,7 +63,20 @@ def get_broker():
 
 @lru_cache()
 def get_scheduler():
-    return TaskiqScheduler(broker=get_broker(), sources=[])
+    """Get scheduler with all periodic tasks."""
+    from backend.tasks.registration_request_tasks import (
+        expire_registration_requests_task,
+    )
+
+    source = ScheduleSource()
+
+    source.add_cron(
+        expire_registration_requests_task,
+        cron="*/5 * * * *",
+        labels={"task_name": "expire_registration_requests"},
+    )
+
+    return TaskiqScheduler(broker=get_broker(), sources=[source])
 
 
 async def startup_broker():

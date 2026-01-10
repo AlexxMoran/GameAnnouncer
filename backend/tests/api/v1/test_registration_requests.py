@@ -37,9 +37,15 @@ async def test_create_registration_request_success(
     announcement_factory,
     authenticated_client,
 ):
+    from types import SimpleNamespace
+
     user = await create_user(email="u@example.com", password="x")
-    ann = announcement_factory.build()
-    rr_in = {"announcement_id": ann["id"]}
+    ann_dict = announcement_factory.build()
+
+    # Create a mock announcement object with is_registration_open property
+    ann = SimpleNamespace(**ann_dict, is_registration_open=True)
+
+    rr_in = {"announcement_id": ann.id}
     with patch(
         "api.v1.registration_requests.get_announcement_dependency",
         new=AsyncMock(return_value=ann),
@@ -48,21 +54,21 @@ async def test_create_registration_request_success(
         new=AsyncMock(return_value=None),
     ):
         created = registration_request_factory.build(
-            user_id=user.id, announcement_id=ann["id"]
+            user_id=user.id, announcement_id=ann.id
         )
 
-        async def _fake_create(session, registration_request_in, user: object):
+        async def _fake_service_call():
             return created
 
         client = authenticated_client(user)
 
         with patch(
-            "api.v1.registration_requests.registration_request_crud.create",
-            new=AsyncMock(side_effect=_fake_create),
+            "api.v1.registration_requests.CreateRegistrationRequestService.call",
+            new=AsyncMock(side_effect=_fake_service_call),
         ):
             r = await client.post("/api/v1/registration_requests", json=rr_in)
             assert r.status_code == 200
-            assert r.json()["data"]["announcement_id"] == ann["id"]
+            assert r.json()["data"]["announcement_id"] == ann.id
 
 
 @pytest.mark.asyncio

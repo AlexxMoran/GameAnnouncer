@@ -12,6 +12,9 @@ from models.user import User
 from api.v1.crud.registration_request import registration_request_crud
 from api.v1.announcements import get_announcement_dependency
 from core.users import current_user
+from services.create_registration_request_service import (
+    CreateRegistrationRequestService,
+)
 
 
 router = APIRouter(prefix="/registration_requests", tags=["registration_requests"])
@@ -55,7 +58,9 @@ async def create(
     registration_request_in: RegistrationRequestCreate,
     user: User = Depends(current_user),
 ):
-    await get_announcement_dependency(session, registration_request_in.announcement_id)
+    announcement = await get_announcement_dependency(
+        session, registration_request_in.announcement_id
+    )
 
     existing_request = await registration_request_crud.get_by_user_and_announcement(
         session=session,
@@ -68,9 +73,12 @@ async def create(
             status_code=400,
         )
 
-    registration_request = await registration_request_crud.create(
-        session=session, registration_request_in=registration_request_in, user=user
-    )
+    registration_request = await CreateRegistrationRequestService(
+        session=session,
+        announcement=announcement,
+        user=user,
+        registration_request_in=registration_request_in,
+    ).call()
 
     return DataResponse(data=registration_request)
 
