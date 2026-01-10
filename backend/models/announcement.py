@@ -1,4 +1,5 @@
 from typing import TYPE_CHECKING, Optional
+from datetime import datetime
 
 from .base import Base
 from sqlalchemy.orm import mapped_column, Mapped, relationship
@@ -16,6 +17,9 @@ class Announcement(Base):
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=True)
     image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    start_at: Mapped[datetime] = mapped_column(nullable=False)
+    registration_start_at: Mapped[datetime] = mapped_column(nullable=False)
+    registration_end_at: Mapped[datetime] = mapped_column(nullable=False)
 
     game_id: Mapped[int] = mapped_column(
         ForeignKey("games.id", ondelete="CASCADE"), nullable=False

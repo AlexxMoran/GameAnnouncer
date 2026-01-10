@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch
 from sqlalchemy import select
+from datetime import datetime
 
 from models.game import Game
 from models.announcement import Announcement
@@ -18,7 +19,16 @@ async def test_create_registration_request(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    ann = Announcement(title="Ann1", content="c", game_id=game.id, organizer_id=user.id)
+    now = datetime.now()
+    ann = Announcement(
+        title="Ann1",
+        content="c",
+        game_id=game.id,
+        organizer_id=user.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
+    )
     db_session.add(ann)
     await db_session.commit()
     await db_session.refresh(ann)
@@ -39,7 +49,16 @@ async def test_get_all_by_user_and_announcement(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    ann = Announcement(title="Ann1", content="c", game_id=game.id, organizer_id=user.id)
+    now = datetime.now()
+    ann = Announcement(
+        title="Ann1",
+        content="c",
+        game_id=game.id,
+        organizer_id=user.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
+    )
     db_session.add(ann)
     await db_session.commit()
     await db_session.refresh(ann)
@@ -68,7 +87,16 @@ async def test_get_by_user_and_announcement(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    ann = Announcement(title="Ann2", content="c", game_id=game.id, organizer_id=user.id)
+    now = datetime.now()
+    ann = Announcement(
+        title="Ann2",
+        content="c",
+        game_id=game.id,
+        organizer_id=user.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
+    )
     db_session.add(ann)
     await db_session.commit()
     await db_session.refresh(ann)
@@ -92,7 +120,16 @@ async def test_get_by_id_loads_relations(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    ann = Announcement(title="Ann3", content="c", game_id=game.id, organizer_id=user.id)
+    now = datetime.now()
+    ann = Announcement(
+        title="Ann3",
+        content="c",
+        game_id=game.id,
+        organizer_id=user.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
+    )
     db_session.add(ann)
     await db_session.commit()
     await db_session.refresh(ann)
@@ -118,8 +155,15 @@ async def test_approve_registration_request(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
+    now = datetime.now()
     ann = Announcement(
-        title="Ann3", content="c", game_id=game.id, organizer_id=owner.id
+        title="Ann3",
+        content="c",
+        game_id=game.id,
+        organizer_id=owner.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -157,8 +201,15 @@ async def test_reject_registration_request(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
+    now = datetime.now()
     ann = Announcement(
-        title="Ann4", content="c", game_id=game.id, organizer_id=owner.id
+        title="Ann4",
+        content="c",
+        game_id=game.id,
+        organizer_id=owner.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -188,8 +239,15 @@ async def test_cancel_registration_request(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
+    now = datetime.now()
     ann = Announcement(
-        title="Ann5", content="c", game_id=game.id, organizer_id=owner.id
+        title="Ann5",
+        content="c",
+        game_id=game.id,
+        organizer_id=owner.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
     )
     db_session.add(ann)
     await db_session.commit()

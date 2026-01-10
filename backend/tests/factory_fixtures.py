@@ -1,6 +1,7 @@
 from pytest_factoryboy import register
 import pytest_asyncio
 import pytest
+from unittest.mock import patch, AsyncMock
 from tests.factories import (
     UserDictFactory,
     AnnouncementDictFactory,
@@ -43,7 +44,11 @@ async def create_user(db_session):
 
         user_db = User.get_db(db_session)
         manager = UserManager(user_db)
-        created = await manager.create(user_create, safe=True, request=None)
+
+        with patch("tasks.send_verification_email_task.kiq", new=AsyncMock()), patch(
+            "tasks.send_password_reset_email_task.kiq", new=AsyncMock()
+        ):
+            created = await manager.create(user_create, safe=True, request=None)
 
         if overrides.get("is_verified"):
             created = await user_db.update(created, {"is_verified": True})

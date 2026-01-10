@@ -1,6 +1,7 @@
 import pytest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
+from datetime import datetime
 
 
 @pytest.mark.asyncio
@@ -93,7 +94,15 @@ async def test_create_update_delete_announcement(
     async_client, create_user, announcement_factory, authenticated_client
 ):
     user = await create_user(email="creator@example.com", password="pw")
-    ann_in = {"title": "T", "content": "C", "game_id": 55}
+    now = datetime.now()
+    ann_in = {
+        "title": "T",
+        "content": "C",
+        "game_id": 55,
+        "start_at": now.isoformat(),
+        "registration_start_at": now.isoformat(),
+        "registration_end_at": now.isoformat(),
+    }
 
     created = announcement_factory.build(**ann_in, organizer_id=user.id)
 
@@ -122,9 +131,9 @@ async def test_create_update_delete_announcement(
 
     async def _fake_update(session, announcement, announcement_in, user, action=None):
         if hasattr(announcement_in, "model_dump"):
-            upd = announcement_in.model_dump()
+            upd = announcement_in.model_dump(exclude_unset=True)
         elif hasattr(announcement_in, "dict"):
-            upd = announcement_in.dict()
+            upd = announcement_in.dict(exclude_unset=True)
         elif isinstance(announcement_in, dict):
             upd = announcement_in
         else:

@@ -1,6 +1,7 @@
 import pytest
 from types import SimpleNamespace
 from unittest.mock import patch
+from datetime import datetime
 
 from sqlalchemy import insert, select
 
@@ -18,7 +19,15 @@ async def test_create_announcement(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    a_in = AnnouncementCreate(title="Create A", content="c", game_id=game.id)
+    now = datetime.now()
+    a_in = AnnouncementCreate(
+        title="Create A",
+        content="c",
+        game_id=game.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
+    )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
     )
@@ -44,8 +53,23 @@ async def test_list_and_count_by_game(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    a1 = AnnouncementCreate(title="L1", content="c1", game_id=game.id)
-    a2 = AnnouncementCreate(title="L2", content="c2", game_id=game.id)
+    now = datetime.now()
+    a1 = AnnouncementCreate(
+        title="L1",
+        content="c1",
+        game_id=game.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
+    )
+    a2 = AnnouncementCreate(
+        title="L2",
+        content="c2",
+        game_id=game.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
+    )
     await announcement_crud.create(session=db_session, announcement_in=a1, user=user)
     await announcement_crud.create(session=db_session, announcement_in=a2, user=user)
 
@@ -68,7 +92,15 @@ async def test_get_by_organizer_and_participant(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    a_in = AnnouncementCreate(title="Org A", content="x", game_id=game.id)
+    now = datetime.now()
+    a_in = AnnouncementCreate(
+        title="Org A",
+        content="x",
+        game_id=game.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
+    )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
     )
@@ -106,7 +138,15 @@ async def test_get_by_id_and_update(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    a_in = AnnouncementCreate(title="G1", content="c", game_id=game.id)
+    now = datetime.now()
+    a_in = AnnouncementCreate(
+        title="G1",
+        content="c",
+        game_id=game.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
+    )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
     )
@@ -136,7 +176,15 @@ async def test_delete_announcement(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    a_in = AnnouncementCreate(title="ToDelete", content="c", game_id=game.id)
+    now = datetime.now()
+    a_in = AnnouncementCreate(
+        title="ToDelete",
+        content="c",
+        game_id=game.id,
+        start_at=now,
+        registration_start_at=now,
+        registration_end_at=now,
+    )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
     )

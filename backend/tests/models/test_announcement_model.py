@@ -9,6 +9,9 @@ def test_announcement_table_and_columns():
     assert "image_url" in cols
     assert "game_id" in cols
     assert "organizer_id" in cols
+    assert "start_at" in cols
+    assert "registration_start_at" in cols
+    assert "registration_end_at" in cols
 
 
 def test_announcement_relationships():
