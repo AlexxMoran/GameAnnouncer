@@ -8,3 +8,4 @@ class RegistrationStatus(str, Enum):
     APPROVED = "approved"
     REJECTED = "rejected"
     CANCELLED = "cancelled"
+    EXPIRED = "expired"

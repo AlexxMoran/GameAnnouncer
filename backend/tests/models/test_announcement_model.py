@@ -172,3 +172,108 @@ async def test_invalid_all_dates_equal(db_session, create_user):
     assert "registration_start_at must be before registration_end_at" in str(
         exc_info.value
     )
+
+
+@pytest.mark.asyncio
+async def test_is_registration_open_during_period(db_session, create_user):
+    """Test that is_registration_open returns True during registration period."""
+    user = await create_user(email="open@example.com")
+    game = Game(name="Open Game", category="RTS", description="Test")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    now = datetime.now()
+    announcement = Announcement(
+        title="Open Registration",
+        content="c",
+        game_id=game.id,
+        organizer_id=user.id,
+        registration_start_at=now - timedelta(hours=1),  # started 1 hour ago
+        registration_end_at=now + timedelta(hours=1),  # ends in 1 hour
+        start_at=now + timedelta(days=1),
+    )
+    db_session.add(announcement)
+    await db_session.commit()
+    await db_session.refresh(announcement)
+
+    assert announcement.is_registration_open is True
+
+
+@pytest.mark.asyncio
+async def test_is_registration_open_before_start(db_session, create_user):
+    """Test that is_registration_open returns False before registration starts."""
+    user = await create_user(email="before@example.com")
+    game = Game(name="Before Game", category="RTS", description="Test")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    now = datetime.now()
+    announcement = Announcement(
+        title="Before Registration",
+        content="c",
+        game_id=game.id,
+        organizer_id=user.id,
+        registration_start_at=now + timedelta(hours=1),  # starts in 1 hour
+        registration_end_at=now + timedelta(hours=2),
+        start_at=now + timedelta(days=1),
+    )
+    db_session.add(announcement)
+    await db_session.commit()
+    await db_session.refresh(announcement)
+
+    assert announcement.is_registration_open is False
+
+
+@pytest.mark.asyncio
+async def test_is_registration_open_after_end(db_session, create_user):
+    """Test that is_registration_open returns False after registration ends."""
+    user = await create_user(email="after@example.com")
+    game = Game(name="After Game", category="RTS", description="Test")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    now = datetime.now()
+    announcement = Announcement(
+        title="After Registration",
+        content="c",
+        game_id=game.id,
+        organizer_id=user.id,
+        registration_start_at=now - timedelta(hours=2),  # started 2 hours ago
+        registration_end_at=now - timedelta(hours=1),  # ended 1 hour ago
+        start_at=now + timedelta(days=1),
+    )
+    db_session.add(announcement)
+    await db_session.commit()
+    await db_session.refresh(announcement)
+
+    assert announcement.is_registration_open is False
+
+
+@pytest.mark.asyncio
+async def test_is_registration_open_at_exact_boundaries(db_session, create_user):
+    """Test is_registration_open at exact start and end boundaries."""
+    user = await create_user(email="boundary@example.com")
+    game = Game(name="Boundary Game", category="RTS", description="Test")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    now = datetime.now()
+
+    announcement_start = Announcement(
+        title="At Start",
+        content="c",
+        game_id=game.id,
+        organizer_id=user.id,
+        registration_start_at=now - timedelta(hours=1),
+        registration_end_at=now + timedelta(hours=1),
+        start_at=now + timedelta(days=1),
+    )
+    db_session.add(announcement_start)
+    await db_session.commit()
+    await db_session.refresh(announcement_start)
+
+    assert announcement_start.is_registration_open is True

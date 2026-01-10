@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 
 from .base import Base
 from sqlalchemy.orm import mapped_column, Mapped, relationship, validates
@@ -77,3 +77,11 @@ class Announcement(Base):
             )
 
         return value
+
+    @property
+    def is_registration_open(self) -> bool:
+        """Check if the registration is currently open."""
+
+        now = datetime.now(timezone.utc)
+
+        return self.registration_start_at <= now <= self.registration_end_at

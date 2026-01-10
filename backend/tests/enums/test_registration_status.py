@@ -16,10 +16,10 @@ def test_registration_status_from_value():
 
 def test_registration_status_iterable_and_names():
     names = {s.name for s in RegistrationStatus}
-    assert names == {"PENDING", "APPROVED", "REJECTED", "CANCELLED"}
+    assert names == {"PENDING", "APPROVED", "REJECTED", "CANCELLED", "EXPIRED"}
 
     values = {s.value for s in RegistrationStatus}
-    assert values == {"pending", "approved", "rejected", "cancelled"}
+    assert values == {"pending", "approved", "rejected", "cancelled", "expired"}
 
 
 def test_import_from_package():
