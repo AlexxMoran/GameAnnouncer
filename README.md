@@ -13,10 +13,16 @@ In short: a full-stack web application with a FastAPI backend and an Angular fro
 - Authentication: fastapi-users
 - Task queue / worker: Taskiq
 - Database: PostgreSQL
-- Testing: pytest, testcontainers
-- Containerization: Docker, Docker Compose
+- Testing: pytest, testcontainers, unittest
+- Containerization: Docker
 - Frontend: Angular, TypeScript
-- Cache / message broker: Redis
+- Cache / Message Broker: Redis
+
+## Code Quality & Tooling
+
+- Formatting: Black
+- Linting: Ruff
+- Dependency & Environment Management: uv
 
 ---
 
