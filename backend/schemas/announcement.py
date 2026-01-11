@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from schemas.base import BaseSchemaWithPermissions
 
@@ -47,6 +47,8 @@ class AnnouncementAvatarUpdate(BaseModel):
 
 
 class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
     updated_at: datetime
@@ -55,4 +57,7 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
     )
     organizer_id: int = Field(
         ..., description="The ID of the user who organized the announcement"
+    )
+    is_registration_open: bool = Field(
+        ..., description="Whether registration is currently open"
     )
