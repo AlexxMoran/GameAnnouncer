@@ -33,12 +33,6 @@ jobs:
 
       - name: Run tests with coverage
         run: uv run pytest --cov=. --cov-report=term-missing --cov-report=xml -q
-
-      - name: Display coverage summary
-        if: always()
-        run: |
-          echo "📊 Test Coverage Report:"
-          uv run coverage report --skip-empty
           
       - name: Coverage comment (optional)
         if: github.event_name == 'pull_request'
