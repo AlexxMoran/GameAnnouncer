@@ -35,6 +35,7 @@ def test_announcement_response_includes_permissions_and_timestamps():
         start_at=now,
         registration_start_at=now,
         registration_end_at=now,
+        is_registration_open=True,
     )
     assert resp.id == 1
     assert resp.permissions == {}

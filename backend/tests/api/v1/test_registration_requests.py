@@ -41,9 +41,9 @@ async def test_create_registration_request_success(
 
     user = await create_user(email="u@example.com", password="x")
     ann_dict = announcement_factory.build()
+    ann_dict["is_registration_open"] = True
 
-    # Create a mock announcement object with is_registration_open property
-    ann = SimpleNamespace(**ann_dict, is_registration_open=True)
+    ann = SimpleNamespace(**ann_dict)
 
     rr_in = {"announcement_id": ann.id}
     with patch(
