@@ -95,7 +95,5 @@ This project is licensed under the MIT License — see the `LICENSE` file.
 
 ---
 
-If you like, I can add an instruction for rebuilding only the frontend container (e.g. `docker compose up -d --build frontend`) or add a section about running the backend locally without Docker.
-
 
 
