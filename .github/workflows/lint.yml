@@ -1,4 +1,4 @@
-name: CI
+name: Lint & Format
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
   pull_request:
 
 jobs:
-  backend:
-    name: Backend
+  backend-lint:
+    name: Backend Lint & Format
     runs-on: ubuntu-latest
 
     defaults:
@@ -23,11 +23,6 @@ jobs:
         with:
           python-version: "3.13"
 
-      - name: Ensure Docker is available
-        run: |
-          sudo systemctl start docker || true
-          docker info
-
       - name: Install dependencies (uv sync)
         run: uv sync
 
@@ -36,6 +31,3 @@ jobs:
 
       - name: Black (format check)
         run: uv run black --check .
-
-      - name: Run tests
-        run: uv run pytest -q

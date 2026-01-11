@@ -1,0 +1,53 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+
+jobs:
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up uv (project runner)
+        uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.13"
+
+      - name: Ensure Docker is available
+        run: |
+          sudo systemctl start docker || true
+          docker info
+
+      - name: Install dependencies (uv sync)
+        run: uv sync
+
+      - name: Run tests with coverage
+        run: uv run pytest --cov=. --cov-report=term-missing --cov-report=xml -q
+
+      - name: Display coverage summary
+        if: always()
+        run: |
+          echo "📊 Test Coverage Report:"
+          uv run coverage report --skip-empty
+          
+      - name: Coverage comment (optional)
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        run: |
+          COVERAGE=$(uv run coverage report --precision=2 | grep TOTAL | awk '{print $4}')
+          echo "Coverage: $COVERAGE"
+          if (( $(echo "$COVERAGE < 80" | bc -l) )); then
+            echo "⚠️ Coverage is below 80%: $COVERAGE"
+          else
+            echo "✅ Coverage is good: $COVERAGE"
+          fi
