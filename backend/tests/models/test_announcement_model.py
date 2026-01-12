@@ -16,6 +16,8 @@ def test_announcement_table_and_columns():
     assert "start_at" in cols
     assert "registration_start_at" in cols
     assert "registration_end_at" in cols
+    assert "max_participants" in cols
+    assert "status" in cols
 
 
 def test_announcement_relationships():
