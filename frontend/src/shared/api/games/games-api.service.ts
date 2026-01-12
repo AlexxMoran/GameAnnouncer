@@ -8,7 +8,7 @@ import {
   IGetGameListDto,
 } from '@shared/api/games/games-api-service.types';
 import { GAMES_ENDPOINT } from '@shared/api/games/games-api.constants';
-import { IPaginationMeta } from '@shared/lib/pagination/pagination.types';
+import { IPaginationMeta } from '@shared/lib/list-service/list-service.types';
 
 @Injectable({ providedIn: 'root' })
 export class GamesApiService {

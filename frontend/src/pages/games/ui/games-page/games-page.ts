@@ -1,12 +1,9 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslatePipe } from '@ngx-translate/core';
-import {
-  GAME_CREATION_FORM_INPUTS,
-  GAME_EDITING_FORM_INPUTS,
-} from '@pages/games/model/game-creation-form.constants';
+import { createGameCreationFormInputs } from '@pages/games/model/create-game-creation-form-inputs';
+import { createGameEditingFormInputs } from '@pages/games/model/create-game-editing-form-inputs';
 import { ICreateGameParams, IEditGameParams } from '@pages/games/model/game-creation-form.types';
 import { IGame } from '@pages/games/model/game.types';
 import { GameCard } from '@pages/games/ui/game-card/game-card';
@@ -15,7 +12,7 @@ import { EGameCategories } from '@shared/api/games/games-api.constants';
 import { GamesApiService } from '@shared/api/games/games-api.service';
 import { ElementObserverDirective } from '@shared/directives/element-observer.directive';
 import { DialogService } from '@shared/lib/dialog/dialog.service';
-import { PaginationService } from '@shared/lib/pagination/pagination.service';
+import { ListService } from '@shared/lib/list-service/list.service';
 import { SnackBarService } from '@shared/lib/snack-bar/snack-bar.service';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { Chips } from '@shared/ui/chips/chips';
@@ -32,34 +29,29 @@ import { tap } from 'rxjs';
     ElementObserverDirective,
     MatBadgeModule,
     TranslatePipe,
-    AsyncPipe,
     FabButton,
     GameCard,
     Chips,
   ],
-  providers: [
-    {
-      provide: PaginationService,
-      useFactory: () => {
-        const gamesApiService = inject(GamesApiService);
-
-        return new PaginationService({
-          loadDataFn: gamesApiService.getGameList,
-        });
-      },
-    },
-  ],
   templateUrl: './games-page.html',
   host: { class: 'w-full h-full' },
 })
-export class GamesPage {
-  private paginationService =
-    inject<PaginationService<IGameDto, IGameListFilters>>(PaginationService);
+export class GamesPage implements OnInit, OnDestroy {
+  private listService = new ListService<IGameDto, IGameListFilters>({
+    loadDataFn: (params) => this.gameApiService.getGameList(params),
+  });
+
   private gameApiService = inject(GamesApiService);
   private dialogService = inject(DialogService);
   private snackBarService = inject(SnackBarService);
 
-  list$ = this.paginationService.list$;
+  ngOnInit() {
+    this.listService.init();
+  }
+
+  ngOnDestroy() {
+    this.listService.destroy();
+  }
 
   getGameActionList = (game: IGame): IIconMenuOption[] => {
     return [
@@ -79,15 +71,15 @@ export class GamesPage {
   };
 
   get isInitializeLoading() {
-    return this.paginationService.isInitializeLoading();
+    return this.listService.isInitializeLoading();
   }
 
   get isPaginating() {
-    return this.paginationService.isPaginating();
+    return this.listService.isPaginating();
   }
 
   get hasNoData() {
-    return this.paginationService.total() === 0;
+    return this.listService.hasNoData();
   }
 
   get chipList() {
@@ -95,16 +87,20 @@ export class GamesPage {
   }
 
   get total() {
-    return this.paginationService.total();
+    return this.listService.total();
   }
 
-  paginate = this.paginationService.paginate;
+  get gameList() {
+    return this.listService.list();
+  }
+
+  paginate = this.listService.paginate;
 
   addGameFilters = (selectedChipName: TMaybe<string>) => {
     if (selectedChipName) {
-      this.paginationService.addFilters({ category: selectedChipName as EGameCategories });
+      this.listService.addFilters({ category: selectedChipName as EGameCategories });
     } else {
-      this.paginationService.clearFilters();
+      this.listService.clearFilters();
     }
   };
 
@@ -112,7 +108,7 @@ export class GamesPage {
     return this.gameApiService.createGame(values).pipe(
       tap(() => {
         this.snackBarService.showSuccessSnackBar('texts.gameAddingSuccess');
-        this.paginationService.reset();
+        this.listService.resetList();
       }),
     );
   };
@@ -121,7 +117,7 @@ export class GamesPage {
     return this.gameApiService.editGame(id, values).pipe(
       tap(({ data }) => {
         this.snackBarService.showSuccessSnackBar('texts.gameEditingSuccess');
-        this.paginationService.editEntity(data);
+        this.listService.editEntity(data);
       }),
     );
   };
@@ -130,7 +126,7 @@ export class GamesPage {
     return this.gameApiService.uploadGameImage(id, file).pipe(
       tap(({ data }) => {
         this.snackBarService.showSuccessSnackBar('texts.gameUploadSuccess');
-        this.paginationService.editEntity(data);
+        this.listService.editEntity(data);
       }),
     );
   };
@@ -142,7 +138,7 @@ export class GamesPage {
       confirmObservable: this.gameApiService.deleteGame(id).pipe(
         tap(() => {
           this.snackBarService.showSuccessSnackBar('texts.gameDeletingSuccess');
-          this.paginationService.reset();
+          this.listService.resetList();
         }),
       ),
     });
@@ -152,7 +148,7 @@ export class GamesPage {
     this.dialogService.open(Form<ICreateGameParams>, {
       title: 'actions.addGame',
       inputs: {
-        ...GAME_CREATION_FORM_INPUTS,
+        ...createGameCreationFormInputs(),
         buttonText: 'actions.add',
         createSubmitObservableFn: (values) => this.createGame(values),
       },
@@ -163,7 +159,7 @@ export class GamesPage {
     this.dialogService.open(Form<IEditGameParams>, {
       title: 'actions.editGame',
       inputs: {
-        ...GAME_EDITING_FORM_INPUTS,
+        ...createGameEditingFormInputs(),
         buttonText: 'actions.save',
         initialValues: game,
         createSubmitObservableFn: (values) => this.editGame(game.id, values),
