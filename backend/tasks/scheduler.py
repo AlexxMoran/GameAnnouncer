@@ -56,7 +56,9 @@ async def register_periodic_tasks():
         task = task_config["task"]
         cron = task_config["cron"]
         name = task_config["name"]
-        full_name = f"{task.__module__}:{task.__name__}"
+
+        task_name = task.__name__.replace("__taskiq_original", "")
+        full_name = f"{task.__module__}:{task_name}"
 
         if full_name in existing:
             logger.info(f"⏭️  Skipped: {name} (already scheduled)")
