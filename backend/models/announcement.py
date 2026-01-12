@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from .game import Game
     from .user import User
     from .registration_request import RegistrationRequest
+    from .registration_form import RegistrationForm
 
 
 class Announcement(Base):
@@ -49,6 +50,10 @@ class Announcement(Base):
 
     registration_requests: Mapped[list["RegistrationRequest"]] = relationship(
         "RegistrationRequest", back_populates="announcement", passive_deletes=True
+    )
+
+    registration_form: Mapped["RegistrationForm"] = relationship(
+        "RegistrationForm", back_populates="announcement", passive_deletes=True
     )
 
     @validates("start_at", "registration_start_at", "registration_end_at")
