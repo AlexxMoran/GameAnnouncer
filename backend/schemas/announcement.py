@@ -1,6 +1,12 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field
 from datetime import datetime
 from schemas.base import BaseSchemaWithPermissions
+from enum import Enum
+
+
+class AnnouncementAction(str, Enum):
+    FINISH = "finish"
+    CANCEL = "cancel"
 
 
 class AnnouncementBase(BaseModel):
@@ -17,6 +23,9 @@ class AnnouncementBase(BaseModel):
     )
     registration_end_at: datetime = Field(
         ..., description="The end date and time when registration ends"
+    )
+    max_participants: int = Field(
+        ..., description="The maximum number of participants allowed"
     )
 
 
@@ -38,6 +47,9 @@ class AnnouncementUpdate(BaseModel):
     registration_end_at: datetime | None = Field(
         None, description="The end date and time when registration ends"
     )
+    max_participants: int | None = Field(
+        None, description="The maximum number of participants allowed"
+    )
 
 
 class AnnouncementAvatarUpdate(BaseModel):
@@ -46,9 +58,13 @@ class AnnouncementAvatarUpdate(BaseModel):
     )
 
 
-class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
-    model_config = ConfigDict(from_attributes=True)
+class AnnouncementStatusUpdate(BaseModel):
+    action: AnnouncementAction = Field(
+        ..., description="Action to perform: 'finish' or 'cancel'"
+    )
 
+
+class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
     id: int
     created_at: datetime
     updated_at: datetime
@@ -58,6 +74,4 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
     organizer_id: int = Field(
         ..., description="The ID of the user who organized the announcement"
     )
-    is_registration_open: bool = Field(
-        ..., description="Whether registration is currently open"
-    )
+    status: str = Field(..., description="The current status of the announcement")

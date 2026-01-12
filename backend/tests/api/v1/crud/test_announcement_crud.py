@@ -1,7 +1,7 @@
 import pytest
 from types import SimpleNamespace
 from unittest.mock import patch
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import insert, select
 
@@ -19,7 +19,7 @@ async def test_create_announcement(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     a_in = AnnouncementCreate(
         title="Create A",
         content="c",
@@ -27,6 +27,7 @@ async def test_create_announcement(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
@@ -53,7 +54,7 @@ async def test_list_and_count_by_game(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     a1 = AnnouncementCreate(
         title="L1",
         content="c1",
@@ -61,6 +62,7 @@ async def test_list_and_count_by_game(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     a2 = AnnouncementCreate(
         title="L2",
@@ -69,18 +71,22 @@ async def test_list_and_count_by_game(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     await announcement_crud.create(session=db_session, announcement_in=a1, user=user)
     await announcement_crud.create(session=db_session, announcement_in=a2, user=user)
 
-    results = await announcement_crud.get_all_by_game_id(
-        session=db_session, game_id=game.id
-    )
+    # Use AnnouncementSearch instead of removed methods
+    from searches.announcement_search import AnnouncementSearch
+    from schemas.filters.announcement_filter import AnnouncementFilter
+
+    filters = AnnouncementFilter(game_id=game.id)
+    search = AnnouncementSearch(session=db_session, filters=filters)
+
+    results = await search.results()
     assert len(results) >= 2
 
-    total = await announcement_crud.get_all_count_by_game_id(
-        session=db_session, game_id=game.id
-    )
+    total = await search.count()
     assert total >= 2
 
 
@@ -92,7 +98,7 @@ async def test_get_by_organizer_and_participant(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     a_in = AnnouncementCreate(
         title="Org A",
         content="x",
@@ -100,6 +106,7 @@ async def test_get_by_organizer_and_participant(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
@@ -138,7 +145,7 @@ async def test_get_by_id_and_update(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     a_in = AnnouncementCreate(
         title="G1",
         content="c",
@@ -146,6 +153,7 @@ async def test_get_by_id_and_update(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
@@ -176,7 +184,7 @@ async def test_delete_announcement(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(game)
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     a_in = AnnouncementCreate(
         title="ToDelete",
         content="c",
@@ -184,6 +192,7 @@ async def test_delete_announcement(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user

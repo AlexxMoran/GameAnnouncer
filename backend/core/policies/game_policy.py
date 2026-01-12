@@ -2,6 +2,9 @@ from core.policies.base_policy import BasePolicy
 
 
 class GamePolicy(BasePolicy):
+    def can_view(self):
+        return self.is_admin
+
     def can_create(self):
         return self.is_admin
 

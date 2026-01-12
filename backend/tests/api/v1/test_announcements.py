@@ -1,26 +1,27 @@
 import pytest
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, patch
-from datetime import datetime
+from unittest.mock import AsyncMock, patch, MagicMock
+from datetime import datetime, timedelta, timezone
+from enums import AnnouncementStatus
 
 
 @pytest.mark.asyncio
 async def test_get_announcements_paginated(async_client, announcement_factory):
     game_id = 123
-    a1 = announcement_factory.build(organizer_id=1)
-    a2 = announcement_factory.build(organizer_id=2)
+    a1 = announcement_factory.build(organizer_id=1, game_id=game_id)
+    a2 = announcement_factory.build(organizer_id=2, game_id=game_id)
     announcements = [SimpleNamespace(**a1), SimpleNamespace(**a2)]
+
+    # Mock AnnouncementSearch
+    mock_search = MagicMock()
+    mock_search.results = AsyncMock(return_value=announcements)
+    mock_search.count = AsyncMock(return_value=2)
+
     with patch(
-        "api.v1.announcements.announcement_crud.get_all_by_game_id",
-        new=AsyncMock(return_value=announcements),
-    ), patch(
-        "api.v1.announcements.announcement_crud.get_all_count_by_game_id",
-        new=AsyncMock(return_value=2),
-    ), patch(
-        "api.v1.announcements.get_batch_permissions", return_value=None
-    ):
+        "api.v1.announcements.AnnouncementSearch", return_value=mock_search
+    ), patch("api.v1.announcements.get_batch_permissions", return_value=None):
         r = await async_client.get(
-            f"/api/v1/games/{game_id}/announcements?skip=0&limit=10"
+            f"/api/v1/announcements?game_id={game_id}&skip=0&limit=10"
         )
         assert r.status_code == 200
         body = r.json()
@@ -39,7 +40,7 @@ async def test_get_announcement_and_permissions(async_client, announcement_facto
         "api.v1.announcements.announcement_crud.get_by_id",
         new=AsyncMock(return_value=ann_obj),
     ), patch("api.v1.announcements.get_permissions", return_value={"edit": True}):
-        r = await async_client.get(f"/api/v1/games/1/announcements/{a['id']}")
+        r = await async_client.get(f"/api/v1/announcements/{a['id']}")
         assert r.status_code == 200
         data = r.json()["data"]
         assert data["id"] == a["id"]
@@ -60,9 +61,7 @@ async def test_get_announcement_participants(async_client, announcement_factory)
         "api.v1.announcements.announcement_crud.get_participants_by_announcement_id",
         new=AsyncMock(return_value=participants),
     ):
-        r = await async_client.get(
-            f"/api/v1/games/1/announcements/{a['id']}/participants"
-        )
+        r = await async_client.get(f"/api/v1/announcements/{a['id']}/participants")
         assert r.status_code == 200
         assert r.json()["data"][0]["email"] == "p@example.com"
 
@@ -83,7 +82,7 @@ async def test_get_announcement_registration_requests(
         new=AsyncMock(return_value=fake_rr),
     ):
         r = await async_client.get(
-            f"/api/v1/games/1/announcements/{a['id']}/registration_requests"
+            f"/api/v1/announcements/{a['id']}/registration_requests"
         )
         assert r.status_code == 200
         assert r.json()["data"][0]["announcement_id"] == a["id"]
@@ -102,6 +101,7 @@ async def test_create_update_delete_announcement(
         "start_at": now.isoformat(),
         "registration_start_at": now.isoformat(),
         "registration_end_at": now.isoformat(),
+        "max_participants": 10,
     }
 
     created = announcement_factory.build(**ann_in, organizer_id=user.id)
@@ -116,10 +116,8 @@ async def test_create_update_delete_announcement(
         "api.v1.announcements.announcement_crud.create",
         new=AsyncMock(side_effect=_fake_create),
     ):
-        r = await client.post(
-            f"/api/v1/games/{ann_in['game_id']}/announcements", json=ann_in
-        )
-        assert r.status_code == 200
+        r = await client.post("/api/v1/announcements", json=ann_in)
+        assert r.status_code == 201
         assert r.json()["data"]["title"] == ann_in["title"]
 
     ann_obj = SimpleNamespace(**created)
@@ -149,9 +147,9 @@ async def test_create_update_delete_announcement(
         "api.v1.announcements.announcement_crud.get_by_id",
         new=AsyncMock(side_effect=_fake_get_by_id_for_edit),
     ), patch("api.v1.announcements.announcement_crud.update", new=_fake_update):
-        updated_payload = {"title": "NewTitle"}
+        updated_payload = {"title": "NewTitle", "max_participants": 10}
         r = await client.patch(
-            f"/api/v1/games/{ann_in['game_id']}/announcements/{created['id']}",
+            f"/api/v1/announcements/{created['id']}",
             json=updated_payload,
         )
         assert r.status_code == 200
@@ -167,9 +165,7 @@ async def test_create_update_delete_announcement(
         "api.v1.announcements.announcement_crud.delete",
         new=AsyncMock(side_effect=_fake_delete),
     ):
-        r = await client.delete(
-            f"/api/v1/games/{ann_in['game_id']}/announcements/{created['id']}"
-        )
+        r = await client.delete(f"/api/v1/announcements/{created['id']}")
         assert r.status_code == 200
         assert r.json()["data"] == "Announcement deleted successfully"
 
@@ -208,7 +204,199 @@ async def test_upload_announcement_image(
         files = {"file": ("img.png", b"data", "image/png")}
 
         r = await async_client.post(
-            f"/api/v1/games/1/announcements/{a['id']}/upload_image", files=files
+            f"/api/v1/announcements/{a['id']}/upload_image", files=files
         )
         assert r.status_code == 200
         assert r.json()["data"]["image_url"] == "http://img/url.png"
+
+
+@pytest.mark.asyncio
+async def test_create_announcement_sets_pre_registration_status(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """Тест: статус PRE_REGISTRATION когда registration_start_at в будущем."""
+    client = authenticated_client(user)
+
+    future_start = datetime.now(timezone.utc) + timedelta(hours=2)
+    announcement_data = announcement_factory.build(
+        registration_start_at=future_start.isoformat(),
+        registration_end_at=(future_start + timedelta(days=1)).isoformat(),
+        start_at=(future_start + timedelta(days=2)).isoformat(),
+    )
+
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.PRE_REGISTRATION
+
+    with patch(
+        "api.v1.announcements.announcement_crud.create",
+        new=AsyncMock(return_value=ann_obj),
+    ), patch("api.v1.announcements.get_permissions", return_value={}):
+        r = await client.post("/api/v1/announcements", json=announcement_data)
+        assert r.status_code == 201
+        assert r.json()["data"]["status"] == AnnouncementStatus.PRE_REGISTRATION.value
+
+
+@pytest.mark.asyncio
+async def test_create_announcement_sets_registration_open_status(
+    async_client, announcement_factory, authenticated_client, user
+):
+    client = authenticated_client(user)
+
+    past_start = datetime.now(timezone.utc) - timedelta(hours=1)
+    announcement_data = announcement_factory.build(
+        registration_start_at=past_start.isoformat(),
+        registration_end_at=(past_start + timedelta(days=1)).isoformat(),
+        start_at=(past_start + timedelta(days=2)).isoformat(),
+    )
+
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.REGISTRATION_OPEN
+
+    with patch(
+        "api.v1.announcements.announcement_crud.create",
+        new=AsyncMock(return_value=ann_obj),
+    ), patch("api.v1.announcements.get_permissions", return_value={}):
+        r = await client.post("/api/v1/announcements", json=announcement_data)
+        assert r.status_code == 201
+        assert r.json()["data"]["status"] == AnnouncementStatus.REGISTRATION_OPEN.value
+
+
+@pytest.mark.asyncio
+async def test_update_status_finish_from_live(
+    async_client, announcement_factory, authenticated_client, user
+):
+    client = authenticated_client(user)
+
+    announcement_data = announcement_factory.build(status=AnnouncementStatus.LIVE.value)
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.LIVE
+
+    finished_obj = SimpleNamespace(**announcement_data)
+    finished_obj.status = AnnouncementStatus.FINISHED
+
+    with patch(
+        "api.v1.announcements.announcement_crud.get_by_id",
+        new=AsyncMock(return_value=ann_obj),
+    ), patch(
+        "api.v1.announcements.announcement_crud.update_status",
+        new=AsyncMock(return_value=finished_obj),
+    ), patch(
+        "api.v1.announcements.get_permissions", return_value={}
+    ):
+        r = await client.patch(
+            f"/api/v1/announcements/{announcement_data['id']}/status",
+            json={"action": "finish"},
+        )
+        assert r.status_code == 200
+        assert r.json()["data"]["status"] == AnnouncementStatus.FINISHED.value
+
+
+@pytest.mark.asyncio
+async def test_update_status_finish_from_wrong_status_fails(
+    async_client, announcement_factory, authenticated_client, user
+):
+    client = authenticated_client(user)
+
+    announcement_data = announcement_factory.build(
+        status=AnnouncementStatus.REGISTRATION_OPEN.value
+    )
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.REGISTRATION_OPEN
+
+    from exceptions import ValidationException
+
+    with patch(
+        "api.v1.announcements.announcement_crud.get_by_id",
+        new=AsyncMock(return_value=ann_obj),
+    ), patch(
+        "api.v1.announcements.announcement_crud.update_status",
+        new=AsyncMock(
+            side_effect=ValidationException(
+                "Can only finish announcement when it is 'live'"
+            )
+        ),
+    ):
+        r = await client.patch(
+            f"/api/v1/announcements/{announcement_data['id']}/status",
+            json={"action": "finish"},
+        )
+        assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_update_status_cancel_from_any_status(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """Тест: cancel работает из любого статуса."""
+    client = authenticated_client(user)
+
+    announcement_data = announcement_factory.build(
+        status=AnnouncementStatus.PRE_REGISTRATION.value
+    )
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.PRE_REGISTRATION
+
+    cancelled_obj = SimpleNamespace(**announcement_data)
+    cancelled_obj.status = AnnouncementStatus.CANCELLED
+
+    with patch(
+        "api.v1.announcements.announcement_crud.get_by_id",
+        new=AsyncMock(return_value=ann_obj),
+    ), patch(
+        "api.v1.announcements.announcement_crud.update_status",
+        new=AsyncMock(return_value=cancelled_obj),
+    ), patch(
+        "api.v1.announcements.get_permissions", return_value={}
+    ):
+        r = await client.patch(
+            f"/api/v1/announcements/{announcement_data['id']}/status",
+            json={"action": "cancel"},
+        )
+        assert r.status_code == 200
+        assert r.json()["data"]["status"] == AnnouncementStatus.CANCELLED.value
+
+
+@pytest.mark.asyncio
+async def test_get_announcements_with_game_filter(async_client, announcement_factory):
+    game_id = 999
+    a1 = announcement_factory.build(game_id=game_id)
+    a2 = announcement_factory.build(game_id=game_id)
+    announcements = [SimpleNamespace(**a1), SimpleNamespace(**a2)]
+
+    mock_search = MagicMock()
+    mock_search.results = AsyncMock(return_value=announcements)
+    mock_search.count = AsyncMock(return_value=2)
+
+    with patch(
+        "api.v1.announcements.AnnouncementSearch", return_value=mock_search
+    ), patch("api.v1.announcements.get_batch_permissions", return_value=None):
+        r = await async_client.get(f"/api/v1/announcements?game_id={game_id}")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["total"] == 2
+        assert all(item["game_id"] == game_id for item in body["data"])
+
+
+@pytest.mark.asyncio
+async def test_get_all_announcements_without_filter(async_client, announcement_factory):
+    a1 = announcement_factory.build(game_id=1)
+    a2 = announcement_factory.build(game_id=2)
+    a3 = announcement_factory.build(game_id=3)
+    announcements = [
+        SimpleNamespace(**a1),
+        SimpleNamespace(**a2),
+        SimpleNamespace(**a3),
+    ]
+
+    mock_search = MagicMock()
+    mock_search.results = AsyncMock(return_value=announcements)
+    mock_search.count = AsyncMock(return_value=3)
+
+    with patch(
+        "api.v1.announcements.AnnouncementSearch", return_value=mock_search
+    ), patch("api.v1.announcements.get_batch_permissions", return_value=None):
+        r = await async_client.get("/api/v1/announcements")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["total"] == 3
+        assert len(body["data"]) == 3

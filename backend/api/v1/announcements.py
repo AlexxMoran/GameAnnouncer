@@ -10,17 +10,20 @@ from schemas.announcement import (
     AnnouncementCreate,
     AnnouncementResponse,
     AnnouncementUpdate,
+    AnnouncementStatusUpdate,
 )
 from schemas.base import PaginatedResponse, DataResponse
+from schemas.filters.announcement_filter import AnnouncementFilter
 from core.deps import SessionDep
 from api.v1.crud.announcement import announcement_crud
 from api.v1.crud.registration_request import registration_request_crud
+from searches.announcement_search import AnnouncementSearch
 
 from core.users import current_user, current_user_or_none
 from core.permissions import get_permissions, get_batch_permissions
 
 
-router = APIRouter(prefix="/games/{game_id}/announcements", tags=["announcements"])
+router = APIRouter(prefix="/announcements", tags=["announcements"])
 
 
 async def get_announcement_dependency(
@@ -55,19 +58,16 @@ async def get_announcement_for_edit_dependency(
 @router.get("", response_model=PaginatedResponse[AnnouncementResponse])
 async def get_announcements(
     session: SessionDep,
-    game_id: int,
+    filters: AnnouncementFilter = Depends(),
     user: User | None = Depends(current_user_or_none),
     skip: int = 0,
     limit: int = 10,
 ):
-    announcements = await announcement_crud.get_all_by_game_id(
-        session=session, game_id=game_id, skip=skip, limit=limit
-    )
-    get_batch_permissions(user, announcements)
+    search = AnnouncementSearch(session=session, filters=filters)
+    announcements = await search.results(skip=skip, limit=limit)
+    announcements_count = await search.count()
 
-    announcements_count = await announcement_crud.get_all_count_by_game_id(
-        session=session, game_id=game_id
-    )
+    get_batch_permissions(user, announcements)
 
     return PaginatedResponse(
         data=announcements, skip=skip, limit=limit, total=announcements_count
@@ -112,7 +112,7 @@ async def get_announcement_registration_requests(
     return DataResponse(data=registration_requests)
 
 
-@router.post("", response_model=DataResponse[AnnouncementResponse])
+@router.post("", response_model=DataResponse[AnnouncementResponse], status_code=201)
 async def create_announcement(
     session: SessionDep,
     announcement_in: AnnouncementCreate,
@@ -154,6 +154,25 @@ async def delete_announcement(
     )
 
     return DataResponse(data="Announcement deleted successfully")
+
+
+@router.patch(
+    "/{announcement_id}/status", response_model=DataResponse[AnnouncementResponse]
+)
+async def update_status(
+    session: SessionDep,
+    announcement_in: AnnouncementStatusUpdate,
+    announcement: Announcement = Depends(get_announcement_for_edit_dependency),
+    current_user: User = Depends(current_user),
+):
+    updated_announcement = await announcement_crud.update_status(
+        session=session,
+        announcement=announcement,
+        status=announcement_in.action,
+        user=current_user,
+    )
+
+    return DataResponse(data=updated_announcement)
 
 
 @router.post(

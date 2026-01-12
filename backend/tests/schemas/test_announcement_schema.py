@@ -16,9 +16,10 @@ def test_announcement_create_and_update_models():
         start_at=now,
         registration_start_at=now,
         registration_end_at=now,
+        max_participants=10,
     )
     assert create.title == "T"
-    upd = AnnouncementUpdate(title="New")
+    upd = AnnouncementUpdate(title="New", max_participants=20)
     assert upd.title == "New"
 
 
@@ -36,6 +37,8 @@ def test_announcement_response_includes_permissions_and_timestamps():
         registration_start_at=now,
         registration_end_at=now,
         is_registration_open=True,
+        max_participants=10,
+        status="pre_registration",
     )
     assert resp.id == 1
     assert resp.permissions == {}

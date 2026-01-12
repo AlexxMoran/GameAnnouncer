@@ -64,9 +64,7 @@ def get_broker():
 @lru_cache()
 def get_scheduler():
     """Get scheduler with all periodic tasks."""
-    from backend.tasks.registration_request_tasks import (
-        expire_registration_requests_task,
-    )
+    from tasks import expire_registration_requests_task, update_announcement_statuses
 
     source = ScheduleSource()
 
@@ -74,6 +72,11 @@ def get_scheduler():
         expire_registration_requests_task,
         cron="*/5 * * * *",
         labels={"task_name": "expire_registration_requests"},
+    )
+    source.add_cron(
+        update_announcement_statuses,
+        cron="* * * * *",
+        labels={"task_name": "update_announcement_statuses"},
     )
 
     return TaskiqScheduler(broker=get_broker(), sources=[source])

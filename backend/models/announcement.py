@@ -3,8 +3,9 @@ from datetime import datetime, timezone
 
 from .base import Base
 from sqlalchemy.orm import mapped_column, Mapped, relationship, validates
-from sqlalchemy import ForeignKey, String, Text, DateTime
+from sqlalchemy import ForeignKey, String, Text, DateTime, Enum
 from exceptions import ValidationException
+from enums import AnnouncementStatus
 
 if TYPE_CHECKING:
     from .game import Game
@@ -25,6 +26,12 @@ class Announcement(Base):
     registration_end_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
     )
+    status: Mapped[str] = mapped_column(
+        Enum(AnnouncementStatus, native_enum=False),
+        default=AnnouncementStatus.PRE_REGISTRATION,
+        nullable=False,
+    )
+    max_participants: Mapped[int] = mapped_column(nullable=False)
 
     game_id: Mapped[int] = mapped_column(
         ForeignKey("games.id", ondelete="CASCADE"), nullable=False
