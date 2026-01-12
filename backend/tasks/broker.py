@@ -2,7 +2,6 @@ from functools import lru_cache
 from core.config import get_settings
 from core.logger import logger
 from taskiq_redis import RedisAsyncResultBackend, ListQueueBroker
-from taskiq import TaskiqScheduler, ScheduleSource
 
 
 class DisabledBroker:
@@ -61,27 +60,6 @@ def get_broker():
     return broker
 
 
-@lru_cache()
-def get_scheduler():
-    """Get scheduler with all periodic tasks."""
-    from tasks import expire_registration_requests_task, update_announcement_statuses
-
-    source = ScheduleSource()
-
-    source.add_cron(
-        expire_registration_requests_task,
-        cron="*/5 * * * *",
-        labels={"task_name": "expire_registration_requests"},
-    )
-    source.add_cron(
-        update_announcement_statuses,
-        cron="* * * * *",
-        labels={"task_name": "update_announcement_statuses"},
-    )
-
-    return TaskiqScheduler(broker=get_broker(), sources=[source])
-
-
 async def startup_broker():
     """Start broker if not in worker process."""
     broker = get_broker()
@@ -90,9 +68,13 @@ async def startup_broker():
         await broker.startup()
         logger.info("✓ Taskiq broker started")
 
+        from tasks.scheduler import register_periodic_tasks
+
+        await register_periodic_tasks()
+
 
 async def shutdown_broker():
-    """Shutdown broker if not in worker process."""
+    """Shutdown broker."""
     broker = get_broker()
 
     if not broker.is_worker_process:

@@ -69,7 +69,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: gameannouncer_worker
-    command: taskiq worker tasks.broker:broker --fs-discover
+    command: taskiq worker tasks.broker:broker --fs-discover --workers 1
     volumes:
       - /backend/.venv
       - ./backend:/backend
@@ -82,6 +82,27 @@ services:
     depends_on:
       - redis
       - mailpit
+    stdin_open: true
+    tty: true
+
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gameannouncer_scheduler
+    command: taskiq scheduler tasks.scheduler:scheduler
+    volumes:
+      - /backend/.venv
+      - ./backend:/backend
+    env_file:
+      - ./backend/.env
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${DB__USER}:${DB__PASSWORD}@db:5432/${DB__DATABASE}
+      - DATABASE_SYNC_URL=postgresql+psycopg://${DB__USER}:${DB__PASSWORD}@db:5432/${DB__DATABASE}
+      - ENVIRONMENT=development
+    depends_on:
+      - redis
+      - db
     stdin_open: true
     tty: true
 
