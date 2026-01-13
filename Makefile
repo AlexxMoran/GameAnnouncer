@@ -99,13 +99,14 @@ validate: check-backend-env ## ✅ Validate docker-compose configuration
 
 # Backend and DB only (without frontend)
 backend-up: check-backend-env ## 🔧 Start only backend and database
-	@echo "🔧 Starting backend services (DB + Redis + Mailpit + API + Worker)..."
+	@echo "🔧 Starting backend services (DB + Redis + Mailpit + API + Worker + Scheduler)..."
 	@echo "📦 Checking container status..."
 	@db_running=$$($(COMPOSE) --env-file backend/.env ps -q db 2>/dev/null | wc -l | tr -d ' '); \
 	redis_running=$$($(COMPOSE) --env-file backend/.env ps -q redis 2>/dev/null | wc -l | tr -d ' '); \
 	mailpit_running=$$($(COMPOSE) --env-file backend/.env ps -q mailpit 2>/dev/null | wc -l | tr -d ' '); \
 	backend_running=$$($(COMPOSE) --env-file backend/.env ps -q backend 2>/dev/null | wc -l | tr -d ' '); \
 	worker_running=$$($(COMPOSE) --env-file backend/.env ps -q worker 2>/dev/null | wc -l | tr -d ' '); \
+	scheduler_running=$$($(COMPOSE) --env-file backend/.env ps -q scheduler 2>/dev/null | wc -l | tr -d ' '); \
 	services_to_start=""; \
 	if [ "$$db_running" -eq 0 ]; then \
 		echo "📊 Database not running, will start it"; \
@@ -136,6 +137,12 @@ backend-up: check-backend-env ## 🔧 Start only backend and database
 		services_to_start="$$services_to_start worker"; \
 	else \
 		echo "✅ Worker already running"; \
+	fi; \
+	if [ "$$scheduler_running" -eq 0 ]; then \
+		echo "🕐 Scheduler not running, will start it"; \
+		services_to_start="$$services_to_start scheduler"; \
+	else \
+		echo "✅ Scheduler already running"; \
 	fi; \
 	if [ -n "$$services_to_start" ]; then \
 		echo "🚀 Starting:$$services_to_start"; \

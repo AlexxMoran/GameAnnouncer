@@ -28,6 +28,7 @@ async def test_create_registration_request(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -58,6 +59,7 @@ async def test_get_all_by_user_and_announcement(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -96,6 +98,7 @@ async def test_get_by_user_and_announcement(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -129,6 +132,7 @@ async def test_get_by_id_loads_relations(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -164,6 +168,7 @@ async def test_approve_registration_request(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -210,6 +215,7 @@ async def test_reject_registration_request(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -248,6 +254,7 @@ async def test_cancel_registration_request(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add(ann)
     await db_session.commit()

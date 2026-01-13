@@ -1,38 +1,23 @@
 from typing import Optional
+from datetime import datetime, timezone
 from models.user import User
 from models.announcement import Announcement
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import func, select
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from schemas.announcement import (
     AnnouncementCreate,
     AnnouncementUpdate,
     AnnouncementResponse,
+    AnnouncementAction,
 )
 from core.permissions import authorize_action
+from enums import AnnouncementStatus
+from exceptions import ValidationException
 
 
 class AnnouncementCRUD:
-    async def get_all_by_game_id(
-        self, session: AsyncSession, game_id: int, skip: int = 0, limit: int = 10
-    ) -> list[Announcement]:
-        result = await session.execute(
-            select(Announcement)
-            .where(Announcement.game_id == game_id)
-            .offset(skip)
-            .limit(limit)
-            .order_by(Announcement.created_at.desc())
-        )
-        return list(result.scalars().all())
-
-    async def get_all_count_by_game_id(
-        self, session: AsyncSession, game_id: int
-    ) -> int:
-        result = await session.execute(
-            select(func.count(Announcement.id)).where(Announcement.game_id == game_id)
-        )
-        return result.scalar_one()
-
     async def get_all_by_organizer_id(
         self, session: AsyncSession, organizer_id: int, skip: int = 0, limit: int = 10
     ) -> list[Announcement]:
@@ -82,7 +67,13 @@ class AnnouncementCRUD:
         action: Optional[str] = None,
     ) -> Optional[Announcement]:
         result = await session.execute(
-            select(Announcement).where(Announcement.id == announcement_id)
+            select(Announcement)
+            .options(
+                selectinload(Announcement.organizer),
+                selectinload(Announcement.game),
+                selectinload(Announcement.participants),
+            )
+            .where(Announcement.id == announcement_id)
         )
 
         announcement = result.scalar_one_or_none()
@@ -95,7 +86,15 @@ class AnnouncementCRUD:
     async def create(
         self, session: AsyncSession, announcement_in: AnnouncementCreate, user: User
     ) -> Announcement:
+        now = datetime.now(timezone.utc)
+
         announcement = Announcement(**announcement_in.model_dump())
+
+        if announcement.registration_start_at <= now:
+            announcement.status = AnnouncementStatus.REGISTRATION_OPEN
+        else:
+            announcement.status = AnnouncementStatus.PRE_REGISTRATION
+
         announcement.organizer = user
         session.add(announcement)
         await session.commit()
@@ -128,6 +127,31 @@ class AnnouncementCRUD:
 
         await session.delete(announcement)
         await session.commit()
+
+    async def update_status(
+        self,
+        session: AsyncSession,
+        announcement: Announcement,
+        action: AnnouncementAction,
+        user: User,
+    ) -> Announcement:
+        authorize_action(user, announcement, "edit")
+
+        if action == AnnouncementAction.FINISH:
+            if announcement.status != AnnouncementStatus.LIVE:
+                raise ValidationException(
+                    "Can only finish announcement when it is 'live'"
+                )
+            announcement.status = AnnouncementStatus.FINISHED
+        elif action == AnnouncementAction.CANCEL:
+            announcement.status = AnnouncementStatus.CANCELLED
+        else:
+            raise ValidationException(f"Invalid action: {action}")
+
+        await session.commit()
+        await session.refresh(announcement)
+
+        return announcement
 
 
 announcement_crud = AnnouncementCRUD()
