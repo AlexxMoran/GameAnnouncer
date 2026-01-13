@@ -9,6 +9,7 @@ import { EAuthErrorTypes } from '@shared/lib/auth/auth-error-types.constants';
 import { SnackBarService } from '@shared/lib/snack-bar/snack-bar.service';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { IApiErrorResponse } from '@shared/lib/utility-types/api-errors.types';
+import { EAppRoutes } from '@shared/routes/routes.constants';
 import { catchError, EMPTY, finalize, map, of, switchMap, tap, throwError } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
@@ -27,7 +28,7 @@ export class AuthService {
         this.getMe().pipe(
           tap(() => {
             this.snackBarService.showSuccessSnackBar('texts.successLogin');
-            this.router.navigateByUrl('/games');
+            this.router.navigateByUrl(EAppRoutes.Games);
           }),
         ),
       ),
@@ -39,7 +40,7 @@ export class AuthService {
       .logout()
       .pipe(
         finalize(() => {
-          this.router.navigateByUrl('/login');
+          this.router.navigateByUrl(EAppRoutes.Login);
           this.accessToken.set(null);
           this.me.set(null);
         }),

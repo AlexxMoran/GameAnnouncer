@@ -7,8 +7,8 @@ import { createGameEditingFormInputs } from '@pages/games/model/create-game-edit
 import { ICreateGameParams, IEditGameParams } from '@pages/games/model/game-creation-form.types';
 import { IGame } from '@pages/games/model/game.types';
 import { GameCard } from '@pages/games/ui/game-card/game-card';
+import { EGameCategories } from '@shared/api/games/games-api-service.constants';
 import { IGameDto, IGameListFilters } from '@shared/api/games/games-api-service.types';
-import { EGameCategories } from '@shared/api/games/games-api.constants';
 import { GamesApiService } from '@shared/api/games/games-api.service';
 import { ElementObserverDirective } from '@shared/directives/element-observer.directive';
 import { DialogService } from '@shared/lib/dialog/dialog.service';
@@ -55,7 +55,6 @@ export class GamesPage implements OnInit, OnDestroy {
 
   getGameActionList = (game: IGame): IIconMenuOption[] => {
     return [
-      { name: 'create', label: 'actions.createTournament' },
       {
         name: 'uploadImage',
         label: 'actions.uploadImage',

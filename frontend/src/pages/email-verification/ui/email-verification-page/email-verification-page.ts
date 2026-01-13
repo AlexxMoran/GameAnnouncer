@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthApiService } from '@shared/api/auth/auth-api.service';
 import { SnackBarService } from '@shared/lib/snack-bar/snack-bar.service';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
+import { EAppRoutes } from '@shared/routes/routes.constants';
 import { finalize } from 'rxjs';
 
 @Component({
@@ -37,7 +38,7 @@ export class EmailVerificationPage implements OnInit {
         .pipe(finalize(() => this.verifyingInProcess.set(false)))
         .subscribe(() => {
           this.snackbarService.showSuccessSnackBar('texts.emailVerificationSuccess');
-          this.router.navigateByUrl('/login');
+          this.router.navigateByUrl(EAppRoutes.Login);
         });
     } else {
       this.snackbarService.showErrorSnackBar('texts.emptyVerifyTokenAlert');

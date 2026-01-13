@@ -1,4 +1,4 @@
-import { EGameCategories } from '@shared/api/games/games-api.constants';
+import { EGameCategories } from '@shared/api/games/games-api-service.constants';
 import { IPaginationParams } from '@shared/lib/list-service/list-service.types';
 import { IEntityDateFields, IEntityIdField } from '@shared/lib/utility-types/base-entity.types';
 

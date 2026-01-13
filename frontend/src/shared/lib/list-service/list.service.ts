@@ -4,7 +4,7 @@ import { IPaginationConfig } from '@shared/lib/list-service/list-service.types';
 import { TMaybe } from '@shared/lib/utility-types/additional.types';
 import { IEntityIdField } from '@shared/lib/utility-types/base-entity.types';
 import { TObjectAny } from '@shared/lib/utility-types/object.types';
-import { Subject, takeUntil, tap } from 'rxjs';
+import { finalize, Subject, takeUntil } from 'rxjs';
 
 export class ListService<TEntity extends IEntityIdField, TFilter extends TObjectAny = {}> {
   readonly list = signal<TEntity[]>([]);
@@ -17,7 +17,7 @@ export class ListService<TEntity extends IEntityIdField, TFilter extends TObject
   private limit = DEFAULT_LIMIT;
   private destroy$ = new Subject<void>();
 
-  constructor(private config: IPaginationConfig<TEntity>) {
+  constructor(private config: IPaginationConfig<TEntity, TFilter>) {
     if (config.limit) {
       this.limit = config.limit;
     }
@@ -36,7 +36,7 @@ export class ListService<TEntity extends IEntityIdField, TFilter extends TObject
       .loadDataFn(this.paginationParams)
       .pipe(
         takeUntil(this.destroy$),
-        tap(() => this.isPaginating.set(false)),
+        finalize(() => this.isPaginating.set(false)),
       )
       .subscribe((result) => {
         const { data, total } = result;
@@ -90,7 +90,7 @@ export class ListService<TEntity extends IEntityIdField, TFilter extends TObject
       .loadDataFn(this.paginationParams)
       .pipe(
         takeUntil(this.destroy$),
-        tap(() => this.isInitializeLoading.set(false)),
+        finalize(() => this.isInitializeLoading.set(false)),
       )
       .subscribe({
         next: (result) => {

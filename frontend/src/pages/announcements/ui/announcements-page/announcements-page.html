@@ -1,16 +1,24 @@
-<span class="text-3xl inline-block mb-8" matBadgeOverlap="false" [matBadge]="total">
-  {{ 'pageTitles.games' | translate }}
-</span>
+<div
+  class="relative bg-[url('@shared/assets/images/header.png')] bg-no-repeat bg-cover w-full pt-[calc(100%/(1136/456))]"
+>
+  <span
+    class="absolute left-4 lg:left-7 top-4 lg:top-7 sm:w-65 w-50 md:w-80 lg:w-95 xl:w-110 text-xs md:text-base lg:text-1xl xl:text-2xl"
+  >
+    {{ 'texts.introduction' | translate }}
+  </span>
+</div>
 
-<app-chips class="mb-8" [chipList]="chipList" (selected)="addGameFilters($event)" />
+<span class="text-3xl inline-block mb-8" matBadgeOverlap="false" [matBadge]="total">
+  {{ 'pageTitles.announcements' | translate }}
+</span>
 
 @if (hasNoData) {
   <div>{{ 'texts.haveNoData' | translate }}</div>
 }
 
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 relative">
-  @for (game of gameList; track game.id) {
-    <app-game-card [gameActionList]="getGameActionList(game)" [game]="game"></app-game-card>
+  @for (announcement of announcementList; track announcement.id) {
+    <app-announcement-card [announcement]="announcement"></app-announcement-card>
   }
 
   @if (isInitializeLoading) {
@@ -19,12 +27,6 @@
     </div>
   }
 </div>
-
-<div elementObserver (elementReached)="paginate()"></div>
-
-@if (isPaginating) {
-  <mat-spinner class="mx-auto mt-6" diameter="60"></mat-spinner>
-}
 
 <app-fab-button
   icon="add"

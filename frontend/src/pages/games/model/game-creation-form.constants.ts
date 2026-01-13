@@ -1,6 +1,6 @@
 import { Validators } from '@angular/forms';
 import { ICreateGameParams } from '@pages/games/model/game-creation-form.types';
-import { EGameCategories } from '@shared/api/games/games-api.constants';
+import { EGameCategories } from '@shared/api/games/games-api-service.constants';
 import { TFormField } from '@shared/ui/form/form.types';
 
 export const GAME_CATEGORY_LIST = Object.entries(EGameCategories).map(([label, name]) => ({
