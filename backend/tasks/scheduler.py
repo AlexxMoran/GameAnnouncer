@@ -12,7 +12,10 @@ def get_scheduler():
     try:
         settings = get_settings()
         redis_source = ListRedisScheduleSource(url=settings.redis.url)
-    except Exception:
+    except Exception as e:
+        logger.warning(
+            f"Failed to initialize Redis schedule source, falling back to LabelScheduleSource: {e}"
+        )
         from taskiq.schedule_sources import LabelScheduleSource
 
         redis_source = LabelScheduleSource(get_broker())

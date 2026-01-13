@@ -90,7 +90,11 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: gameannouncer_scheduler
-    command: taskiq scheduler tasks.scheduler:scheduler
+    command: >
+      sh -c "
+        python -c 'import asyncio; from tasks.scheduler import register_periodic_tasks; asyncio.run(register_periodic_tasks())' &&
+        taskiq scheduler tasks.scheduler:scheduler
+      "
     volumes:
       - /backend/.venv
       - ./backend:/backend

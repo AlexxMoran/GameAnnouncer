@@ -68,10 +68,6 @@ async def startup_broker():
         await broker.startup()
         logger.info("✓ Taskiq broker started")
 
-        from tasks.scheduler import register_periodic_tasks
-
-        await register_periodic_tasks()
-
 
 async def shutdown_broker():
     """Shutdown broker."""

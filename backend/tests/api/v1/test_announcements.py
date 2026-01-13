@@ -327,7 +327,6 @@ async def test_update_status_finish_from_wrong_status_fails(
 async def test_update_status_cancel_from_any_status(
     async_client, announcement_factory, authenticated_client, user
 ):
-    """Тест: cancel работает из любого статуса."""
     client = authenticated_client(user)
 
     announcement_data = announcement_factory.build(

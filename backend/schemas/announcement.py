@@ -25,7 +25,7 @@ class AnnouncementBase(BaseModel):
         ..., description="The end date and time when registration ends"
     )
     max_participants: int = Field(
-        ..., description="The maximum number of participants allowed"
+        ..., gt=0, description="The maximum number of participants allowed"
     )
 
 
@@ -48,7 +48,7 @@ class AnnouncementUpdate(BaseModel):
         None, description="The end date and time when registration ends"
     )
     max_participants: int | None = Field(
-        None, description="The maximum number of participants allowed"
+        None, gt=0, description="The maximum number of participants allowed"
     )
 
 
