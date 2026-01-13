@@ -26,7 +26,7 @@ def upgrade() -> None:
     )
     op.add_column(
         "announcements",
-        sa.Column("max_participants", sa.Integer(), nullable=True),
+        sa.Column("max_participants", sa.Integer(), nullable=False),
     )
 
 
