@@ -10,6 +10,7 @@ from schemas.announcement import (
     AnnouncementCreate,
     AnnouncementUpdate,
     AnnouncementResponse,
+    AnnouncementAction,
 )
 from core.permissions import authorize_action
 from enums import AnnouncementStatus
@@ -131,21 +132,21 @@ class AnnouncementCRUD:
         self,
         session: AsyncSession,
         announcement: Announcement,
-        status: str,
+        action: AnnouncementAction,
         user: User,
     ) -> Announcement:
         authorize_action(user, announcement, "edit")
 
-        if status == "finish":
+        if action == AnnouncementAction.FINISH:
             if announcement.status != AnnouncementStatus.LIVE:
                 raise ValidationException(
                     "Can only finish announcement when it is 'live'"
                 )
             announcement.status = AnnouncementStatus.FINISHED
-        elif status == "cancel":
+        elif action == AnnouncementAction.CANCEL:
             announcement.status = AnnouncementStatus.CANCELLED
         else:
-            raise ValidationException(f"Invalid action: {status}")
+            raise ValidationException(f"Invalid action: {action}")
 
         await session.commit()
         await session.refresh(announcement)

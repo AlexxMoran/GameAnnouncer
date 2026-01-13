@@ -168,7 +168,7 @@ async def update_status(
     updated_announcement = await announcement_crud.update_status(
         session=session,
         announcement=announcement,
-        status=announcement_in.action,
+        action=announcement_in.action,
         user=current_user,
     )
 

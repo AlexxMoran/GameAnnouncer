@@ -55,6 +55,7 @@ async def test_get_by_id_with_announcements_count(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     a2 = Announcement(
         title="T2",
@@ -64,6 +65,7 @@ async def test_get_by_id_with_announcements_count(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add_all([a1, a2])
     await db_session.commit()

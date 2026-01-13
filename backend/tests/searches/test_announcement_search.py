@@ -33,6 +33,7 @@ async def test_announcement_search_no_filters(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now + timedelta(days=1),
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     ann2 = Announcement(
         title="Ann2",
@@ -43,6 +44,7 @@ async def test_announcement_search_no_filters(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now + timedelta(days=1),
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add_all([ann1, ann2])
     await db_session.commit()
@@ -79,6 +81,7 @@ async def test_announcement_search_filter_by_game_id(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now + timedelta(days=1),
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     ann2 = Announcement(
         title="Game2Ann",
@@ -89,6 +92,7 @@ async def test_announcement_search_filter_by_game_id(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now + timedelta(days=1),
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add_all([ann1, ann2])
     await db_session.commit()
@@ -124,6 +128,7 @@ async def test_announcement_search_filter_by_status(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now + timedelta(days=1),
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     ann2 = Announcement(
         title="LiveAnn",
@@ -134,6 +139,7 @@ async def test_announcement_search_filter_by_status(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now + timedelta(days=1),
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add_all([ann1, ann2])
     await db_session.commit()
@@ -173,6 +179,7 @@ async def test_announcement_search_filter_by_game_and_status(db_session, create_
         start_at=now + timedelta(days=30),
         registration_start_at=now + timedelta(days=1),
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
 
     ann2 = Announcement(
@@ -184,6 +191,7 @@ async def test_announcement_search_filter_by_game_and_status(db_session, create_
         start_at=now + timedelta(days=30),
         registration_start_at=now + timedelta(days=1),
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
 
     ann3 = Announcement(
@@ -195,6 +203,7 @@ async def test_announcement_search_filter_by_game_and_status(db_session, create_
         start_at=now + timedelta(days=30),
         registration_start_at=now + timedelta(days=1),
         registration_end_at=now + timedelta(days=29),
+        max_participants=10,
     )
 
     db_session.add_all([ann1, ann2, ann3])
@@ -233,6 +242,7 @@ async def test_announcement_search_pagination(db_session, create_user):
             start_at=now + timedelta(days=30),
             registration_start_at=now + timedelta(days=1),
             registration_end_at=now + timedelta(days=29),
+            max_participants=10,
         )
         announcements.append(ann)
 
@@ -276,6 +286,7 @@ async def test_announcement_search_count_matches_results(db_session, create_user
             start_at=now + timedelta(days=30),
             registration_start_at=now + timedelta(days=1),
             registration_end_at=now + timedelta(days=29),
+            max_participants=10,
         )
         db_session.add(ann)
 
