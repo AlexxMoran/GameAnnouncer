@@ -71,7 +71,7 @@ async def test_list_and_count_by_game(db_session, create_user):
         start_at=now + timedelta(days=30),
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
-        max_participantsgit =10,
+        max_participantsgit=10,
     )
     await announcement_crud.create(session=db_session, announcement_in=a1, user=user)
     await announcement_crud.create(session=db_session, announcement_in=a2, user=user)
