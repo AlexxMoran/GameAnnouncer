@@ -10,10 +10,10 @@ async def test_get_games_paginated(async_client, game_factory):
     games = [SimpleNamespace(**g1), SimpleNamespace(**g2)]
 
     with patch(
-        "api.v1.games.game_crud.get_all",
+        "api.v1.games.GameSearch.results",
         new=AsyncMock(return_value=games),
     ), patch(
-        "api.v1.games.game_crud.get_all_count",
+        "api.v1.games.GameSearch.count",
         new=AsyncMock(return_value=2),
     ), patch(
         "api.v1.games.get_batch_permissions", return_value=None
