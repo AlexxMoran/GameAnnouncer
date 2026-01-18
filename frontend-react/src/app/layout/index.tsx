@@ -1,0 +1,81 @@
+import { HeaderStyled, LayoutStyled } from "@app/layout/styles";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import { EAppRoutes } from "@shared/constants/appRoutes";
+import { useDialog } from "@shared/hooks/use-dialog";
+import { useRootService } from "@shared/hooks/use-root-service";
+import { ActionsMenu } from "@shared/ui/actions-menu";
+import { Box } from "@shared/ui/box";
+import { IconButton } from "@shared/ui/icon-button";
+import { Link } from "@shared/ui/link";
+import { Tooltip } from "@shared/ui/tooltip";
+import type { FC, PropsWithChildren } from "react";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router";
+
+export const Layout: FC<PropsWithChildren> = ({ children }) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { authService } = useRootService();
+  const { confirm } = useDialog();
+
+  const { isAuthenticated, me, logout } = authService;
+
+  const handleLogout = async () => {
+    const result = await confirm({
+      title: t("entities.confirmation"),
+      children: t("texts.logoutConfirmation"),
+    });
+
+    if (result) {
+      const { setIsLoading, closeDialog } = result;
+
+      setIsLoading(true);
+
+      await logout();
+
+      navigate(EAppRoutes.Login);
+      closeDialog();
+    }
+  };
+
+  const actionList = [
+    {
+      id: 1,
+      title: t("actions.logout"),
+      onClick: handleLogout,
+      icon: <LogoutOutlinedIcon />,
+    },
+  ];
+
+  return (
+    <Box display="flex" flexDirection="column" height="100vh">
+      <HeaderStyled>
+        <div>LOGO</div>
+        <Box display="flex" alignItems="center" gap={4}>
+          {!isAuthenticated && (
+            <Link to={EAppRoutes.Login}>{t("actions.login")}</Link>
+          )}
+          <Link to={EAppRoutes.Games}>{t("pageTitles.games")}</Link>
+          <Link to={EAppRoutes.Announcements}>
+            {t("pageTitles.announcements")}
+          </Link>
+        </Box>
+        <Box display="flex" alignItems="center">
+          {isAuthenticated && (
+            <ActionsMenu actionList={actionList}>
+              {({ onClick, ref }) => (
+                <Tooltip title={me?.email}>
+                  <IconButton onClick={onClick} ref={ref}>
+                    <AccountCircleIcon />
+                  </IconButton>
+                </Tooltip>
+              )}
+            </ActionsMenu>
+          )}
+        </Box>
+      </HeaderStyled>
+      <LayoutStyled>{children}</LayoutStyled>
+    </Box>
+  );
+};
