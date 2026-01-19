@@ -1,19 +1,29 @@
 from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Boolean, Enum, ForeignKey, Integer, String
+from sqlalchemy import Boolean, Enum, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import JSONB
 from .base import Base
 from enums import FormFieldType
 
 if TYPE_CHECKING:
     from .registration_form import RegistrationForm
+    from .form_field_response import FormFieldResponse
 
 
 class FormField(Base):
     __tablename__ = "form_fields"
+    __table_args__ = (
+        UniqueConstraint(
+            "form_id",
+            "key",
+            name="uq_form_fields_form_id_key",
+        ),
+    )
 
     form_id: Mapped[int] = mapped_column(
-        ForeignKey("registration_forms.id", ondelete="CASCADE"), nullable=False
+        ForeignKey("registration_forms.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     field_type: Mapped[str] = mapped_column(
         Enum(FormFieldType, native_enum=False, validate_strings=True),
@@ -36,16 +46,16 @@ class FormField(Base):
         nullable=False,
         comment="Whether this field is required or optional",
     )
-    order: Mapped[int] = mapped_column(
-        Integer, nullable=False, comment="The order of the field in the form"
-    )
     options: Mapped[dict | None] = mapped_column(
         JSONB,
         nullable=True,
-        default=dict,
         comment="The options for fields like selects, dropdowns or multiple choice",
     )
 
     form: Mapped["RegistrationForm"] = relationship(
         "RegistrationForm", back_populates="fields", passive_deletes=True
+    )
+
+    responses: Mapped[list["FormFieldResponse"]] = relationship(
+        "FormFieldResponse", back_populates="form_field", passive_deletes=True
     )

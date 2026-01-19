@@ -60,7 +60,10 @@ class Announcement(Base):
     )
 
     registration_form: Mapped["RegistrationForm"] = relationship(
-        "RegistrationForm", back_populates="announcement", passive_deletes=True
+        "RegistrationForm",
+        back_populates="announcement",
+        passive_deletes=True,
+        uselist=False,
     )
 
     @validates("start_at", "registration_start_at", "registration_end_at")

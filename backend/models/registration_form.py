@@ -6,7 +6,6 @@ from .base import Base
 if TYPE_CHECKING:
     from .announcement import Announcement
     from .form_field import FormField
-    from .form_field_response import FormFieldResponse
 
 
 class RegistrationForm(Base):
@@ -23,7 +22,4 @@ class RegistrationForm(Base):
     )
     fields: Mapped[list["FormField"]] = relationship(
         "FormField", back_populates="form", passive_deletes=True
-    )
-    responses: Mapped[list["FormFieldResponse"]] = relationship(
-        "FormFieldResponse", back_populates="form", passive_deletes=True
     )

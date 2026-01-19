@@ -138,8 +138,11 @@ async def test_update_registration_request_status_actions(
         called["approve"] = True
         return {**registration_request, "status": "approved"}
 
-    async def _fake_reject(session, registration_request, current_user):
+    async def _fake_reject(
+        session, registration_request, current_user, cancellation_reason=None
+    ):
         called["reject"] = True
+        called["cancellation_reason"] = cancellation_reason
         return {**registration_request, "status": "rejected"}
 
     async def _fake_cancel(session, registration_request, current_user):
@@ -166,10 +169,14 @@ async def test_update_registration_request_status_actions(
         assert r.json()["data"]["status"] == "approved"
         assert called.get("approve")
 
-        r = await client.patch(f"/api/v1/registration_requests/{rr['id']}/reject")
+        r = await client.patch(
+            f"/api/v1/registration_requests/{rr['id']}/reject",
+            params={"cancellation_reason": "Not suitable"},
+        )
         assert r.status_code == 200
         assert r.json()["data"]["status"] == "rejected"
         assert called.get("reject")
+        assert called.get("cancellation_reason") == "Not suitable"
 
         r = await client.patch(f"/api/v1/registration_requests/{rr['id']}/cancel")
         assert r.status_code == 200

@@ -23,5 +23,11 @@ class RegistrationRequestResponse(RegistrationRequestBase):
         ..., description="The ID of the user who made the registration request"
     )
     status: str = Field(..., description="The status of the registration request")
+    cancellation_reason: str | None = Field(
+        None, description="Reason for cancellation/decline of the registration request"
+    )
     created_at: datetime
     updated_at: datetime
+
+    class Config:
+        from_attributes = True
