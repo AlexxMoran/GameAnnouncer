@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from schemas.form_field import FormFieldCreate, FormFieldResponse
 
 
@@ -20,12 +20,11 @@ class RegistrationFormUpdate(BaseModel):
 
 
 class RegistrationFormResponse(RegistrationFormBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     announcement_id: int
     fields: list[FormFieldResponse] = Field(
         default_factory=list,
         description="List of form fields in this registration form",
     )
-
-    class Config:
-        from_attributes = True

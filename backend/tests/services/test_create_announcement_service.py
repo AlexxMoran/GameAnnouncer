@@ -5,7 +5,7 @@ from schemas.announcement import AnnouncementCreate
 from schemas.registration_form import RegistrationFormCreate, FormFieldCreate
 from models.announcement import Announcement
 from models.game import Game
-from enums import AnnouncementStatus, FieldType
+from enums import AnnouncementStatus, FormFieldType
 from sqlalchemy import select
 from models.registration_form import RegistrationForm
 from models.form_field import FormField
@@ -41,7 +41,13 @@ async def test_create_announcement_without_form(db_session, create_user):
     assert result.title == "Test Tournament"
     assert result.organizer_id == user.id
     assert result.status == AnnouncementStatus.PRE_REGISTRATION
-    assert result.registration_form is None
+
+    # Check registration form was not created
+    form_result = await db_session.execute(
+        select(RegistrationForm).where(RegistrationForm.announcement_id == result.id)
+    )
+    form = form_result.scalar_one_or_none()
+    assert form is None
 
 
 @pytest.mark.asyncio
@@ -58,15 +64,17 @@ async def test_create_announcement_with_registration_form(db_session, create_use
     form_fields = [
         FormFieldCreate(
             label="Discord Username",
-            field_type=FieldType.TEXT,
+            key="discord_username",
+            field_type=FormFieldType.TEXT,
             required=True,
             order=1,
         ),
         FormFieldCreate(
             label="Experience Level",
-            field_type=FieldType.SELECT,
+            key="experience_level",
+            field_type=FormFieldType.SELECT,
             required=True,
-            options=["Beginner", "Intermediate", "Advanced"],
+            options={"choices": ["Beginner", "Intermediate", "Advanced"]},
             order=2,
         ),
     ]
@@ -103,16 +111,16 @@ async def test_create_announcement_with_registration_form(db_session, create_use
 
     # Check form fields were created
     fields_result = await db_session.execute(
-        select(FormField).where(FormField.form_id == form.id).order_by(FormField.order)
+        select(FormField).where(FormField.form_id == form.id).order_by(FormField.id)
     )
     fields = list(fields_result.scalars().all())
     assert len(fields) == 2
     assert fields[0].label == "Discord Username"
-    assert fields[0].field_type == FieldType.TEXT
+    assert fields[0].field_type == FormFieldType.TEXT
     assert fields[0].required is True
     assert fields[1].label == "Experience Level"
-    assert fields[1].field_type == FieldType.SELECT
-    assert fields[1].options == ["Beginner", "Intermediate", "Advanced"]
+    assert fields[1].field_type == FormFieldType.SELECT
+    assert fields[1].options == {"choices": ["Beginner", "Intermediate", "Advanced"]}
 
 
 @pytest.mark.asyncio

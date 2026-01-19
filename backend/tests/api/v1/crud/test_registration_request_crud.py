@@ -4,6 +4,7 @@ from sqlalchemy import select
 from datetime import datetime, timedelta
 
 from models.game import Game
+from models.user import User
 from models.announcement import Announcement
 from models.registration_request import RegistrationRequest
 from enums.registration_status import RegistrationStatus
@@ -221,7 +222,16 @@ async def test_approve_adds_user_to_participants(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(ann)
 
-    assert actor not in ann.participants
+    # Check participants before approval using explicit join table
+    from models.announcement_participant import AnnouncementParticipant
+
+    participants_result = await db_session.execute(
+        select(User)
+        .join(AnnouncementParticipant, AnnouncementParticipant.user_id == User.id)
+        .where(AnnouncementParticipant.announcement_id == ann.id)
+    )
+    participants = list(participants_result.scalars().all())
+    assert actor not in participants
 
     rr_in = RegistrationRequestCreate(announcement_id=ann.id)
     created = await registration_request_crud.create(
@@ -238,7 +248,15 @@ async def test_approve_adds_user_to_participants(db_session, create_user):
         )
 
     await db_session.refresh(ann)
-    assert actor in ann.participants
+
+    # Check participants after approval using explicit join table
+    participants_result_after = await db_session.execute(
+        select(User)
+        .join(AnnouncementParticipant, AnnouncementParticipant.user_id == User.id)
+        .where(AnnouncementParticipant.announcement_id == ann.id)
+    )
+    participants_after = list(participants_result_after.scalars().all())
+    assert actor in participants_after
 
 
 @pytest.mark.asyncio

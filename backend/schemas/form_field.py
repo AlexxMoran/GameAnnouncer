@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from enums import FormFieldType
 
 
@@ -17,7 +17,6 @@ class FormFieldBase(BaseModel):
     required: bool = Field(
         default=False, description="Whether this field is required or optional"
     )
-    order: int = Field(..., description="The order of the field in the form", ge=0)
     options: dict | None = Field(
         default=None,
         description="The options for fields like selects, dropdowns or multiple choice",
@@ -43,9 +42,6 @@ class FormFieldUpdate(BaseModel):
     required: bool | None = Field(
         None, description="Whether this field is required or optional"
     )
-    order: int | None = Field(
-        None, description="The order of the field in the form", ge=0
-    )
     options: dict | None = Field(
         None,
         description="The options for fields like selects, dropdowns or multiple choice",
@@ -53,8 +49,7 @@ class FormFieldUpdate(BaseModel):
 
 
 class FormFieldResponse(FormFieldBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     form_id: int
-
-    class Config:
-        from_attributes = True

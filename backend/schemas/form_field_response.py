@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class FormFieldResponseBase(BaseModel):
@@ -17,8 +17,6 @@ class FormFieldResponseUpdate(BaseModel):
 
 
 class FormFieldResponseResponse(FormFieldResponseBase):
+    model_config = ConfigDict(from_attributes=True)
     id: int
     registration_request_id: int
-
-    class Config:
-        from_attributes = True

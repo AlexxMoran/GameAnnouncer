@@ -24,18 +24,23 @@ class UpsertRegistrationFormService:
     async def call(self) -> RegistrationForm:
         """Create or update registration form, cancelling active registration requests if form exists."""
 
-        if self.announcement.registration_form:
+        existing_form_result = await self.session.execute(
+            select(RegistrationForm).where(
+                RegistrationForm.announcement_id == self.announcement.id
+            )
+        )
+        existing_form = existing_form_result.scalar_one_or_none()
+
+        if existing_form:
             await self._cancel_active_requests()
 
-            await self.session.delete(self.announcement.registration_form)
+            await self.session.delete(existing_form)
             await self.session.flush()
 
-        # Create new registration form
         registration_form = RegistrationForm(announcement_id=self.announcement.id)
         self.session.add(registration_form)
         await self.session.flush()
 
-        # Create form fields
         for field_data in self.registration_form_in.fields:
             form_field = FormField(
                 **field_data.model_dump(), form_id=registration_form.id

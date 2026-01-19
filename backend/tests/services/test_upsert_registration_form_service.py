@@ -8,7 +8,7 @@ from models.game import Game
 from models.registration_form import RegistrationForm
 from models.form_field import FormField
 from models.registration_request import RegistrationRequest
-from enums import FieldType, RegistrationStatus
+from enums import FormFieldType, RegistrationStatus
 from sqlalchemy import select
 from api.v1.crud.registration_request import registration_request_crud
 
@@ -40,7 +40,8 @@ async def test_create_new_registration_form(db_session, create_user):
     form_fields = [
         FormFieldCreate(
             label="Discord Username",
-            field_type=FieldType.TEXT,
+            key="discord_username",
+            field_type=FormFieldType.TEXT,
             required=True,
             order=1,
         ),
@@ -99,9 +100,9 @@ async def test_update_existing_registration_form(db_session, create_user):
 
     old_field = FormField(
         label="Old Field",
-        field_type=FieldType.TEXT,
+        key="old_field",
+        field_type=FormFieldType.TEXT,
         required=False,
-        order=1,
         form_id=old_form.id,
     )
     db_session.add(old_field)
@@ -115,7 +116,8 @@ async def test_update_existing_registration_form(db_session, create_user):
     new_form_fields = [
         FormFieldCreate(
             label="New Field",
-            field_type=FieldType.TEXT,
+            key="new_field",
+            field_type=FormFieldType.TEXT,
             required=True,
             order=1,
         ),
@@ -183,9 +185,9 @@ async def test_update_form_cancels_pending_requests(db_session, create_user):
 
     old_field = FormField(
         label="Old Field",
-        field_type=FieldType.TEXT,
+        key="old_field",
+        field_type=FormFieldType.TEXT,
         required=False,
-        order=1,
         form_id=old_form.id,
     )
     db_session.add(old_field)
@@ -205,7 +207,8 @@ async def test_update_form_cancels_pending_requests(db_session, create_user):
     new_form_fields = [
         FormFieldCreate(
             label="Updated Field",
-            field_type=FieldType.TEXT,
+            key="updated_field",
+            field_type=FormFieldType.TEXT,
             required=True,
             order=1,
         ),
@@ -274,7 +277,8 @@ async def test_update_form_cancels_approved_requests(db_session, create_user):
     new_form_fields = [
         FormFieldCreate(
             label="New Required Field",
-            field_type=FieldType.TEXT,
+            key="new_required_field",
+            field_type=FormFieldType.TEXT,
             required=True,
             order=1,
         ),
@@ -343,7 +347,8 @@ async def test_update_form_does_not_cancel_rejected_requests(db_session, create_
     new_form_fields = [
         FormFieldCreate(
             label="New Field",
-            field_type=FieldType.TEXT,
+            key="new_field",
+            field_type=FormFieldType.TEXT,
             required=True,
             order=1,
         ),
@@ -392,20 +397,23 @@ async def test_create_form_with_multiple_fields(db_session, create_user):
     form_fields = [
         FormFieldCreate(
             label="Full Name",
-            field_type=FieldType.TEXT,
+            key="full_name",
+            field_type=FormFieldType.TEXT,
             required=True,
             order=1,
         ),
         FormFieldCreate(
             label="Experience Level",
-            field_type=FieldType.SELECT,
+            key="experience_level",
+            field_type=FormFieldType.SELECT,
             required=True,
-            options=["Beginner", "Intermediate", "Pro"],
+            options={"choices": ["Beginner", "Intermediate", "Pro"]},
             order=2,
         ),
         FormFieldCreate(
             label="Comments",
-            field_type=FieldType.TEXTAREA,
+            key="comments",
+            field_type=FormFieldType.TEXTAREA,
             required=False,
             order=3,
         ),
@@ -423,17 +431,15 @@ async def test_create_form_with_multiple_fields(db_session, create_user):
 
     # Check all fields were created correctly
     fields_result = await db_session.execute(
-        select(FormField)
-        .where(FormField.form_id == result.id)
-        .order_by(FormField.order)
+        select(FormField).where(FormField.form_id == result.id).order_by(FormField.id)
     )
     fields = list(fields_result.scalars().all())
     assert len(fields) == 3
     assert fields[0].label == "Full Name"
-    assert fields[0].field_type == FieldType.TEXT
+    assert fields[0].field_type == FormFieldType.TEXT
     assert fields[1].label == "Experience Level"
-    assert fields[1].field_type == FieldType.SELECT
-    assert fields[1].options == ["Beginner", "Intermediate", "Pro"]
+    assert fields[1].field_type == FormFieldType.SELECT
+    assert fields[1].options == {"choices": ["Beginner", "Intermediate", "Pro"]}
     assert fields[2].label == "Comments"
-    assert fields[2].field_type == FieldType.TEXTAREA
+    assert fields[2].field_type == FormFieldType.TEXTAREA
     assert fields[2].required is False
