@@ -2,8 +2,6 @@ from typing import Annotated
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
-from schemas.filters.game_filter import GameFilter
-from searches.game_search import GameSearch
 from core.user_manager import UserManager
 from core.db.container import create_db
 from core.config import get_settings, Settings
@@ -31,10 +29,6 @@ async def get_user_manager(user_db: UserDbDep):
 
 
 UserManagerDep = Annotated[UserManager, Depends(get_user_manager)]
-
-
-def get_game_search(session: SessionDep, filters: GameFilter = Depends()):
-    return GameSearch(session=session, filters=filters)
 
 
 def get_settings_dep():

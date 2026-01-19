@@ -24,4 +24,6 @@ class AnnouncementDictFactory(factory.Factory):
     registration_end_at = factory.LazyFunction(
         lambda: datetime(2026, 5, 31, 23, 59, 59).isoformat()
     )
-    is_registration_open = False  # By default, registration ended in May 2026
+    is_registration_open = False
+    max_participants = 10
+    status = "pre_registration"

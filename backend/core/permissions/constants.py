@@ -1,1 +1,1 @@
-GLOBAL_PERMISSIONS = ["create"]
+GLOBAL_PERMISSIONS = ["view", "create"]

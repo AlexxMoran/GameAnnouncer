@@ -28,6 +28,7 @@ async def test_create_registration_request_success(db_session, create_user):
         registration_start_at=now - timedelta(hours=1),  # started 1 hour ago
         registration_end_at=now + timedelta(hours=1),  # ends in 1 hour
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -67,6 +68,7 @@ async def test_create_registration_request_before_start(db_session, create_user)
         registration_start_at=now + timedelta(hours=1),  # starts in 1 hour
         registration_end_at=now + timedelta(hours=2),
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -106,6 +108,7 @@ async def test_create_registration_request_after_end(db_session, create_user):
         registration_start_at=now - timedelta(hours=2),  # started 2 hours ago
         registration_end_at=now - timedelta(hours=1),  # ended 1 hour ago
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -145,6 +148,7 @@ async def test_create_registration_request_at_exact_start(db_session, create_use
         registration_start_at=now,  # starts now
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()

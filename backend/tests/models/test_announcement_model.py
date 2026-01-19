@@ -16,6 +16,8 @@ def test_announcement_table_and_columns():
     assert "start_at" in cols
     assert "registration_start_at" in cols
     assert "registration_end_at" in cols
+    assert "max_participants" in cols
+    assert "status" in cols
 
 
 def test_announcement_relationships():
@@ -43,6 +45,7 @@ async def test_valid_dates_order(db_session, create_user):
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
         start_at=now + timedelta(days=30),
+        max_participants=10,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -67,6 +70,7 @@ async def test_start_equals_registration_end(db_session, create_user):
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
         start_at=now + timedelta(days=29),
+        max_participants=10,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -92,6 +96,7 @@ async def test_invalid_start_before_registration_end(db_session, create_user):
             registration_start_at=now,
             registration_end_at=now + timedelta(days=30),
             start_at=now + timedelta(days=29),
+            max_participants=10,
         )
 
     assert "start_at must be after or equal to registration_end_at" in str(
@@ -117,6 +122,7 @@ async def test_invalid_registration_start_equals_end(db_session, create_user):
             registration_start_at=now,
             registration_end_at=now,
             start_at=now + timedelta(days=1),
+            max_participants=10,
         )
 
     assert "registration_start_at must be before registration_end_at" in str(
@@ -142,6 +148,7 @@ async def test_invalid_registration_start_after_end(db_session, create_user):
             registration_start_at=now + timedelta(days=30),
             registration_end_at=now + timedelta(days=29),
             start_at=now + timedelta(days=31),
+            max_participants=10,
         )
 
     assert "registration_start_at must be before registration_end_at" in str(
@@ -167,6 +174,7 @@ async def test_invalid_all_dates_equal(db_session, create_user):
             registration_start_at=now,
             registration_end_at=now,
             start_at=now,
+            max_participants=10,
         )
 
     assert "registration_start_at must be before registration_end_at" in str(
@@ -192,6 +200,7 @@ async def test_is_registration_open_during_period(db_session, create_user):
         registration_start_at=now - timedelta(hours=1),  # started 1 hour ago
         registration_end_at=now + timedelta(hours=1),  # ends in 1 hour
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -218,6 +227,7 @@ async def test_is_registration_open_before_start(db_session, create_user):
         registration_start_at=now + timedelta(hours=1),  # starts in 1 hour
         registration_end_at=now + timedelta(hours=2),
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -244,6 +254,7 @@ async def test_is_registration_open_after_end(db_session, create_user):
         registration_start_at=now - timedelta(hours=2),  # started 2 hours ago
         registration_end_at=now - timedelta(hours=1),  # ended 1 hour ago
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -271,6 +282,7 @@ async def test_is_registration_open_at_exact_boundaries(db_session, create_user)
         registration_start_at=now - timedelta(hours=1),
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement_start)
     await db_session.commit()

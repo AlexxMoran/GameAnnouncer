@@ -26,6 +26,7 @@ async def test_expire_registration_requests_no_expired(db_session, create_user):
         registration_start_at=now - timedelta(hours=1),
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -64,6 +65,7 @@ async def test_expire_registration_requests_with_expired(db_session, create_user
         registration_start_at=now - timedelta(hours=2),
         registration_end_at=now - timedelta(hours=1),
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -117,6 +119,7 @@ async def test_expire_registration_requests_multiple_expired(db_session, create_
         registration_start_at=now - timedelta(hours=3),
         registration_end_at=now - timedelta(hours=1),  # ended
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -177,6 +180,7 @@ async def test_expire_registration_requests_ignores_approved(db_session, create_
         registration_start_at=now - timedelta(hours=2),
         registration_end_at=now - timedelta(hours=1),
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -217,6 +221,7 @@ async def test_expire_registration_requests_mixed_statuses(db_session, create_us
         registration_start_at=now - timedelta(hours=2),
         registration_end_at=now - timedelta(hours=1),
         start_at=now + timedelta(days=1),
+        max_participants=10,
     )
     db_session.add(announcement)
     await db_session.commit()

@@ -1,32 +1,23 @@
 import pytest
 from types import SimpleNamespace
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 
 @pytest.mark.asyncio
 async def test_get_games_paginated(async_client, game_factory):
     g1 = game_factory.build()
     g2 = game_factory.build()
-    games = [g1, g2]
+    games = [SimpleNamespace(**g1), SimpleNamespace(**g2)]
 
-    fake_search = MagicMock()
-    fake_search.results_with_announcements_count = AsyncMock(return_value=games)
-    fake_search.count = AsyncMock(return_value=2)
-
-    with patch("api.v1.games.get_game_search", return_value=fake_search), patch(
-        "core.deps.get_game_search", return_value=fake_search
-    ), patch("api.v1.games.get_batch_permissions", return_value=None), patch(
-        "searches.game_search.GameSearch.results_with_announcements_count",
+    with patch(
+        "api.v1.games.GameSearch.results",
         new=AsyncMock(return_value=games),
     ), patch(
-        "searches.game_search.GameSearch.count", new=AsyncMock(return_value=2)
+        "api.v1.games.GameSearch.count",
+        new=AsyncMock(return_value=2),
+    ), patch(
+        "api.v1.games.get_batch_permissions", return_value=None
     ):
-        import api.v1.games as games_mod
-
-        async_client._transport.app.dependency_overrides[games_mod.get_game_search] = (
-            lambda: fake_search
-        )
-
         r = await async_client.get("/api/v1/games?skip=0&limit=10")
         assert r.status_code == 200
         body = r.json()
