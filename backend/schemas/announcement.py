@@ -68,6 +68,9 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
     id: int
     created_at: datetime
     updated_at: datetime
+    end_at: datetime | None = Field(
+        None, description="The end date and time of the announcement"
+    )
     image_url: str | None = Field(
         None, max_length=500, description="URL to the announcement's image"
     )
