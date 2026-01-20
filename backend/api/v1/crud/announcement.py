@@ -143,6 +143,7 @@ class AnnouncementCRUD:
                     "Can only finish announcement when it is 'live'"
                 )
             announcement.status = AnnouncementStatus.FINISHED
+            announcement.end_at = datetime.now(timezone.utc)
         elif action == AnnouncementAction.CANCEL:
             announcement.status = AnnouncementStatus.CANCELLED
         else:

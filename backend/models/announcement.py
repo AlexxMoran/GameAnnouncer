@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from datetime import datetime, timezone
 
 from .base import Base
@@ -18,8 +18,11 @@ class Announcement(Base):
 
     title: Mapped[str] = mapped_column(String(100), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=True)
-    image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     start_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    end_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     registration_start_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
     )
