@@ -5,7 +5,3 @@ export interface IGameCardProps {
   game: IGameDto;
   actionList?: IMenuAction[];
 }
-
-export interface IGameImgStyledProps {
-  imgUrl?: string;
-}

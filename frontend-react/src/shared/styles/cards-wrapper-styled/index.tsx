@@ -1,8 +1,8 @@
 import { styled } from "@mui/material";
 
-export const GamesWrapperStyled = styled("div")(({ theme }) => ({
+export const CardsWrapperStyled = styled("div")(({ theme }) => ({
   display: "grid",
-  gap: theme.spacing(8),
+  gap: theme.spacing(4),
   position: "relative",
   gridTemplateColumns: "1fr",
 
@@ -10,7 +10,11 @@ export const GamesWrapperStyled = styled("div")(({ theme }) => ({
     gridTemplateColumns: "repeat(2, 1fr)",
   },
 
-  [theme.breakpoints.up("lg")]: {
+  [theme.breakpoints.up("md")]: {
     gridTemplateColumns: "repeat(3, 1fr)",
+  },
+
+  [theme.breakpoints.up("lg")]: {
+    gridTemplateColumns: "repeat(4, 1fr)",
   },
 }));

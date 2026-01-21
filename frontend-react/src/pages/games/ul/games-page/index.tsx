@@ -6,7 +6,6 @@ import { useTheme } from "@mui/material";
 import { GamesService } from "@pages/games/model/games-service";
 import { CreateGameForm } from "@pages/games/ul/create-game-form";
 import { GameCard } from "@pages/games/ul/game-card";
-import { GamesWrapperStyled } from "@pages/games/ul/games-page/styles";
 import { ImageUploadForm } from "@pages/games/ul/image-upload-form";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
@@ -15,6 +14,7 @@ import type {
   IEditGameDto,
   IGameDto,
 } from "@shared/services/api/games-api-service/types";
+import { CardsWrapperStyled } from "@shared/styles/cards-wrapper-styled";
 import type { IMenuAction } from "@shared/ui/actions-menu/types";
 import { Badge } from "@shared/ui/badge";
 import { Box } from "@shared/ui/box";
@@ -149,12 +149,12 @@ export const GamesPage: FC = observer(() => {
   return (
     <Box display="flex" flexDirection="column" gap={8} height="100%">
       <Badge badgeContent={total} color="secondary">
-        <T variant="h3">{t("pageTitles.games")}</T>
+        <T variant="h4">{t("pageTitles.games")}</T>
       </Badge>
       {isInitialLoading && <Spinner type="backdrop" />}
       {total === 0 && <T variant="body1">{t("texts.haveNoData")}</T>}
       {!!list.length && (
-        <GamesWrapperStyled>
+        <CardsWrapperStyled>
           {list.map((game, index) =>
             index === list.length - 1 ? (
               <ElementObserver key={game.id} onVisible={paginate}>
@@ -174,7 +174,7 @@ export const GamesPage: FC = observer(() => {
               />
             )
           )}
-        </GamesWrapperStyled>
+        </CardsWrapperStyled>
       )}
       {isPaginating && <Spinner type="pagination" />}
       <Fab

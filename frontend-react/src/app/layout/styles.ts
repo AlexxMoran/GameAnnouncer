@@ -1,6 +1,6 @@
-import styled from "@emotion/styled";
+import { styled } from "@mui/material";
 
-export const HeaderStyled = styled.header`
+export const HeaderStyled = styled("header")`
   display: flex;
   align-items: center;
   justify-content: space-between;

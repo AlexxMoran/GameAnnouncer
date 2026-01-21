@@ -3,10 +3,7 @@ import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { useTheme } from "@mui/material";
 import { AnnouncementsService } from "@pages/announcements/model/announcements-service";
 import { AnnouncementCard } from "@pages/announcements/ui/announcement-card";
-import {
-  AnnouncementsWrapperStyled,
-  MainPageImgStyled,
-} from "@pages/announcements/ui/announcements-page/styles";
+import { MainPageImgStyled } from "@pages/announcements/ui/announcements-page/styles";
 import { CreateAnnouncementForm } from "@pages/announcements/ui/create-announcement-form";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
@@ -14,6 +11,7 @@ import type {
   IAnnouncementDto,
   ICreateAnnouncementDto,
 } from "@shared/services/api/announcements-api-service/types";
+import { CardsWrapperStyled } from "@shared/styles/cards-wrapper-styled";
 import type { IMenuAction } from "@shared/ui/actions-menu/types";
 import { Badge } from "@shared/ui/badge";
 import { Box } from "@shared/ui/box";
@@ -99,7 +97,7 @@ export const AnnouncementsPage: FC = observer(() => {
     <Box display="flex" flexDirection="column" gap={8} height="100%">
       <MainPageImgStyled>
         <T
-          variant="h4"
+          variant="h5"
           sx={{
             position: "absolute",
             top: (theme) => theme.spacing(5),
@@ -111,12 +109,12 @@ export const AnnouncementsPage: FC = observer(() => {
         </T>
       </MainPageImgStyled>
       <Badge nonce="" badgeContent={total} color="secondary">
-        <T variant="h3">{t("pageTitles.announcements")}</T>
+        <T variant="h4">{t("pageTitles.announcements")}</T>
       </Badge>
       {isInitialLoading && <Spinner type="backdrop" />}
       {total === 0 && <T variant="body1">{t("texts.haveNoData")}</T>}
       {!!list.length && (
-        <AnnouncementsWrapperStyled>
+        <CardsWrapperStyled>
           {list.map((announcement, index) =>
             index === list.length - 1 ? (
               <ElementObserver key={announcement.id} onVisible={paginate}>
@@ -136,7 +134,7 @@ export const AnnouncementsPage: FC = observer(() => {
               />
             )
           )}
-        </AnnouncementsWrapperStyled>
+        </CardsWrapperStyled>
       )}
       {isPaginating && <Spinner type="pagination" />}
       <Fab
