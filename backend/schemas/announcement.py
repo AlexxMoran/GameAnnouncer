@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 from datetime import datetime
 from schemas.base import BaseSchemaWithPermissions
 from enum import Enum
@@ -65,6 +65,8 @@ class AnnouncementStatusUpdate(BaseModel):
 
 
 class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
     updated_at: datetime
@@ -78,3 +80,9 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
         ..., description="The ID of the user who organized the announcement"
     )
     status: str = Field(..., description="The current status of the announcement")
+    participants: list = Field(default_factory=list, exclude=True)
+
+    @computed_field
+    @property
+    def participants_count(self) -> int:
+        return len(self.participants)
