@@ -9,7 +9,6 @@ import { EntityImgStyled } from "@shared/styles/entity-img-styled";
 import { WithLineClampStyled } from "@shared/styles/with-line-clamp-styled";
 import { ActionsMenu } from "@shared/ui/actions-menu";
 import { Box } from "@shared/ui/box";
-import { Button } from "@shared/ui/button";
 import { IconButton } from "@shared/ui/icon-button";
 import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -48,7 +47,7 @@ export const AnnouncementCard = forwardRef<
             alignItems: "center",
           }}
         >
-          <PeopleIcon />
+          <PeopleIcon fontSize="small" />
           {participantsInfo}
         </CardLabelStyled>
         <CardLabelStyled
@@ -73,13 +72,12 @@ export const AnnouncementCard = forwardRef<
         </Box>
       )}
       <Box display="flex" flexDirection="column" gap={2} flex={1} p={3}>
-        <WithLineClampStyled lineClamp={1} variant="subtitle2">
-          {title}
-        </WithLineClampStyled>
+        <WithLineClampStyled variant="subtitle2">{title}</WithLineClampStyled>
         {content && (
-          <WithLineClampStyled variant="caption">{content}</WithLineClampStyled>
+          <WithLineClampStyled lineClamp={4} variant="caption">
+            {content}
+          </WithLineClampStyled>
         )}
-        <Button sx={{ mt: "auto" }}>{t("actions.viewAnnouncement")}</Button>
       </Box>
     </EntityCardStyled>
   );
