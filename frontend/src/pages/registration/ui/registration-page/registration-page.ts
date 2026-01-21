@@ -7,6 +7,7 @@ import { RegistrationConfirmation } from '@pages/registration/ui/registration-co
 import { AuthApiService } from '@shared/api/auth/auth-api.service';
 import { DialogService } from '@shared/lib/dialog/dialog.service';
 import { StyleFactory } from '@shared/lib/styles/style-factory.service';
+import { EAppRoutes } from '@shared/routes/routes.constants';
 import { Form } from '@shared/ui/form/form';
 import { tap } from 'rxjs';
 
@@ -34,6 +35,10 @@ export class RegistrationPage {
       shadow: 'shadow-xl',
       classes: 'gap-3 w-150 h-100 items-center justify-center mb-12',
     });
+  }
+
+  get loginRoute() {
+    return EAppRoutes.Login;
   }
 
   register(values: IAuthFormValues) {

@@ -1,31 +1,37 @@
 import { Routes } from '@angular/router';
+import { AnnouncementsPage } from '@pages/announcements/ui/announcements-page/announcements-page';
 import { EmailVerificationPage } from '@pages/email-verification/ui/email-verification-page/email-verification-page';
 import { GamesPage } from '@pages/games/ui/games-page/games-page';
 import { LoginPage } from '@pages/login/ui/login-page/login-page';
 import { RegistrationPage } from '@pages/registration/ui/registration-page/registration-page';
+import { EAppRoutes } from '@shared/routes/routes.constants';
 import { NotFoundPage } from 'src/pages/not-found-page/not-found-page';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: 'games',
+    redirectTo: EAppRoutes.Announcements,
     pathMatch: 'full',
   },
   {
-    path: 'login',
+    path: EAppRoutes.Login,
     component: LoginPage,
   },
   {
-    path: 'registration',
+    path: EAppRoutes.Registration,
     component: RegistrationPage,
   },
   {
-    path: 'games',
-    component: GamesPage,
+    path: EAppRoutes.VerifyEmail,
+    component: EmailVerificationPage,
   },
   {
-    path: 'verify-email',
-    component: EmailVerificationPage,
+    path: EAppRoutes.Announcements,
+    component: AnnouncementsPage,
+  },
+  {
+    path: EAppRoutes.Games,
+    component: GamesPage,
   },
   { path: '**', component: NotFoundPage },
 ];

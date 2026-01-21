@@ -11,12 +11,12 @@ export interface IPaginationMeta {
   total: number;
 }
 
-export type TLoadDataFn<TEntity extends TObjectAny> = (
-  params?: TObjectAny & IPaginationParams,
+export type TLoadDataFn<TEntity extends TObjectAny, TFilters extends TObjectAny> = (
+  params?: TFilters & IPaginationParams,
 ) => Observable<TApiResponseWrapper<TEntity[]> & IPaginationMeta>;
 
-export interface IPaginationConfig<TEntity extends TObjectAny> {
-  loadDataFn: TLoadDataFn<TEntity>;
+export interface IPaginationConfig<TEntity extends TObjectAny, TFilters extends TObjectAny> {
+  loadDataFn: TLoadDataFn<TEntity, TFilters>;
   limit?: number;
 }
 

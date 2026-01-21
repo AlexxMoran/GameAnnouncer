@@ -6,6 +6,7 @@ import { ThemeToggle } from '@features/layout/ui/theme-toggle/theme-toggle';
 import { UserInfo } from '@features/layout/ui/user-info/user-info';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '@shared/lib/auth/auth.service';
+import { EAppRoutes } from '@shared/routes/routes.constants';
 
 @Component({
   selector: 'app-layout',
@@ -26,6 +27,14 @@ export class Layout {
 
   get isAuthenticated() {
     return this.authService.isAuthenticated();
+  }
+
+  get routes() {
+    return {
+      login: EAppRoutes.Login,
+      games: EAppRoutes.Games,
+      announcements: EAppRoutes.Announcements,
+    };
   }
 
   get me() {

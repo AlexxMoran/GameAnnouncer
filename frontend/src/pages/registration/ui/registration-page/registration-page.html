@@ -9,7 +9,7 @@
   ></app-form>
   <p class="mat-subtitle-1">
     {{ 'texts.haveAccount' | translate }}
-    <a routerLink="/login" class="text-[var(--mat-sys-primary)] cursor-pointer">
+    <a [routerLink]="loginRoute" class="text-[var(--mat-sys-primary)] cursor-pointer">
       {{ 'actions.login' | translate }}</a
     >
   </p>

@@ -69,6 +69,7 @@
     "select": "select"
   },
   "pageTitles": {
-    "games": "Games"
+    "games": "Games",
+    "announcements": "Announcement"
   }
 }

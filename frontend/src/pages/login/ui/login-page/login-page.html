@@ -9,7 +9,7 @@
   ></app-form>
   <p class="mat-subtitle-1">
     {{ 'texts.haveNoAccount' | translate }}
-    <a routerLink="/registration" class="text-[var(--mat-sys-primary)] cursor-pointer">{{
+    <a [routerLink]="registrationRoute" class="text-[var(--mat-sys-primary)] cursor-pointer">{{
       'actions.register' | translate
     }}</a>
   </p>

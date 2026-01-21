@@ -5,6 +5,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ILoginDto } from '@shared/api/auth/auth-api-service.types';
 import { AuthService } from '@shared/lib/auth/auth.service';
 import { StyleFactory } from '@shared/lib/styles/style-factory.service';
+import { EAppRoutes } from '@shared/routes/routes.constants';
 import { Form } from '@shared/ui/form/form';
 
 @Component({
@@ -26,6 +27,10 @@ export class LoginPage {
 
   get authFormInputs() {
     return AUTH_FORM_INPUTS;
+  }
+
+  get registrationRoute() {
+    return EAppRoutes.Registration;
   }
 
   get cardClasses() {

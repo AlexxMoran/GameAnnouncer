@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 import { TranslatePipe } from '@ngx-translate/core';
 import { IGame } from '@pages/games/model/game.types';
 import { environment } from '@shared/config/environments/environment';
@@ -16,8 +16,9 @@ import { IIconMenuOption } from '@shared/ui/menu/menu.types';
   host: { '[class]': 'cardClasses' },
 })
 export class GameCard {
-  game = input<TMaybe<IGame>>(null);
-  gameActionList = input<IIconMenuOption[]>([]);
+  readonly game = input<TMaybe<IGame>>(null);
+  readonly gameActionList = input<IIconMenuOption[]>([]);
+  readonly buttonClicked = output();
 
   get getBackgroundImageProperty() {
     const url = this.game()?.image_url;
@@ -28,4 +29,8 @@ export class GameCard {
   get cardClasses() {
     return StyleFactory.card({ bg: 'container-low', shadow: 'shadow-xl', classes: 'h-95 p-1' });
   }
+
+  redirectToAnnouncement = () => {
+    this.buttonClicked.emit();
+  };
 }

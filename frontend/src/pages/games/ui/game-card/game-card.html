@@ -34,8 +34,8 @@
   <app-button
     class="mt-auto"
     appearance="filled"
-    [disabled]="!game()?.announcements_count"
     [fullWidth]="true"
+    (click)="redirectToAnnouncement()"
   >
     {{ 'texts.allTournaments' | translate }}
   </app-button>
