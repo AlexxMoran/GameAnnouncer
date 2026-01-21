@@ -6,6 +6,7 @@ from models.announcement import Announcement
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
+from models.game import Game
 from schemas.announcement import (
     AnnouncementCreate,
     AnnouncementUpdate,
@@ -89,6 +90,10 @@ class AnnouncementCRUD:
         now = datetime.now(timezone.utc)
 
         announcement = Announcement(**announcement_in.model_dump())
+
+        game = await session.get(Game, announcement_in.game_id)
+        if game and game.image_url:
+            announcement.image_url = game.image_url
 
         if announcement.registration_start_at <= now:
             announcement.status = AnnouncementStatus.REGISTRATION_OPEN
