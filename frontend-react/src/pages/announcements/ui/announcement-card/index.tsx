@@ -2,19 +2,15 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import PeopleIcon from "@mui/icons-material/People";
 import { useTheme } from "@mui/material";
 import { createAnnouncementStatusColor } from "@pages/announcements/ui/announcement-card/createAnnouncementStatusColor";
-import {
-  AnnouncementCardWrapperStyled,
-  AnnouncementDescriptionStyled,
-  AnnouncementImgStyled,
-  AnnouncementStatusStyled,
-  ParticipantsCountStyled,
-} from "@pages/announcements/ui/announcement-card/styles";
 import type { IAnnouncementCardProps } from "@pages/announcements/ui/announcement-card/types";
+import { CardLabelStyled } from "@shared/styles/card-label-styled";
+import { EntityCardStyled } from "@shared/styles/entity-card-styled";
+import { EntityImgStyled } from "@shared/styles/entity-img-styled";
+import { WithLineClampStyled } from "@shared/styles/with-line-clamp-styled";
 import { ActionsMenu } from "@shared/ui/actions-menu";
 import { Box } from "@shared/ui/box";
 import { Button } from "@shared/ui/button";
 import { IconButton } from "@shared/ui/icon-button";
-import { T } from "@shared/ui/typography";
 import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -40,16 +36,31 @@ export const AnnouncementCard = forwardRef<
   const statusColor = createAnnouncementStatusColor(theme, status);
 
   return (
-    <AnnouncementCardWrapperStyled ref={ref}>
-      <AnnouncementImgStyled imgUrl={image_url}>
-        <ParticipantsCountStyled>
+    <EntityCardStyled ref={ref}>
+      <EntityImgStyled imgUrl={image_url}>
+        <CardLabelStyled
+          sx={{
+            backgroundColor: (theme) => theme.palette.secondary.main,
+            bottom: (theme) => theme.spacing(2),
+            left: (theme) => theme.spacing(2),
+            gap: (theme) => theme.spacing(2),
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <PeopleIcon />
           {participantsInfo}
-        </ParticipantsCountStyled>
-        <AnnouncementStatusStyled sx={{ backgroundColor: statusColor }}>
+        </CardLabelStyled>
+        <CardLabelStyled
+          sx={{
+            backgroundColor: statusColor,
+            top: (theme) => theme.spacing(2),
+            left: (theme) => theme.spacing(2),
+          }}
+        >
           {t(`enums.announcementStatuses.${status}`)}
-        </AnnouncementStatusStyled>
-      </AnnouncementImgStyled>
+        </CardLabelStyled>
+      </EntityImgStyled>
       {actionList?.length && (
         <Box position="absolute" top={8} right={8}>
           <ActionsMenu actionList={actionList}>
@@ -62,14 +73,14 @@ export const AnnouncementCard = forwardRef<
         </Box>
       )}
       <Box display="flex" flexDirection="column" gap={2} flex={1} p={3}>
-        <T variant="h6">{title}</T>
+        <WithLineClampStyled lineClamp={1} variant="subtitle2">
+          {title}
+        </WithLineClampStyled>
         {content && (
-          <AnnouncementDescriptionStyled variant="body1">
-            {content}
-          </AnnouncementDescriptionStyled>
+          <WithLineClampStyled variant="caption">{content}</WithLineClampStyled>
         )}
         <Button sx={{ mt: "auto" }}>{t("actions.viewAnnouncement")}</Button>
       </Box>
-    </AnnouncementCardWrapperStyled>
+    </EntityCardStyled>
   );
 });

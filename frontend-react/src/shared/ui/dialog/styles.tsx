@@ -1,6 +1,5 @@
 import { css } from "@emotion/react";
-import styled from "@emotion/styled";
-import { Dialog, DialogTitle } from "@mui/material";
+import { Dialog, DialogTitle, styled } from "@mui/material";
 import type { ITStylesProps } from "@shared/ui/dialog/types";
 
 export const DialogTitleStyled = styled(DialogTitle)<ITStylesProps>`
