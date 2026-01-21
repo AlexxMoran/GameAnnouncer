@@ -72,7 +72,6 @@ class AnnouncementCRUD:
             .options(
                 selectinload(Announcement.organizer),
                 selectinload(Announcement.game),
-                selectinload(Announcement.participants),
             )
             .where(Announcement.id == announcement_id)
         )

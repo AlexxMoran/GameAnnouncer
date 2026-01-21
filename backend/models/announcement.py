@@ -55,6 +55,7 @@ class Announcement(Base):
         secondary="announcement_participants",
         back_populates="participated_announcements",
         passive_deletes=True,
+        lazy="selectin",
     )
 
     registration_requests: Mapped[list["RegistrationRequest"]] = relationship(
