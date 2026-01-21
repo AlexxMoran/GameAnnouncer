@@ -4,8 +4,8 @@ import { styled } from "@mui/material";
 import type { IEntityImgStyledProps } from "@shared/styles/entity-img-styled/types";
 
 export const EntityImgStyled = styled("div")<IEntityImgStyledProps>`
+  flex: 1;
   width: 100%;
-  height: 140px;
   border-radius: ${({ theme }) => +theme.shape.borderRadius * 6}px;
   position: relative;
 

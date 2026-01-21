@@ -6,7 +6,6 @@ import { EntityImgStyled } from "@shared/styles/entity-img-styled";
 import { WithLineClampStyled } from "@shared/styles/with-line-clamp-styled";
 import { ActionsMenu } from "@shared/ui/actions-menu";
 import { Box } from "@shared/ui/box";
-import { Button } from "@shared/ui/button";
 import { IconButton } from "@shared/ui/icon-button";
 import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -43,15 +42,12 @@ export const GameCard = forwardRef<HTMLDivElement, IGameCardProps>(
           </Box>
         )}
         <Box display="flex" flexDirection="column" gap={2} flex={1} p={3}>
-          <WithLineClampStyled lineClamp={1} variant="subtitle2">
-            {name}
-          </WithLineClampStyled>
+          <WithLineClampStyled variant="subtitle2">{name}</WithLineClampStyled>
           {description && (
-            <WithLineClampStyled variant="caption">
+            <WithLineClampStyled lineClamp={4} variant="caption">
               {description}
             </WithLineClampStyled>
           )}
-          <Button sx={{ mt: "auto" }}>{t("texts.allTournaments")}</Button>
         </Box>
       </EntityCardStyled>
     );
