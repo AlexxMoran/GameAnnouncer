@@ -4,9 +4,13 @@ import type {
   TEntityId,
 } from "@shared/services/pagination-service/types";
 import type { TMaybe, TObjectAny } from "@shared/types/main.types";
+import type { IPaginationParams } from "@shared/types/pagination.types";
 import { makeAutoObservable, runInAction } from "mobx";
 
-export class PaginationService<TEntity extends TObjectAny & { id: TEntityId }> {
+export class PaginationService<
+  TEntity extends TObjectAny & { id: TEntityId },
+  TParams extends IPaginationParams
+> {
   private listMap = new Map<TEntityId, TEntity>();
 
   limit = DEFAULT_PAGINATION_LIMIT;
@@ -16,7 +20,7 @@ export class PaginationService<TEntity extends TObjectAny & { id: TEntityId }> {
   isInitialLoading = false;
   hasDataToLoad = true;
 
-  constructor(private params: IPaginationServiceParams<TEntity>) {
+  constructor(private params: IPaginationServiceParams<TEntity, TParams>) {
     makeAutoObservable(this);
   }
 
@@ -36,14 +40,18 @@ export class PaginationService<TEntity extends TObjectAny & { id: TEntityId }> {
     this.listMap.set(entity.id, entity);
   };
 
-  paginate = async () => {
-    try {
-      if (this.isPaginating || this.isInitialLoading || !this.hasDataToLoad)
-        return;
+  paginate = async (params?: Partial<TParams>) => {
+    if (this.isPaginating || this.isInitialLoading || !this.hasDataToLoad) {
+      return;
+    }
 
+    try {
       this.isPaginating = true;
 
-      const { data } = await this.params.loadFn(this.paginationParams);
+      const { data } = await this.params.loadFn({
+        ...(this.paginationParams as TParams),
+        ...params,
+      });
 
       if (data) {
         const { total, data: list } = data;
@@ -59,12 +67,17 @@ export class PaginationService<TEntity extends TObjectAny & { id: TEntityId }> {
     }
   };
 
-  init = async () => {
-    try {
-      this.listMap.clear();
-      this.isInitialLoading = true;
+  init = async (params?: Partial<TParams>) => {
+    this.listMap.clear();
+    this.isPaginating = false;
+    this.isInitialLoading = true;
+    this.total = null;
 
-      const { data } = await this.params.loadFn(this.paginationParams);
+    try {
+      const { data } = await this.params.loadFn({
+        ...(this.paginationParams as TParams),
+        ...params,
+      });
 
       if (data) {
         const { total, data: list } = data;

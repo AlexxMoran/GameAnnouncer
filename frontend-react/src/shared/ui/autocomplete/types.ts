@@ -14,5 +14,5 @@ export interface IAutocompleteProps<
   error?: boolean;
   helperText?: string;
   required?: boolean;
-  // loading?: boolean;
+  onLastItemVisible?: () => Promise<void>;
 }

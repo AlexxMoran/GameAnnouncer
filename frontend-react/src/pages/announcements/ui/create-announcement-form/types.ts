@@ -1,5 +1,5 @@
-import type { ICreateAnnouncementsFields } from "@pages/announcements/model/create-validation-schema/types";
+import type { ICreateAnnouncementDto } from "@shared/services/api/announcements-api-service/types";
 
 export interface ICreateAnnouncementFormProps {
-  onSubmit?: (values: ICreateAnnouncementsFields) => Promise<unknown>;
+  onSubmit?: (values: ICreateAnnouncementDto) => Promise<unknown>;
 }

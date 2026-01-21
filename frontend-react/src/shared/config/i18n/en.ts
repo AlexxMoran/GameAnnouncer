@@ -1,14 +1,21 @@
+import { EAnnouncementStatuses } from "@shared/services/api/announcements-api-service/constants";
+
 export const translationEn = {
   lang: {
     ru: "Russian",
     en: "English",
   },
-  entities: {
+  countedEntities: {
     announcement:
       "{count, plural, =0{no tournaments} =1{1 tournament} other{# tournaments}}",
-    games: "{count, plural, =0{no games} =1{game} other{# games}}",
+    game: "{count, plural, =0{no games} =1{game} other{# games}}",
+  },
+  entities: {
+    announcement: "tournament",
+    game: "game",
     email: "email",
     password: "password",
+    registration: "registration",
     name: "name",
     description: "description",
     category: "category",
@@ -24,8 +31,10 @@ export const translationEn = {
     changeLanguage: "Change language",
     addGame: "Add game",
     editGame: "Edit game",
-    addAnnouncement: "Add announcement",
-    editAnnouncement: "Edit announcement",
+    addAnnouncement: "Add tournament",
+    editAnnouncement: "Edit tournament",
+    deleteAnnouncement: "Delete announcement",
+    viewAnnouncement: "View tournament",
     deleteGame: "Delete game",
     add: "Add",
     edit: "Edit",
@@ -61,6 +70,15 @@ export const translationEn = {
     emailVerificationSuccess: "Email verified successfully",
     logoutConfirmation: "Are you sure you want to log out of your account?",
     notFoundPage: "Page does not exist",
+    announcementStartDate: "Tournament start date",
+    registrationStartDate: "Registration start date",
+    registrationEndDate: "Registration end date",
+    invalidDate: "Invalid date",
+    participantsCount: "Number of participants",
+    announcementAddingSuccess: "Tournament successfully added",
+    announcementDeletingSuccess: "Tournament successfully deleted",
+    deletionAnnouncementConfirmation:
+      "Are you sure you want to delete tournament?",
   },
   validationErrors: {
     unknown: "Unexpected error",
@@ -75,7 +93,8 @@ export const translationEn = {
     incorrectFileCount: "Attempt to upload more than one file",
     failConvertFile: "Failed to convert file",
     needToSelectImage: "Need to select an image",
-    minCount: "Minimum quantity: {count}",
+    minCount: "Minimum count: {count}",
+    maxCount: "Maximum count: {count}",
   },
   placeholders: {
     enter: "enter",
@@ -84,5 +103,16 @@ export const translationEn = {
   pageTitles: {
     games: "Games",
     announcements: "Announcement",
+  },
+  enums: {
+    announcementStatuses: {
+      [EAnnouncementStatuses.PreRegistration]: "Pre-registration",
+      [EAnnouncementStatuses.RegistrationOpen]: "Registration open",
+      [EAnnouncementStatuses.RegistrationClosed]: "Registration closed",
+      [EAnnouncementStatuses.Live]: "Live",
+      [EAnnouncementStatuses.Paused]: "Paused",
+      [EAnnouncementStatuses.Finished]: "Finished",
+      [EAnnouncementStatuses.Cancelled]: "Cancelled",
+    },
   },
 };

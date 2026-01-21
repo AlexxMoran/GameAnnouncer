@@ -8,7 +8,6 @@ import { CreateGameForm } from "@pages/games/ul/create-game-form";
 import { GameCard } from "@pages/games/ul/game-card";
 import { GamesWrapperStyled } from "@pages/games/ul/games-page/styles";
 import { ImageUploadForm } from "@pages/games/ul/image-upload-form";
-import { useAbortController } from "@shared/hooks/use-abort-controller";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
 import type {
@@ -24,16 +23,17 @@ import { Fab } from "@shared/ui/fab-button";
 import { Spinner } from "@shared/ui/spinner";
 import { T } from "@shared/ui/typography";
 import { observer } from "mobx-react-lite";
-import { useState, type FC } from "react";
+import { useSnackbar } from "notistack";
+import { useState, type FC, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 
 export const GamesPage: FC = observer(() => {
   const theme = useTheme();
   const { t } = useTranslation();
   const { gamesApiService } = useRootService();
+  const { enqueueSnackbar } = useSnackbar();
   const { openDialog, closeDialog, confirm } = useDialog();
   const [gamesService] = useState(() => new GamesService(gamesApiService));
-  useAbortController();
 
   const {
     paginationService,
@@ -42,6 +42,7 @@ export const GamesPage: FC = observer(() => {
     editGame,
     uploadGameImage,
   } = gamesService;
+
   const { list, paginate, isInitialLoading, isPaginating, total } =
     paginationService;
 
@@ -49,6 +50,7 @@ export const GamesPage: FC = observer(() => {
     const result = await createGame(values);
 
     if (result) {
+      enqueueSnackbar(t("texts.gameAddingSuccess"), { variant: "success" });
       closeDialog();
     }
   };
@@ -57,6 +59,7 @@ export const GamesPage: FC = observer(() => {
     const result = await editGame(id, values);
 
     if (result) {
+      enqueueSnackbar(t("texts.gameEditingSuccess"), { variant: "success" });
       closeDialog();
     }
   };
@@ -75,6 +78,7 @@ export const GamesPage: FC = observer(() => {
       const response = await deleteGame(id);
 
       if (response) {
+        enqueueSnackbar(t("texts.gameDeletingSuccess"), { variant: "success" });
         closeDialog();
       }
     }
@@ -84,6 +88,7 @@ export const GamesPage: FC = observer(() => {
     const result = await uploadGameImage(id, file);
 
     if (result) {
+      enqueueSnackbar(t("texts.gameUploadSuccess"), { variant: "success" });
       closeDialog();
     }
   };
@@ -140,31 +145,37 @@ export const GamesPage: FC = observer(() => {
     },
   ];
 
-  if (isInitialLoading) {
-    return <Spinner type="backdrop" />;
-  }
-
+  // TODO оптимизировать показ лоадера при пагинации
   return (
-    <Box display="flex" flexDirection="column" gap={8}>
+    <Box display="flex" flexDirection="column" gap={8} height="100%">
       <Badge badgeContent={total} color="secondary">
-        <T variant="h4">{t("pageTitles.games")}</T>
+        <T variant="h3">{t("pageTitles.games")}</T>
       </Badge>
+      {isInitialLoading && <Spinner type="backdrop" />}
       {total === 0 && <T variant="body1">{t("texts.haveNoData")}</T>}
-      <GamesWrapperStyled>
-        {list.map((game, index) =>
-          index === list.length - 1 ? (
-            <ElementObserver key={game.id} onVisible={paginate}>
-              <GameCard game={game} actionList={createGameActionList(game)} />
-            </ElementObserver>
-          ) : (
-            <GameCard
-              key={game.id}
-              game={game}
-              actionList={createGameActionList(game)}
-            />
-          )
-        )}
-      </GamesWrapperStyled>
+      {!!list.length && (
+        <GamesWrapperStyled>
+          {list.map((game, index) =>
+            index === list.length - 1 ? (
+              <ElementObserver key={game.id} onVisible={paginate}>
+                {({ ref }) => (
+                  <GameCard
+                    ref={ref as RefObject<HTMLDivElement>}
+                    game={game}
+                    actionList={createGameActionList(game)}
+                  />
+                )}
+              </ElementObserver>
+            ) : (
+              <GameCard
+                key={game.id}
+                game={game}
+                actionList={createGameActionList(game)}
+              />
+            )
+          )}
+        </GamesWrapperStyled>
+      )}
       {isPaginating && <Spinner type="pagination" />}
       <Fab
         onClick={handleOpenCreateDialog}

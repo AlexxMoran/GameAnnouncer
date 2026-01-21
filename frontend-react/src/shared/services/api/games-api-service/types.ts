@@ -22,7 +22,7 @@ export interface ICreateGameDto {
 export interface IEditGameDto extends Partial<ICreateGameDto> {}
 
 export interface IGameListFilters {
-  category: EGameCategories;
+  name?: string;
 }
 
 export interface IGetGameListDto

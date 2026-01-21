@@ -1,26 +1,30 @@
+import type { EAnnouncementStatuses } from "@shared/services/api/announcements-api-service/constants";
 import type {
   IEntityDateFields,
   IEntityIdField,
 } from "@shared/types/commonEntity.types";
+import type { TMaybe } from "@shared/types/main.types";
 import type { IPaginationParams } from "@shared/types/pagination.types";
 
 export interface IAnnouncementDto extends IEntityDateFields, IEntityIdField {
   title: string;
-  content: string;
+  content: TMaybe<string>;
   game_id: number;
   image_url: string;
   organizer_id: number;
-  status: string;
+  status: EAnnouncementStatuses;
   start_at: string;
+  end_at: string;
   registration_start_at: string;
   registration_end_at: string;
   max_participants: number;
+  participants_count: number;
 }
 
 export interface ICreateAnnouncementDto {
-  game_id: string;
+  game_id: number;
   title: string;
-  content: string;
+  content?: string;
   start_at: string;
   registration_start_at: string;
   registration_end_at: string;

@@ -8,7 +8,7 @@ export const createAlertErrorInterceptor = (
     const { status, config, response } = error;
     const { suppressErrorHandling } = config as IApiConfig;
 
-    if (suppressErrorHandling) {
+    if (suppressErrorHandling || error.code === "ERR_CANCELED") {
       return Promise.reject(response);
     }
 

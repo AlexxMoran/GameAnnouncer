@@ -1,16 +1,17 @@
-import type { GamesApiService } from '@shared/services/api/games-api-service';
+import type { GamesApiService } from "@shared/services/api/games-api-service";
 import type {
   ICreateGameDto,
   IEditGameDto,
   IGameDto,
-} from '@shared/services/api/games-api-service/types';
-import { PaginationService } from '@shared/services/pagination-service';
+  IGetGameListDto,
+} from "@shared/services/api/games-api-service/types";
+import { PaginationService } from "@shared/services/pagination-service";
 
 export class GamesService {
-  paginationService: PaginationService<IGameDto>;
+  paginationService: PaginationService<IGameDto, IGetGameListDto>;
 
   constructor(private gamesApiService: GamesApiService) {
-    const paginationService = new PaginationService<IGameDto>({
+    const paginationService = new PaginationService({
       loadFn: this.gamesApiService.getGameList,
     });
 

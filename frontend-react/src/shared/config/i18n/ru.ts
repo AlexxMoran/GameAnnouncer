@@ -1,12 +1,18 @@
+import { EAnnouncementStatuses } from "@shared/services/api/announcements-api-service/constants";
+
 export const translationRu = {
   lang: {
     ru: "Русский",
     en: "Английский",
   },
-  entities: {
+  countedEntities: {
     announcement:
       "{count, plural, =0{нет турниров} =1{1 турнир} few{# турнира} many{# турниров} other{# турнира}}",
     game: "{count, plural, =0{нет игр} =1{1 игра} few{# игр} many{# игр} other{# игр}}",
+  },
+  entities: {
+    announcement: "турнир",
+    game: "игра",
     email: "электронная почта",
     password: "пароль",
     registration: "регистрация",
@@ -27,6 +33,8 @@ export const translationRu = {
     editGame: "Редактировать игру",
     addAnnouncement: "Добавить турнир",
     editAnnouncement: "Редактировать турнир",
+    deleteAnnouncement: "Удалить турнир",
+    viewAnnouncement: "Просмотреть турнир",
     deleteGame: "Удалить игру",
     add: "Добавить",
     edit: "Редактировать",
@@ -45,7 +53,7 @@ export const translationRu = {
     successLogin: "Вы успешно вошли в аккаунт",
     noOptions: "Нет опций",
     gameAddingSuccess: "Игра успешно добавлена",
-    gameEditingSuccess: "Игра успешно обновлена",
+    gameEditingSuccess: "Игра успешно отредактирована",
     gameDeletingSuccess: "Игра успешно удалена",
     deletionGameConfirmation: "Вы уверены, что хотите удалить игру?",
     requestSendingSuccess: "Запрос успешно отправлен",
@@ -62,6 +70,13 @@ export const translationRu = {
     emailVerificationSuccess: "Почта успешно верифицирована",
     logoutConfirmation: "Вы уверены, что хотите выйти из аккаунта?",
     notFoundPage: "Страница не существует",
+    announcementStartDate: "Дата начала турнира",
+    registrationStartDate: "Дата начала регистрации",
+    registrationEndDate: "Дата окончания регистрации",
+    participantsCount: "Количество участников",
+    announcementAddingSuccess: "Турнир успешно добавлен",
+    announcementDeletingSuccess: "Турнир успешно удален",
+    deletionAnnouncementConfirmation: "Вы уверены, что хотите удалить турнир?",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",
@@ -77,6 +92,8 @@ export const translationRu = {
     failConvertFile: "Не удалось преобразовать файл",
     needToSelectImage: "Необходимо выбрать изображение",
     minCount: "Минимальное количество: {count}",
+    maxCount: "Максимальное количество: {count}",
+    invalidDate: "Некорректная дата",
   },
   placeholders: {
     enter: "введите",
@@ -85,5 +102,16 @@ export const translationRu = {
   pageTitles: {
     games: "Игры",
     announcements: "Турниры",
+  },
+  enums: {
+    announcementStatuses: {
+      [EAnnouncementStatuses.PreRegistration]: "Ожидает регистрации",
+      [EAnnouncementStatuses.RegistrationOpen]: "Регистрация открыта",
+      [EAnnouncementStatuses.RegistrationClosed]: "Регистрация закрыта",
+      [EAnnouncementStatuses.Live]: "В прямом эфире",
+      [EAnnouncementStatuses.Paused]: "Приостановлен",
+      [EAnnouncementStatuses.Finished]: "Завершен",
+      [EAnnouncementStatuses.Cancelled]: "Отменен",
+    },
   },
 };

@@ -1,6 +1,5 @@
 import { Layout } from "@app/layout";
 import { Pages } from "@app/routes";
-import "@app/styles/fonts.scss";
 import CloseIcon from "@mui/icons-material/Close";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -19,6 +18,9 @@ import { useState, type FC } from "react";
 import { I18nextProvider } from "react-i18next";
 import { useNavigate } from "react-router";
 import { useAsync } from "react-use";
+
+import "@app/styles/fonts.scss";
+import "@app/styles/scrollbar.scss";
 
 // TODO убрать цвет #fff
 const action = (snackbarId: string | number) => (
@@ -48,6 +50,8 @@ export const App: FC = () => {
     }
   });
 
+  // TODO добавить ErrorBoundary
+  // TODO вынести в общие стили элементы карточек и стили их позиционаирования
   return (
     <SnackbarProvider
       autoHideDuration={2000}

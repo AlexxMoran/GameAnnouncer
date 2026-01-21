@@ -1,15 +1,18 @@
 import type { IElementObserverProps } from "@shared/ui/element-observer/types";
 import type { FC, RefObject } from "react";
-import { useEffect, useRef } from "react";
+import { createElement, useEffect, useRef } from "react";
 import { useIntersection } from "react-use";
 
 export const ElementObserver: FC<IElementObserverProps> = (props) => {
-  const { onVisible, children } = props;
+  const { onVisible } = props;
 
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
+
+  // eslint-disable-next-line react-hooks/refs
+  const children = createElement(props.children, { ref: ref });
 
   const { isIntersecting } =
-    useIntersection(ref as RefObject<HTMLDivElement>, {
+    useIntersection(ref as RefObject<HTMLElement>, {
       rootMargin: "0px",
       threshold: 0.5,
     }) || {};
@@ -18,5 +21,5 @@ export const ElementObserver: FC<IElementObserverProps> = (props) => {
     if (isIntersecting) onVisible?.();
   }, [isIntersecting, onVisible]);
 
-  return <div ref={ref}>{children}</div>;
+  return children;
 };

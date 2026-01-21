@@ -1,6 +1,7 @@
+import { createValidationSchema } from "@pages/announcements/model/create-validation-schema";
+import type { ICreateAnnouncementsFields } from "@pages/announcements/model/create-validation-schema/types";
 import { CreateAnnouncementFields } from "@pages/announcements/ui/create-announcement-fields";
 import type { ICreateAnnouncementFormProps } from "@pages/announcements/ui/create-announcement-form/types";
-import { createValidationSchema } from "@pages/games/model/create-validation-schema";
 import { Form } from "@shared/ui/form";
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,7 +16,7 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (
   const initialValues = {
     title: "",
     content: "",
-    game_id: "",
+    game: null,
     start_at: "",
     registration_start_at: "",
     registration_end_at: "",
@@ -24,9 +25,18 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (
 
   const validationSchema = createValidationSchema(t);
 
+  const handleSubmit = async ({
+    game,
+    ...rest
+  }: ICreateAnnouncementsFields) => {
+    if (game) {
+      await onSubmit?.({ ...rest, game_id: game.id });
+    }
+  };
+
   return (
     <Form
-      onSubmit={(values) => onSubmit?.(values)}
+      onSubmit={handleSubmit}
       formikConfig={{ initialValues, validationSchema }}
       fields={CreateAnnouncementFields}
       buttonText={t("actions.add")}

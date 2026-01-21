@@ -6,9 +6,12 @@ import type {
 } from "@shared/types/pagination.types";
 import type { AxiosResponse } from "axios";
 
-export interface IPaginationServiceParams<TEntity extends TObjectAny> {
+export interface IPaginationServiceParams<
+  TEntity extends TObjectAny & { id: TEntityId },
+  TParams extends IPaginationParams
+> {
   loadFn: (
-    params: IPaginationParams
+    params: TParams
   ) => Promise<AxiosResponse<TApiResponseWrapper<TEntity[]> & IPaginationMeta>>;
 }
 

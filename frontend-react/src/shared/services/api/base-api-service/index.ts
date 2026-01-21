@@ -1,49 +1,62 @@
+import { createAddTokenInterceptor } from "@shared/services/api/base-api-service/createAddTokenInterceptor";
+import { createAlertErrorInterceptor } from "@shared/services/api/base-api-service/createAlertInterceptor";
+import { createRefreshTokenInterceptor } from "@shared/services/api/base-api-service/createRefreshTokenInterceptor";
 import type { IApiConfig } from "@shared/services/api/base-api-service/types";
+import type { AuthService } from "@shared/services/auth-service";
+import type { IRootServiceData } from "@shared/services/root-service/types";
 import type { TObjectAny } from "@shared/types/main.types";
 import axios from "axios";
 
 // TODO добавить сериализацию параметров
+// TODO добавить abort для запросов при unmount компонента
 
 export class BaseApiService {
-  axiosInstance = axios.create({ baseURL: "/api" });
+  private axiosInstance = axios.create({ baseURL: "/api" });
   private abortControllers = new Map<string, AbortController>();
-
-  private createRequestKey(url: string, method: string) {
-    return `${method}:${url}`;
-  }
 
   private async makeRequest<T>(
     requestFn: (signal: AbortSignal) => Promise<T>,
     url: string,
     method: string
   ): Promise<T> {
-    const key = this.createRequestKey(url, method);
+    const key = `${method}:${url}`;
+    const alreadyExistedController = this.abortControllers.get(key);
+    const newController = new AbortController();
 
-    this.cancelRequest(url, method);
+    if (alreadyExistedController) {
+      alreadyExistedController.abort();
+      this.abortControllers.delete(key);
+    }
 
-    const controller = new AbortController();
-    this.abortControllers.set(key, controller);
+    this.abortControllers.set(key, newController);
 
     try {
-      return await requestFn(controller.signal);
+      return await requestFn(newController.signal);
     } finally {
       this.abortControllers.delete(key);
     }
   }
 
-  private cancelRequest(url: string, method: string): void {
-    const key = this.createRequestKey(url, method);
-    const controller = this.abortControllers.get(key);
+  createInterceptors = (data: IRootServiceData, authService: AuthService) => {
+    const { alertError, redirectToLoginPage } = data;
 
-    if (controller) {
-      controller.abort();
-      this.abortControllers.delete(key);
-    }
-  }
+    this.axiosInstance.interceptors.response.use(
+      null,
+      createRefreshTokenInterceptor(
+        this.axiosInstance,
+        authService.refreshToken,
+        redirectToLoginPage
+      )
+    );
 
-  cancelAllRequests = () => {
-    this.abortControllers.forEach((controller) => controller.abort());
-    this.abortControllers.clear();
+    this.axiosInstance.interceptors.response.use(
+      null,
+      createAlertErrorInterceptor(alertError)
+    );
+
+    this.axiosInstance.interceptors.request.use(
+      createAddTokenInterceptor(authService)
+    );
   };
 
   get<TResponse, TMeta = unknown>(url: string, config?: IApiConfig) {
