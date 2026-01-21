@@ -49,6 +49,25 @@ async def test_get_announcement_and_permissions(async_client, announcement_facto
 
 
 @pytest.mark.asyncio
+async def test_get_announcement_includes_participants_count(
+    async_client, announcement_factory
+):
+    participants = [{"id": 1}, {"id": 2}, {"id": 3}]
+    a = announcement_factory.build(participants=participants)
+    ann_obj = SimpleNamespace(**a)
+
+    with patch(
+        "api.v1.announcements.announcement_crud.get_by_id",
+        new=AsyncMock(return_value=ann_obj),
+    ), patch("api.v1.announcements.get_permissions", return_value={}):
+        r = await async_client.get(f"/api/v1/announcements/{a['id']}")
+        assert r.status_code == 200
+        data = r.json()["data"]
+        assert data["participants_count"] == 3
+        assert "participants" not in data
+
+
+@pytest.mark.asyncio
 async def test_get_announcement_participants(async_client, announcement_factory):
     a = announcement_factory.build()
 
