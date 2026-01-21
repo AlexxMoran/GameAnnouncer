@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import datetime
 
@@ -18,10 +18,15 @@ class RegistrationRequestUpdate(BaseModel):
 
 
 class RegistrationRequestResponse(RegistrationRequestBase):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     user_id: int = Field(
         ..., description="The ID of the user who made the registration request"
     )
     status: str = Field(..., description="The status of the registration request")
+    cancellation_reason: str | None = Field(
+        None, description="Reason for cancellation/decline of the registration request"
+    )
     created_at: datetime
     updated_at: datetime

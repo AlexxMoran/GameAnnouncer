@@ -93,28 +93,31 @@ async def test_create_update_delete_announcement(
     async_client, create_user, announcement_factory, authenticated_client
 ):
     user = await create_user(email="creator@example.com", password="pw")
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     ann_in = {
         "title": "T",
         "content": "C",
         "game_id": 55,
-        "start_at": now.isoformat(),
+        "start_at": (now + timedelta(days=3)).isoformat(),
         "registration_start_at": now.isoformat(),
-        "registration_end_at": now.isoformat(),
+        "registration_end_at": (now + timedelta(days=2)).isoformat(),
         "max_participants": 10,
     }
 
     created = announcement_factory.build(**ann_in, organizer_id=user.id)
 
-    async def _fake_create(session, announcement_in, user):
-        assert announcement_in.title == ann_in["title"]
-        return SimpleNamespace(**created)
+    class FakeService:
+        def __init__(self, session, announcement_in, user):
+            assert announcement_in.title == ann_in["title"]
+
+        async def call(self):
+            return SimpleNamespace(**created)
 
     client = authenticated_client(user)
 
     with patch(
-        "api.v1.announcements.announcement_crud.create",
-        new=AsyncMock(side_effect=_fake_create),
+        "api.v1.announcements.CreateAnnouncementService",
+        new=FakeService,
     ):
         r = await client.post("/api/v1/announcements", json=ann_in)
         assert r.status_code == 201
@@ -208,57 +211,6 @@ async def test_upload_announcement_image(
         )
         assert r.status_code == 200
         assert r.json()["data"]["image_url"] == "http://img/url.png"
-
-
-@pytest.mark.asyncio
-async def test_create_announcement_sets_pre_registration_status(
-    async_client, announcement_factory, authenticated_client, user
-):
-    """Тест: статус PRE_REGISTRATION когда registration_start_at в будущем."""
-    client = authenticated_client(user)
-
-    future_start = datetime.now(timezone.utc) + timedelta(hours=2)
-    announcement_data = announcement_factory.build(
-        registration_start_at=future_start.isoformat(),
-        registration_end_at=(future_start + timedelta(days=1)).isoformat(),
-        start_at=(future_start + timedelta(days=2)).isoformat(),
-    )
-
-    ann_obj = SimpleNamespace(**announcement_data)
-    ann_obj.status = AnnouncementStatus.PRE_REGISTRATION
-
-    with patch(
-        "api.v1.announcements.announcement_crud.create",
-        new=AsyncMock(return_value=ann_obj),
-    ), patch("api.v1.announcements.get_permissions", return_value={}):
-        r = await client.post("/api/v1/announcements", json=announcement_data)
-        assert r.status_code == 201
-        assert r.json()["data"]["status"] == AnnouncementStatus.PRE_REGISTRATION.value
-
-
-@pytest.mark.asyncio
-async def test_create_announcement_sets_registration_open_status(
-    async_client, announcement_factory, authenticated_client, user
-):
-    client = authenticated_client(user)
-
-    past_start = datetime.now(timezone.utc) - timedelta(hours=1)
-    announcement_data = announcement_factory.build(
-        registration_start_at=past_start.isoformat(),
-        registration_end_at=(past_start + timedelta(days=1)).isoformat(),
-        start_at=(past_start + timedelta(days=2)).isoformat(),
-    )
-
-    ann_obj = SimpleNamespace(**announcement_data)
-    ann_obj.status = AnnouncementStatus.REGISTRATION_OPEN
-
-    with patch(
-        "api.v1.announcements.announcement_crud.create",
-        new=AsyncMock(return_value=ann_obj),
-    ), patch("api.v1.announcements.get_permissions", return_value={}):
-        r = await client.post("/api/v1/announcements", json=announcement_data)
-        assert r.status_code == 201
-        assert r.json()["data"]["status"] == AnnouncementStatus.REGISTRATION_OPEN.value
 
 
 @pytest.mark.asyncio

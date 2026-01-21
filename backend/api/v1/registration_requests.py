@@ -90,6 +90,7 @@ async def create(
 async def update_registration_request_status(
     action: RegistrationAction,
     session: SessionDep,
+    cancellation_reason: str | None = None,
     registration_request: RegistrationRequest = Depends(
         get_registration_request_dependency
     ),
@@ -101,7 +102,7 @@ async def update_registration_request_status(
         )
     elif action == RegistrationAction.REJECT:
         result = await registration_request_crud.reject(
-            session, registration_request, current_user
+            session, registration_request, current_user, cancellation_reason
         )
     elif action == RegistrationAction.CANCEL:
         result = await registration_request_crud.cancel(
