@@ -18,6 +18,10 @@ export class AuthService {
     return this.me && this.accessToken;
   }
 
+  setMe = (me: IUserDto) => {
+    this.me = me;
+  };
+
   login = async (params: ILoginDto) => {
     const { data } = await this.authApiService.login(params);
     runInAction(() => (this.accessToken = data.access_token));
@@ -58,7 +62,7 @@ export class AuthService {
     try {
       const { data } = await this.authApiService.getMe();
 
-      runInAction(() => (this.me = data.data));
+      this.setMe(data.data);
     } catch (_) {
       /* empty */
     }

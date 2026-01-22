@@ -1,3 +1,4 @@
+import { AccountSettingsPage } from "@pages/account-settings/ui/account-settings-page";
 import { AnnouncementsPage } from "@pages/announcements/ui/announcements-page";
 import { EmailVerificationPage } from "@pages/email-verification/ui/email-verification-page";
 import { GamesPage } from "@pages/games/ul/games-page";
@@ -19,6 +20,10 @@ export const Pages: FC = () => {
       <Route path={EAppRoutes.Games} element={<GamesPage />} />
       <Route path={EAppRoutes.Login} element={<LoginPage />} />
       <Route path={EAppRoutes.Registration} element={<RegistrationPage />} />
+      <Route
+        path={EAppRoutes.AccountSettings}
+        element={<AccountSettingsPage />}
+      />
       <Route
         path={EAppRoutes.VerifyEmail}
         element={<EmailVerificationPage />}

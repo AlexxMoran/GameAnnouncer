@@ -11,7 +11,7 @@ import type {
   IAnnouncementDto,
   ICreateAnnouncementDto,
 } from "@shared/services/api/announcements-api-service/types";
-import { CardsWrapperStyled } from "@shared/styles/cards-wrapper-styled";
+import { CardsWrapperStyled } from "@shared/ui/_styled/cards-wrapper-styled";
 import type { IMenuAction } from "@shared/ui/actions-menu/types";
 import { Badge } from "@shared/ui/badge";
 import { Box } from "@shared/ui/box";

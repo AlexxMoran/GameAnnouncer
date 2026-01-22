@@ -20,6 +20,9 @@ export const translationRu = {
     description: "описание",
     category: "категория",
     confirmation: "подтверждение",
+    firstName: "имя",
+    lastName: "фамилия",
+    nickname: "никнейм",
   },
   actions: {
     login: "Войти",
@@ -77,6 +80,8 @@ export const translationRu = {
     announcementAddingSuccess: "Турнир успешно добавлен",
     announcementDeletingSuccess: "Турнир успешно удален",
     deletionAnnouncementConfirmation: "Вы уверены, что хотите удалить турнир?",
+    accountSettings: "Настройки аккаунта",
+    usersData: "Данные пользователя",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",

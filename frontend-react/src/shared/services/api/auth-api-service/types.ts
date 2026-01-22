@@ -14,6 +14,12 @@ export interface IAccessToken {
   token_type: string;
 }
 
+export interface IEditUserDto {
+  first_name?: string;
+  last_name?: string;
+  nickname?: string;
+}
+
 export interface IUserDto {
   first_name: string;
   last_name: string;
