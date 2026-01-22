@@ -12,30 +12,6 @@ import axios from "axios";
 
 export class BaseApiService {
   private axiosInstance = axios.create({ baseURL: "/api" });
-  private abortControllers = new Map<string, AbortController>();
-
-  private async makeRequest<T>(
-    requestFn: (signal: AbortSignal) => Promise<T>,
-    url: string,
-    method: string
-  ): Promise<T> {
-    const key = `${method}:${url}`;
-    const alreadyExistedController = this.abortControllers.get(key);
-    const newController = new AbortController();
-
-    if (alreadyExistedController) {
-      alreadyExistedController.abort();
-      this.abortControllers.delete(key);
-    }
-
-    this.abortControllers.set(key, newController);
-
-    try {
-      return await requestFn(newController.signal);
-    } finally {
-      this.abortControllers.delete(key);
-    }
-  }
 
   createInterceptors = (data: IRootServiceData, authService: AuthService) => {
     const { alertError, redirectToLoginPage } = data;
@@ -60,62 +36,22 @@ export class BaseApiService {
   };
 
   get<TResponse, TMeta = unknown>(url: string, config?: IApiConfig) {
-    return this.makeRequest(
-      (signal) =>
-        this.axiosInstance.get<TResponse & TMeta>(url, {
-          ...config,
-          signal,
-        }),
-      url,
-      "GET"
-    );
+    return this.axiosInstance.get<TResponse & TMeta>(url, config);
   }
 
   post<TResponse>(url: string, body?: TObjectAny, config?: IApiConfig) {
-    return this.makeRequest(
-      (signal) =>
-        this.axiosInstance.post<TResponse>(url, body, {
-          ...config,
-          signal,
-        }),
-      url,
-      "POST"
-    );
+    return this.axiosInstance.post<TResponse>(url, body, config);
   }
 
   put<TResponse>(url: string, body: TObjectAny, config?: IApiConfig) {
-    return this.makeRequest(
-      (signal) =>
-        this.axiosInstance.put<TResponse>(url, body, {
-          ...config,
-          signal,
-        }),
-      url,
-      "PUT"
-    );
+    return this.axiosInstance.put<TResponse>(url, body, config);
   }
 
   patch<TResponse>(url: string, body: TObjectAny, config?: IApiConfig) {
-    return this.makeRequest(
-      (signal) =>
-        this.axiosInstance.patch<TResponse>(url, body, {
-          ...config,
-          signal,
-        }),
-      url,
-      "PATCH"
-    );
+    return this.axiosInstance.patch<TResponse>(url, body, config);
   }
 
   delete<TResponse>(url: string, config?: IApiConfig) {
-    return this.makeRequest(
-      (signal) =>
-        this.axiosInstance.delete<TResponse>(url, {
-          ...config,
-          signal,
-        }),
-      url,
-      "DELETE"
-    );
+    return this.axiosInstance.delete<TResponse>(url, config);
   }
 }

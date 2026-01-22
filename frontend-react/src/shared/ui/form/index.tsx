@@ -1,3 +1,4 @@
+import { trimObjectValues } from "@shared/helpers/trimObjectValues";
 import type { TObjectAny } from "@shared/types/main.types";
 import { Box } from "@shared/ui/box";
 import { Button } from "@shared/ui/button";
@@ -5,17 +6,6 @@ import type { IFormProps } from "@shared/ui/form/types";
 import { FormikContext, useFormik } from "formik";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
-
-function trimObjectValues<T extends TObjectAny>(values: T) {
-  return Object.entries(values).reduce<T>(
-    (acc, [key, value]: [key: keyof T, value: T[keyof T]]) => {
-      acc[key] = typeof value === "string" ? value.trim() : value;
-
-      return acc;
-    },
-    {} as T
-  );
-}
 
 export const FormComponent = <TFormValues extends TObjectAny>(
   props: IFormProps<TFormValues>

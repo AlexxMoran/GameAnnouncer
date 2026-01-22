@@ -1,7 +1,6 @@
 import { ListItem, Autocomplete as MuiAutocomplete } from "@mui/material";
 import type { IAutocompleteProps } from "@shared/ui/autocomplete/types";
 import { ElementObserver } from "@shared/ui/element-observer";
-import { Spinner } from "@shared/ui/spinner";
 import { TextField } from "@shared/ui/text-field";
 import type { RefObject } from "react";
 import { useTranslation } from "react-i18next";
@@ -71,17 +70,9 @@ export const Autocomplete = <
           required={required}
           helperText={helperText}
           error={error}
-          slotProps={{
-            input: {
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {loading ? <Spinner color="inherit" size={20} /> : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            },
-          }}
+          loading={loading}
+          endAdornment={params.InputProps.endAdornment}
+          slotProps={{ input: params.InputProps }}
         />
       )}
     />

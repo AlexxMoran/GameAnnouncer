@@ -1,6 +1,7 @@
 import { AUTH_ENDPOINT } from "@shared/services/api/auth-api-service/constants";
 import type {
   IAccessToken,
+  IEditUserDto,
   ILoginDto,
   IRegisterDto,
   IUserDto,
@@ -37,8 +38,14 @@ export class AuthApiService {
 
   getMe = () => {
     return this.baseApiService.get<TApiResponseWrapper<IUserDto>>(
+      `${AUTH_ENDPOINT}/users/me`
+    );
+  };
+
+  editMe = (params: IEditUserDto) => {
+    return this.baseApiService.patch<TApiResponseWrapper<IUserDto>>(
       `${AUTH_ENDPOINT}/users/me`,
-      { withCredentials: true }
+      params
     );
   };
 

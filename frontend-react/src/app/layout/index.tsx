@@ -1,6 +1,7 @@
 import { HeaderStyled, LayoutStyled } from "@app/layout/styles";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
 import { EAppRoutes } from "@shared/constants/appRoutes";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
@@ -39,9 +40,19 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
     }
   };
 
+  const handleNavigateToSettings = () => {
+    navigate(EAppRoutes.AccountSettings);
+  };
+
   const actionList = [
     {
       id: 1,
+      title: t("texts.accountSettings"),
+      onClick: handleNavigateToSettings,
+      icon: <ManageAccountsOutlinedIcon />,
+    },
+    {
+      id: 2,
       title: t("actions.logout"),
       onClick: handleLogout,
       icon: <LogoutOutlinedIcon />,

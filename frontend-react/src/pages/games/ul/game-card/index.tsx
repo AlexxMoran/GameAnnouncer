@@ -1,9 +1,9 @@
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import type { IGameCardProps } from "@pages/games/ul/game-card/types";
-import { CardLabelStyled } from "@shared/styles/card-label-styled";
-import { EntityCardStyled } from "@shared/styles/entity-card-styled";
-import { EntityImgStyled } from "@shared/styles/entity-img-styled";
-import { WithLineClampStyled } from "@shared/styles/with-line-clamp-styled";
+import { CardLabelStyled } from "@shared/ui/_styled/card-label-styled";
+import { EntityCardStyled } from "@shared/ui/_styled/entity-card-styled";
+import { EntityImgStyled } from "@shared/ui/_styled/entity-img-styled";
+import { WithLineClampStyled } from "@shared/ui/_styled/with-line-clamp-styled";
 import { ActionsMenu } from "@shared/ui/actions-menu";
 import { Box } from "@shared/ui/box";
 import { IconButton } from "@shared/ui/icon-button";

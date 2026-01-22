@@ -20,6 +20,9 @@ export const translationEn = {
     description: "description",
     category: "category",
     confirmation: "confirmation",
+    firstName: "first name",
+    lastName: "last name",
+    nickname: "nickname",
   },
   actions: {
     login: "Login",
@@ -79,6 +82,8 @@ export const translationEn = {
     announcementDeletingSuccess: "Tournament successfully deleted",
     deletionAnnouncementConfirmation:
       "Are you sure you want to delete tournament?",
+    accountSettings: "Account settings",
+    usersData: "Users's data",
   },
   validationErrors: {
     unknown: "Unexpected error",

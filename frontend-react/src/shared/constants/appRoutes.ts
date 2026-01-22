@@ -4,6 +4,7 @@ export enum EAppRoutes {
   VerifyEmail = "/verify-email",
   Games = "/games",
   Announcements = "/announcements",
+  AccountSettings = "/account-settings",
 }
 
 export enum ERouteParams {

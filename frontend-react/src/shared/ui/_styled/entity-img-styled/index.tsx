@@ -1,7 +1,7 @@
 import { css } from "@emotion/react";
 import { styled } from "@mui/material";
 
-import type { IEntityImgStyledProps } from "@shared/styles/entity-img-styled/types";
+import type { IEntityImgStyledProps } from "@shared/ui/_styled/entity-img-styled/types";
 
 export const EntityImgStyled = styled("div")<IEntityImgStyledProps>`
   flex: 1;
