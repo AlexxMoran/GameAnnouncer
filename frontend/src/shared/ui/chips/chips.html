@@ -1,7 +1,0 @@
-<mat-chip-listbox>
-  @for (chip of chipList(); track chip.name) {
-    <mat-chip-option (click)="selectChip(chip)" [selected]="isSelected(chip)">{{
-      chip.label
-    }}</mat-chip-option>
-  }
-</mat-chip-listbox>

@@ -45,8 +45,9 @@ async def create_user(db_session):
         user_db = User.get_db(db_session)
         manager = UserManager(user_db)
 
-        with patch("tasks.send_verification_email_task.kiq", new=AsyncMock()), patch(
-            "tasks.send_password_reset_email_task.kiq", new=AsyncMock()
+        with (
+            patch("tasks.send_verification_email_task.kiq", new=AsyncMock()),
+            patch("tasks.send_password_reset_email_task.kiq", new=AsyncMock()),
         ):
             created = await manager.create(user_create, safe=True, request=None)
 

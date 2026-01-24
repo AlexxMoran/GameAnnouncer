@@ -52,7 +52,6 @@ async def get_games(
     skip: int = 0,
     limit: int = 10,
 ):
-
     search = GameSearch(session=session, filters=filters)
     games = await search.results(skip=skip, limit=limit)
     get_batch_permissions(user, games)

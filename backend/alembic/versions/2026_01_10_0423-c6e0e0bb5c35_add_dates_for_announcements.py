@@ -41,7 +41,7 @@ def upgrade() -> None:
 
     op.execute(
         f"""
-        UPDATE announcements 
+        UPDATE announcements
         SET start_at = '{end_of_year}'
         WHERE start_at IS NULL
         """
@@ -49,7 +49,7 @@ def upgrade() -> None:
 
     op.execute(
         f"""
-        UPDATE announcements 
+        UPDATE announcements
         SET registration_start_at = '{start_of_year}'
         WHERE registration_start_at IS NULL
         """
@@ -57,7 +57,7 @@ def upgrade() -> None:
 
     op.execute(
         f"""
-        UPDATE announcements 
+        UPDATE announcements
         SET registration_end_at = '{end_of_year}'
         WHERE registration_end_at IS NULL
         """
