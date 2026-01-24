@@ -346,6 +346,83 @@ Backend provides `PaginatedResponse[T]`:
 
 ---
 
+## Code Documentation
+
+### Docstrings vs Comments
+
+**CRITICAL: NEVER use inline comments (`# comment`) in code**
+
+- ❌ **BAD - inline comments:**
+```python
+# Calculate total price
+def calculate_total(items):
+    # Loop through items
+    total = 0
+    for item in items:
+        # Add item price to total
+        total += item.price
+    return total
+```
+
+- ✅ **GOOD - docstrings:**
+```python
+def calculate_total(items: list[Item]) -> float:
+    """
+    Calculate total price for a list of items.
+
+    Args:
+        items: List of Item objects with price attribute
+
+    Returns:
+        Total sum of all item prices
+    """
+    total = 0
+    for item in items:
+        total += item.price
+    return total
+```
+
+### Docstring Guidelines
+
+**Use docstrings for:**
+- All public functions, methods, and classes
+- Complex business logic that needs explanation
+- API endpoints (explain parameters, responses, side effects)
+
+**Docstring format (Google style):**
+```python
+def search_announcements(query: str, filters: dict) -> list[Announcement]:
+    """
+    Search announcements with filtering and prioritization.
+
+    Searches across game.name, announcement.title, and announcement.content.
+    Results are prioritized by match location: game.name > title > content.
+
+    Args:
+        query: Search string (minimum 2 characters)
+        filters: Additional filter parameters (game_id, status, etc.)
+
+    Returns:
+        List of announcements sorted by relevance and date
+
+    Raises:
+        ValidationError: If query is invalid
+    """
+    pass
+```
+
+**When NOT to use docstrings:**
+- Self-explanatory code (e.g., simple getters/setters)
+- Private utility functions with obvious purpose
+- Code that is already clear from variable/function names
+
+**Remember:**
+- If code needs explanation, use docstrings, NOT comments
+- If code is too complex even with docstrings, refactor it
+- Write self-documenting code with clear names
+
+---
+
 ## What NOT to Do
 
 1. **DO NOT** use synchronous I/O operations
@@ -357,6 +434,35 @@ Backend provides `PaginatedResponse[T]`:
 7. **DO NOT** edit merged migrations
 8. **DO NOT** use `SELECT *` in queries
 9. **DO NOT** manually commit/rollback in routes
+10. **DO NOT** use inline comments (`# comment`) - use docstrings instead
+
+---
+
+## Package Manager & Commands
+
+**This project uses UV as the package manager.**
+
+**CRITICAL: Always use `uv run` to execute Python commands:**
+
+```bash
+uv run pytest tests/
+uv run alembic upgrade head
+uv run python -m uvicorn main:app --reload
+```
+
+**Common commands:**
+- Run tests: `uv run pytest` or `make test`
+- Run specific test file: `uv run pytest tests/api/v1/test_games.py`
+- Run linters: `make lint` or `uv run ruff check .`
+- Format code: `make format` or `uv run black .`
+- Database migration: `uv run alembic revision --autogenerate -m "description"`
+- Start dev server: `uv run uvicorn main:app --reload`
+
+**Installing dependencies:**
+```bash
+uv add package-name
+uv sync
+```
 
 ---
 
@@ -366,15 +472,16 @@ Backend provides `PaginatedResponse[T]`:
    - Pull latest from main
    - Create feature branch
    - Review related code
+   - Sync dependencies: `uv sync`
 
 2. **During:**
    - Follow these guidelines
    - Write tests for new features
-   - Run linters: `make lint`
-   - Run tests: `make test`
+   - Run linters: `make lint` or `uv run ruff check .`
+   - Run tests: `make test` or `uv run pytest`
 
 3. **Before commit:**
-   - Format code: `make format`
+   - Format code: `make format` or `uv run black .`
    - Fix linter errors
    - Ensure tests pass
    - Review your changes

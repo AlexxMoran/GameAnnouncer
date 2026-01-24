@@ -27,6 +27,24 @@
 
 ---
 
+## Running Commands
+
+**CRITICAL: This project uses UV as package manager. ALWAYS prefix Python commands with `uv run`:**
+
+```bash
+uv run pytest tests/
+uv run alembic upgrade head
+uv run python script.py
+```
+
+**Quick commands:**
+- Tests: `uv run pytest` or `make test`
+- Linters: `uv run ruff check .` or `make lint`
+- Format: `uv run black .` or `make format`
+- Dev server: `uv run uvicorn main:app --reload`
+
+---
+
 ## Instructions for AI Assistant
 
 **CRITICAL: When working on this project, ALWAYS follow this process:**
@@ -112,6 +130,7 @@ Once you've read the appropriate documentation, follow ALL guidelines and patter
 6. Use Taskiq for background tasks (`.kiq()` method)
 7. Validate all inputs (Pydantic, Yup)
 8. Follow existing patterns in codebase
+9. Use docstrings (Python) or JSDoc (TypeScript) for complex logic
 
 ### NEVER Do:
 1. NEVER use sync I/O (blocking operations)
@@ -122,6 +141,8 @@ Once you've read the appropriate documentation, follow ALL guidelines and patter
 6. NEVER use legacy SQLAlchemy 1.x API (`.query()`, `.filter()`)
 7. NEVER mutate MobX state outside `runInAction()`
 8. NEVER return raw SQLAlchemy models from routes (use Pydantic schemas)
+9. NEVER use inline comments (`# comment` or `// comment`) - use docstrings/JSDoc instead
+10. NEVER run Python commands without `uv run` prefix (e.g., use `uv run pytest`, NOT `pytest`)
 
 ---
 
@@ -141,10 +162,17 @@ Once you've read the appropriate documentation, follow ALL guidelines and patter
 - Formatter: Black (100 chars)
 - Linter: Ruff
 - Naming: `snake_case` (functions/vars), `PascalCase` (classes), `UPPER_CASE` (constants)
+- **Documentation:** Use docstrings (`"""..."""`), NEVER inline comments (`# comment`)
 
 **Frontend (TypeScript):**
 - Linter: ESLint
 - Naming: `camelCase` (functions/vars), `PascalCase` (components/types), `UPPER_CASE` (constants)
+- **Documentation:** Use JSDoc comments (`/** ... */`), avoid inline comments
+
+**Documentation Rules:**
+- ❌ **NEVER** use inline comments (`# comment` or `// comment`)
+- ✅ **ALWAYS** use docstrings (Python) or JSDoc (TypeScript) for complex logic
+- Write self-documenting code with clear variable/function names
 
 ---
 
