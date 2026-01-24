@@ -17,9 +17,10 @@ async def test_get_announcements_paginated(async_client, announcement_factory):
     mock_search.results = AsyncMock(return_value=announcements)
     mock_search.count = AsyncMock(return_value=2)
 
-    with patch(
-        "api.v1.announcements.AnnouncementSearch", return_value=mock_search
-    ), patch("api.v1.announcements.get_batch_permissions", return_value=None):
+    with (
+        patch("api.v1.announcements.AnnouncementSearch", return_value=mock_search),
+        patch("api.v1.announcements.get_batch_permissions", return_value=None),
+    ):
         r = await async_client.get(
             f"/api/v1/announcements?game_id={game_id}&skip=0&limit=10"
         )
@@ -36,10 +37,13 @@ async def test_get_announcements_paginated(async_client, announcement_factory):
 async def test_get_announcement_and_permissions(async_client, announcement_factory):
     a = announcement_factory.build()
     ann_obj = SimpleNamespace(**a)
-    with patch(
-        "api.v1.announcements.announcement_crud.get_by_id",
-        new=AsyncMock(return_value=ann_obj),
-    ), patch("api.v1.announcements.get_permissions", return_value={"edit": True}):
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.get_by_id",
+            new=AsyncMock(return_value=ann_obj),
+        ),
+        patch("api.v1.announcements.get_permissions", return_value={"edit": True}),
+    ):
         r = await async_client.get(f"/api/v1/announcements/{a['id']}")
         assert r.status_code == 200
         data = r.json()["data"]
@@ -56,10 +60,13 @@ async def test_get_announcement_includes_participants_count(
     a = announcement_factory.build(participants=participants)
     ann_obj = SimpleNamespace(**a)
 
-    with patch(
-        "api.v1.announcements.announcement_crud.get_by_id",
-        new=AsyncMock(return_value=ann_obj),
-    ), patch("api.v1.announcements.get_permissions", return_value={}):
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.get_by_id",
+            new=AsyncMock(return_value=ann_obj),
+        ),
+        patch("api.v1.announcements.get_permissions", return_value={}),
+    ):
         r = await async_client.get(f"/api/v1/announcements/{a['id']}")
         assert r.status_code == 200
         data = r.json()["data"]
@@ -73,12 +80,15 @@ async def test_get_announcement_participants(async_client, announcement_factory)
 
     participants = [{"id": 5, "email": "p@example.com"}]
 
-    with patch(
-        "api.v1.announcements.announcement_crud.get_by_id",
-        new=AsyncMock(return_value=SimpleNamespace(**a)),
-    ), patch(
-        "api.v1.announcements.announcement_crud.get_participants_by_announcement_id",
-        new=AsyncMock(return_value=participants),
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.get_by_id",
+            new=AsyncMock(return_value=SimpleNamespace(**a)),
+        ),
+        patch(
+            "api.v1.announcements.announcement_crud.get_participants_by_announcement_id",
+            new=AsyncMock(return_value=participants),
+        ),
     ):
         r = await async_client.get(f"/api/v1/announcements/{a['id']}/participants")
         assert r.status_code == 200
@@ -93,12 +103,15 @@ async def test_get_announcement_registration_requests(
 
     fake_rr = [registration_request_factory.build(announcement_id=a["id"])]
 
-    with patch(
-        "api.v1.announcements.announcement_crud.get_by_id",
-        new=AsyncMock(return_value=SimpleNamespace(**a)),
-    ), patch(
-        "api.v1.announcements.registration_request_crud.get_all_by_announcement_id",
-        new=AsyncMock(return_value=fake_rr),
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.get_by_id",
+            new=AsyncMock(return_value=SimpleNamespace(**a)),
+        ),
+        patch(
+            "api.v1.announcements.registration_request_crud.get_all_by_announcement_id",
+            new=AsyncMock(return_value=fake_rr),
+        ),
     ):
         r = await async_client.get(
             f"/api/v1/announcements/{a['id']}/registration_requests"
@@ -162,10 +175,13 @@ async def test_create_update_delete_announcement(
         merged = {**announcement.__dict__, **upd}
         return SimpleNamespace(**merged)
 
-    with patch(
-        "api.v1.announcements.announcement_crud.get_by_id",
-        new=AsyncMock(side_effect=_fake_get_by_id_for_edit),
-    ), patch("api.v1.announcements.announcement_crud.update", new=_fake_update):
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.get_by_id",
+            new=AsyncMock(side_effect=_fake_get_by_id_for_edit),
+        ),
+        patch("api.v1.announcements.announcement_crud.update", new=_fake_update),
+    ):
         updated_payload = {"title": "NewTitle", "max_participants": 10}
         r = await client.patch(
             f"/api/v1/announcements/{created['id']}",
@@ -177,12 +193,15 @@ async def test_create_update_delete_announcement(
     async def _fake_delete(session, announcement, user, action=None):
         return None
 
-    with patch(
-        "api.v1.announcements.announcement_crud.get_by_id",
-        new=AsyncMock(return_value=ann_obj),
-    ), patch(
-        "api.v1.announcements.announcement_crud.delete",
-        new=AsyncMock(side_effect=_fake_delete),
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.get_by_id",
+            new=AsyncMock(return_value=ann_obj),
+        ),
+        patch(
+            "api.v1.announcements.announcement_crud.delete",
+            new=AsyncMock(side_effect=_fake_delete),
+        ),
     ):
         r = await client.delete(f"/api/v1/announcements/{created['id']}")
         assert r.status_code == 200
@@ -213,12 +232,15 @@ async def test_upload_announcement_image(
         _fake_session_getter
     )
 
-    with patch(
-        "api.v1.announcements.announcement_crud.get_by_id",
-        new=AsyncMock(return_value=ann_obj),
-    ), patch(
-        "api.v1.announcements.upload_avatar",
-        new=AsyncMock(return_value="http://img/url.png"),
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.get_by_id",
+            new=AsyncMock(return_value=ann_obj),
+        ),
+        patch(
+            "api.v1.announcements.upload_avatar",
+            new=AsyncMock(return_value="http://img/url.png"),
+        ),
     ):
         files = {"file": ("img.png", b"data", "image/png")}
 
@@ -246,10 +268,13 @@ async def test_create_announcement_sets_pre_registration_status(
     ann_obj = SimpleNamespace(**announcement_data)
     ann_obj.status = AnnouncementStatus.PRE_REGISTRATION
 
-    with patch(
-        "api.v1.announcements.announcement_crud.create",
-        new=AsyncMock(return_value=ann_obj),
-    ), patch("api.v1.announcements.get_permissions", return_value={}):
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.create",
+            new=AsyncMock(return_value=ann_obj),
+        ),
+        patch("api.v1.announcements.get_permissions", return_value={}),
+    ):
         r = await client.post("/api/v1/announcements", json=announcement_data)
         assert r.status_code == 201
         assert r.json()["data"]["status"] == AnnouncementStatus.PRE_REGISTRATION.value
@@ -271,10 +296,13 @@ async def test_create_announcement_sets_registration_open_status(
     ann_obj = SimpleNamespace(**announcement_data)
     ann_obj.status = AnnouncementStatus.REGISTRATION_OPEN
 
-    with patch(
-        "api.v1.announcements.announcement_crud.create",
-        new=AsyncMock(return_value=ann_obj),
-    ), patch("api.v1.announcements.get_permissions", return_value={}):
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.create",
+            new=AsyncMock(return_value=ann_obj),
+        ),
+        patch("api.v1.announcements.get_permissions", return_value={}),
+    ):
         r = await client.post("/api/v1/announcements", json=announcement_data)
         assert r.status_code == 201
         assert r.json()["data"]["status"] == AnnouncementStatus.REGISTRATION_OPEN.value
@@ -293,14 +321,16 @@ async def test_update_status_finish_from_live(
     finished_obj = SimpleNamespace(**announcement_data)
     finished_obj.status = AnnouncementStatus.FINISHED
 
-    with patch(
-        "api.v1.announcements.announcement_crud.get_by_id",
-        new=AsyncMock(return_value=ann_obj),
-    ), patch(
-        "api.v1.announcements.announcement_crud.update_status",
-        new=AsyncMock(return_value=finished_obj),
-    ), patch(
-        "api.v1.announcements.get_permissions", return_value={}
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.get_by_id",
+            new=AsyncMock(return_value=ann_obj),
+        ),
+        patch(
+            "api.v1.announcements.announcement_crud.update_status",
+            new=AsyncMock(return_value=finished_obj),
+        ),
+        patch("api.v1.announcements.get_permissions", return_value={}),
     ):
         r = await client.patch(
             f"/api/v1/announcements/{announcement_data['id']}/status",
@@ -324,15 +354,18 @@ async def test_update_status_finish_from_wrong_status_fails(
 
     from exceptions import ValidationException
 
-    with patch(
-        "api.v1.announcements.announcement_crud.get_by_id",
-        new=AsyncMock(return_value=ann_obj),
-    ), patch(
-        "api.v1.announcements.announcement_crud.update_status",
-        new=AsyncMock(
-            side_effect=ValidationException(
-                "Can only finish announcement when it is 'live'"
-            )
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.get_by_id",
+            new=AsyncMock(return_value=ann_obj),
+        ),
+        patch(
+            "api.v1.announcements.announcement_crud.update_status",
+            new=AsyncMock(
+                side_effect=ValidationException(
+                    "Can only finish announcement when it is 'live'"
+                )
+            ),
         ),
     ):
         r = await client.patch(
@@ -357,14 +390,16 @@ async def test_update_status_cancel_from_any_status(
     cancelled_obj = SimpleNamespace(**announcement_data)
     cancelled_obj.status = AnnouncementStatus.CANCELLED
 
-    with patch(
-        "api.v1.announcements.announcement_crud.get_by_id",
-        new=AsyncMock(return_value=ann_obj),
-    ), patch(
-        "api.v1.announcements.announcement_crud.update_status",
-        new=AsyncMock(return_value=cancelled_obj),
-    ), patch(
-        "api.v1.announcements.get_permissions", return_value={}
+    with (
+        patch(
+            "api.v1.announcements.announcement_crud.get_by_id",
+            new=AsyncMock(return_value=ann_obj),
+        ),
+        patch(
+            "api.v1.announcements.announcement_crud.update_status",
+            new=AsyncMock(return_value=cancelled_obj),
+        ),
+        patch("api.v1.announcements.get_permissions", return_value={}),
     ):
         r = await client.patch(
             f"/api/v1/announcements/{announcement_data['id']}/status",
@@ -385,9 +420,10 @@ async def test_get_announcements_with_game_filter(async_client, announcement_fac
     mock_search.results = AsyncMock(return_value=announcements)
     mock_search.count = AsyncMock(return_value=2)
 
-    with patch(
-        "api.v1.announcements.AnnouncementSearch", return_value=mock_search
-    ), patch("api.v1.announcements.get_batch_permissions", return_value=None):
+    with (
+        patch("api.v1.announcements.AnnouncementSearch", return_value=mock_search),
+        patch("api.v1.announcements.get_batch_permissions", return_value=None),
+    ):
         r = await async_client.get(f"/api/v1/announcements?game_id={game_id}")
         assert r.status_code == 200
         body = r.json()
@@ -410,9 +446,10 @@ async def test_get_all_announcements_without_filter(async_client, announcement_f
     mock_search.results = AsyncMock(return_value=announcements)
     mock_search.count = AsyncMock(return_value=3)
 
-    with patch(
-        "api.v1.announcements.AnnouncementSearch", return_value=mock_search
-    ), patch("api.v1.announcements.get_batch_permissions", return_value=None):
+    with (
+        patch("api.v1.announcements.AnnouncementSearch", return_value=mock_search),
+        patch("api.v1.announcements.get_batch_permissions", return_value=None),
+    ):
         r = await async_client.get("/api/v1/announcements")
         assert r.status_code == 200
         body = r.json()

@@ -3,6 +3,7 @@
 Simple database console for GameAnnouncer project
 Usage: python console.py or make console
 """
+
 import asyncio
 import sys
 from pathlib import Path

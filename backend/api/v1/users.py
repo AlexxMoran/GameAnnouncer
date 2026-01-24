@@ -75,7 +75,6 @@ async def get_user_organized_announcements(
     skip: int = 0,
     limit: int = 10,
 ):
-
     announcements = await announcement_crud.get_all_by_organizer_id(
         session, user_id, skip=skip, limit=limit
     )

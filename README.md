@@ -94,6 +94,3 @@ Check `docker-compose.yml` and `backend/.env` if ports have been changed.
 This project is licensed under the MIT License — see the `LICENSE` file.
 
 ---
-
-
-

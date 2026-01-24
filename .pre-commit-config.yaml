@@ -1,0 +1,42 @@
+# Pre-commit hooks configuration
+# Install: pip install pre-commit OR uv tool install pre-commit
+# Setup: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Backend - Ruff (linter)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.8.4
+    hooks:
+      - id: ruff
+        name: ruff (lint)
+        args: [--fix]
+        files: ^backend/
+        types_or: [python, pyi]
+
+      - id: ruff-format
+        name: ruff (format)
+        files: ^backend/
+        types_or: [python, pyi]
+
+  # Backend - Black (formatter)
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
+        name: black (format)
+        files: ^backend/
+        language_version: python3.13
+
+  # General checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: \.md$
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: detect-private-key

@@ -49,8 +49,9 @@ async def test_get_current_user_and_update(
 @pytest.mark.asyncio
 async def test_login_invalid_credentials(async_client, create_user):
     user = await create_user(email="login@example.com", password="secret")
-    with patch("api.auth.get_jwt_strategy", return_value=FakeStrategy()), patch(
-        "api.auth.get_refresh_jwt_strategy", return_value=FakeStrategy(user)
+    with (
+        patch("api.auth.get_jwt_strategy", return_value=FakeStrategy()),
+        patch("api.auth.get_refresh_jwt_strategy", return_value=FakeStrategy(user)),
     ):
         r = await async_client.post(
             "/api/auth/login", data={"username": "noone", "password": "x"}
@@ -67,10 +68,10 @@ async def test_login_sets_cookie_and_access_token(async_client, create_user):
     async def fake_authenticate(self, form_data):
         return user
 
-    with patch(
-        "core.user_manager.UserManager.authenticate", new=fake_authenticate
-    ), patch("api.auth.get_jwt_strategy", return_value=FakeStrategy()), patch(
-        "api.auth.get_refresh_jwt_strategy", return_value=FakeStrategy(user)
+    with (
+        patch("core.user_manager.UserManager.authenticate", new=fake_authenticate),
+        patch("api.auth.get_jwt_strategy", return_value=FakeStrategy()),
+        patch("api.auth.get_refresh_jwt_strategy", return_value=FakeStrategy(user)),
     ):
         r = await async_client.post(
             "/api/auth/login",
@@ -102,10 +103,12 @@ async def test_login_unverified_user_returns_403(async_client):
     async def fake_authenticate(self, form_data):
         return unverified
 
-    with patch(
-        "core.user_manager.UserManager.authenticate", new=fake_authenticate
-    ), patch("api.auth.get_jwt_strategy", return_value=FakeStrategy()), patch(
-        "api.auth.get_refresh_jwt_strategy", return_value=FakeStrategy(unverified)
+    with (
+        patch("core.user_manager.UserManager.authenticate", new=fake_authenticate),
+        patch("api.auth.get_jwt_strategy", return_value=FakeStrategy()),
+        patch(
+            "api.auth.get_refresh_jwt_strategy", return_value=FakeStrategy(unverified)
+        ),
     ):
         r = await async_client.post(
             "/api/auth/login",
@@ -117,9 +120,10 @@ async def test_login_unverified_user_returns_403(async_client):
 @pytest.mark.asyncio
 async def test_refresh_token_flow(async_client, create_user):
     user = await create_user(email="r@example.com", password="secret")
-    with patch(
-        "api.auth.get_refresh_jwt_strategy", return_value=FakeStrategy(user)
-    ), patch("api.auth.get_jwt_strategy", return_value=FakeStrategy()):
+    with (
+        patch("api.auth.get_refresh_jwt_strategy", return_value=FakeStrategy(user)),
+        patch("api.auth.get_jwt_strategy", return_value=FakeStrategy()),
+    ):
         async_client.cookies.set("refresh_token", "any")
 
         r = await async_client.post("/api/auth/jwt/refresh")

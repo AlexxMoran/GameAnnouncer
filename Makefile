@@ -35,7 +35,7 @@ project-up: backend-up frontend-up ## 🚀 Complete setup - build and start ever
 	@echo "🚀 Starting full GameAnnouncer development environment..."
 	@echo ""
 	@echo "🎉 Ready! Your full development environment is running:"
-	@echo "🎨 Frontend: http://localhost:4200"
+	@echo "🎨 Frontend (React): http://localhost:4200"
 	@echo "📱 API: http://localhost:3000"
 	@echo "📊 Docs: http://localhost:3000/docs"
 	@echo "📧 Mailpit: http://localhost:8025"
@@ -184,9 +184,9 @@ backend-down: ## 🛑 Stop only backend services
 backend-logs: ## 📊 Show backend services logs
 	$(COMPOSE) logs -f backend worker db redis mailpit
 
-# Frontend Management
-frontend-up: ## 🎨 Start only frontend services
-	@echo "🎨 Starting frontend services..."
+# Frontend Management (React + Vite)
+frontend-up: ## 🎨 Start only frontend services (React)
+	@echo "🎨 Starting frontend services (React + Vite)..."
 	@echo "📦 Checking frontend container status..."
 	@frontend_running=$$($(COMPOSE) ps -q frontend 2>/dev/null | wc -l | tr -d ' '); \
 	if [ "$$frontend_running" -eq 0 ]; then \
@@ -196,10 +196,10 @@ frontend-up: ## 🎨 Start only frontend services
 		echo "⏳ Waiting for frontend to be ready..."; \
 		sleep 10; \
 		echo "✅ Frontend services ready!"; \
-		echo "🎉 Frontend running at: http://localhost:4200"; \
+		echo "🎉 Frontend (React) running at: http://localhost:4200"; \
 	else \
 		echo "✅ Frontend already running"; \
-		echo "🎉 Frontend available at: http://localhost:4200"; \
+		echo "🎉 Frontend (React) available at: http://localhost:4200"; \
 	fi
 
 frontend-down: ## 🛑 Stop only frontend services
@@ -237,3 +237,7 @@ lint: ## 🔍 Lint backend code
 
 install: ## 📦 Install backend dependencies
 	@cd backend && make install
+
+# Pre-commit hooks
+precommit: ## 🔍 Run pre-commit checks on all files
+	@pre-commit run --all-files
