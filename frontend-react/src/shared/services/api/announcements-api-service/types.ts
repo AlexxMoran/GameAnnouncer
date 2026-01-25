@@ -38,6 +38,9 @@ export interface IAnnouncementListFilters {
 export interface IEditAnnouncementDto
   extends Partial<Omit<ICreateAnnouncementDto, "game_id">> {}
 
-export interface IGetAnnouncementListDto
+export interface IGetAnnouncementsDto
   extends IPaginationParams,
     IAnnouncementListFilters {}
+
+export interface IGetParticipatedAnnouncementsDto extends IPaginationParams {}
+export interface IGetOrganizedAnnouncementsDto extends IPaginationParams {}

@@ -5,14 +5,14 @@ import type {
   ICreateGameDto,
   IEditGameDto,
   IGameDto,
-  IGetGameListDto,
+  IGetGamesDto,
 } from "@shared/services/api/games-api-service/types";
 import type { IPaginationMeta } from "@shared/types/pagination.types";
 
 export class GamesApiService {
   constructor(private baseApiService: BaseApiService) {}
 
-  getGameList = (params?: IGetGameListDto) => {
+  getGames = (params?: IGetGamesDto) => {
     return this.baseApiService.get<
       TApiResponseWrapper<IGameDto[]>,
       IPaginationMeta

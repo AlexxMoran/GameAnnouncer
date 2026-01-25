@@ -71,6 +71,9 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
           <Link to={EAppRoutes.Announcements}>
             {t("pageTitles.announcements")}
           </Link>
+          <Link to={EAppRoutes.MyAnnouncements}>
+            {t("texts.myAnnouncementsTitle")}
+          </Link>
         </Box>
         <Box display="flex" alignItems="center">
           {isAuthenticated && (

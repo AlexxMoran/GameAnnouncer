@@ -6,7 +6,7 @@ export const HeaderStyled = styled("header")`
   justify-content: space-between;
   width: 100%;
   min-height: 48px;
-  padding: 0 40px;
+  padding-inline: ${({ theme }) => theme.spacing(8)};
   display: flex;
   align-items: center;
   background-color: ${({ theme }) => theme.palette.background.paper};
@@ -21,10 +21,8 @@ export const LayoutStyled = styled("div")(({ theme }) => ({
   width: "100%",
   marginLeft: "auto",
   marginRight: "auto",
-  paddingLeft: theme.spacing(10),
-  paddingRight: theme.spacing(10),
-  paddingTop: theme.spacing(10),
-  paddingBottom: theme.spacing(15),
+  paddingInline: theme.spacing(8),
+  paddingBlock: theme.spacing(10),
   flex: "1 1 0%",
   position: "relative",
 }));

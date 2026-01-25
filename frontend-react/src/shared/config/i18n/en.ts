@@ -23,6 +23,8 @@ export const translationEn = {
     firstName: "first name",
     lastName: "last name",
     nickname: "nickname",
+    participant: "participant",
+    organizer: "organizer",
   },
   actions: {
     login: "Login",
@@ -84,6 +86,9 @@ export const translationEn = {
       "Are you sure you want to delete tournament?",
     accountSettings: "Account settings",
     usersData: "Users's data",
+    myAnnouncementsTitle: "My tournaments",
+    participatedAnnouncements: "Tournaments with your participation",
+    organizedAnnouncements: "Tournaments organized by you",
   },
   validationErrors: {
     unknown: "Unexpected error",

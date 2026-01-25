@@ -1,9 +1,9 @@
+import type { ICreateAnnouncementsFields } from "@features/create-announcement/model/create-validation-schema/types";
 import type { PickerValue } from "@mui/x-date-pickers/internals";
-import type { ICreateAnnouncementsFields } from "@pages/announcements/model/create-validation-schema/types";
 import { useRootService } from "@shared/hooks/use-root-service";
 import type {
   IGameDto,
-  IGetGameListDto,
+  IGetGamesDto,
 } from "@shared/services/api/games-api-service/types";
 import { PaginationService } from "@shared/services/pagination-service";
 import type { TMaybe } from "@shared/types/main.types";
@@ -33,8 +33,8 @@ export const CreateAnnouncementFields: FC = observer(() => {
 
   const [paginationService] = useState(
     () =>
-      new PaginationService<IGameDto, IGetGameListDto>({
-        loadFn: gamesApiService.getGameList,
+      new PaginationService<IGameDto, IGetGamesDto>({
+        loadFn: gamesApiService.getGames,
       })
   );
 

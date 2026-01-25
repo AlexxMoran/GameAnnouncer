@@ -1,8 +1,8 @@
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import PeopleIcon from "@mui/icons-material/People";
 import { useTheme } from "@mui/material";
-import { createAnnouncementStatusColor } from "@pages/announcements/ui/announcement-card/createAnnouncementStatusColor";
 import type { IAnnouncementCardProps } from "@pages/announcements/ui/announcement-card/types";
+import { createAnnouncementStatusColor } from "@shared/helpers/createAnnouncementStatusColor";
 import { CardLabelStyled } from "@shared/ui/_styled/card-label-styled";
 import { EntityCardStyled } from "@shared/ui/_styled/entity-card-styled";
 import { EntityImgStyled } from "@shared/ui/_styled/entity-img-styled";
@@ -35,7 +35,7 @@ export const AnnouncementCard = forwardRef<
   const statusColor = createAnnouncementStatusColor(theme, status);
 
   return (
-    <EntityCardStyled ref={ref}>
+    <EntityCardStyled ref={ref} sx={{ height: "300px" }} withPointer>
       <EntityImgStyled imgUrl={image_url}>
         <CardLabelStyled
           sx={{
@@ -72,7 +72,9 @@ export const AnnouncementCard = forwardRef<
         </Box>
       )}
       <Box display="flex" flexDirection="column" gap={2} flex={1} p={3}>
-        <WithLineClampStyled variant="subtitle2">{title}</WithLineClampStyled>
+        <WithLineClampStyled lineClamp={1} variant="subtitle2">
+          {title}
+        </WithLineClampStyled>
         {content && (
           <WithLineClampStyled lineClamp={4} variant="caption">
             {content}

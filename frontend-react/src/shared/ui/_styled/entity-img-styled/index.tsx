@@ -5,8 +5,7 @@ import type { IEntityImgStyledProps } from "@shared/ui/_styled/entity-img-styled
 
 export const EntityImgStyled = styled("div")<IEntityImgStyledProps>`
   flex: 1;
-  width: 100%;
-  border-radius: ${({ theme }) => +theme.shape.borderRadius * 6}px;
+  border-radius: ${({ theme }) => +theme.shape.borderRadius * 4}px;
   position: relative;
 
   ${({ imgUrl, theme }) =>

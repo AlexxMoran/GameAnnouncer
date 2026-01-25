@@ -1,4 +1,5 @@
-export const ANNOUNCEMENTS_ENDPOINT = "/v1/announcements";
+export const ANNOUNCEMENTS_ENDPOINT = "announcements";
+export const USER_ANNOUNCEMENTS_ENDPOINT = "users/me";
 
 export enum EAnnouncementStatuses {
   PreRegistration = "pre_registration",

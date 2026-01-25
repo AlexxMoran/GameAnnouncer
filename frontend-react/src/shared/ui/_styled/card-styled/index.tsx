@@ -5,5 +5,5 @@ export const CardStyled = styled("div")(({ theme }) => ({
   display: "flex",
   flexDirection: "column",
   backgroundColor: theme.palette.background.paper,
-  borderRadius: +theme.shape.borderRadius * 6 + "px",
+  borderRadius: +theme.shape.borderRadius * 4 + "px",
 }));
