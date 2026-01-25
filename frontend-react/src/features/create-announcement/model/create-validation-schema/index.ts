@@ -1,4 +1,4 @@
-import type { ICreateAnnouncementsFields } from "@pages/announcements/model/create-validation-schema/types";
+import type { ICreateAnnouncementsFields } from "@features/create-announcement/model/create-validation-schema/types";
 import type { IGameDto } from "@shared/services/api/games-api-service/types";
 import dayjs from "dayjs";
 import type { TFunction } from "i18next";

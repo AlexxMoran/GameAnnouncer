@@ -38,14 +38,16 @@ export class AuthApiService {
 
   getMe = () => {
     return this.baseApiService.get<TApiResponseWrapper<IUserDto>>(
-      `${AUTH_ENDPOINT}/users/me`
+      `${AUTH_ENDPOINT}/users/me`,
+      { withCredentials: true }
     );
   };
 
   editMe = (params: IEditUserDto) => {
     return this.baseApiService.patch<TApiResponseWrapper<IUserDto>>(
       `${AUTH_ENDPOINT}/users/me`,
-      params
+      params,
+      { withCredentials: true }
     );
   };
 

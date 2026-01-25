@@ -1,7 +1,7 @@
-import { createValidationSchema } from "@pages/announcements/model/create-validation-schema";
-import type { ICreateAnnouncementsFields } from "@pages/announcements/model/create-validation-schema/types";
-import { CreateAnnouncementFields } from "@pages/announcements/ui/create-announcement-fields";
-import type { ICreateAnnouncementFormProps } from "@pages/announcements/ui/create-announcement-form/types";
+import { createValidationSchema } from "@features/create-announcement/model/create-validation-schema";
+import type { ICreateAnnouncementsFields } from "@features/create-announcement/model/create-validation-schema/types";
+import { CreateAnnouncementFields } from "@features/create-announcement/ui/create-announcement-fields";
+import type { ICreateAnnouncementFormProps } from "@features/create-announcement/ui/create-announcement-form/types";
 import { Form } from "@shared/ui/form";
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";

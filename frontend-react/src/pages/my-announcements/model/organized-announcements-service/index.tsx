@@ -6,12 +6,13 @@ import type {
 } from "@shared/services/api/announcements-api-service/types";
 import { PaginationService } from "@shared/services/pagination-service";
 
-export class AnnouncementsService {
+// TODO вынести логику крудов в один сервис
+export class OrganizedAnnouncementsService {
   paginationService: PaginationService<IAnnouncementDto, IGetAnnouncementsDto>;
 
   constructor(private announcementsApiService: AnnouncementsApiService) {
     const paginationService = new PaginationService({
-      loadFn: this.announcementsApiService.getAnnouncements,
+      loadFn: this.announcementsApiService.getOrganizedAnnouncements,
     });
 
     this.paginationService = paginationService;

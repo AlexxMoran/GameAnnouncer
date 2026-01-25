@@ -18,7 +18,7 @@ export const GameCard = forwardRef<HTMLDivElement, IGameCardProps>(
     const { image_url, announcements_count, name, description } = game;
 
     return (
-      <EntityCardStyled ref={ref}>
+      <EntityCardStyled ref={ref} sx={{ height: "300px" }} withPointer>
         <EntityImgStyled imgUrl={image_url}>
           <CardLabelStyled
             sx={{
@@ -42,7 +42,9 @@ export const GameCard = forwardRef<HTMLDivElement, IGameCardProps>(
           </Box>
         )}
         <Box display="flex" flexDirection="column" gap={2} flex={1} p={3}>
-          <WithLineClampStyled variant="subtitle2">{name}</WithLineClampStyled>
+          <WithLineClampStyled lineClamp={1} variant="subtitle2">
+            {name}
+          </WithLineClampStyled>
           {description && (
             <WithLineClampStyled lineClamp={4} variant="caption">
               {description}

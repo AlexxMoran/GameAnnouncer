@@ -21,10 +21,10 @@ export interface ICreateGameDto {
 
 export interface IEditGameDto extends Partial<ICreateGameDto> {}
 
-export interface IGameListFilters {
+export interface IGamesFilters {
   name?: string;
 }
 
-export interface IGetGameListDto
+export interface IGetGamesDto
   extends IPaginationParams,
-    Partial<IGameListFilters> {}
+    Partial<IGamesFilters> {}

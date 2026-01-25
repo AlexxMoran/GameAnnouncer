@@ -23,6 +23,8 @@ export const translationRu = {
     firstName: "имя",
     lastName: "фамилия",
     nickname: "никнейм",
+    participant: "участник",
+    organizer: "организатор",
   },
   actions: {
     login: "Войти",
@@ -82,6 +84,9 @@ export const translationRu = {
     deletionAnnouncementConfirmation: "Вы уверены, что хотите удалить турнир?",
     accountSettings: "Настройки аккаунта",
     usersData: "Данные пользователя",
+    myAnnouncementsTitle: "Мои турниры",
+    participatedAnnouncements: "Турниры с вашим участием",
+    organizedAnnouncements: "Организованные вами турниры",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",
