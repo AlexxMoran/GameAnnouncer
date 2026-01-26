@@ -41,7 +41,7 @@ export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = (props) => {
         {[
           EAnnouncementStatuses.Live,
           EAnnouncementStatuses.RegistrationOpen,
-          EAnnouncementStatuses.RegistrationClosed,
+          EAnnouncementStatuses.Cancelled,
         ].map((status) => (
           <Chip
             key={status}
