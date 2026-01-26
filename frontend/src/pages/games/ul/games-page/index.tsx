@@ -8,11 +8,7 @@ import { GameCard } from "@pages/games/ul/game-card";
 import { ImageUploadForm } from "@pages/games/ul/image-upload-form";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
-import type {
-  ICreateGameDto,
-  IEditGameDto,
-  IGameDto,
-} from "@shared/services/api/games-api-service/types";
+import type { ICreateGameDto, IEditGameDto, IGameDto } from "@shared/services/api/games-api-service/types";
 import { CardsWrapperStyled } from "@shared/ui/_styled/cards-wrapper-styled";
 import type { IMenuAction } from "@shared/ui/actions-menu/types";
 import { Badge } from "@shared/ui/badge";
@@ -101,23 +97,14 @@ export const GamesPage: FC = observer(() => {
   const handleOpenEditDialog = (game: IGameDto) => {
     openDialog({
       title: t("actions.editGame"),
-      children: (
-        <CreateGameForm
-          initialValues={game}
-          onSubmit={(values) => handleEditGame(game, values)}
-        />
-      ),
+      children: <CreateGameForm initialValues={game} onSubmit={(values) => handleEditGame(game, values)} />,
     });
   };
 
   const handleOpenUploadImageDialog = (game: IGameDto) => {
     openDialog({
       title: t("actions.uploadImage"),
-      children: (
-        <ImageUploadForm
-          onUploadImage={(file) => handleUploadImage(game, file)}
-        />
-      ),
+      children: <ImageUploadForm onUploadImage={(file) => handleUploadImage(game, file)} />,
       maxWidth: "sm",
     });
   };
@@ -150,11 +137,7 @@ export const GamesPage: FC = observer(() => {
         <Badge badgeContent={total} color="secondary">
           <T variant="h4">{t("pageTitles.games")}</T>
         </Badge>
-        <Button
-          variant="text"
-          onClick={handleOpenCreateDialog}
-          startIcon={<AddIcon />}
-        >
+        <Button variant="text" onClick={handleOpenCreateDialog} startIcon={<AddIcon />}>
           {t("actions.addGame")}
         </Button>
       </Box>
@@ -174,12 +157,8 @@ export const GamesPage: FC = observer(() => {
                 )}
               </ElementObserver>
             ) : (
-              <GameCard
-                key={game.id}
-                game={game}
-                actionList={createGameActionList(game)}
-              />
-            ),
+              <GameCard key={game.id} game={game} actionList={createGameActionList(game)} />
+            )
           )}
         </CardsWrapperStyled>
       )}

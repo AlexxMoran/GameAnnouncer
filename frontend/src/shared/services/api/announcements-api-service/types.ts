@@ -1,8 +1,5 @@
 import type { EAnnouncementStatuses } from "@shared/services/api/announcements-api-service/constants";
-import type {
-  IEntityDateFields,
-  IEntityIdField,
-} from "@shared/types/commonEntity.types";
+import type { IEntityDateFields, IEntityIdField } from "@shared/types/commonEntity.types";
 import type { TMaybe } from "@shared/types/main.types";
 import type { IPaginationParams } from "@shared/types/pagination.types";
 
@@ -37,12 +34,9 @@ export interface IAnnouncementListFilters {
   status?: EAnnouncementStatuses;
 }
 
-export interface IEditAnnouncementDto extends Partial<
-  Omit<ICreateAnnouncementDto, "game_id">
-> {}
+export interface IEditAnnouncementDto extends Partial<Omit<ICreateAnnouncementDto, "game_id">> {}
 
-export interface IGetAnnouncementsDto
-  extends IPaginationParams, IAnnouncementListFilters {}
+export interface IGetAnnouncementsDto extends IPaginationParams, IAnnouncementListFilters {}
 
 export interface IGetParticipatedAnnouncementsDto extends IPaginationParams {}
 export interface IGetOrganizedAnnouncementsDto extends IPaginationParams {}

@@ -18,10 +18,7 @@ import { T } from "@shared/ui/typography";
 import { forwardRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export const AnnouncementCard = forwardRef<
-  HTMLDivElement,
-  IAnnouncementCardProps
->((props, ref) => {
+export const AnnouncementCard = forwardRef<HTMLDivElement, IAnnouncementCardProps>((props, ref) => {
   const { announcement, actionList } = props;
 
   const { t } = useTranslation();
@@ -98,19 +95,12 @@ export const AnnouncementCard = forwardRef<
             {title}
           </WithLineClampStyled>
           {content && (
-            <WithLineClampStyled
-              lineClamp={isExpanded ? undefined : 3}
-              variant="caption"
-            >
+            <WithLineClampStyled lineClamp={isExpanded ? undefined : 3} variant="caption">
               {content}
             </WithLineClampStyled>
           )}
         </Box>
-        <Box
-          display="flex"
-          flexDirection="column"
-          justifyContent="space-between"
-        >
+        <Box display="flex" flexDirection="column" justifyContent="space-between">
           {actionList?.length && (
             <ActionsMenu actionList={actionList}>
               {({ onClick, ref }) => (

@@ -3,9 +3,7 @@ import type { EGameCategories } from "@shared/services/api/games-api-service/con
 import type { TFunction } from "i18next";
 import * as Yup from "yup";
 
-export const createValidationSchema = (
-  t: TFunction
-): Yup.ObjectSchema<ICreateGameFields> =>
+export const createValidationSchema = (t: TFunction): Yup.ObjectSchema<ICreateGameFields> =>
   Yup.object().shape({
     name: Yup.string()
       .trim()
@@ -16,7 +14,5 @@ export const createValidationSchema = (
       .min(8, t("validationErrors.minLength", { minLength: 8 }))
       .max(256, t("validationErrors.maxLength", { maxLength: 256 }))
       .required(t("validationErrors.required")),
-    category: Yup.string<EGameCategories>()
-      .trim()
-      .required(t("validationErrors.required")),
+    category: Yup.string<EGameCategories>().trim().required(t("validationErrors.required")),
   });

@@ -18,17 +18,14 @@ export class AnnouncementsApiService {
   constructor(private baseApiService: BaseApiService) {}
 
   getAnnouncements = (params: IGetAnnouncementsDto) => {
-    return this.baseApiService.get<
-      TApiResponseWrapper<IAnnouncementDto[]>,
-      IPaginationMeta
-    >(`/v1/${ANNOUNCEMENTS_ENDPOINT}`, { params });
+    return this.baseApiService.get<TApiResponseWrapper<IAnnouncementDto[]>, IPaginationMeta>(
+      `/v1/${ANNOUNCEMENTS_ENDPOINT}`,
+      { params }
+    );
   };
 
   createAnnouncement = (params: ICreateAnnouncementDto) => {
-    return this.baseApiService.post<TApiResponseWrapper<IAnnouncementDto>>(
-      `/v1/${ANNOUNCEMENTS_ENDPOINT}`,
-      params
-    );
+    return this.baseApiService.post<TApiResponseWrapper<IAnnouncementDto>>(`/v1/${ANNOUNCEMENTS_ENDPOINT}`, params);
   };
 
   editAnnouncement = (id: number, params: IEditAnnouncementDto) => {
@@ -39,24 +36,22 @@ export class AnnouncementsApiService {
   };
 
   deleteAnnouncement = (id: number) => {
-    return this.baseApiService.delete<TApiResponseWrapper<IAnnouncementDto>>(
-      `/v1/${ANNOUNCEMENTS_ENDPOINT}/${id}`
-    );
+    return this.baseApiService.delete<TApiResponseWrapper<IAnnouncementDto>>(`/v1/${ANNOUNCEMENTS_ENDPOINT}/${id}`);
   };
 
   getParticipatedAnnouncements = (params: IGetParticipatedAnnouncementsDto) => {
-    return this.baseApiService.get<
-      TApiResponseWrapper<IAnnouncementDto[]>,
-      IPaginationMeta
-    >(`/v1/${USER_ANNOUNCEMENTS_ENDPOINT}/participated_announcements`, {
-      params,
-    });
+    return this.baseApiService.get<TApiResponseWrapper<IAnnouncementDto[]>, IPaginationMeta>(
+      `/v1/${USER_ANNOUNCEMENTS_ENDPOINT}/participated_announcements`,
+      {
+        params,
+      }
+    );
   };
 
   getOrganizedAnnouncements = (params: IGetOrganizedAnnouncementsDto) => {
-    return this.baseApiService.get<
-      TApiResponseWrapper<IAnnouncementDto[]>,
-      IPaginationMeta
-    >(`/v1/${USER_ANNOUNCEMENTS_ENDPOINT}/organized_announcements`, { params });
+    return this.baseApiService.get<TApiResponseWrapper<IAnnouncementDto[]>, IPaginationMeta>(
+      `/v1/${USER_ANNOUNCEMENTS_ENDPOINT}/organized_announcements`,
+      { params }
+    );
   };
 }

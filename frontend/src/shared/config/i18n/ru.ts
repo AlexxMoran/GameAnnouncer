@@ -6,8 +6,7 @@ export const translationRu = {
     en: "Английский",
   },
   countedEntities: {
-    announcement:
-      "{count, plural, =0{нет турниров} =1{1 турнир} few{# турнира} many{# турниров} other{# турнира}}",
+    announcement: "{count, plural, =0{нет турниров} =1{1 турнир} few{# турнира} many{# турниров} other{# турнира}}",
     game: "{count, plural, =0{нет игр} =1{1 игра} few{# игр} many{# игр} other{# игр}}",
   },
   entities: {
@@ -63,10 +62,8 @@ export const translationRu = {
     deletionGameConfirmation: "Вы уверены, что хотите удалить игру?",
     requestSendingSuccess: "Запрос успешно отправлен",
     gameUploadSuccess: "Изображение успешно загружено",
-    fileUploadTooltip:
-      "Подходящие форматы - {formats}, размер не более {size} MB",
-    introduction:
-      "Создавай турниры любого масштаба — от быстрых дуэлей до полноценных чемпионатов",
+    fileUploadTooltip: "Подходящие форматы - {formats}, размер не более {size} MB",
+    introduction: "Создавай турниры любого масштаба — от быстрых дуэлей до полноценных чемпионатов",
     welcome: "Добро пожаловать!",
     ok: "Хорошо!",
     registrationConfirmation:

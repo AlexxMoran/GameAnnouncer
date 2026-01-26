@@ -80,16 +80,10 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
       <HeaderStyled>
         <div>LOGO</div>
         <Box display="flex" alignItems="center" gap={4}>
-          {!isAuthenticated && (
-            <Link to={EAppRoutes.Login}>{t("actions.login")}</Link>
-          )}
+          {!isAuthenticated && <Link to={EAppRoutes.Login}>{t("actions.login")}</Link>}
           <Link to={EAppRoutes.Games}>{t("pageTitles.games")}</Link>
-          <Link to={EAppRoutes.Announcements}>
-            {t("pageTitles.announcements")}
-          </Link>
-          <Link to={EAppRoutes.MyAnnouncements}>
-            {t("texts.myAnnouncementsTitle")}
-          </Link>
+          <Link to={EAppRoutes.Announcements}>{t("pageTitles.announcements")}</Link>
+          <Link to={EAppRoutes.MyAnnouncements}>{t("texts.myAnnouncementsTitle")}</Link>
         </Box>
         <Box display="flex" alignItems="center">
           {isAuthenticated && (

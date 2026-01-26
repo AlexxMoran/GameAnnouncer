@@ -12,18 +12,9 @@ export const Autocomplete = <
   TDisableClearable extends boolean | undefined = false,
   TFreeSolo extends boolean | undefined = false,
 >(
-  props: IAutocompleteProps<TOption, TMultiple, TDisableClearable, TFreeSolo>,
+  props: IAutocompleteProps<TOption, TMultiple, TDisableClearable, TFreeSolo>
 ) => {
-  const {
-    name,
-    label,
-    required,
-    helperText,
-    error,
-    onLastItemVisible,
-    loading,
-    ...rest
-  } = props;
+  const { name, label, required, helperText, error, onLastItemVisible, loading, ...rest } = props;
 
   const { t } = useTranslation();
 
@@ -33,18 +24,12 @@ export const Autocomplete = <
       size="small"
       noOptionsText={t("texts.noOptions")}
       slotProps={{ listbox: { sx: { maxHeight: "200px" } } }}
-      renderOption={(
-        { key: _, ...otherProps },
-        option,
-        counter,
-        ownerState,
-      ) => {
+      renderOption={({ key: _, ...otherProps }, option, counter, ownerState) => {
         const isLastOption = counter.index === rest.options.length - 1;
         const label = ownerState.getOptionLabel?.(option);
         const optionId = typeof option === "object" ? option.id : label;
 
-        const key =
-          typeof option === "object" ? optionId : (option as string | number);
+        const key = typeof option === "object" ? optionId : (option as string | number);
 
         return isLastOption ? (
           <ElementObserver onVisible={onLastItemVisible} key={key}>

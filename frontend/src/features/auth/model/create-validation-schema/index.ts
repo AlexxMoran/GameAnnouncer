@@ -2,14 +2,9 @@ import type { IAuthFields } from "@features/auth/model/create-validation-schema/
 import type { TFunction } from "i18next";
 import * as Yup from "yup";
 
-export const createValidationSchema = (
-  t: TFunction
-): Yup.ObjectSchema<IAuthFields> =>
+export const createValidationSchema = (t: TFunction): Yup.ObjectSchema<IAuthFields> =>
   Yup.object().shape({
-    username: Yup.string()
-      .trim()
-      .email(t("validationErrors.email"))
-      .required(t("validationErrors.required")),
+    username: Yup.string().trim().email(t("validationErrors.email")).required(t("validationErrors.required")),
     password: Yup.string()
       .trim()
       .min(8, t("validationErrors.minLength", { minLength: 8 }))

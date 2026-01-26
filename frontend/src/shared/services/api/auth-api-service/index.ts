@@ -7,10 +7,7 @@ import type {
   IUserDto,
 } from "@shared/services/api/auth-api-service/types";
 import type { BaseApiService } from "@shared/services/api/base-api-service";
-import type {
-  IApiConfig,
-  TApiResponseWrapper,
-} from "@shared/services/api/base-api-service/types";
+import type { IApiConfig, TApiResponseWrapper } from "@shared/services/api/base-api-service/types";
 import axios from "axios";
 
 export class AuthApiService {
@@ -26,37 +23,26 @@ export class AuthApiService {
 
     Object.entries(params).forEach(([key, value]) => body.set(key, value));
 
-    return this.baseApiService.post<IAccessToken>(
-      `${AUTH_ENDPOINT}/login`,
-      body,
-      {
-        withCredentials: true,
-        headers,
-      }
-    );
+    return this.baseApiService.post<IAccessToken>(`${AUTH_ENDPOINT}/login`, body, {
+      withCredentials: true,
+      headers,
+    });
   };
 
   getMe = () => {
-    return this.baseApiService.get<TApiResponseWrapper<IUserDto>>(
-      `${AUTH_ENDPOINT}/users/me`,
-      { withCredentials: true }
-    );
+    return this.baseApiService.get<TApiResponseWrapper<IUserDto>>(`${AUTH_ENDPOINT}/users/me`, {
+      withCredentials: true,
+    });
   };
 
   editMe = (params: IEditUserDto) => {
-    return this.baseApiService.patch<TApiResponseWrapper<IUserDto>>(
-      `${AUTH_ENDPOINT}/users/me`,
-      params,
-      { withCredentials: true }
-    );
+    return this.baseApiService.patch<TApiResponseWrapper<IUserDto>>(`${AUTH_ENDPOINT}/users/me`, params, {
+      withCredentials: true,
+    });
   };
 
   logout = () => {
-    return this.baseApiService.post<IAccessToken>(
-      `${AUTH_ENDPOINT}/logout`,
-      {},
-      { withCredentials: true }
-    );
+    return this.baseApiService.post<IAccessToken>(`${AUTH_ENDPOINT}/logout`, {}, { withCredentials: true });
   };
 
   verifyEmail = (token: string) => {
@@ -64,9 +50,7 @@ export class AuthApiService {
 
     body.set("token", token);
 
-    return this.baseApiService.post<TApiResponseWrapper<IUserDto>>(
-      `${AUTH_ENDPOINT}/verify?${body}`
-    );
+    return this.baseApiService.post<TApiResponseWrapper<IUserDto>>(`${AUTH_ENDPOINT}/verify?${body}`);
   };
 
   register = (params: IRegisterDto) => {
@@ -74,9 +58,7 @@ export class AuthApiService {
 
     Object.entries(params).forEach(([key, value]) => body.set(key, value));
 
-    return this.baseApiService.post<TApiResponseWrapper<IUserDto>>(
-      `${AUTH_ENDPOINT}/register?${body}`
-    );
+    return this.baseApiService.post<TApiResponseWrapper<IUserDto>>(`${AUTH_ENDPOINT}/register?${body}`);
   };
 
   refreshToken = (config?: IApiConfig) => {

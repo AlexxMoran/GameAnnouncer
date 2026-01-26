@@ -1,17 +1,11 @@
 import { DEFAULT_PAGINATION_LIMIT } from "@shared/services/pagination-service/constants";
 import type { IPaginationServiceParams } from "@shared/services/pagination-service/types";
-import type {
-  IEntityIdField,
-  TEntityId,
-} from "@shared/types/commonEntity.types";
+import type { IEntityIdField, TEntityId } from "@shared/types/commonEntity.types";
 import type { TMaybe } from "@shared/types/main.types";
 import type { IPaginationParams } from "@shared/types/pagination.types";
 import { makeAutoObservable, runInAction } from "mobx";
 
-export class PaginationService<
-  TEntity extends IEntityIdField,
-  TParams extends IPaginationParams,
-> {
+export class PaginationService<TEntity extends IEntityIdField, TParams extends IPaginationParams> {
   private listMap = new Map<TEntityId, TEntity>();
 
   limit = DEFAULT_PAGINATION_LIMIT;

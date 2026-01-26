@@ -6,10 +6,7 @@ import { AnnouncementsFilters } from "@pages/announcements/ui/announcements-filt
 import { MainPageImgStyled } from "@pages/announcements/ui/announcements-page/styles";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
-import type {
-  IAnnouncementDto,
-  ICreateAnnouncementDto,
-} from "@shared/services/api/announcements-api-service/types";
+import type { IAnnouncementDto, ICreateAnnouncementDto } from "@shared/services/api/announcements-api-service/types";
 import { EntityCrudService } from "@shared/services/entity-crud-service";
 import { CardsWrapperStyled } from "@shared/ui/_styled/cards-wrapper-styled";
 import type { IMenuAction } from "@shared/ui/actions-menu/types";
@@ -36,7 +33,7 @@ export const AnnouncementsPage: FC = observer(() => {
         getEntitiesFn: announcementsApiService.getAnnouncements,
         createEntityFn: announcementsApiService.createAnnouncement,
         deleteEntityFn: announcementsApiService.deleteAnnouncement,
-      }),
+      })
   );
 
   const {
@@ -83,17 +80,13 @@ export const AnnouncementsPage: FC = observer(() => {
       const response = await deleteAnnouncement(id);
 
       if (response) {
-        enqueueSnackbar(t("texts.announcementDeletingSuccess"), {
-          variant: "success",
-        });
+        enqueueSnackbar(t("texts.announcementDeletingSuccess"), { variant: "success" });
         closeDialog();
       }
     }
   };
 
-  const createAnnouncementActionList = (
-    announcement: IAnnouncementDto,
-  ): IMenuAction[] => [
+  const createAnnouncementActionList = (announcement: IAnnouncementDto): IMenuAction[] => [
     {
       id: 1,
       title: t("actions.delete"),
@@ -124,11 +117,7 @@ export const AnnouncementsPage: FC = observer(() => {
         <Badge nonce="" badgeContent={total} color="secondary">
           <T variant="h4">{t("pageTitles.announcements")}</T>
         </Badge>
-        <Button
-          variant="text"
-          onClick={handleOpenCreateDialog}
-          startIcon={<AddIcon />}
-        >
+        <Button variant="text" onClick={handleOpenCreateDialog} startIcon={<AddIcon />}>
           {t("actions.addAnnouncement")}
         </Button>
       </Box>
@@ -154,7 +143,7 @@ export const AnnouncementsPage: FC = observer(() => {
                 announcement={announcement}
                 actionList={createAnnouncementActionList(announcement)}
               />
-            ),
+            )
           )}
         </CardsWrapperStyled>
       )}

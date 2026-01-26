@@ -6,10 +6,7 @@ import { AnnouncementCard } from "@pages/my-announcements/ui/announcement-card";
 import { EAppSubRoutes } from "@shared/constants/appRoutes";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
-import type {
-  IAnnouncementDto,
-  ICreateAnnouncementDto,
-} from "@shared/services/api/announcements-api-service/types";
+import type { IAnnouncementDto, ICreateAnnouncementDto } from "@shared/services/api/announcements-api-service/types";
 import { EntityCrudService } from "@shared/services/entity-crud-service";
 import type { IMenuAction } from "@shared/ui/actions-menu/types";
 import { Badge } from "@shared/ui/badge";
@@ -36,21 +33,18 @@ export const AnnouncementsTab: FC = observer(() => {
     | EAppSubRoutes.OrganizedAnnouncements
     | EAppSubRoutes.ParticipatedAnnouncements;
 
-  const isParticipatedAnnouncements =
-    tabType === EAppSubRoutes.ParticipatedAnnouncements;
+  const isParticipatedAnnouncements = tabType === EAppSubRoutes.ParticipatedAnnouncements;
 
   const [announcementsService] = useState(
     () =>
       new EntityCrudService({
         getEntitiesFn:
           announcementsApiService[
-            isParticipatedAnnouncements
-              ? "getParticipatedAnnouncements"
-              : "getOrganizedAnnouncements"
+            isParticipatedAnnouncements ? "getParticipatedAnnouncements" : "getOrganizedAnnouncements"
           ],
         createEntityFn: announcementsApiService.createAnnouncement,
         deleteEntityFn: announcementsApiService.deleteAnnouncement,
-      }),
+      })
   );
 
   const {
@@ -102,9 +96,7 @@ export const AnnouncementsTab: FC = observer(() => {
     }
   };
 
-  const createAnnouncementActionList = (
-    announcement: IAnnouncementDto,
-  ): IMenuAction[] => [
+  const createAnnouncementActionList = (announcement: IAnnouncementDto): IMenuAction[] => [
     {
       id: 1,
       title: t("actions.delete"),
@@ -118,16 +110,10 @@ export const AnnouncementsTab: FC = observer(() => {
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <Badge badgeContent={total} color="secondary">
           <T variant="h6">
-            {t(
-              `texts.${isParticipatedAnnouncements ? "participatedAnnouncements" : "organizedAnnouncements"}`,
-            )}
+            {t(`texts.${isParticipatedAnnouncements ? "participatedAnnouncements" : "organizedAnnouncements"}`)}
           </T>
         </Badge>
-        <Button
-          variant="text"
-          onClick={handleOpenCreateDialog}
-          startIcon={<AddIcon />}
-        >
+        <Button variant="text" onClick={handleOpenCreateDialog} startIcon={<AddIcon />}>
           {t("actions.addAnnouncement")}
         </Button>
       </Box>
@@ -148,13 +134,10 @@ export const AnnouncementsTab: FC = observer(() => {
               </ElementObserver>
             ) : (
               <Fragment key={announcement.id}>
-                <AnnouncementCard
-                  announcement={announcement}
-                  actionList={createAnnouncementActionList(announcement)}
-                />
+                <AnnouncementCard announcement={announcement} actionList={createAnnouncementActionList(announcement)} />
                 <Divider />
               </Fragment>
-            ),
+            )
           )}
         </Box>
       )}

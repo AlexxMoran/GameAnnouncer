@@ -13,30 +13,19 @@ export class GamesApiService {
   constructor(private baseApiService: BaseApiService) {}
 
   getGames = (params?: IGetGamesDto) => {
-    return this.baseApiService.get<
-      TApiResponseWrapper<IGameDto[]>,
-      IPaginationMeta
-    >(GAMES_ENDPOINT, { params });
+    return this.baseApiService.get<TApiResponseWrapper<IGameDto[]>, IPaginationMeta>(GAMES_ENDPOINT, { params });
   };
 
   createGame = (params: ICreateGameDto) => {
-    return this.baseApiService.post<TApiResponseWrapper<IGameDto>>(
-      GAMES_ENDPOINT,
-      params
-    );
+    return this.baseApiService.post<TApiResponseWrapper<IGameDto>>(GAMES_ENDPOINT, params);
   };
 
   editGame = (id: number, params: IEditGameDto) => {
-    return this.baseApiService.patch<TApiResponseWrapper<IGameDto>>(
-      `${GAMES_ENDPOINT}/${id}`,
-      params
-    );
+    return this.baseApiService.patch<TApiResponseWrapper<IGameDto>>(`${GAMES_ENDPOINT}/${id}`, params);
   };
 
   deleteGame = (id: number) => {
-    return this.baseApiService.delete<TApiResponseWrapper<IGameDto>>(
-      `${GAMES_ENDPOINT}/${id}`
-    );
+    return this.baseApiService.delete<TApiResponseWrapper<IGameDto>>(`${GAMES_ENDPOINT}/${id}`);
   };
 
   uploadGameImage = (id: number, file: File) => {
@@ -44,9 +33,6 @@ export class GamesApiService {
 
     formData.append("file", file);
 
-    return this.baseApiService.post<TApiResponseWrapper<IGameDto>>(
-      `${GAMES_ENDPOINT}/${id}/upload_image`,
-      formData
-    );
+    return this.baseApiService.post<TApiResponseWrapper<IGameDto>>(`${GAMES_ENDPOINT}/${id}/upload_image`, formData);
   };
 }
