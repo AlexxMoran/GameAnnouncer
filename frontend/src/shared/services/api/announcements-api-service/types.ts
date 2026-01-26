@@ -33,14 +33,16 @@ export interface ICreateAnnouncementDto {
 
 export interface IAnnouncementListFilters {
   game_id?: string;
+  q?: string;
+  status?: EAnnouncementStatuses;
 }
 
-export interface IEditAnnouncementDto
-  extends Partial<Omit<ICreateAnnouncementDto, "game_id">> {}
+export interface IEditAnnouncementDto extends Partial<
+  Omit<ICreateAnnouncementDto, "game_id">
+> {}
 
 export interface IGetAnnouncementsDto
-  extends IPaginationParams,
-    IAnnouncementListFilters {}
+  extends IPaginationParams, IAnnouncementListFilters {}
 
 export interface IGetParticipatedAnnouncementsDto extends IPaginationParams {}
 export interface IGetOrganizedAnnouncementsDto extends IPaginationParams {}

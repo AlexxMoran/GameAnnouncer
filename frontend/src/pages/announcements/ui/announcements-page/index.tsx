@@ -1,8 +1,8 @@
 import { CreateAnnouncementForm } from "@features/create-announcement/ui/create-announcement-form";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-import { AnnouncementsService } from "@pages/announcements/model/announcements-service";
 import { AnnouncementCard } from "@pages/announcements/ui/announcement-card";
+import { AnnouncementsFilters } from "@pages/announcements/ui/announcements-filters";
 import { MainPageImgStyled } from "@pages/announcements/ui/announcements-page/styles";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
@@ -10,17 +10,18 @@ import type {
   IAnnouncementDto,
   ICreateAnnouncementDto,
 } from "@shared/services/api/announcements-api-service/types";
+import { EntityCrudService } from "@shared/services/entity-crud-service";
 import { CardsWrapperStyled } from "@shared/ui/_styled/cards-wrapper-styled";
 import type { IMenuAction } from "@shared/ui/actions-menu/types";
 import { Badge } from "@shared/ui/badge";
 import { Box } from "@shared/ui/box";
+import { Button } from "@shared/ui/button";
 import { ElementObserver } from "@shared/ui/element-observer";
-import { Fab } from "@shared/ui/fab-button";
 import { Spinner } from "@shared/ui/spinner";
 import { T } from "@shared/ui/typography";
 import { observer } from "mobx-react-lite";
 import { useSnackbar } from "notistack";
-import { useState, type FC, type RefObject } from "react";
+import { useEffect, useState, type FC, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 
 export const AnnouncementsPage: FC = observer(() => {
@@ -30,14 +31,25 @@ export const AnnouncementsPage: FC = observer(() => {
   const { announcementsApiService } = useRootService();
 
   const [announcementsService] = useState(
-    () => new AnnouncementsService(announcementsApiService)
+    () =>
+      new EntityCrudService({
+        getEntitiesFn: announcementsApiService.getAnnouncements,
+        createEntityFn: announcementsApiService.createAnnouncement,
+        deleteEntityFn: announcementsApiService.deleteAnnouncement,
+      }),
   );
 
-  const { paginationService, createAnnouncement, deleteAnnouncement } =
-    announcementsService;
+  const {
+    listData,
+    reactionList,
+    filters,
+    createEntity: createAnnouncement,
+    deleteEntity: deleteAnnouncement,
+    setFilter,
+    paginate,
+  } = announcementsService;
 
-  const { list, paginate, isInitialLoading, isPaginating, total } =
-    paginationService;
+  const { list, isInitialLoading, isPaginating, total } = listData;
 
   const handleCreateAnnouncement = async (values: ICreateAnnouncementDto) => {
     const result = await createAnnouncement(values);
@@ -80,7 +92,7 @@ export const AnnouncementsPage: FC = observer(() => {
   };
 
   const createAnnouncementActionList = (
-    announcement: IAnnouncementDto
+    announcement: IAnnouncementDto,
   ): IMenuAction[] => [
     {
       id: 1,
@@ -90,7 +102,9 @@ export const AnnouncementsPage: FC = observer(() => {
     },
   ];
 
-  // TODO оптимизировать показ лоадера при пагинации
+  useEffect(() => () => reactionList.forEach((reaction) => reaction()), []);
+
+  // TODO оптимизировать рендер данных mobx - распихать на разные компоненты
   return (
     <Box display="flex" flexDirection="column" gap={8} height="100%">
       <MainPageImgStyled>
@@ -106,9 +120,19 @@ export const AnnouncementsPage: FC = observer(() => {
           {t("texts.introduction")}
         </T>
       </MainPageImgStyled>
-      <Badge nonce="" badgeContent={total} color="secondary">
-        <T variant="h4">{t("pageTitles.announcements")}</T>
-      </Badge>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Badge nonce="" badgeContent={total} color="secondary">
+          <T variant="h4">{t("pageTitles.announcements")}</T>
+        </Badge>
+        <Button
+          variant="text"
+          onClick={handleOpenCreateDialog}
+          startIcon={<AddIcon />}
+        >
+          {t("actions.addAnnouncement")}
+        </Button>
+      </Box>
+      <AnnouncementsFilters filters={filters} handleFilter={setFilter} />
       {isInitialLoading && <Spinner type="backdrop" />}
       {total === 0 && <T variant="body1">{t("texts.haveNoData")}</T>}
       {!!list.length && (
@@ -130,22 +154,11 @@ export const AnnouncementsPage: FC = observer(() => {
                 announcement={announcement}
                 actionList={createAnnouncementActionList(announcement)}
               />
-            )
+            ),
           )}
         </CardsWrapperStyled>
       )}
       {isPaginating && <Spinner type="pagination" />}
-      <Fab
-        onClick={handleOpenCreateDialog}
-        tooltip={t("actions.addAnnouncement")}
-        sx={{
-          position: "fixed",
-          bottom: (theme) => theme.spacing(6),
-          right: (theme) => theme.spacing(6),
-        }}
-      >
-        <AddIcon />
-      </Fab>
     </Box>
   );
 });

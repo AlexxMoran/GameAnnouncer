@@ -1,5 +1,5 @@
 import type { TApiResponseWrapper } from "@shared/services/api/base-api-service/types";
-import type { TObjectAny } from "@shared/types/main.types";
+import type { IEntityIdField } from "@shared/types/commonEntity.types";
 import type {
   IPaginationMeta,
   IPaginationParams,
@@ -7,12 +7,10 @@ import type {
 import type { AxiosResponse } from "axios";
 
 export interface IPaginationServiceParams<
-  TEntity extends TObjectAny & { id: TEntityId },
-  TParams extends IPaginationParams
+  TEntity extends IEntityIdField,
+  TParams extends IPaginationParams,
 > {
   loadFn: (
-    params: TParams
+    params: TParams,
   ) => Promise<AxiosResponse<TApiResponseWrapper<TEntity[]> & IPaginationMeta>>;
 }
-
-export type TEntityId = number;

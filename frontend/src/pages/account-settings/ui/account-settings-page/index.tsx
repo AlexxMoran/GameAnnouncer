@@ -27,7 +27,7 @@ export const AccountSettingsPage: FC = observer(() => {
   return (
     <Box display="flex" flexDirection="column" gap={8} height="100%">
       <T variant="h4">{t("texts.accountSettings")}</T>
-      <CardStyled sx={{ p: (theme) => theme.spacing(8) }}>
+      <CardStyled sx={{ p: (theme) => theme.spacing(8), flex: 1 }}>
         <Box
           display="flex"
           flexDirection="column"

@@ -130,7 +130,7 @@ export const AnnouncementCard = forwardRef<
           <Box flex={1}></Box>
           <Box flex={2} px={3}>
             {moreInfoList.map(({ label, value }) => (
-              <Box display="flex" gap={1}>
+              <Box display="flex" gap={1} key={label}>
                 <T variant="caption" sx={{ flex: 1 }}>
                   {label}:
                 </T>

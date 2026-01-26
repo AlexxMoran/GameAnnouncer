@@ -88,7 +88,7 @@ export const translationEn = {
     usersData: "Users's data",
     myAnnouncementsTitle: "My tournaments",
     participatedAnnouncements: "Tournaments with your participation",
-    organizedAnnouncements: "Tournaments organized by you",
+    organizedAnnouncements: "Organized tournaments",
   },
   validationErrors: {
     unknown: "Unexpected error",
@@ -109,6 +109,7 @@ export const translationEn = {
   placeholders: {
     enter: "enter",
     select: "select",
+    search: "search",
   },
   pageTitles: {
     games: "Games",

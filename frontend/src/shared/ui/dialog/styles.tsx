@@ -1,16 +1,4 @@
-import { css } from "@emotion/react";
-import { Dialog, DialogTitle, styled } from "@mui/material";
-import type { ITStylesProps } from "@shared/ui/dialog/types";
-
-export const DialogTitleStyled = styled(DialogTitle)<ITStylesProps>`
-  ${({ capitalizeFirst }) =>
-    capitalizeFirst &&
-    css`
-      &::first-letter {
-        text-transform: capitalize;
-      }
-    `}
-`;
+import { Dialog, styled } from "@mui/material";
 
 export const DialogStyled = styled(Dialog)`
   & .MuiDialog-paper {

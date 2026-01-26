@@ -86,7 +86,7 @@ export const translationRu = {
     usersData: "Данные пользователя",
     myAnnouncementsTitle: "Мои турниры",
     participatedAnnouncements: "Турниры с вашим участием",
-    organizedAnnouncements: "Организованные вами турниры",
+    organizedAnnouncements: "Организованные турниры",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",
@@ -108,6 +108,7 @@ export const translationRu = {
   placeholders: {
     enter: "введите",
     select: "выберите",
+    search: "поиск",
   },
   pageTitles: {
     games: "Игры",
@@ -118,7 +119,7 @@ export const translationRu = {
       [EAnnouncementStatuses.PreRegistration]: "Ожидает регистрации",
       [EAnnouncementStatuses.RegistrationOpen]: "Регистрация открыта",
       [EAnnouncementStatuses.RegistrationClosed]: "Регистрация закрыта",
-      [EAnnouncementStatuses.Live]: "В прямом эфире",
+      [EAnnouncementStatuses.Live]: "Активен",
       [EAnnouncementStatuses.Paused]: "Приостановлен",
       [EAnnouncementStatuses.Finished]: "Завершен",
       [EAnnouncementStatuses.Cancelled]: "Отменен",

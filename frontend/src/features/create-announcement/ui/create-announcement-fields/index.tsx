@@ -35,7 +35,7 @@ export const CreateAnnouncementFields: FC = observer(() => {
     () =>
       new PaginationService<IGameDto, IGetGamesDto>({
         loadFn: gamesApiService.getGames,
-      })
+      }),
   );
 
   const { list, isInitialLoading, isPaginating, paginate, init } =
@@ -43,7 +43,7 @@ export const CreateAnnouncementFields: FC = observer(() => {
 
   const handlePickerChange = (
     name: keyof ICreateAnnouncementsFields,
-    value: PickerValue
+    value: PickerValue,
   ) => {
     if (dayjs(value).isValid()) {
       setFieldValue(name, value?.toISOString());
@@ -51,7 +51,7 @@ export const CreateAnnouncementFields: FC = observer(() => {
   };
 
   const handleMaxParticipantsChange = (
-    event: ChangeEvent<HTMLInputElement>
+    event: ChangeEvent<HTMLInputElement>,
   ) => {
     const value = event.target.value
       ? parseInt(event.target.value, 10).toString()
@@ -85,7 +85,6 @@ export const CreateAnnouncementFields: FC = observer(() => {
         helperText={errors["title"]}
         required
       />
-
       <Autocomplete
         name="category"
         label={t("entities.game")}
