@@ -6,10 +6,7 @@ export interface IAutocompleteProps<
   TMultiple extends boolean | undefined = false,
   TDisableClearable extends boolean | undefined = false,
   TFreeSolo extends boolean | undefined = false,
-> extends Omit<
-  AutocompleteProps<TOption, TMultiple, TDisableClearable, TFreeSolo>,
-  "renderInput"
-> {
+> extends Omit<AutocompleteProps<TOption, TMultiple, TDisableClearable, TFreeSolo>, "renderInput"> {
   label?: string;
   name?: string;
   error?: boolean;

@@ -6,9 +6,7 @@ import { Form } from "@shared/ui/form";
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 
-export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (
-  props
-) => {
+export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) => {
   const { onSubmit } = props;
 
   const { t } = useTranslation();
@@ -25,10 +23,7 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (
 
   const validationSchema = createValidationSchema(t);
 
-  const handleSubmit = async ({
-    game,
-    ...rest
-  }: ICreateAnnouncementsFields) => {
+  const handleSubmit = async ({ game, ...rest }: ICreateAnnouncementsFields) => {
     if (game) {
       await onSubmit?.({ ...rest, game_id: game.id });
     }

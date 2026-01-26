@@ -3,8 +3,7 @@ import type { IBoxProps } from "@shared/ui/box/types";
 import type { FormikConfig } from "formik";
 import type { FC } from "react";
 
-export interface IFormikConfig<T extends TObjectAny>
-  extends Omit<FormikConfig<T>, "onSubmit"> {
+export interface IFormikConfig<T extends TObjectAny> extends Omit<FormikConfig<T>, "onSubmit"> {
   onSubmit?: FormikConfig<T>["onSubmit"];
 }
 

@@ -13,23 +13,13 @@ import { IconButton } from "@shared/ui/icon-button";
 import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 
-export const AnnouncementCard = forwardRef<
-  HTMLDivElement,
-  IAnnouncementCardProps
->((props, ref) => {
+export const AnnouncementCard = forwardRef<HTMLDivElement, IAnnouncementCardProps>((props, ref) => {
   const { announcement, actionList } = props;
 
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const {
-    image_url,
-    title,
-    content,
-    participants_count,
-    max_participants,
-    status,
-  } = announcement;
+  const { image_url, title, content, participants_count, max_participants, status } = announcement;
 
   const participantsInfo = `${participants_count} / ${max_participants}`;
   const statusColor = createAnnouncementStatusColor(theme, status);

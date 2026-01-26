@@ -24,12 +24,7 @@ export const ActionsMenu: FC<IActionsMenuProps> = (props) => {
 
   return (
     <>
-      <Menu
-        open={isOpened}
-        anchorEl={ref}
-        onClose={handleCloseMenu}
-        disableScrollLock
-      >
+      <Menu open={isOpened} anchorEl={ref} onClose={handleCloseMenu} disableScrollLock>
         {actionList.map((action) => {
           const { onClick, disabled, id, icon, title, tooltip } = action;
 

@@ -1,10 +1,7 @@
 import type { ICreateAnnouncementsFields } from "@features/create-announcement/model/create-validation-schema/types";
 import type { PickerValue } from "@mui/x-date-pickers/internals";
 import { useRootService } from "@shared/hooks/use-root-service";
-import type {
-  IGameDto,
-  IGetGamesDto,
-} from "@shared/services/api/games-api-service/types";
+import type { IGameDto, IGetGamesDto } from "@shared/services/api/games-api-service/types";
 import { PaginationService } from "@shared/services/pagination-service";
 import type { TMaybe } from "@shared/types/main.types";
 import { Autocomplete } from "@shared/ui/autocomplete";
@@ -14,13 +11,7 @@ import dayjs from "dayjs";
 import { useFormikContext } from "formik";
 import { debounce } from "lodash";
 import { observer } from "mobx-react-lite";
-import {
-  useEffect,
-  useState,
-  type ChangeEvent,
-  type FC,
-  type SyntheticEvent,
-} from "react";
+import { useEffect, useState, type ChangeEvent, type FC, type SyntheticEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 export const CreateAnnouncementFields: FC = observer(() => {
@@ -28,34 +19,25 @@ export const CreateAnnouncementFields: FC = observer(() => {
   const { gamesApiService } = useRootService();
   const [input, setInput] = useState("");
 
-  const { errors, values, handleChange, setFieldValue } =
-    useFormikContext<ICreateAnnouncementsFields>();
+  const { errors, values, handleChange, setFieldValue } = useFormikContext<ICreateAnnouncementsFields>();
 
   const [paginationService] = useState(
     () =>
       new PaginationService<IGameDto, IGetGamesDto>({
         loadFn: gamesApiService.getGames,
-      }),
+      })
   );
 
-  const { list, isInitialLoading, isPaginating, paginate, init } =
-    paginationService;
+  const { list, isInitialLoading, isPaginating, paginate, init } = paginationService;
 
-  const handlePickerChange = (
-    name: keyof ICreateAnnouncementsFields,
-    value: PickerValue,
-  ) => {
+  const handlePickerChange = (name: keyof ICreateAnnouncementsFields, value: PickerValue) => {
     if (dayjs(value).isValid()) {
       setFieldValue(name, value?.toISOString());
     }
   };
 
-  const handleMaxParticipantsChange = (
-    event: ChangeEvent<HTMLInputElement>,
-  ) => {
-    const value = event.target.value
-      ? parseInt(event.target.value, 10).toString()
-      : 0;
+  const handleMaxParticipantsChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value ? parseInt(event.target.value, 10).toString() : 0;
     setFieldValue("max_participants", value);
   };
 
@@ -121,9 +103,7 @@ export const CreateAnnouncementFields: FC = observer(() => {
         }}
         onChange={(value) => handlePickerChange("registration_start_at", value)}
         value={dayjs(values["registration_start_at"])}
-        maxDateTime={
-          dayjs(values["start_at"]) || dayjs(values["registration_end_at"])
-        }
+        maxDateTime={dayjs(values["start_at"]) || dayjs(values["registration_end_at"])}
         disablePast
       />
       <DateTimePicker
@@ -152,10 +132,7 @@ export const CreateAnnouncementFields: FC = observer(() => {
         }}
         onChange={(value) => handlePickerChange("start_at", value)}
         value={dayjs(values["start_at"])}
-        minDateTime={
-          dayjs(values["registration_end_at"]) ||
-          dayjs(values["registration_start_at"])
-        }
+        minDateTime={dayjs(values["registration_end_at"]) || dayjs(values["registration_start_at"])}
         disablePast
       />
       <TextField

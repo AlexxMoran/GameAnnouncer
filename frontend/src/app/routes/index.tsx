@@ -16,40 +16,17 @@ export const Pages: FC = () => {
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={<Navigate to={EAppRoutes.Announcements} replace />}
-      />
+      <Route path="/" element={<Navigate to={EAppRoutes.Announcements} replace />} />
       <Route path={EAppRoutes.Announcements} element={<AnnouncementsPage />} />
       <Route path={EAppRoutes.Games} element={<GamesPage />} />
       <Route path={EAppRoutes.Login} element={<LoginPage />} />
       <Route path={EAppRoutes.Registration} element={<RegistrationPage />} />
-      <Route
-        path={EAppRoutes.AccountSettings}
-        element={<AccountSettingsPage />}
-      />
-      <Route
-        path={EAppRoutes.VerifyEmail}
-        element={<EmailVerificationPage />}
-      />
-      <Route
-        path={EAppRoutes.MyAnnouncements}
-        element={<MyAnnouncementsPage />}
-      >
-        <Route
-          index
-          element={
-            <Navigate to={EAppSubRoutes.ParticipatedAnnouncements} replace />
-          }
-        />
-        <Route
-          path={EAppSubRoutes.ParticipatedAnnouncements}
-          element={<AnnouncementsTab key={location.pathname} />}
-        />
-        <Route
-          path={EAppSubRoutes.OrganizedAnnouncements}
-          element={<AnnouncementsTab key={location.pathname} />}
-        />
+      <Route path={EAppRoutes.AccountSettings} element={<AccountSettingsPage />} />
+      <Route path={EAppRoutes.VerifyEmail} element={<EmailVerificationPage />} />
+      <Route path={EAppRoutes.MyAnnouncements} element={<MyAnnouncementsPage />}>
+        <Route index element={<Navigate to={EAppSubRoutes.ParticipatedAnnouncements} replace />} />
+        <Route path={EAppSubRoutes.ParticipatedAnnouncements} element={<AnnouncementsTab key={location.pathname} />} />
+        <Route path={EAppSubRoutes.OrganizedAnnouncements} element={<AnnouncementsTab key={location.pathname} />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

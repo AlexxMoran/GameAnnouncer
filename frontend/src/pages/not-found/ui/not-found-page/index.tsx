@@ -7,12 +7,7 @@ export const NotFoundPage: FC = () => {
   const { t } = useTranslation();
 
   return (
-    <Box
-      height="100%"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-    >
+    <Box height="100%" display="flex" alignItems="center" justifyContent="center">
       <T variant="h4">{t("texts.notFoundPage")}</T>
     </Box>
   );

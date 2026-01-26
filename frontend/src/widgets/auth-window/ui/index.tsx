@@ -7,18 +7,10 @@ import type { IAuthWindowProps } from "@widgets/auth-window/ui/types";
 import type { FC } from "react";
 
 export const AuthWindow: FC<IAuthWindowProps> = (props) => {
-  const { titleText, buttonText, urlText, haveAccountText, url, onSubmit } =
-    props;
+  const { titleText, buttonText, urlText, haveAccountText, url, onSubmit } = props;
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      justifyContent="center"
-      alignItems="center"
-      width="100%"
-      height="100%"
-    >
+    <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" width="100%" height="100%">
       <AuthFormWrapperStyled>
         <T variant="h5" capitalizeFirst>
           {titleText}

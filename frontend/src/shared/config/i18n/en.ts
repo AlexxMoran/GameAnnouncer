@@ -6,8 +6,7 @@ export const translationEn = {
     en: "English",
   },
   countedEntities: {
-    announcement:
-      "{count, plural, =0{no tournaments} =1{1 tournament} other{# tournaments}}",
+    announcement: "{count, plural, =0{no tournaments} =1{1 tournament} other{# tournaments}}",
     game: "{count, plural, =0{no games} =1{game} other{# games}}",
   },
   entities: {
@@ -63,10 +62,8 @@ export const translationEn = {
     deletionGameConfirmation: "Are you sure you want to delete game?",
     requestSendingSuccess: "The request has sent successfully",
     gameUploadSuccess: "Image successfully uploaded",
-    fileUploadTooltip:
-      "Suitable formats - {formats}, size no more than {size} MB",
-    introduction:
-      "Create tournaments of any size — from quick duels to full-fledged championships",
+    fileUploadTooltip: "Suitable formats - {formats}, size no more than {size} MB",
+    introduction: "Create tournaments of any size — from quick duels to full-fledged championships",
     welcome: "Welcome!",
     ok: "OK!",
     registrationConfirmation:
@@ -82,8 +79,7 @@ export const translationEn = {
     participantsCount: "Number of participants",
     announcementAddingSuccess: "Tournament successfully added",
     announcementDeletingSuccess: "Tournament successfully deleted",
-    deletionAnnouncementConfirmation:
-      "Are you sure you want to delete tournament?",
+    deletionAnnouncementConfirmation: "Are you sure you want to delete tournament?",
     accountSettings: "Account settings",
     usersData: "Users's data",
     myAnnouncementsTitle: "My tournaments",
@@ -94,10 +90,8 @@ export const translationEn = {
     unknown: "Unexpected error",
     email: "Enter a valid email address",
     required: "This field is required",
-    minLength:
-      "{minLength, plural, one{Minimum length is # character} other{Minimum length is # characters}}",
-    maxLength:
-      "{maxLength, plural, one{Maximum length is # character} other{Maximum length is # characters}}",
+    minLength: "{minLength, plural, one{Minimum length is # character} other{Minimum length is # characters}}",
+    maxLength: "{maxLength, plural, one{Maximum length is # character} other{Maximum length is # characters}}",
     incorrectFileSize: "Incorrect file size",
     incorrectFileFormat: "Incorrect file format",
     incorrectFileCount: "Attempt to upload more than one file",

@@ -2,8 +2,5 @@ import type { IGetAnnouncementsDto } from "@shared/services/api/announcements-ap
 
 export interface IAnnouncementsFiltersProps {
   filters: Partial<IGetAnnouncementsDto>;
-  handleFilter: (
-    key: keyof IGetAnnouncementsDto,
-    value: IGetAnnouncementsDto[keyof IGetAnnouncementsDto],
-  ) => void;
+  handleFilter: (key: keyof IGetAnnouncementsDto, value: IGetAnnouncementsDto[keyof IGetAnnouncementsDto]) => void;
 }

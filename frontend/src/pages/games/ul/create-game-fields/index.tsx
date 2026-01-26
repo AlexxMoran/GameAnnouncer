@@ -1,8 +1,5 @@
 import type { ICreateGameFields } from "@pages/games/model/create-validation-schema/types";
-import {
-  CATEGORY_LIST,
-  INVERTED_GAME_CATEGORIES,
-} from "@pages/games/ul/create-game-fields/constants";
+import { CATEGORY_LIST, INVERTED_GAME_CATEGORIES } from "@pages/games/ul/create-game-fields/constants";
 import { EGameCategories } from "@shared/services/api/games-api-service/constants";
 import type { TMaybe } from "@shared/types/main.types";
 import { Autocomplete } from "@shared/ui/autocomplete";
@@ -13,13 +10,9 @@ import { useTranslation } from "react-i18next";
 
 export const CreateGameFields: FC = () => {
   const { t } = useTranslation();
-  const { errors, values, handleChange, setFieldValue } =
-    useFormikContext<ICreateGameFields>();
+  const { errors, values, handleChange, setFieldValue } = useFormikContext<ICreateGameFields>();
 
-  const handleChangeCategory = (
-    _: SyntheticEvent,
-    value: TMaybe<EGameCategories>
-  ) => {
+  const handleChangeCategory = (_: SyntheticEvent, value: TMaybe<EGameCategories>) => {
     setFieldValue("category", value);
   };
 

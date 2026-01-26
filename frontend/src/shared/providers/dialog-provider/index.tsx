@@ -1,9 +1,5 @@
 import { DialogContext } from "@shared/providers/dialog-provider/constants";
-import type {
-  IConfirmFunction,
-  IOpenDialogOptions,
-  TResolveReject,
-} from "@shared/providers/dialog-provider/types";
+import type { IConfirmFunction, IOpenDialogOptions, TResolveReject } from "@shared/providers/dialog-provider/types";
 import type { TMaybe } from "@shared/types/main.types";
 import { Box } from "@shared/ui/box";
 import { Button } from "@shared/ui/button";
@@ -17,8 +13,7 @@ export const DialogProvider: FC<PropsWithChildren> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [resolveReject, setResolveReject] = useState<TResolveReject>([]);
 
-  const [contentType, setContentType] =
-    useState<TMaybe<"default" | "confirm">>(null);
+  const [contentType, setContentType] = useState<TMaybe<"default" | "confirm">>(null);
 
   const [resolve, reject] = resolveReject;
 
@@ -34,16 +29,13 @@ export const DialogProvider: FC<PropsWithChildren> = ({ children }) => {
     setContentType(null);
   }, []);
 
-  const confirm: IConfirmFunction = useCallback(
-    (options: IOpenDialogOptions) => {
-      return new Promise((res, rej) => {
-        setOptions(options);
-        setContentType("confirm");
-        setResolveReject([res, rej]);
-      });
-    },
-    []
-  );
+  const confirm: IConfirmFunction = useCallback((options: IOpenDialogOptions) => {
+    return new Promise((res, rej) => {
+      setOptions(options);
+      setContentType("confirm");
+      setResolveReject([res, rej]);
+    });
+  }, []);
 
   const handleConfirm = () => {
     resolve({ setIsLoading, closeDialog });

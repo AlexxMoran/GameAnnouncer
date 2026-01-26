@@ -1,9 +1,7 @@
 import type { IApiConfig } from "@shared/services/api/base-api-service/types";
 import type { TApiError } from "@shared/types/apiError.types";
 
-export const createAlertErrorInterceptor = (
-  alertError?: (message: string) => void
-) => {
+export const createAlertErrorInterceptor = (alertError?: (message: string) => void) => {
   return (error: TApiError) => {
     const { status, config, response } = error;
     const { suppressErrorHandling } = config as IApiConfig;

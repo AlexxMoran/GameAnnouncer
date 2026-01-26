@@ -4,9 +4,7 @@ import dayjs from "dayjs";
 import type { TFunction } from "i18next";
 import * as Yup from "yup";
 
-export const createValidationSchema = (
-  t: TFunction
-): Yup.ObjectSchema<ICreateAnnouncementsFields> =>
+export const createValidationSchema = (t: TFunction): Yup.ObjectSchema<ICreateAnnouncementsFields> =>
   Yup.object().shape({
     title: Yup.string()
       .trim()
@@ -38,21 +36,13 @@ export const createValidationSchema = (
         return dayjs(value).isValid();
       }),
     max_participants: Yup.number()
-      .test(
-        "is-valid-min-count",
-        t("validationErrors.minCount", { count: 2 }),
-        (value) => {
-          if (!value) return false;
-          return value >= 2;
-        }
-      )
-      .test(
-        "is-valid-max-count",
-        t("validationErrors.maxCount", { count: 64 }),
-        (value) => {
-          if (!value) return false;
-          return value <= 64;
-        }
-      )
+      .test("is-valid-min-count", t("validationErrors.minCount", { count: 2 }), (value) => {
+        if (!value) return false;
+        return value >= 2;
+      })
+      .test("is-valid-max-count", t("validationErrors.maxCount", { count: 64 }), (value) => {
+        if (!value) return false;
+        return value <= 64;
+      })
       .required(t("validationErrors.required")),
   });

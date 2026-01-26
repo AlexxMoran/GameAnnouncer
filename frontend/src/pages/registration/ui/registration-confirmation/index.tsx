@@ -6,9 +6,7 @@ import { T } from "@shared/ui/typography";
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 
-export const RegistrationConfirmation: FC<IRegistrationConfirmationProps> = ({
-  email,
-}) => {
+export const RegistrationConfirmation: FC<IRegistrationConfirmationProps> = ({ email }) => {
   const { t } = useTranslation();
   const { closeDialog } = useDialog();
 
