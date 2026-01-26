@@ -9,7 +9,7 @@ export const ElementObserver: FC<IElementObserverProps> = (props) => {
   const ref = useRef<HTMLElement>(null);
 
   // eslint-disable-next-line react-hooks/refs
-  const children = createElement(props.children, { ref: ref });
+  const children = createElement(props.children, { ref: ref, ...props });
 
   const { isIntersecting } =
     useIntersection(ref as RefObject<HTMLElement>, {

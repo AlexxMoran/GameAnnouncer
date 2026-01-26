@@ -1,17 +1,18 @@
 import { ListItem, Autocomplete as MuiAutocomplete } from "@mui/material";
+import type { IEntityIdField } from "@shared/types/commonEntity.types";
 import type { IAutocompleteProps } from "@shared/ui/autocomplete/types";
 import { ElementObserver } from "@shared/ui/element-observer";
 import { TextField } from "@shared/ui/text-field";
-import type { RefObject } from "react";
+import { type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 
 export const Autocomplete = <
-  TOption,
+  TOption extends string | number | IEntityIdField,
   TMultiple extends boolean | undefined = false,
   TDisableClearable extends boolean | undefined = false,
-  TFreeSolo extends boolean | undefined = false
+  TFreeSolo extends boolean | undefined = false,
 >(
-  props: IAutocompleteProps<TOption, TMultiple, TDisableClearable, TFreeSolo>
+  props: IAutocompleteProps<TOption, TMultiple, TDisableClearable, TFreeSolo>,
 ) => {
   const {
     name,
@@ -32,32 +33,29 @@ export const Autocomplete = <
       size="small"
       noOptionsText={t("texts.noOptions")}
       slotProps={{ listbox: { sx: { maxHeight: "200px" } } }}
-      renderOption={(props, option, counter, ownerState) => {
-        // TODO сделать правильный ключ (например id)
+      renderOption={(
+        { key: _, ...otherProps },
+        option,
+        counter,
+        ownerState,
+      ) => {
         const isLastOption = counter.index === rest.options.length - 1;
         const label = ownerState.getOptionLabel?.(option);
+        const optionId = typeof option === "object" ? option.id : label;
 
-        const optionId =
-          typeof option === "object" && option !== null && "id" in option
-            ? (option.id as number)
-            : label;
-
-        const key = typeof option === "string" ? option : optionId;
+        const key =
+          typeof option === "object" ? optionId : (option as string | number);
 
         return isLastOption ? (
           <ElementObserver onVisible={onLastItemVisible} key={key}>
             {({ ref }) => (
-              <ListItem
-                {...props}
-                key={key}
-                ref={ref as RefObject<HTMLLIElement>}
-              >
+              <ListItem ref={ref as RefObject<HTMLLIElement>} {...otherProps}>
                 {label}
               </ListItem>
             )}
           </ElementObserver>
         ) : (
-          <ListItem {...props} key={key}>
+          <ListItem key={key} {...otherProps}>
             {label}
           </ListItem>
         );

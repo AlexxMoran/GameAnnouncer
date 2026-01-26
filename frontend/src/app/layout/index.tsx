@@ -1,15 +1,19 @@
 import { HeaderStyled, LayoutStyled } from "@app/layout/styles";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import { useScrollTrigger } from "@mui/material";
 import { EAppRoutes } from "@shared/constants/appRoutes";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
 import { ActionsMenu } from "@shared/ui/actions-menu";
 import { Box } from "@shared/ui/box";
+import { Fab } from "@shared/ui/fab-button";
 import { IconButton } from "@shared/ui/icon-button";
 import { Link } from "@shared/ui/link";
 import { Tooltip } from "@shared/ui/tooltip";
+import { Zoom } from "@shared/ui/zoom";
 import type { FC, PropsWithChildren } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
@@ -19,6 +23,11 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
   const navigate = useNavigate();
   const { authService } = useRootService();
   const { confirm } = useDialog();
+
+  const trigger = useScrollTrigger({
+    disableHysteresis: true,
+    threshold: 500,
+  });
 
   const { isAuthenticated, me, logout } = authService;
 
@@ -42,6 +51,13 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
 
   const handleNavigateToSettings = () => {
     navigate(EAppRoutes.AccountSettings);
+  };
+
+  const handleScrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   const actionList = [
@@ -90,6 +106,20 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
         </Box>
       </HeaderStyled>
       <LayoutStyled>{children}</LayoutStyled>
+      <Zoom in={trigger}>
+        <Fab
+          onClick={handleScrollToTop}
+          sx={{
+            position: "fixed",
+            bottom: 32,
+            right: 32,
+          }}
+          size="medium"
+          aria-label="scroll back to top"
+        >
+          <KeyboardArrowUpIcon />
+        </Fab>
+      </Zoom>
     </Box>
   );
 };

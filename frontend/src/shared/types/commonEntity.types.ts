@@ -4,5 +4,7 @@ export interface IEntityDateFields {
 }
 
 export interface IEntityIdField {
-  id: number;
+  id: TEntityId;
 }
+
+export type TEntityId = number;

@@ -10,7 +10,6 @@ export const HeaderStyled = styled("header")`
   display: flex;
   align-items: center;
   background-color: ${({ theme }) => theme.palette.background.paper};
-  box-shadow: ${({ theme }) => theme.shadows[5]};
   z-index: ${({ theme }) => theme.zIndex.appBar};
   position: sticky;
   top: 0;

@@ -88,7 +88,7 @@ export const translationEn = {
     usersData: "Users's data",
     myAnnouncementsTitle: "My tournaments",
     participatedAnnouncements: "Tournaments with your participation",
-    organizedAnnouncements: "Tournaments organized by you",
+    organizedAnnouncements: "Organized tournaments",
   },
   validationErrors: {
     unknown: "Unexpected error",

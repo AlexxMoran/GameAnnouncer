@@ -2,7 +2,6 @@ import AddIcon from "@mui/icons-material/Add";
 import AddAPhotoOutlinedIcon from "@mui/icons-material/AddAPhotoOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import { useTheme } from "@mui/material";
 import { GamesService } from "@pages/games/model/games-service";
 import { CreateGameForm } from "@pages/games/ul/create-game-form";
 import { GameCard } from "@pages/games/ul/game-card";
@@ -18,8 +17,8 @@ import { CardsWrapperStyled } from "@shared/ui/_styled/cards-wrapper-styled";
 import type { IMenuAction } from "@shared/ui/actions-menu/types";
 import { Badge } from "@shared/ui/badge";
 import { Box } from "@shared/ui/box";
+import { Button } from "@shared/ui/button";
 import { ElementObserver } from "@shared/ui/element-observer";
-import { Fab } from "@shared/ui/fab-button";
 import { Spinner } from "@shared/ui/spinner";
 import { T } from "@shared/ui/typography";
 import { observer } from "mobx-react-lite";
@@ -28,7 +27,6 @@ import { useState, type FC, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 
 export const GamesPage: FC = observer(() => {
-  const theme = useTheme();
   const { t } = useTranslation();
   const { gamesApiService } = useRootService();
   const { enqueueSnackbar } = useSnackbar();
@@ -37,9 +35,9 @@ export const GamesPage: FC = observer(() => {
 
   const {
     paginationService,
-    createGame,
-    deleteGame,
-    editGame,
+    createEntity: createGame,
+    deleteEntity: deleteGame,
+    editEntity: editGame,
     uploadGameImage,
   } = gamesService;
 
@@ -148,9 +146,18 @@ export const GamesPage: FC = observer(() => {
   // TODO оптимизировать показ лоадера при пагинации
   return (
     <Box display="flex" flexDirection="column" gap={8} height="100%">
-      <Badge badgeContent={total} color="secondary">
-        <T variant="h4">{t("pageTitles.games")}</T>
-      </Badge>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Badge badgeContent={total} color="secondary">
+          <T variant="h4">{t("pageTitles.games")}</T>
+        </Badge>
+        <Button
+          variant="text"
+          onClick={handleOpenCreateDialog}
+          startIcon={<AddIcon />}
+        >
+          {t("actions.addGame")}
+        </Button>
+      </Box>
       {isInitialLoading && <Spinner type="backdrop" />}
       {total === 0 && <T variant="body1">{t("texts.haveNoData")}</T>}
       {!!list.length && (
@@ -172,22 +179,11 @@ export const GamesPage: FC = observer(() => {
                 game={game}
                 actionList={createGameActionList(game)}
               />
-            )
+            ),
           )}
         </CardsWrapperStyled>
       )}
       {isPaginating && <Spinner type="pagination" />}
-      <Fab
-        onClick={handleOpenCreateDialog}
-        tooltip={t("actions.addGame")}
-        sx={{
-          position: "fixed",
-          bottom: theme.spacing(6),
-          right: theme.spacing(6),
-        }}
-      >
-        <AddIcon />
-      </Fab>
     </Box>
   );
 });

@@ -86,7 +86,7 @@ export const translationRu = {
     usersData: "Данные пользователя",
     myAnnouncementsTitle: "Мои турниры",
     participatedAnnouncements: "Турниры с вашим участием",
-    organizedAnnouncements: "Организованные вами турниры",
+    organizedAnnouncements: "Организованные турниры",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",

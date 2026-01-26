@@ -1,20 +1,22 @@
 import CloseIcon from "@mui/icons-material/Close";
-import { DialogContent } from "@mui/material";
-import { DialogStyled, DialogTitleStyled } from "@shared/ui/dialog/styles";
+import { DialogContent, DialogTitle } from "@mui/material";
+import { DialogStyled } from "@shared/ui/dialog/styles";
 import type { IDialogProps } from "@shared/ui/dialog/types";
 import { IconButton } from "@shared/ui/icon-button";
 import { type FC } from "react";
 
-export const Dialog: FC<IDialogProps> = ({
-  title = "",
-  disableBackdropClick,
-  onCloseDialog,
-  children,
-  ...rest
-}) => {
+export const Dialog: FC<IDialogProps> = (props) => {
+  const {
+    title = "",
+    disableBackdropClick,
+    onCloseDialog,
+    children,
+    ...rest
+  } = props;
+
   const handleClose = (
     _: unknown,
-    reason: "backdropClick" | "escapeKeyDown"
+    reason: "backdropClick" | "escapeKeyDown",
   ) => {
     if (disableBackdropClick && reason === "backdropClick") {
       return;
@@ -32,9 +34,16 @@ export const Dialog: FC<IDialogProps> = ({
         <CloseIcon />
       </IconButton>
       {title && (
-        <DialogTitleStyled variant="h6" capitalizeFirst>
+        <DialogTitle
+          variant="h6"
+          sx={{
+            "&::first-letter": {
+              textTransform: "capitalize",
+            },
+          }}
+        >
           {title}
-        </DialogTitleStyled>
+        </DialogTitle>
       )}
       <DialogContent sx={{ overflowY: "unset" }}>{children}</DialogContent>
     </DialogStyled>
