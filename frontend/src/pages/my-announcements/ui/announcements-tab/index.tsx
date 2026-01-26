@@ -54,13 +54,13 @@ export const AnnouncementsTab: FC = observer(() => {
   );
 
   const {
-    paginationService,
+    listData,
     createEntity: createAnnouncement,
     deleteEntity: deleteAnnouncement,
+    paginate,
   } = announcementsService;
 
-  const { list, paginate, isInitialLoading, isPaginating, total } =
-    paginationService;
+  const { list, isInitialLoading, isPaginating, total } = listData;
 
   const handleCreateAnnouncement = async (values: ICreateAnnouncementDto) => {
     const result = await createAnnouncement(values);

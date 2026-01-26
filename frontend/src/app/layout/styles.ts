@@ -9,7 +9,7 @@ export const HeaderStyled = styled("header")`
   padding-inline: ${({ theme }) => theme.spacing(8)};
   display: flex;
   align-items: center;
-  background-color: ${({ theme }) => theme.palette.background.paper};
+  background-color: ${({ theme }) => theme.palette.background.default};
   z-index: ${({ theme }) => theme.zIndex.appBar};
   position: sticky;
   top: 0;

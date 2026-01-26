@@ -34,15 +34,15 @@ export const GamesPage: FC = observer(() => {
   const [gamesService] = useState(() => new GamesService(gamesApiService));
 
   const {
-    paginationService,
+    listData,
     createEntity: createGame,
     deleteEntity: deleteGame,
     editEntity: editGame,
     uploadGameImage,
+    paginate,
   } = gamesService;
 
-  const { list, paginate, isInitialLoading, isPaginating, total } =
-    paginationService;
+  const { list, isInitialLoading, isPaginating, total } = listData;
 
   const handleCreateGame = async (values: ICreateGameDto) => {
     const result = await createGame(values);

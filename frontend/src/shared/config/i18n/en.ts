@@ -109,6 +109,7 @@ export const translationEn = {
   placeholders: {
     enter: "enter",
     select: "select",
+    search: "search",
   },
   pageTitles: {
     games: "Games",

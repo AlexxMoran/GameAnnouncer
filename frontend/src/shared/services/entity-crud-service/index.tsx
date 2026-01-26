@@ -1,10 +1,13 @@
 import type { IEntityCrudServiceParams } from "@shared/services/entity-crud-service/types";
+import { FilterService } from "@shared/services/filter-service";
 import { PaginationService } from "@shared/services/pagination-service";
 import type {
   IEntityIdField,
   TEntityId,
 } from "@shared/types/commonEntity.types";
 import type { IPaginationParams } from "@shared/types/pagination.types";
+import debounce from "lodash/debounce";
+import { reaction, type IReactionDisposer } from "mobx";
 
 export class EntityCrudService<
   TEntity extends IEntityIdField,
@@ -12,7 +15,9 @@ export class EntityCrudService<
   TCreateParams = never,
   TEditParams = never,
 > {
-  paginationService: PaginationService<TEntity, TGetListParams>;
+  private paginationService: PaginationService<TEntity, TGetListParams>;
+  private filterService = new FilterService<TGetListParams>();
+  reactionList: IReactionDisposer[] = [];
 
   constructor(
     private params: IEntityCrudServiceParams<
@@ -28,7 +33,29 @@ export class EntityCrudService<
 
     this.paginationService = paginationService;
 
-    paginationService.init();
+    this.reactionList.push(
+      reaction(
+        () => this.filterService.filters,
+        debounce((filters) => {
+          paginationService.init(filters);
+        }, 300),
+      ),
+    );
+
+    paginationService.init(this.filterService.filters);
+  }
+
+  get listData() {
+    return {
+      list: this.paginationService.list,
+      isInitialLoading: this.paginationService.isInitialLoading,
+      isPaginating: this.paginationService.isPaginating,
+      total: this.paginationService.total,
+    };
+  }
+
+  get filters() {
+    return this.filterService.filters;
   }
 
   createEntity = async (params: TCreateParams) => {
@@ -73,5 +100,20 @@ export class EntityCrudService<
     } catch (_) {
       /* empty */
     }
+  };
+
+  paginate = async () => {
+    await this.paginationService.paginate(this.filterService.filters);
+  };
+
+  setFilters = (filters: TGetListParams) => {
+    this.filterService.setFilters(filters);
+  };
+
+  setFilter = <K extends keyof TGetListParams>(
+    key: K,
+    value: TGetListParams[K],
+  ) => {
+    this.filterService.setFilter(key, value);
   };
 }
