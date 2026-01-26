@@ -1,6 +1,5 @@
 import CloseIcon from "@mui/icons-material/Close";
-import { DialogContent, DialogTitle } from "@mui/material";
-import { DialogStyled } from "@shared/ui/dialog/styles";
+import { DialogContent, DialogTitle, Dialog as MuiDialog } from "@mui/material";
 import type { IDialogProps } from "@shared/ui/dialog/types";
 import { IconButton } from "@shared/ui/icon-button";
 import { type FC } from "react";
@@ -26,7 +25,7 @@ export const Dialog: FC<IDialogProps> = (props) => {
   };
 
   return (
-    <DialogStyled onClose={handleClose} maxWidth="lg" {...rest}>
+    <MuiDialog onClose={handleClose} maxWidth="lg" {...rest}>
       <IconButton
         onClick={onCloseDialog}
         sx={{ position: "absolute", right: 8, top: 8 }}
@@ -46,6 +45,6 @@ export const Dialog: FC<IDialogProps> = (props) => {
         </DialogTitle>
       )}
       <DialogContent sx={{ overflowY: "unset" }}>{children}</DialogContent>
-    </DialogStyled>
+    </MuiDialog>
   );
 };
