@@ -87,12 +87,16 @@ async def test_get_announcement_participants(async_client, announcement_factory)
         ),
         patch(
             "api.v1.announcements.announcement_crud.get_participants_by_announcement_id",
-            new=AsyncMock(return_value=participants),
+            new=AsyncMock(return_value=(participants, len(participants))),
         ),
     ):
         r = await async_client.get(f"/api/v1/announcements/{a['id']}/participants")
         assert r.status_code == 200
-        assert r.json()["data"][0]["email"] == "p@example.com"
+        response_data = r.json()
+        assert response_data["data"][0]["email"] == "p@example.com"
+        assert response_data["total"] == 1
+        assert response_data["skip"] == 0
+        assert response_data["limit"] == 10
 
 
 @pytest.mark.asyncio
@@ -110,14 +114,18 @@ async def test_get_announcement_registration_requests(
         ),
         patch(
             "api.v1.announcements.registration_request_crud.get_all_by_announcement_id",
-            new=AsyncMock(return_value=fake_rr),
+            new=AsyncMock(return_value=(fake_rr, len(fake_rr))),
         ),
     ):
         r = await async_client.get(
             f"/api/v1/announcements/{a['id']}/registration_requests"
         )
         assert r.status_code == 200
-        assert r.json()["data"][0]["announcement_id"] == a["id"]
+        response_data = r.json()
+        assert response_data["data"][0]["announcement_id"] == a["id"]
+        assert response_data["total"] == 1
+        assert response_data["skip"] == 0
+        assert response_data["limit"] == 10
 
 
 @pytest.mark.asyncio

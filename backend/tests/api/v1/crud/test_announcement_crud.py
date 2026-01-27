@@ -1,5 +1,4 @@
 import pytest
-from types import SimpleNamespace
 from unittest.mock import patch
 from datetime import datetime, timedelta, timezone
 
@@ -117,10 +116,11 @@ async def test_get_by_organizer_and_participant(db_session, create_user):
         session=db_session, announcement_in=a_in, user=user
     )
 
-    org_results = await announcement_crud.get_all_by_organizer_id(
+    org_results, org_total = await announcement_crud.get_all_by_organizer_id(
         session=db_session, organizer_id=user.id
     )
     assert any(r.organizer_id == user.id for r in org_results)
+    assert org_total >= 1
 
     from models.announcement_participant import AnnouncementParticipant
 
@@ -131,15 +131,20 @@ async def test_get_by_organizer_and_participant(db_session, create_user):
     )
     await db_session.commit()
 
-    part_results = await announcement_crud.get_all_by_participant_id(
+    part_results, part_total = await announcement_crud.get_all_by_participant_id(
         session=db_session, user_id=user.id
     )
     assert any(r.id == created.id for r in part_results)
+    assert part_total >= 1
 
-    participants = await announcement_crud.get_participants_by_announcement_id(
-        session=db_session, announcement=SimpleNamespace(id=created.id)
+    (
+        participants,
+        participants_total,
+    ) = await announcement_crud.get_participants_by_announcement_id(
+        session=db_session, announcement_id=created.id
     )
     assert any(p.id == user.id for p in participants)
+    assert participants_total >= 1
 
 
 @pytest.mark.asyncio
