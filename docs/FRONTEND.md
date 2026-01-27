@@ -4,8 +4,6 @@ This document contains detailed frontend-specific guidelines for the GameAnnounc
 
 **Technology:** React 19.2, TypeScript 5.9, Vite 7.2+, MobX, Material-UI v7.3+, Axios, Formik, Yup
 
-**IMPORTANT:** Ignore `frontend/` directory - it's a deprecated Angular app. Work only in `frontend-react/`.
-
 ---
 
 ## State Management (MobX)
@@ -425,7 +423,6 @@ export const GameCard = memo<{ game: Game }>(({ game }) => {
 7. **DO NOT** import Material-UI directly (use wrappers from `/shared/ui/`)
 8. **DO NOT** store secrets in localStorage
 9. **DO NOT** use `any` type unnecessarily
-10. **DO NOT** touch `frontend/` directory (deprecated Angular app)
 
 ---
 

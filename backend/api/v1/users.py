@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from schemas.registration_request import RegistrationRequestResponse
 from schemas.announcement import AnnouncementResponse
-from schemas.base import DataResponse
+from schemas.base import PaginatedResponse
 from models.user import User
 
 from core.deps import SessionDep
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.get(
     "/me/organized_announcements",
-    response_model=DataResponse[list[AnnouncementResponse]],
+    response_model=PaginatedResponse[AnnouncementResponse],
 )
 async def get_my_organized_announcements(
     session: SessionDep,
@@ -24,16 +24,16 @@ async def get_my_organized_announcements(
     limit: int = 10,
     current_user: User = Depends(current_user),
 ):
-    announcements = await announcement_crud.get_all_by_organizer_id(
+    announcements, total = await announcement_crud.get_all_by_organizer_id(
         session, current_user.id, skip=skip, limit=limit
     )
 
-    return DataResponse(data=announcements)
+    return PaginatedResponse(data=announcements, skip=skip, limit=limit, total=total)
 
 
 @router.get(
     "/me/participated_announcements",
-    response_model=DataResponse[list[AnnouncementResponse]],
+    response_model=PaginatedResponse[AnnouncementResponse],
 )
 async def get_my_participated_announcements(
     session: SessionDep,
@@ -41,16 +41,16 @@ async def get_my_participated_announcements(
     limit: int = 10,
     current_user: User = Depends(current_user),
 ):
-    announcements = await announcement_crud.get_all_by_participant_id(
+    announcements, total = await announcement_crud.get_all_by_participant_id(
         session, current_user.id, skip=skip, limit=limit
     )
 
-    return DataResponse(data=announcements)
+    return PaginatedResponse(data=announcements, skip=skip, limit=limit, total=total)
 
 
 @router.get(
-    "/me/registation_requests",
-    response_model=DataResponse[list[RegistrationRequestResponse]],
+    "/me/registration_requests",
+    response_model=PaginatedResponse[RegistrationRequestResponse],
 )
 async def get_my_registration_requests(
     session: SessionDep,
@@ -58,16 +58,18 @@ async def get_my_registration_requests(
     limit: int = 10,
     current_user: User = Depends(current_user),
 ):
-    registration_requests = await registration_request_crud.get_all_by_user_id(
+    registration_requests, total = await registration_request_crud.get_all_by_user_id(
         session, current_user.id, skip=skip, limit=limit
     )
 
-    return DataResponse(data=registration_requests)
+    return PaginatedResponse(
+        data=registration_requests, skip=skip, limit=limit, total=total
+    )
 
 
 @router.get(
     "/{user_id}/organized_announcements",
-    response_model=DataResponse[list[AnnouncementResponse]],
+    response_model=PaginatedResponse[AnnouncementResponse],
 )
 async def get_user_organized_announcements(
     user_id: int,
@@ -75,8 +77,8 @@ async def get_user_organized_announcements(
     skip: int = 0,
     limit: int = 10,
 ):
-    announcements = await announcement_crud.get_all_by_organizer_id(
+    announcements, total = await announcement_crud.get_all_by_organizer_id(
         session, user_id, skip=skip, limit=limit
     )
 
-    return DataResponse(data=announcements)
+    return PaginatedResponse(data=announcements, skip=skip, limit=limit, total=total)

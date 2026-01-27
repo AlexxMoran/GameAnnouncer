@@ -84,32 +84,41 @@ async def get_announcement(
 
 
 @router.get(
-    "/{announcement_id}/participants", response_model=DataResponse[list[UserResponse]]
+    "/{announcement_id}/participants", response_model=PaginatedResponse[UserResponse]
 )
 async def get_announcement_participants(
     session: SessionDep,
+    skip: int = 0,
+    limit: int = 10,
     announcement: Announcement = Depends(get_announcement_dependency),
 ):
-    participants = await announcement_crud.get_participants_by_announcement_id(
-        session=session, announcement=announcement
+    participants, total = await announcement_crud.get_participants_by_announcement_id(
+        session=session, announcement_id=announcement.id, skip=skip, limit=limit
     )
 
-    return DataResponse(data=participants)
+    return PaginatedResponse(data=participants, skip=skip, limit=limit, total=total)
 
 
 @router.get(
     "/{announcement_id}/registration_requests",
-    response_model=DataResponse[list[RegistrationRequestResponse]],
+    response_model=PaginatedResponse[RegistrationRequestResponse],
 )
 async def get_announcement_registration_requests(
     session: SessionDep,
+    skip: int = 0,
+    limit: int = 10,
     announcement: Announcement = Depends(get_announcement_dependency),
 ):
-    registration_requests = await registration_request_crud.get_all_by_announcement_id(
-        session=session, announcement_id=announcement.id
+    (
+        registration_requests,
+        total,
+    ) = await registration_request_crud.get_all_by_announcement_id(
+        session=session, announcement_id=announcement.id, skip=skip, limit=limit
     )
 
-    return DataResponse(data=registration_requests)
+    return PaginatedResponse(
+        data=registration_requests, skip=skip, limit=limit, total=total
+    )
 
 
 @router.post("", response_model=DataResponse[AnnouncementResponse], status_code=201)

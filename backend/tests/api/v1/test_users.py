@@ -17,7 +17,7 @@ async def test_get_my_organized_announcements(
         called["organizer_id"] = organizer_id
         called["skip"] = skip
         called["limit"] = limit
-        return fake_announcements
+        return fake_announcements, len(fake_announcements)
 
     with patch(
         "api.v1.users.announcement_crud.get_all_by_organizer_id",
@@ -51,7 +51,7 @@ async def test_get_my_participated_announcements(
         called["participant_id"] = participant_id
         called["skip"] = skip
         called["limit"] = limit
-        return fake_announcements
+        return fake_announcements, len(fake_announcements)
 
     with patch(
         "api.v1.users.announcement_crud.get_all_by_participant_id",
@@ -91,7 +91,7 @@ async def test_get_my_registration_requests(
         called["user_id"] = user_id
         called["skip"] = skip
         called["limit"] = limit
-        return fake_requests
+        return fake_requests, len(fake_requests)
 
     with patch(
         "api.v1.users.registration_request_crud.get_all_by_user_id",
@@ -100,7 +100,7 @@ async def test_get_my_registration_requests(
         authenticated_client(user)
 
         r = await async_client.get(
-            "/api/v1/users/me/registation_requests?skip=0&limit=10"
+            "/api/v1/users/me/registration_requests?skip=0&limit=10"
         )
     assert r.status_code == 200
     data = r.json()["data"]
@@ -128,7 +128,7 @@ async def test_get_user_organized_announcements(
         called["organizer_id"] = organizer_id
         called["skip"] = skip
         called["limit"] = limit
-        return fake_announcements
+        return fake_announcements, len(fake_announcements)
 
     with patch(
         "api.v1.users.announcement_crud.get_all_by_organizer_id",
