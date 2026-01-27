@@ -54,7 +54,7 @@ uv run python script.py
 When the user asks you to work on a task, identify which part of the stack is involved:
 
 - **Backend work** (API routes, database, services, Python files in `backend/`) → Read [docs/BACKEND.md](docs/BACKEND.md)
-- **Frontend work** (React components, UI, TypeScript files in `frontend-react/`) → Read [docs/FRONTEND.md](docs/FRONTEND.md)
+- **Frontend work** (React components, UI, TypeScript files in `frontend/`) → Read [docs/FRONTEND.md](docs/FRONTEND.md)
 
 ### 2. Load Required Documentation
 
@@ -136,13 +136,12 @@ Once you've read the appropriate documentation, follow ALL guidelines and patter
 1. NEVER use sync I/O (blocking operations)
 2. NEVER hardcode permissions in routes
 3. NEVER commit secrets (use `.env`)
-4. NEVER touch `frontend/` directory (deprecated Angular)
-5. NEVER use Redux (use MobX)
-6. NEVER use legacy SQLAlchemy 1.x API (`.query()`, `.filter()`)
-7. NEVER mutate MobX state outside `runInAction()`
-8. NEVER return raw SQLAlchemy models from routes (use Pydantic schemas)
-9. NEVER use inline comments (`# comment` or `// comment`) - use docstrings/JSDoc instead
-10. NEVER run Python commands without `uv run` prefix (e.g., use `uv run pytest`, NOT `pytest`)
+4. NEVER use Redux (use MobX)
+5. NEVER use legacy SQLAlchemy 1.x API (`.query()`, `.filter()`)
+6. NEVER mutate MobX state outside `runInAction()`
+7. NEVER return raw SQLAlchemy models from routes (use Pydantic schemas)
+8. NEVER use inline comments (`# comment` or `// comment`) - use docstrings/JSDoc instead
+9. NEVER run Python commands without `uv run` prefix (e.g., use `uv run pytest`, NOT `pytest`)
 
 ---
 

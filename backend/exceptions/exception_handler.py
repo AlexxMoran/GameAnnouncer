@@ -77,7 +77,9 @@ async def http_exception_handler(request: Request, exc: HTTPException) -> JSONRe
         else:
             token = authorization.replace("Bearer ", "")
             try:
-                jwt.decode(token, options={"verify_signature": False})
+                jwt.decode(
+                    token, options={"verify_signature": False, "verify_exp": True}
+                )
                 content["error_type"] = "invalid_token"
             except ExpiredSignatureError:
                 content["error_type"] = "token_expired"
