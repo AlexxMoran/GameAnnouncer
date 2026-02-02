@@ -1,4 +1,5 @@
 import { EAnnouncementStatuses } from "@shared/services/api/announcements-api-service/constants";
+import { ERegistrationRequestStatuses } from "@shared/services/api/registration-requests-api-service/constants";
 
 export const translationEn = {
   lang: {
@@ -24,6 +25,7 @@ export const translationEn = {
     nickname: "nickname",
     participant: "participant",
     organizer: "organizer",
+    status: "status",
   },
   actions: {
     login: "Login",
@@ -48,6 +50,9 @@ export const translationEn = {
     cancel: "Cancel",
     uploadImage: "Upload image",
     upload: "Upload",
+    sendRequest: "Send request to participate",
+    send: "Send",
+    cancelRequest: "Cancel request",
   },
   texts: {
     allTournaments: "All tournaments",
@@ -85,6 +90,11 @@ export const translationEn = {
     myAnnouncementsTitle: "My tournaments",
     participatedAnnouncements: "Tournaments with your participation",
     organizedAnnouncements: "Organized tournaments",
+    myRequests: "My requests",
+    sendRequestConfirmation: "Are you sure you want to submit your application to participate in the tournament?",
+    sendRequestSuccess: "The request was successfully sent to the tournament administrator.",
+    cancelRequestConfirmation: "Are you sure you want to cancel your request?",
+    cancelRequestSuccess: "Request successfully canceled",
   },
   validationErrors: {
     unknown: "Unexpected error",
@@ -118,6 +128,13 @@ export const translationEn = {
       [EAnnouncementStatuses.Paused]: "Paused",
       [EAnnouncementStatuses.Finished]: "Finished",
       [EAnnouncementStatuses.Cancelled]: "Cancelled",
+    },
+    registrationRequestStatuses: {
+      [ERegistrationRequestStatuses.Approved]: "Accepted",
+      [ERegistrationRequestStatuses.Cancelled]: "Cancelled",
+      [ERegistrationRequestStatuses.Expired]: "Expired",
+      [ERegistrationRequestStatuses.Pending]: "Pending",
+      [ERegistrationRequestStatuses.Rejected]: "Rejected",
     },
   },
 };

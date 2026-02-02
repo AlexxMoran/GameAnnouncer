@@ -73,8 +73,9 @@ export const GamesPage: FC = observer(() => {
 
       if (response) {
         enqueueSnackbar(t("texts.gameDeletingSuccess"), { variant: "success" });
-        closeDialog();
       }
+
+      closeDialog();
     }
   };
 

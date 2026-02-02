@@ -5,6 +5,7 @@ import { GamesPage } from "@pages/games/ul/games-page";
 import { LoginPage } from "@pages/login/ui/login-page";
 import { AnnouncementsTab } from "@pages/my-announcements/ui/announcements-tab";
 import { MyAnnouncementsPage } from "@pages/my-announcements/ui/my-announcements-page";
+import { RegistrationRequestsTab } from "@pages/my-announcements/ui/registration-requests-tab";
 import { NotFoundPage } from "@pages/not-found/ui/not-found-page";
 import { RegistrationPage } from "@pages/registration/ui/registration-page";
 import { EAppRoutes, EAppSubRoutes } from "@shared/constants/appRoutes";
@@ -30,6 +31,7 @@ export const Pages: FC = () => {
           path={EAppSubRoutes.OrganizedAnnouncements}
           element={<AnnouncementsTab key={location.pathname} canAddAnnouncements />}
         />
+        <Route path={EAppSubRoutes.MyRegistrationRequests} element={<RegistrationRequestsTab />} />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>

@@ -20,6 +20,7 @@ export const MyAnnouncementsPage: FC = () => {
       value: EMyAnnouncementsTabs.Participated,
     },
     { label: t("entities.organizer"), value: EMyAnnouncementsTabs.Organized },
+    { label: t("texts.myRequests"), value: EMyAnnouncementsTabs.MyRegistrationRequests },
   ];
 
   const handleChangeTab = (_: SyntheticEvent, value: EMyAnnouncementsTabs) => {
@@ -29,8 +30,17 @@ export const MyAnnouncementsPage: FC = () => {
 
         break;
       }
+
       case EMyAnnouncementsTabs.Organized: {
         navigate(EAppSubRoutes.OrganizedAnnouncements);
+
+        break;
+      }
+
+      case EMyAnnouncementsTabs.MyRegistrationRequests: {
+        navigate(EAppSubRoutes.MyRegistrationRequests);
+
+        break;
       }
     }
   };

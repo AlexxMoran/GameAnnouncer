@@ -1,7 +1,6 @@
 import { CreateAnnouncementForm } from "@features/create-announcement/ui/create-announcement-form";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
-
 import { AnnouncementCard } from "@pages/my-announcements/ui/announcement-card";
 import type { IAnnouncementsTabProps } from "@pages/my-announcements/ui/announcements-tab/types";
 import { EAppSubRoutes } from "@shared/constants/appRoutes";
@@ -92,8 +91,9 @@ export const AnnouncementsTab: FC<IAnnouncementsTabProps> = observer(({ canAddAn
         enqueueSnackbar(t("texts.announcementDeletingSuccess"), {
           variant: "success",
         });
-        closeDialog();
       }
+
+      closeDialog();
     }
   };
 

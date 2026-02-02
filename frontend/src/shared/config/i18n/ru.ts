@@ -1,4 +1,5 @@
 import { EAnnouncementStatuses } from "@shared/services/api/announcements-api-service/constants";
+import { ERegistrationRequestStatuses } from "@shared/services/api/registration-requests-api-service/constants";
 
 export const translationRu = {
   lang: {
@@ -24,6 +25,7 @@ export const translationRu = {
     nickname: "никнейм",
     participant: "участник",
     organizer: "организатор",
+    status: "статус",
   },
   actions: {
     login: "Войти",
@@ -48,6 +50,9 @@ export const translationRu = {
     cancel: "Отменить",
     uploadImage: "Загрузить изображение",
     upload: "Загрузить",
+    sendRequest: "Отправить заявку на участие",
+    send: "Отправить",
+    cancelRequest: "Отменить заявку",
   },
   texts: {
     allTournaments: "Все турниры",
@@ -84,6 +89,11 @@ export const translationRu = {
     myAnnouncementsTitle: "Мои турниры",
     participatedAnnouncements: "Турниры с вашим участием",
     organizedAnnouncements: "Организованные турниры",
+    myRequests: "Мои заявки",
+    sendRequestConfirmation: "Вы уверены, что хотите отправить заявку на участие в турнире?",
+    sendRequestSuccess: "Заявка успешно отправлена администратору турнира",
+    cancelRequestConfirmation: "Вы уверены, что хотите отменить заявку?",
+    cancelRequestSuccess: "Заявка успешно отменена",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",
@@ -120,6 +130,13 @@ export const translationRu = {
       [EAnnouncementStatuses.Paused]: "Приостановлен",
       [EAnnouncementStatuses.Finished]: "Завершен",
       [EAnnouncementStatuses.Cancelled]: "Отменен",
+    },
+    registrationRequestStatuses: {
+      [ERegistrationRequestStatuses.Approved]: "Принята",
+      [ERegistrationRequestStatuses.Cancelled]: "Отменена",
+      [ERegistrationRequestStatuses.Expired]: "Истекла",
+      [ERegistrationRequestStatuses.Pending]: "В ожидании",
+      [ERegistrationRequestStatuses.Rejected]: "Отклонена",
     },
   },
 };

@@ -1,4 +1,4 @@
-export const GAMES_ENDPOINT = "v1/games";
+export const GAMES_ENDPOINT = "games";
 
 export enum EGameCategories {
   RTS = "RTS",
