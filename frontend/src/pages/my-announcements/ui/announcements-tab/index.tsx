@@ -3,6 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 
 import { AnnouncementCard } from "@pages/my-announcements/ui/announcement-card";
+import type { IAnnouncementsTabProps } from "@pages/my-announcements/ui/announcements-tab/types";
 import { EAppSubRoutes } from "@shared/constants/appRoutes";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
@@ -22,7 +23,7 @@ import { Fragment, useState, type FC, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router";
 
-export const AnnouncementsTab: FC = observer(() => {
+export const AnnouncementsTab: FC<IAnnouncementsTabProps> = observer(({ canAddAnnouncements }) => {
   const location = useLocation();
   const { t } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
@@ -113,9 +114,11 @@ export const AnnouncementsTab: FC = observer(() => {
             {t(`texts.${isParticipatedAnnouncements ? "participatedAnnouncements" : "organizedAnnouncements"}`)}
           </T>
         </Badge>
-        <Button variant="text" onClick={handleOpenCreateDialog} startIcon={<AddIcon />}>
-          {t("actions.addAnnouncement")}
-        </Button>
+        {canAddAnnouncements && (
+          <Button variant="text" onClick={handleOpenCreateDialog} startIcon={<AddIcon />}>
+            {t("actions.addAnnouncement")}
+          </Button>
+        )}
       </Box>
       {isInitialLoading && <Spinner type="backdrop" />}
       {total === 0 && <T variant="body1">{t("texts.haveNoData")}</T>}

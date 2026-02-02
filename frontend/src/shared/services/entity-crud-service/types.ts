@@ -13,4 +13,5 @@ export interface IEntityCrudServiceParams<
   createEntityFn?: (params: TCreateParams) => Promise<AxiosResponse<TApiResponseWrapper<TEntity>>>;
   editEntityFn?: (id: TEntityId, params: TEditParams) => Promise<AxiosResponse<TApiResponseWrapper<TEntity>>>;
   deleteEntityFn?: (id: TEntityId) => Promise<AxiosResponse<TApiResponseWrapper<TEntity>>>;
+  hasFiltersReaction?: boolean;
 }

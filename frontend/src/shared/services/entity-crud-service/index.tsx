@@ -23,14 +23,16 @@ export class EntityCrudService<
 
     this.paginationService = paginationService;
 
-    this.reactionList.push(
-      reaction(
-        () => this.filterService.filters,
-        debounce((filters) => {
-          paginationService.init(filters);
-        }, 300)
-      )
-    );
+    if (params.hasFiltersReaction) {
+      this.reactionList.push(
+        reaction(
+          () => this.filterService.filters,
+          debounce((filters) => {
+            paginationService.init(filters);
+          }, 300)
+        )
+      );
+    }
 
     paginationService.init(this.filterService.filters);
   }

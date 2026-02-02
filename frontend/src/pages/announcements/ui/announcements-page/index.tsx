@@ -33,6 +33,7 @@ export const AnnouncementsPage: FC = observer(() => {
         getEntitiesFn: announcementsApiService.getAnnouncements,
         createEntityFn: announcementsApiService.createAnnouncement,
         deleteEntityFn: announcementsApiService.deleteAnnouncement,
+        hasFiltersReaction: true,
       })
   );
 

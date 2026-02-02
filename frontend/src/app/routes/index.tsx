@@ -26,7 +26,10 @@ export const Pages: FC = () => {
       <Route path={EAppRoutes.MyAnnouncements} element={<MyAnnouncementsPage />}>
         <Route index element={<Navigate to={EAppSubRoutes.ParticipatedAnnouncements} replace />} />
         <Route path={EAppSubRoutes.ParticipatedAnnouncements} element={<AnnouncementsTab key={location.pathname} />} />
-        <Route path={EAppSubRoutes.OrganizedAnnouncements} element={<AnnouncementsTab key={location.pathname} />} />
+        <Route
+          path={EAppSubRoutes.OrganizedAnnouncements}
+          element={<AnnouncementsTab key={location.pathname} canAddAnnouncements />}
+        />
       </Route>
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
