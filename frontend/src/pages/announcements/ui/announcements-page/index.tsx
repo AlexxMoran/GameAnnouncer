@@ -1,15 +1,14 @@
 import { CreateAnnouncementForm } from "@features/create-announcement/ui/create-announcement-form";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import SendOutlinedIcon from "@mui/icons-material/SendOutlined";
 import { AnnouncementCard } from "@pages/announcements/ui/announcement-card";
 import { AnnouncementsFilters } from "@pages/announcements/ui/announcements-filters";
 import { MainPageImgStyled } from "@pages/announcements/ui/announcements-page/styles";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
-import type {
-  IAnnouncementDto,
-  ICreateAnnouncementDto,
-} from "@shared/services/api/announcements-api-service/types";
+import { EAnnouncementStatuses } from "@shared/services/api/announcements-api-service/constants";
+import type { IAnnouncementDto, ICreateAnnouncementDto } from "@shared/services/api/announcements-api-service/types";
 import { EntityCrudService } from "@shared/services/entity-crud-service";
 import { CardsWrapperStyled } from "@shared/ui/_styled/cards-wrapper-styled";
 import type { IMenuAction } from "@shared/ui/actions-menu/types";
@@ -28,7 +27,7 @@ export const AnnouncementsPage: FC = observer(() => {
   const { t } = useTranslation();
   const { openDialog, closeDialog, confirm } = useDialog();
   const { enqueueSnackbar } = useSnackbar();
-  const { announcementsApiService } = useRootService();
+  const { announcementsApiService, registrationRequestsApiService } = useRootService();
 
   const [announcementsService] = useState(
     () =>
@@ -36,7 +35,8 @@ export const AnnouncementsPage: FC = observer(() => {
         getEntitiesFn: announcementsApiService.getAnnouncements,
         createEntityFn: announcementsApiService.createAnnouncement,
         deleteEntityFn: announcementsApiService.deleteAnnouncement,
-      }),
+        hasFiltersReaction: true,
+      })
   );
 
   const {
@@ -49,6 +49,8 @@ export const AnnouncementsPage: FC = observer(() => {
     paginate,
   } = announcementsService;
 
+  const { createRegistrationRequest } = registrationRequestsApiService;
+
   const { list, isInitialLoading, isPaginating, total } = listData;
 
   const handleCreateAnnouncement = async (values: ICreateAnnouncementDto) => {
@@ -58,8 +60,9 @@ export const AnnouncementsPage: FC = observer(() => {
       enqueueSnackbar(t("texts.announcementAddingSuccess"), {
         variant: "success",
       });
-      closeDialog();
     }
+
+    closeDialog();
   };
 
   const handleOpenCreateDialog = () => {
@@ -83,19 +86,47 @@ export const AnnouncementsPage: FC = observer(() => {
       const response = await deleteAnnouncement(id);
 
       if (response) {
-        enqueueSnackbar(t("texts.announcementDeletingSuccess"), {
-          variant: "success",
-        });
+        enqueueSnackbar(t("texts.announcementDeletingSuccess"), { variant: "success" });
+      }
+
+      closeDialog();
+    }
+  };
+
+  const handleSendRequest = async ({ id }: IAnnouncementDto) => {
+    const result = await confirm({
+      title: t("actions.sendRequest"),
+      children: t("texts.sendRequestConfirmation"),
+      confirmationText: t("actions.send"),
+    });
+
+    if (result) {
+      const { closeDialog, setIsLoading } = result;
+
+      setIsLoading(true);
+
+      try {
+        const response = await createRegistrationRequest({ announcement_id: id });
+
+        if (response) {
+          enqueueSnackbar(t("texts.sendRequestSuccess"), { variant: "success" });
+        }
+      } finally {
         closeDialog();
       }
     }
   };
 
-  const createAnnouncementActionList = (
-    announcement: IAnnouncementDto,
-  ): IMenuAction[] => [
+  const createAnnouncementActionList = (announcement: IAnnouncementDto): IMenuAction[] => [
     {
       id: 1,
+      title: t("actions.sendRequest"),
+      onClick: () => handleSendRequest(announcement),
+      icon: <SendOutlinedIcon />,
+      disabled: announcement.status !== EAnnouncementStatuses.RegistrationOpen,
+    },
+    {
+      id: 2,
       title: t("actions.delete"),
       onClick: () => handleDeleteAnnouncement(announcement),
       icon: <DeleteOutlinedIcon />,
@@ -124,11 +155,7 @@ export const AnnouncementsPage: FC = observer(() => {
         <Badge nonce="" badgeContent={total} color="secondary">
           <T variant="h4">{t("pageTitles.announcements")}</T>
         </Badge>
-        <Button
-          variant="text"
-          onClick={handleOpenCreateDialog}
-          startIcon={<AddIcon />}
-        >
+        <Button variant="text" onClick={handleOpenCreateDialog} startIcon={<AddIcon />}>
           {t("actions.addAnnouncement")}
         </Button>
       </Box>
@@ -154,7 +181,7 @@ export const AnnouncementsPage: FC = observer(() => {
                 announcement={announcement}
                 actionList={createAnnouncementActionList(announcement)}
               />
-            ),
+            )
           )}
         </CardsWrapperStyled>
       )}

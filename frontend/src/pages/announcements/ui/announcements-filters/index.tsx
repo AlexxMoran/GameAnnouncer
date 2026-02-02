@@ -31,26 +31,19 @@ export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = (props) => {
   };
 
   return (
-    <Box
-      display="flex"
-      width="100%"
-      justifyContent="space-between"
-      alignItems="center"
-    >
+    <Box display="flex" width="100%" justifyContent="space-between" alignItems="center">
       <Box display="flex" gap={1}>
-        {[
-          EAnnouncementStatuses.Live,
-          EAnnouncementStatuses.RegistrationOpen,
-          EAnnouncementStatuses.Cancelled,
-        ].map((status) => (
-          <Chip
-            key={status}
-            size="small"
-            label={t(`enums.announcementStatuses.${status}`)}
-            variant={filters.status === status ? "filled" : "outlined"}
-            onClick={() => handleSetStatus(status)}
-          />
-        ))}
+        {[EAnnouncementStatuses.Live, EAnnouncementStatuses.RegistrationOpen, EAnnouncementStatuses.Cancelled].map(
+          (status) => (
+            <Chip
+              key={status}
+              size="small"
+              label={t(`enums.announcementStatuses.${status}`)}
+              variant={filters.status === status ? "filled" : "outlined"}
+              onClick={() => handleSetStatus(status)}
+            />
+          )
+        )}
       </Box>
       <TextField
         value={filters["q"] || ""}
@@ -58,11 +51,7 @@ export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = (props) => {
         endAdornment={
           <>
             {filters["q"] && (
-              <IconButton
-                onClick={handleClearSearchInput}
-                edge="end"
-                size="small"
-              >
+              <IconButton onClick={handleClearSearchInput} edge="end" size="small">
                 <ClearIcon />
               </IconButton>
             )}

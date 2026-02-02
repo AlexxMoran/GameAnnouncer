@@ -20,6 +20,7 @@ export const MyAnnouncementsPage: FC = () => {
       value: EMyAnnouncementsTabs.Participated,
     },
     { label: t("entities.organizer"), value: EMyAnnouncementsTabs.Organized },
+    { label: t("texts.myRequests"), value: EMyAnnouncementsTabs.MyRegistrationRequests },
   ];
 
   const handleChangeTab = (_: SyntheticEvent, value: EMyAnnouncementsTabs) => {
@@ -29,8 +30,17 @@ export const MyAnnouncementsPage: FC = () => {
 
         break;
       }
+
       case EMyAnnouncementsTabs.Organized: {
         navigate(EAppSubRoutes.OrganizedAnnouncements);
+
+        break;
+      }
+
+      case EMyAnnouncementsTabs.MyRegistrationRequests: {
+        navigate(EAppSubRoutes.MyRegistrationRequests);
+
+        break;
       }
     }
   };
@@ -38,11 +48,7 @@ export const MyAnnouncementsPage: FC = () => {
   return (
     <Box display="flex" flexDirection="column" gap={8} height="100%">
       <T variant="h4">{t("texts.myAnnouncementsTitle")}</T>
-      <Tabs
-        tabList={tabList}
-        onChange={handleChangeTab}
-        value={pathParts.at(-1)}
-      >
+      <Tabs tabList={tabList} onChange={handleChangeTab} value={pathParts.at(-1)}>
         <Outlet />
       </Tabs>
     </Box>

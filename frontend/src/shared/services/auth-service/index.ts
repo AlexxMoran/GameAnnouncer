@@ -1,8 +1,5 @@
 import type { AuthApiService } from "@shared/services/api/auth-api-service";
-import type {
-  ILoginDto,
-  IUserDto,
-} from "@shared/services/api/auth-api-service/types";
+import type { ILoginDto, IUserDto } from "@shared/services/api/auth-api-service/types";
 import type { TMaybe } from "@shared/types/main.types";
 import { makeAutoObservable, runInAction } from "mobx";
 

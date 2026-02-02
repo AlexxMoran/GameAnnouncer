@@ -8,21 +8,11 @@ import { useState } from "react";
 import { useDebounce } from "react-use";
 
 // TODO подумать он выносе в единую логику (с одним инстансом formik)
-export const EditingTextField = <TName extends string>(
-  props: IEditingTextFieldProps<TName>
-) => {
-  const {
-    onEdit,
-    validationSchema,
-    initialValues,
-    ref: _,
-    name,
-    ...rest
-  } = props;
+export const EditingTextField = <TName extends string>(props: IEditingTextFieldProps<TName>) => {
+  const { onEdit, validationSchema, initialValues, ref: _, name, ...rest } = props;
 
   const formik = useFormik<Record<TName, string>>({
-    onSubmit: async (values: Record<TName, string>) =>
-      onEdit?.(trimObjectValues(values)),
+    onSubmit: async (values: Record<TName, string>) => onEdit?.(trimObjectValues(values)),
     validationSchema,
     initialValues,
   });

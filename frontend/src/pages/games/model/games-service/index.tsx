@@ -7,12 +7,7 @@ import type {
 } from "@shared/services/api/games-api-service/types";
 import { EntityCrudService } from "@shared/services/entity-crud-service";
 
-export class GamesService extends EntityCrudService<
-  IGameDto,
-  IGetGamesDto,
-  ICreateGameDto,
-  IEditGameDto
-> {
+export class GamesService extends EntityCrudService<IGameDto, IGetGamesDto, ICreateGameDto, IEditGameDto> {
   constructor(private gamesApiService: GamesApiService) {
     super({
       getEntitiesFn: gamesApiService.getGames,

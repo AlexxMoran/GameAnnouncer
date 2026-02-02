@@ -7,9 +7,7 @@ import { FormikContext, useFormik } from "formik";
 import { observer } from "mobx-react-lite";
 import { useEffect, useState } from "react";
 
-export const FormComponent = <TFormValues extends TObjectAny>(
-  props: IFormProps<TFormValues>
-) => {
+export const FormComponent = <TFormValues extends TObjectAny>(props: IFormProps<TFormValues>) => {
   const {
     formikConfig,
     buttonText,
@@ -56,21 +54,11 @@ export const FormComponent = <TFormValues extends TObjectAny>(
 
   return (
     <FormikContext.Provider value={formik}>
-      <Box
-        display="flex"
-        flexDirection="column"
-        gap={10}
-        width="100%"
-        {...wrapperStyles}
-      >
+      <Box display="flex" flexDirection="column" gap={10} width="100%" {...wrapperStyles}>
         <Box display="flex" flexDirection="column" gap={6}>
           <Fields />
         </Box>
-        <Button
-          onClick={handleSubmit}
-          loading={formik.isSubmitting}
-          disabled={!formik.isValid}
-        >
+        <Button onClick={handleSubmit} loading={formik.isSubmitting} disabled={!formik.isValid}>
           {buttonText}
         </Button>
       </Box>

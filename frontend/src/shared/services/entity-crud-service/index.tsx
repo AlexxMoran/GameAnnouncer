@@ -1,10 +1,7 @@
 import type { IEntityCrudServiceParams } from "@shared/services/entity-crud-service/types";
 import { FilterService } from "@shared/services/filter-service";
 import { PaginationService } from "@shared/services/pagination-service";
-import type {
-  IEntityIdField,
-  TEntityId,
-} from "@shared/types/commonEntity.types";
+import type { IEntityIdField, TEntityId } from "@shared/types/commonEntity.types";
 import type { IPaginationParams } from "@shared/types/pagination.types";
 import debounce from "lodash/debounce";
 import { reaction, type IReactionDisposer } from "mobx";
@@ -19,28 +16,23 @@ export class EntityCrudService<
   private filterService = new FilterService<TGetListParams>();
   reactionList: IReactionDisposer[] = [];
 
-  constructor(
-    private params: IEntityCrudServiceParams<
-      TEntity,
-      TGetListParams,
-      TCreateParams,
-      TEditParams
-    >,
-  ) {
+  constructor(private params: IEntityCrudServiceParams<TEntity, TGetListParams, TCreateParams, TEditParams>) {
     const paginationService = new PaginationService({
       loadFn: params.getEntitiesFn,
     });
 
     this.paginationService = paginationService;
 
-    this.reactionList.push(
-      reaction(
-        () => this.filterService.filters,
-        debounce((filters) => {
-          paginationService.init(filters);
-        }, 300),
-      ),
-    );
+    if (params.hasFiltersReaction) {
+      this.reactionList.push(
+        reaction(
+          () => this.filterService.filters,
+          debounce((filters) => {
+            paginationService.init(filters);
+          }, 300)
+        )
+      );
+    }
 
     paginationService.init(this.filterService.filters);
   }
@@ -110,10 +102,7 @@ export class EntityCrudService<
     this.filterService.setFilters(filters);
   };
 
-  setFilter = <K extends keyof TGetListParams>(
-    key: K,
-    value: TGetListParams[K],
-  ) => {
+  setFilter = <K extends keyof TGetListParams>(key: K, value: TGetListParams[K]) => {
     this.filterService.setFilter(key, value);
   };
 }

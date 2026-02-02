@@ -1,8 +1,5 @@
 import { EGameCategories } from "@shared/services/api/games-api-service/constants";
-import type {
-  IEntityDateFields,
-  IEntityIdField,
-} from "@shared/types/commonEntity.types";
+import type { IEntityDateFields, IEntityIdField } from "@shared/types/commonEntity.types";
 import type { IPaginationParams } from "@shared/types/pagination.types";
 
 export interface IGameDto extends IEntityDateFields, IEntityIdField {
@@ -25,6 +22,4 @@ export interface IGamesFilters {
   name?: string;
 }
 
-export interface IGetGamesDto
-  extends IPaginationParams,
-    Partial<IGamesFilters> {}
+export interface IGetGamesDto extends IPaginationParams, Partial<IGamesFilters> {}

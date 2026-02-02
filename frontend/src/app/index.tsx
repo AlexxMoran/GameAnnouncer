@@ -62,17 +62,13 @@ export const App: FC = () => {
         <LocalizationProvider
           dateAdapter={AdapterDayjs}
           adapterLocale="ru"
-          localeText={
-            ruRU.components.MuiLocalizationProvider.defaultProps.localeText
-          }
+          localeText={ruRU.components.MuiLocalizationProvider.defaultProps.localeText}
         >
           <I18nextProvider i18n={i18nextInstance}>
             <RootServiceContext.Provider value={rootService}>
               <DialogProvider>
                 <CssBaseline />
-                <Layout>
-                  {loading ? <Spinner type="backdrop" /> : <Pages />}
-                </Layout>
+                <Layout>{loading ? <Spinner type="backdrop" /> : <Pages />}</Layout>
               </DialogProvider>
             </RootServiceContext.Provider>
           </I18nextProvider>

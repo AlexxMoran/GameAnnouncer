@@ -18,21 +18,12 @@ export class BaseApiService {
 
     this.axiosInstance.interceptors.response.use(
       null,
-      createRefreshTokenInterceptor(
-        this.axiosInstance,
-        authService.refreshToken,
-        redirectToLoginPage
-      )
+      createRefreshTokenInterceptor(this.axiosInstance, authService.refreshToken, redirectToLoginPage)
     );
 
-    this.axiosInstance.interceptors.response.use(
-      null,
-      createAlertErrorInterceptor(alertError)
-    );
+    this.axiosInstance.interceptors.response.use(null, createAlertErrorInterceptor(alertError));
 
-    this.axiosInstance.interceptors.request.use(
-      createAddTokenInterceptor(authService)
-    );
+    this.axiosInstance.interceptors.request.use(createAddTokenInterceptor(authService));
   };
 
   get<TResponse, TMeta = unknown>(url: string, config?: IApiConfig) {

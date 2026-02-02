@@ -16,4 +16,5 @@ export enum ERouteParams {
 export enum EAppSubRoutes {
   ParticipatedAnnouncements = "participated",
   OrganizedAnnouncements = "organized",
+  MyRegistrationRequests = "my-requests",
 }

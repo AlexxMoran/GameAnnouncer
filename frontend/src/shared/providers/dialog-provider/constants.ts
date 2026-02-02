@@ -12,6 +12,4 @@ const DEFAULT_MODAL_PROVIDER_STATE: IDialogProviderContext = {
     }),
 };
 
-export const DialogContext = createContext<IDialogProviderContext>(
-  DEFAULT_MODAL_PROVIDER_STATE
-);
+export const DialogContext = createContext<IDialogProviderContext>(DEFAULT_MODAL_PROVIDER_STATE);

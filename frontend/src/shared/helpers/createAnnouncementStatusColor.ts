@@ -1,10 +1,7 @@
 import type { Theme } from "@mui/material";
 import { EAnnouncementStatuses } from "@shared/services/api/announcements-api-service/constants";
 // TODO вытащить в другое место
-export const createAnnouncementStatusColor = (
-  theme: Theme,
-  status: EAnnouncementStatuses
-) => {
+export const createAnnouncementStatusColor = (theme: Theme, status: EAnnouncementStatuses) => {
   const colors = {
     [EAnnouncementStatuses.PreRegistration]: theme.palette.warning.main,
     [EAnnouncementStatuses.RegistrationOpen]: theme.palette.success.main,
