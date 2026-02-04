@@ -1,5 +1,4 @@
 import pytest
-from types import SimpleNamespace
 from unittest.mock import patch
 from datetime import datetime, timedelta, timezone
 
@@ -8,7 +7,13 @@ from sqlalchemy import insert, select
 from api.v1.crud.announcement import announcement_crud
 from models.announcement import Announcement
 from models.game import Game
-from schemas.announcement import AnnouncementCreate, AnnouncementUpdate
+from schemas.announcement import (
+    AnnouncementCreate,
+    AnnouncementUpdate,
+    AnnouncementAction,
+)
+from enums import AnnouncementStatus
+from exceptions import ValidationException
 
 
 @pytest.mark.asyncio
@@ -111,10 +116,11 @@ async def test_get_by_organizer_and_participant(db_session, create_user):
         session=db_session, announcement_in=a_in, user=user
     )
 
-    org_results = await announcement_crud.get_all_by_organizer_id(
+    org_results, org_total = await announcement_crud.get_all_by_organizer_id(
         session=db_session, organizer_id=user.id
     )
     assert any(r.organizer_id == user.id for r in org_results)
+    assert org_total >= 1
 
     from models.announcement_participant import AnnouncementParticipant
 
@@ -125,15 +131,20 @@ async def test_get_by_organizer_and_participant(db_session, create_user):
     )
     await db_session.commit()
 
-    part_results = await announcement_crud.get_all_by_participant_id(
+    part_results, part_total = await announcement_crud.get_all_by_participant_id(
         session=db_session, user_id=user.id
     )
     assert any(r.id == created.id for r in part_results)
+    assert part_total >= 1
 
-    participants = await announcement_crud.get_participants_by_announcement_id(
-        session=db_session, announcement=SimpleNamespace(id=created.id)
+    (
+        participants,
+        participants_total,
+    ) = await announcement_crud.get_participants_by_announcement_id(
+        session=db_session, announcement_id=created.id
     )
     assert any(p.id == user.id for p in participants)
+    assert participants_total >= 1
 
 
 @pytest.mark.asyncio
@@ -206,3 +217,109 @@ async def test_delete_announcement(db_session, create_user):
         select(Announcement).where(Announcement.id == created.id)
     )
     assert res.scalar_one_or_none() is None
+
+
+@pytest.mark.asyncio
+async def test_update_status_finish_success(db_session, create_user):
+    user = await create_user(email="creator6@example.com", password="x")
+    game = Game(name="G-finish", category="RTS", description="d")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    now = datetime.now(timezone.utc)
+    a_in = AnnouncementCreate(
+        title="ToFinish",
+        content="c",
+        game_id=game.id,
+        start_at=now + timedelta(days=30),
+        registration_start_at=now,
+        registration_end_at=now + timedelta(days=29),
+        max_participants=10,
+    )
+    created = await announcement_crud.create(
+        session=db_session, announcement_in=a_in, user=user
+    )
+
+    # Manually set status to LIVE
+    created.status = AnnouncementStatus.LIVE
+    await db_session.commit()
+    await db_session.refresh(created)
+
+    with patch("api.v1.crud.announcement.authorize_action"):
+        updated = await announcement_crud.update_status(
+            session=db_session,
+            announcement=created,
+            action=AnnouncementAction.FINISH,
+            user=user,
+        )
+
+    assert updated.status == AnnouncementStatus.FINISHED
+    assert updated.end_at is not None
+
+
+@pytest.mark.asyncio
+async def test_update_status_finish_wrong_status(db_session, create_user):
+    user = await create_user(email="creator7@example.com", password="x")
+    game = Game(name="G-finish-fail", category="RTS", description="d")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    now = datetime.now(timezone.utc)
+    a_in = AnnouncementCreate(
+        title="WrongStatus",
+        content="c",
+        game_id=game.id,
+        start_at=now + timedelta(days=30),
+        registration_start_at=now,
+        registration_end_at=now + timedelta(days=29),
+        max_participants=10,
+    )
+    created = await announcement_crud.create(
+        session=db_session, announcement_in=a_in, user=user
+    )
+
+    # Status should be REGISTRATION_OPEN, not LIVE
+    with patch("api.v1.crud.announcement.authorize_action"):
+        with pytest.raises(ValidationException) as exc_info:
+            await announcement_crud.update_status(
+                session=db_session,
+                announcement=created,
+                action=AnnouncementAction.FINISH,
+                user=user,
+            )
+    assert "Can only finish announcement when it is 'live'" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_update_status_cancel_success(db_session, create_user):
+    user = await create_user(email="creator8@example.com", password="x")
+    game = Game(name="G-cancel", category="RTS", description="d")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    now = datetime.now(timezone.utc)
+    a_in = AnnouncementCreate(
+        title="ToCancel",
+        content="c",
+        game_id=game.id,
+        start_at=now + timedelta(days=30),
+        registration_start_at=now,
+        registration_end_at=now + timedelta(days=29),
+        max_participants=10,
+    )
+    created = await announcement_crud.create(
+        session=db_session, announcement_in=a_in, user=user
+    )
+
+    with patch("api.v1.crud.announcement.authorize_action"):
+        updated = await announcement_crud.update_status(
+            session=db_session,
+            announcement=created,
+            action=AnnouncementAction.CANCEL,
+            user=user,
+        )
+
+    assert updated.status == AnnouncementStatus.CANCELLED

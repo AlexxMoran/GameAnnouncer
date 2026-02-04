@@ -71,15 +71,17 @@ async def test_get_all_by_user_and_announcement(db_session, create_user):
         session=db_session, registration_request_in=rr_in, user=user
     )
 
-    user_list = await registration_request_crud.get_all_by_user_id(
+    user_list, user_total = await registration_request_crud.get_all_by_user_id(
         session=db_session, user_id=user.id
     )
     assert any(r.id == created.id for r in user_list)
+    assert user_total >= 1
 
-    ann_list = await registration_request_crud.get_all_by_announcement_id(
+    ann_list, ann_total = await registration_request_crud.get_all_by_announcement_id(
         session=db_session, announcement_id=ann.id
     )
     assert any(r.id == created.id for r in ann_list)
+    assert ann_total >= 1
 
 
 @pytest.mark.asyncio

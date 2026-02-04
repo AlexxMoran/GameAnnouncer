@@ -6,7 +6,7 @@ from models.registration_request import RegistrationRequest
 from models.user import User
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 from core.permissions import authorize_action
 
@@ -18,15 +18,30 @@ class RegistrationRequestCRUD:
         user_id: int,
         skip: int = 0,
         limit: int = 10,
-    ) -> list[RegistrationRequest]:
-        result = await session.execute(
+    ) -> tuple[list[RegistrationRequest], int]:
+        """
+        Get paginated registration requests by user with total count.
+
+        Returns:
+            Tuple of (registration_requests, total_count)
+        """
+        count_result = await session.execute(
+            select(func.count())
+            .select_from(RegistrationRequest)
+            .where(RegistrationRequest.user_id == user_id)
+        )
+        total = count_result.scalar_one()
+
+        data_result = await session.execute(
             select(RegistrationRequest)
             .where(RegistrationRequest.user_id == user_id)
             .offset(skip)
             .limit(limit)
             .order_by(RegistrationRequest.created_at.desc())
         )
-        return list(result.scalars().all())
+        registration_requests = list(data_result.scalars().all())
+
+        return registration_requests, total
 
     async def get_all_by_announcement_id(
         self,
@@ -34,15 +49,30 @@ class RegistrationRequestCRUD:
         announcement_id: int,
         skip: int = 0,
         limit: int = 10,
-    ) -> list[RegistrationRequest]:
-        result = await session.execute(
+    ) -> tuple[list[RegistrationRequest], int]:
+        """
+        Get paginated registration requests by announcement with total count.
+
+        Returns:
+            Tuple of (registration_requests, total_count)
+        """
+        count_result = await session.execute(
+            select(func.count())
+            .select_from(RegistrationRequest)
+            .where(RegistrationRequest.announcement_id == announcement_id)
+        )
+        total = count_result.scalar_one()
+
+        data_result = await session.execute(
             select(RegistrationRequest)
             .where(RegistrationRequest.announcement_id == announcement_id)
             .offset(skip)
             .limit(limit)
             .order_by(RegistrationRequest.created_at.desc())
         )
-        return list(result.scalars().all())
+        registration_requests = list(data_result.scalars().all())
+
+        return registration_requests, total
 
     async def get_by_id(
         self,

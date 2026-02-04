@@ -27,3 +27,4 @@ class AnnouncementDictFactory(factory.Factory):
     is_registration_open = False
     max_participants = 10
     status = "pre_registration"
+    participants = factory.LazyFunction(list)

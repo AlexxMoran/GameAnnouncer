@@ -9,14 +9,16 @@ async def test_get_games_paginated(async_client, game_factory):
     g2 = game_factory.build()
     games = [SimpleNamespace(**g1), SimpleNamespace(**g2)]
 
-    with patch(
-        "api.v1.games.GameSearch.results",
-        new=AsyncMock(return_value=games),
-    ), patch(
-        "api.v1.games.GameSearch.count",
-        new=AsyncMock(return_value=2),
-    ), patch(
-        "api.v1.games.get_batch_permissions", return_value=None
+    with (
+        patch(
+            "api.v1.games.GameSearch.results",
+            new=AsyncMock(return_value=games),
+        ),
+        patch(
+            "api.v1.games.GameSearch.count",
+            new=AsyncMock(return_value=2),
+        ),
+        patch("api.v1.games.get_batch_permissions", return_value=None),
     ):
         r = await async_client.get("/api/v1/games?skip=0&limit=10")
         assert r.status_code == 200
@@ -34,9 +36,10 @@ async def test_get_game_and_permissions(async_client, game_factory):
     g = game_factory.build()
     g_obj = SimpleNamespace(**g)
 
-    with patch(
-        "api.v1.games.game_crud.get_by_id", new=AsyncMock(return_value=g_obj)
-    ), patch("api.v1.games.get_permissions", return_value={"edit": True}):
+    with (
+        patch("api.v1.games.game_crud.get_by_id", new=AsyncMock(return_value=g_obj)),
+        patch("api.v1.games.get_permissions", return_value={"edit": True}),
+    ):
         r = await async_client.get(f"/api/v1/games/{g['id']}")
         assert r.status_code == 200
         data = r.json()["data"]
@@ -105,10 +108,13 @@ async def test_update_game_success(
         merged = {**game.__dict__, **(upd or {})}
         return SimpleNamespace(**merged)
 
-    with patch(
-        "api.v1.games.game_crud.get_by_id",
-        new=AsyncMock(side_effect=_fake_get_by_id_for_edit),
-    ), patch("api.v1.games.game_crud.update", new=_fake_update):
+    with (
+        patch(
+            "api.v1.games.game_crud.get_by_id",
+            new=AsyncMock(side_effect=_fake_get_by_id_for_edit),
+        ),
+        patch("api.v1.games.game_crud.update", new=_fake_update),
+    ):
         client = authenticated_client(user)
 
         payload = {"name": "UpdatedName"}
@@ -142,10 +148,13 @@ async def test_delete_game_success(
     async def _fake_delete(session, game, user, action=None):
         return None
 
-    with patch(
-        "api.v1.games.game_crud.get_by_id",
-        new=AsyncMock(side_effect=_fake_get_by_id_for_edit),
-    ), patch("api.v1.games.game_crud.delete", new=_fake_delete):
+    with (
+        patch(
+            "api.v1.games.game_crud.get_by_id",
+            new=AsyncMock(side_effect=_fake_get_by_id_for_edit),
+        ),
+        patch("api.v1.games.game_crud.delete", new=_fake_delete),
+    ):
         client = authenticated_client(user)
 
         r = await client.delete("/api/v1/games/1")
@@ -186,10 +195,11 @@ async def test_upload_game_image(async_client, create_user, game_factory):
         _fake_session_getter
     )
 
-    with patch(
-        "api.v1.games.game_crud.get_by_id", new=AsyncMock(return_value=g_obj)
-    ), patch(
-        "api.v1.games.upload_avatar", new=AsyncMock(return_value="http://img/g.png")
+    with (
+        patch("api.v1.games.game_crud.get_by_id", new=AsyncMock(return_value=g_obj)),
+        patch(
+            "api.v1.games.upload_avatar", new=AsyncMock(return_value="http://img/g.png")
+        ),
     ):
         files = {"file": ("img.png", b"data", "image/png")}
 

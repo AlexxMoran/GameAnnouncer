@@ -5,12 +5,12 @@ from models.announcement import Announcement
 from models.registration_form import RegistrationForm
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
+from models.game import Game
 from schemas.announcement import (
     AnnouncementCreate,
     AnnouncementUpdate,
-    AnnouncementResponse,
     AnnouncementAction,
 )
 from core.permissions import authorize_action
@@ -21,20 +21,49 @@ from exceptions import ValidationException
 class AnnouncementCRUD:
     async def get_all_by_organizer_id(
         self, session: AsyncSession, organizer_id: int, skip: int = 0, limit: int = 10
-    ) -> list[Announcement]:
-        result = await session.execute(
+    ) -> tuple[list[Announcement], int]:
+        """
+        Get paginated announcements by organizer with total count.
+
+        Returns:
+            Tuple of (announcements, total_count)
+        """
+        count_result = await session.execute(
+            select(func.count())
+            .select_from(Announcement)
+            .where(Announcement.organizer_id == organizer_id)
+        )
+        total = count_result.scalar_one()
+
+        data_result = await session.execute(
             select(Announcement)
             .where(Announcement.organizer_id == organizer_id)
             .offset(skip)
             .limit(limit)
             .order_by(Announcement.created_at.desc())
         )
-        return list(result.scalars().all())
+        announcements = list(data_result.scalars().all())
+
+        return announcements, total
 
     async def get_all_by_participant_id(
         self, session: AsyncSession, user_id: int, skip: int = 0, limit: int = 10
-    ) -> list[Announcement]:
-        result = await session.execute(
+    ) -> tuple[list[Announcement], int]:
+        """
+        Get paginated announcements by participant with total count.
+
+        Returns:
+            Tuple of (announcements, total_count)
+        """
+        count_result = await session.execute(
+            select(func.count())
+            .select_from(Announcement)
+            .join(Announcement.participants)
+            .where(User.id == user_id)
+        )
+        total = count_result.scalar_one()
+
+        data_result = await session.execute(
             select(Announcement)
             .join(Announcement.participants)
             .where(User.id == user_id)
@@ -42,23 +71,41 @@ class AnnouncementCRUD:
             .limit(limit)
             .order_by(Announcement.created_at.desc())
         )
-        return list(result.scalars().all())
+        announcements = list(data_result.scalars().all())
+
+        return announcements, total
 
     async def get_participants_by_announcement_id(
         self,
         session: AsyncSession,
-        announcement: AnnouncementResponse,
+        announcement_id: int,
         skip: int = 0,
         limit: int = 10,
-    ) -> list[User]:
-        result = await session.execute(
+    ) -> tuple[list[User], int]:
+        """
+        Get paginated participants by announcement with total count.
+
+        Returns:
+            Tuple of (participants, total_count)
+        """
+        count_result = await session.execute(
+            select(func.count())
+            .select_from(User)
+            .join(Announcement.participants)
+            .where(Announcement.id == announcement_id)
+        )
+        total = count_result.scalar_one()
+
+        data_result = await session.execute(
             select(User)
             .join(Announcement.participants)
-            .where(Announcement.id == announcement.id)
+            .where(Announcement.id == announcement_id)
             .offset(skip)
             .limit(limit)
         )
-        return list(result.scalars().all())
+        participants = list(data_result.scalars().all())
+
+        return participants, total
 
     async def get_by_id(
         self,
@@ -72,7 +119,6 @@ class AnnouncementCRUD:
             .options(
                 selectinload(Announcement.organizer),
                 selectinload(Announcement.game),
-                selectinload(Announcement.participants),
                 selectinload(Announcement.registration_form).selectinload(
                     RegistrationForm.fields
                 ),
@@ -93,6 +139,10 @@ class AnnouncementCRUD:
         now = datetime.now(timezone.utc)
 
         announcement = Announcement(**announcement_in.model_dump())
+
+        game = await session.get(Game, announcement_in.game_id)
+        if game and game.image_url:
+            announcement.image_url = game.image_url
 
         if announcement.registration_start_at <= now:
             announcement.status = AnnouncementStatus.REGISTRATION_OPEN
@@ -147,6 +197,7 @@ class AnnouncementCRUD:
                     "Can only finish announcement when it is 'live'"
                 )
             announcement.status = AnnouncementStatus.FINISHED
+            announcement.end_at = datetime.now(timezone.utc)
         elif action == AnnouncementAction.CANCEL:
             announcement.status = AnnouncementStatus.CANCELLED
         else:

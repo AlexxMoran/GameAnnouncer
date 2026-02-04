@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 from datetime import datetime
 from schemas.base import BaseSchemaWithPermissions
 from schemas.registration_form import RegistrationFormCreate, RegistrationFormResponse
@@ -68,9 +68,14 @@ class AnnouncementStatusUpdate(BaseModel):
 
 
 class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
     updated_at: datetime
+    end_at: datetime | None = Field(
+        None, description="The end date and time of the announcement"
+    )
     image_url: str | None = Field(
         None, max_length=500, description="URL to the announcement's image"
     )
@@ -78,6 +83,12 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
         ..., description="The ID of the user who organized the announcement"
     )
     status: str = Field(..., description="The current status of the announcement")
+    participants: list = Field(default_factory=list, exclude=True)
     registration_form: RegistrationFormResponse | None = Field(
         None, description="Custom registration form for this announcement, if exists"
     )
+
+    @computed_field
+    @property
+    def participants_count(self) -> int:
+        return len(self.participants)

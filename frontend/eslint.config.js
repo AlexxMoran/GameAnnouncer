@@ -1,41 +1,42 @@
-// @ts-check
-const eslint = require('@eslint/js');
-const tseslint = require('typescript-eslint');
-const angular = require('angular-eslint');
-const eslintPluginPrettierRecommended = require('eslint-plugin-prettier/recommended');
+import js from "@eslint/js";
+import prettier from "eslint-config-prettier";
+import prettierPlugin from "eslint-plugin-prettier";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
+import { defineConfig, globalIgnores } from "eslint/config";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
-module.exports = tseslint.config(
+export default defineConfig([
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.ts'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
-      eslint.configs.recommended,
-      ...tseslint.configs.recommended,
-      ...tseslint.configs.stylistic,
-      ...angular.configs.tsRecommended,
+      js.configs.recommended,
+      tseslint.configs.recommended,
+      reactHooks.configs.flat.recommended,
+      reactRefresh.configs.vite,
+      prettier,
     ],
-    processor: angular.processInlineTemplates,
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+    },
+    plugins: {
+      prettier: prettierPlugin,
+    },
     rules: {
-      '@angular-eslint/directive-selector': [
-        'error',
+      "@typescript-eslint/no-empty-object-type": "off",
+      "no-unsafe-optional-chaining": "off",
+      "react-hooks/exhaustive-deps": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
         {
-          type: 'attribute',
-          style: 'camelCase',
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
         },
       ],
-      '@angular-eslint/component-selector': [
-        'error',
-        {
-          type: 'element',
-          style: 'kebab-case',
-        },
-      ],
-      '@typescript-eslint/no-empty-object-type': 'off',
     },
   },
-  {
-    files: ['**/*.html'],
-    extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
-    rules: {},
-  },
-  eslintPluginPrettierRecommended,
-);
+]);

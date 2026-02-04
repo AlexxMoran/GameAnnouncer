@@ -46,12 +46,15 @@ async def test_create_registration_request_success(
     ann = SimpleNamespace(**ann_dict)
 
     rr_in = {"announcement_id": ann.id}
-    with patch(
-        "api.v1.registration_requests.get_announcement_dependency",
-        new=AsyncMock(return_value=ann),
-    ), patch(
-        "api.v1.registration_requests.registration_request_crud.get_by_user_and_announcement",
-        new=AsyncMock(return_value=None),
+    with (
+        patch(
+            "api.v1.registration_requests.get_announcement_dependency",
+            new=AsyncMock(return_value=ann),
+        ),
+        patch(
+            "api.v1.registration_requests.registration_request_crud.get_by_user_and_announcement",
+            new=AsyncMock(return_value=None),
+        ),
     ):
         created = registration_request_factory.build(
             user_id=user.id, announcement_id=ann.id
@@ -87,12 +90,15 @@ async def test_create_registration_request_duplicate(
         user_id=user.id, announcement_id=ann["id"]
     )
 
-    with patch(
-        "api.v1.registration_requests.get_announcement_dependency",
-        new=AsyncMock(return_value=ann),
-    ), patch(
-        "api.v1.registration_requests.registration_request_crud.get_by_user_and_announcement",
-        new=AsyncMock(return_value=existing),
+    with (
+        patch(
+            "api.v1.registration_requests.get_announcement_dependency",
+            new=AsyncMock(return_value=ann),
+        ),
+        patch(
+            "api.v1.registration_requests.registration_request_crud.get_by_user_and_announcement",
+            new=AsyncMock(return_value=existing),
+        ),
     ):
         client = authenticated_client(user)
 
@@ -151,18 +157,23 @@ async def test_update_registration_request_status_actions(
 
     client = authenticated_client(user)
 
-    with patch(
-        "api.v1.registration_requests.registration_request_crud.get_by_id",
-        new=AsyncMock(return_value=rr),
-    ), patch(
-        "api.v1.registration_requests.registration_request_crud.approve",
-        new=AsyncMock(side_effect=_fake_approve),
-    ), patch(
-        "api.v1.registration_requests.registration_request_crud.reject",
-        new=AsyncMock(side_effect=_fake_reject),
-    ), patch(
-        "api.v1.registration_requests.registration_request_crud.cancel",
-        new=AsyncMock(side_effect=_fake_cancel),
+    with (
+        patch(
+            "api.v1.registration_requests.registration_request_crud.get_by_id",
+            new=AsyncMock(return_value=rr),
+        ),
+        patch(
+            "api.v1.registration_requests.registration_request_crud.approve",
+            new=AsyncMock(side_effect=_fake_approve),
+        ),
+        patch(
+            "api.v1.registration_requests.registration_request_crud.reject",
+            new=AsyncMock(side_effect=_fake_reject),
+        ),
+        patch(
+            "api.v1.registration_requests.registration_request_crud.cancel",
+            new=AsyncMock(side_effect=_fake_cancel),
+        ),
     ):
         r = await client.patch(f"/api/v1/registration_requests/{rr['id']}/approve")
         assert r.status_code == 200
