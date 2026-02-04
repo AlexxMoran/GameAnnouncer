@@ -279,10 +279,17 @@ async def test_create_announcement_sets_pre_registration_status(
     ann_obj = SimpleNamespace(**announcement_data)
     ann_obj.status = AnnouncementStatus.PRE_REGISTRATION
 
+    class FakeService:
+        def __init__(self, session, announcement_in, user):
+            pass
+
+        async def call(self):
+            return ann_obj
+
     with (
         patch(
-            "api.v1.announcements.announcement_crud.create",
-            new=AsyncMock(return_value=ann_obj),
+            "api.v1.announcements.CreateAnnouncementService",
+            new=FakeService,
         ),
         patch("api.v1.announcements.get_permissions", return_value={}),
     ):
@@ -307,10 +314,17 @@ async def test_create_announcement_sets_registration_open_status(
     ann_obj = SimpleNamespace(**announcement_data)
     ann_obj.status = AnnouncementStatus.REGISTRATION_OPEN
 
+    class FakeService:
+        def __init__(self, session, announcement_in, user):
+            pass
+
+        async def call(self):
+            return ann_obj
+
     with (
         patch(
-            "api.v1.announcements.announcement_crud.create",
-            new=AsyncMock(return_value=ann_obj),
+            "api.v1.announcements.CreateAnnouncementService",
+            new=FakeService,
         ),
         patch("api.v1.announcements.get_permissions", return_value={}),
     ):

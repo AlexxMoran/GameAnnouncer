@@ -5,6 +5,7 @@ from models.registration_request import RegistrationRequest
 from schemas.registration_form import RegistrationFormCreate
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.orm import noload
 from enums.registration_status import RegistrationStatus
 
 
@@ -25,9 +26,9 @@ class UpsertRegistrationFormService:
         """Create or update registration form, cancelling active registration requests if form exists."""
 
         existing_form_result = await self.session.execute(
-            select(RegistrationForm).where(
-                RegistrationForm.announcement_id == self.announcement.id
-            )
+            select(RegistrationForm)
+            .options(noload(RegistrationForm.fields))
+            .where(RegistrationForm.announcement_id == self.announcement.id)
         )
         existing_form = existing_form_result.scalar_one_or_none()
 
