@@ -6,6 +6,8 @@ from models.announcement import Announcement
 from schemas.user import UserResponse
 from models.user import User
 from services.avatar_uploader import upload_avatar
+from services.create_announcement_service import CreateAnnouncementService
+from services.upsert_registration_form_service import UpsertRegistrationFormService
 from schemas.announcement import (
     AnnouncementCreate,
     AnnouncementResponse,
@@ -14,6 +16,7 @@ from schemas.announcement import (
 )
 from schemas.base import PaginatedResponse, DataResponse
 from schemas.filters.announcement_filter import AnnouncementFilter
+from schemas.registration_form import RegistrationFormCreate, RegistrationFormResponse
 from core.deps import SessionDep
 from api.v1.crud.announcement import announcement_crud
 from api.v1.crud.registration_request import registration_request_crud
@@ -127,9 +130,10 @@ async def create_announcement(
     announcement_in: AnnouncementCreate,
     user: User = Depends(current_user),
 ):
-    announcement = await announcement_crud.create(
+    service = CreateAnnouncementService(
         session=session, announcement_in=announcement_in, user=user
     )
+    announcement = await service.call()
 
     return DataResponse(data=announcement)
 
@@ -182,6 +186,25 @@ async def update_status(
     )
 
     return DataResponse(data=updated_announcement)
+
+
+@router.put(
+    "/{announcement_id}/registration_form",
+    response_model=DataResponse[RegistrationFormResponse],
+)
+async def upsert_registration_form(
+    session: SessionDep,
+    registration_form_in: RegistrationFormCreate,
+    announcement: Announcement = Depends(get_announcement_for_edit_dependency),
+):
+    service = UpsertRegistrationFormService(
+        session=session,
+        announcement=announcement,
+        registration_form_in=registration_form_in,
+    )
+    registration_form = await service.call()
+
+    return DataResponse(data=registration_form)
 
 
 @router.post(

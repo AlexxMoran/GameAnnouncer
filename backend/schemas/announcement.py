@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 from datetime import datetime
 from schemas.base import BaseSchemaWithPermissions
+from schemas.registration_form import RegistrationFormCreate, RegistrationFormResponse
 from enum import Enum
 
 
@@ -30,7 +31,9 @@ class AnnouncementBase(BaseModel):
 
 
 class AnnouncementCreate(AnnouncementBase):
-    pass
+    registration_form: RegistrationFormCreate | None = Field(
+        None, description="Optional custom registration form for this announcement"
+    )
 
 
 class AnnouncementUpdate(BaseModel):
@@ -81,6 +84,9 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
     )
     status: str = Field(..., description="The current status of the announcement")
     participants: list = Field(default_factory=list, exclude=True)
+    registration_form: RegistrationFormResponse | None = Field(
+        None, description="Custom registration form for this announcement, if exists"
+    )
 
     @computed_field
     @property

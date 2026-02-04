@@ -133,28 +133,31 @@ async def test_create_update_delete_announcement(
     async_client, create_user, announcement_factory, authenticated_client
 ):
     user = await create_user(email="creator@example.com", password="pw")
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
     ann_in = {
         "title": "T",
         "content": "C",
         "game_id": 55,
-        "start_at": now.isoformat(),
+        "start_at": (now + timedelta(days=3)).isoformat(),
         "registration_start_at": now.isoformat(),
-        "registration_end_at": now.isoformat(),
+        "registration_end_at": (now + timedelta(days=2)).isoformat(),
         "max_participants": 10,
     }
 
     created = announcement_factory.build(**ann_in, organizer_id=user.id)
 
-    async def _fake_create(session, announcement_in, user):
-        assert announcement_in.title == ann_in["title"]
-        return SimpleNamespace(**created)
+    class FakeService:
+        def __init__(self, session, announcement_in, user):
+            assert announcement_in.title == ann_in["title"]
+
+        async def call(self):
+            return SimpleNamespace(**created)
 
     client = authenticated_client(user)
 
     with patch(
-        "api.v1.announcements.announcement_crud.create",
-        new=AsyncMock(side_effect=_fake_create),
+        "api.v1.announcements.CreateAnnouncementService",
+        new=FakeService,
     ):
         r = await client.post("/api/v1/announcements", json=ann_in)
         assert r.status_code == 201
@@ -276,10 +279,17 @@ async def test_create_announcement_sets_pre_registration_status(
     ann_obj = SimpleNamespace(**announcement_data)
     ann_obj.status = AnnouncementStatus.PRE_REGISTRATION
 
+    class FakeService:
+        def __init__(self, session, announcement_in, user):
+            pass
+
+        async def call(self):
+            return ann_obj
+
     with (
         patch(
-            "api.v1.announcements.announcement_crud.create",
-            new=AsyncMock(return_value=ann_obj),
+            "api.v1.announcements.CreateAnnouncementService",
+            new=FakeService,
         ),
         patch("api.v1.announcements.get_permissions", return_value={}),
     ):
@@ -304,10 +314,17 @@ async def test_create_announcement_sets_registration_open_status(
     ann_obj = SimpleNamespace(**announcement_data)
     ann_obj.status = AnnouncementStatus.REGISTRATION_OPEN
 
+    class FakeService:
+        def __init__(self, session, announcement_in, user):
+            pass
+
+        async def call(self):
+            return ann_obj
+
     with (
         patch(
-            "api.v1.announcements.announcement_crud.create",
-            new=AsyncMock(return_value=ann_obj),
+            "api.v1.announcements.CreateAnnouncementService",
+            new=FakeService,
         ),
         patch("api.v1.announcements.get_permissions", return_value={}),
     ):

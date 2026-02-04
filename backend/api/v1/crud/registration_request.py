@@ -137,8 +137,12 @@ class RegistrationRequestCRUD:
         session: AsyncSession,
         registration_request: RegistrationRequest,
         status: RegistrationStatus,
+        cancellation_reason: str | None = None,
     ) -> RegistrationRequest:
         registration_request.status = status
+
+        if cancellation_reason:
+            registration_request.cancellation_reason = cancellation_reason
 
         if status == RegistrationStatus.APPROVED:
             announcement = registration_request.announcement
@@ -146,9 +150,13 @@ class RegistrationRequestCRUD:
                 announcement.participants.append(registration_request.user)
 
         await session.commit()
-        await session.refresh(registration_request)
 
-        return registration_request
+        result = await session.execute(
+            select(RegistrationRequest).where(
+                RegistrationRequest.id == registration_request.id
+            )
+        )
+        return result.scalar_one()
 
     async def approve(
         self,
@@ -169,6 +177,7 @@ class RegistrationRequestCRUD:
         session: AsyncSession,
         registration_request: RegistrationRequest,
         user: User,
+        cancellation_reason: str | None = None,
     ) -> RegistrationRequest:
         authorize_action(user, registration_request, "reject")
 
@@ -176,6 +185,7 @@ class RegistrationRequestCRUD:
             session=session,
             registration_request=registration_request,
             status=RegistrationStatus.REJECTED,
+            cancellation_reason=cancellation_reason,
         )
 
     async def cancel(

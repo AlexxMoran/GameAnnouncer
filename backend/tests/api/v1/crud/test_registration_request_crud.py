@@ -4,6 +4,7 @@ from sqlalchemy import select
 from datetime import datetime, timedelta
 
 from models.game import Game
+from models.user import User
 from models.announcement import Announcement
 from models.registration_request import RegistrationRequest
 from enums.registration_status import RegistrationStatus
@@ -199,6 +200,68 @@ async def test_approve_registration_request(db_session, create_user):
 
 
 @pytest.mark.asyncio
+async def test_approve_adds_user_to_participants(db_session, create_user):
+    owner = await create_user(email="owner4@example.com", password="x")
+    actor = await create_user(email="actor4@example.com", password="x")
+
+    game = Game(name="RRGame6", category="RTS", description="d")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    now = datetime.now()
+    ann = Announcement(
+        title="Ann6",
+        content="c",
+        game_id=game.id,
+        organizer_id=owner.id,
+        start_at=now + timedelta(days=30),
+        registration_start_at=now,
+        registration_end_at=now + timedelta(days=29),
+        max_participants=10,
+    )
+    db_session.add(ann)
+    await db_session.commit()
+    await db_session.refresh(ann)
+
+    # Check participants before approval using explicit join table
+    from models.announcement_participant import AnnouncementParticipant
+
+    participants_result = await db_session.execute(
+        select(User)
+        .join(AnnouncementParticipant, AnnouncementParticipant.user_id == User.id)
+        .where(AnnouncementParticipant.announcement_id == ann.id)
+    )
+    participants = list(participants_result.scalars().all())
+    assert actor not in participants
+
+    rr_in = RegistrationRequestCreate(announcement_id=ann.id)
+    created = await registration_request_crud.create(
+        session=db_session, registration_request_in=rr_in, user=actor
+    )
+
+    rr = await registration_request_crud.get_by_id(
+        session=db_session, registration_request_id=created.id
+    )
+
+    with patch("api.v1.crud.registration_request.authorize_action"):
+        await registration_request_crud.approve(
+            session=db_session, registration_request=rr, user=owner
+        )
+
+    await db_session.refresh(ann)
+
+    # Check participants after approval using explicit join table
+    participants_result_after = await db_session.execute(
+        select(User)
+        .join(AnnouncementParticipant, AnnouncementParticipant.user_id == User.id)
+        .where(AnnouncementParticipant.announcement_id == ann.id)
+    )
+    participants_after = list(participants_result_after.scalars().all())
+    assert actor in participants_after
+
+
+@pytest.mark.asyncio
 async def test_reject_registration_request(db_session, create_user):
     owner = await create_user(email="owner2@example.com", password="x")
     actor = await create_user(email="actor2@example.com", password="x")
@@ -232,9 +295,13 @@ async def test_reject_registration_request(db_session, create_user):
     )
     with patch("api.v1.crud.registration_request.authorize_action"):
         rejected = await registration_request_crud.reject(
-            session=db_session, registration_request=rr_loaded, user=owner
+            session=db_session,
+            registration_request=rr_loaded,
+            user=owner,
+            cancellation_reason="Test rejection reason",
         )
     assert rejected.status == RegistrationStatus.REJECTED
+    assert rejected.cancellation_reason == "Test rejection reason"
 
 
 @pytest.mark.asyncio

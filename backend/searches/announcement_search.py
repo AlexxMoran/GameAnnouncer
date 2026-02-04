@@ -1,5 +1,5 @@
 from sqlalchemy import select, or_, case, desc, func
-from sqlalchemy.orm import selectinload, contains_eager
+from sqlalchemy.orm import contains_eager
 
 from models.announcement import Announcement
 from models.game import Game
@@ -14,9 +14,7 @@ class AnnouncementSearch(BaseSearch):
     MIN_SEARCH_LENGTH = 2
 
     def base_query(self):
-        query = select(self.model).options(
-            selectinload(Announcement.participants),
-        )
+        query = select(self.model)
 
         query = self.apply_filters(query)
 
