@@ -33,5 +33,5 @@ class FormFieldResponse(Base):
         "RegistrationRequest", back_populates="form_responses", passive_deletes=True
     )
     form_field: Mapped["FormField"] = relationship(
-        "FormField", back_populates="responses", passive_deletes=True
+        "FormField", back_populates="responses", passive_deletes=True, lazy="selectin"
     )

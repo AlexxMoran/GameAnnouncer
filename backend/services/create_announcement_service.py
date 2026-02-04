@@ -5,6 +5,7 @@ from models.registration_form import RegistrationForm
 from models.form_field import FormField
 from schemas.announcement import AnnouncementCreate
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 from enums import AnnouncementStatus
 
 
@@ -54,6 +55,8 @@ class CreateAnnouncementService:
                 self.session.add(form_field)
 
         await self.session.commit()
-        await self.session.refresh(announcement)
 
-        return announcement
+        result = await self.session.execute(
+            select(Announcement).where(Announcement.id == announcement.id)
+        )
+        return result.scalar_one()

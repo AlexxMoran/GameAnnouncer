@@ -150,9 +150,13 @@ class RegistrationRequestCRUD:
                 announcement.participants.append(registration_request.user)
 
         await session.commit()
-        await session.refresh(registration_request)
 
-        return registration_request
+        result = await session.execute(
+            select(RegistrationRequest).where(
+                RegistrationRequest.id == registration_request.id
+            )
+        )
+        return result.scalar_one()
 
     async def approve(
         self,

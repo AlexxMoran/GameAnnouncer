@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 
 class FormFieldResponseBase(BaseModel):
@@ -18,5 +18,13 @@ class FormFieldResponseUpdate(BaseModel):
 
 class FormFieldResponseResponse(FormFieldResponseBase):
     model_config = ConfigDict(from_attributes=True)
+
     id: int
     registration_request_id: int
+
+    @computed_field
+    @property
+    def label(self) -> str:
+        """The question/label shown to the user (e.g. 'Nickname in Game')."""
+
+        return self.form_field.label

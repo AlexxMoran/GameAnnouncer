@@ -2,7 +2,6 @@ from typing import Optional
 from datetime import datetime, timezone
 from models.user import User
 from models.announcement import Announcement
-from models.registration_form import RegistrationForm
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -119,9 +118,6 @@ class AnnouncementCRUD:
             .options(
                 selectinload(Announcement.organizer),
                 selectinload(Announcement.game),
-                selectinload(Announcement.registration_form).selectinload(
-                    RegistrationForm.fields
-                ),
             )
             .where(Announcement.id == announcement_id)
         )

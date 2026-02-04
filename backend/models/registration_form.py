@@ -21,5 +21,5 @@ class RegistrationForm(Base):
         uselist=False,
     )
     fields: Mapped[list["FormField"]] = relationship(
-        "FormField", back_populates="form", passive_deletes=True
+        "FormField", back_populates="form", passive_deletes=True, lazy="selectin"
     )

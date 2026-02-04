@@ -68,6 +68,7 @@ class Announcement(Base):
         back_populates="announcement",
         passive_deletes=True,
         uselist=False,
+        lazy="selectin",
     )
 
     @validates("start_at", "registration_start_at", "registration_end_at")

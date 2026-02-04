@@ -37,5 +37,8 @@ class RegistrationRequest(Base):
     )
 
     form_responses: Mapped[list["FormFieldResponse"]] = relationship(
-        "FormFieldResponse", back_populates="registration_request", passive_deletes=True
+        "FormFieldResponse",
+        back_populates="registration_request",
+        passive_deletes=True,
+        lazy="selectin",
     )

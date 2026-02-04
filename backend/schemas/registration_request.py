@@ -1,6 +1,10 @@
 from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional
 from datetime import datetime
+from schemas.form_field_response import (
+    FormFieldResponseCreate,
+    FormFieldResponseResponse,
+)
 
 
 class RegistrationRequestBase(BaseModel):
@@ -8,7 +12,10 @@ class RegistrationRequestBase(BaseModel):
 
 
 class RegistrationRequestCreate(RegistrationRequestBase):
-    pass
+    form_responses: list[FormFieldResponseCreate] = Field(
+        default_factory=list,
+        description="Responses to custom registration form fields, if announcement has a registration form",
+    )
 
 
 class RegistrationRequestUpdate(BaseModel):
@@ -27,6 +34,10 @@ class RegistrationRequestResponse(RegistrationRequestBase):
     status: str = Field(..., description="The status of the registration request")
     cancellation_reason: str | None = Field(
         None, description="Reason for cancellation/decline of the registration request"
+    )
+    form_responses: list[FormFieldResponseResponse] = Field(
+        default_factory=list,
+        description="User's responses to custom registration form fields",
     )
     created_at: datetime
     updated_at: datetime
