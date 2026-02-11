@@ -60,9 +60,11 @@ export const AnnouncementsPage: FC = observer(() => {
       enqueueSnackbar(t("texts.announcementAddingSuccess"), {
         variant: "success",
       });
-    }
 
-    closeDialog();
+      closeDialog();
+
+      return result;
+    }
   };
 
   const handleOpenCreateDialog = () => {

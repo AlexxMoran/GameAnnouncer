@@ -9,3 +9,9 @@ export enum EAnnouncementStatuses {
   Finished = "finished",
   Cancelled = "cancelled",
 }
+
+export enum ERegistrationFormFieldTypes {
+  Text = "text",
+  Select = "select",
+  Boolean = "boolean",
+}

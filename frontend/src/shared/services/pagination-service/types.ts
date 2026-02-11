@@ -5,4 +5,5 @@ import type { AxiosResponse } from "axios";
 
 export interface IPaginationServiceParams<TEntity extends IEntityIdField, TParams extends IPaginationParams> {
   loadFn: (params: TParams) => Promise<AxiosResponse<TApiResponseWrapper<TEntity[]> & IPaginationMeta>>;
+  initImmediately?: boolean;
 }

@@ -26,6 +26,7 @@ export const translationRu = {
     participant: "участник",
     organizer: "организатор",
     status: "статус",
+    type: "тип",
   },
   actions: {
     login: "Войти",
@@ -53,6 +54,12 @@ export const translationRu = {
     sendRequest: "Отправить заявку на участие",
     send: "Отправить",
     cancelRequest: "Отменить заявку",
+    back: "Вернуться назад",
+    next: "Дальше",
+    deleteOption: "Удалить опцию",
+    deleteField: "Удалить поле",
+    addOption: "Добавить опцию",
+    addField: "Добавить поле",
   },
   texts: {
     allTournaments: "Все турниры",
@@ -94,6 +101,11 @@ export const translationRu = {
     sendRequestSuccess: "Заявка успешно отправлена администратору турнира",
     cancelRequestConfirmation: "Вы уверены, что хотите отменить заявку?",
     cancelRequestSuccess: "Заявка успешно отменена",
+    requiredField: "Обязательное поле",
+    announcementInfo: "Сведения о турнире",
+    registrationForm: "Форма регистрации",
+    createRegistrationFormTooltip: "Добавьте поля формы для регистрации в турнире (опционально)",
+    optionList: "Список опций",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",

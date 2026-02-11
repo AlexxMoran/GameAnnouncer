@@ -26,6 +26,7 @@ export const translationEn = {
     participant: "participant",
     organizer: "organizer",
     status: "status",
+    type: "type",
   },
   actions: {
     login: "Login",
@@ -53,6 +54,12 @@ export const translationEn = {
     sendRequest: "Send request to participate",
     send: "Send",
     cancelRequest: "Cancel request",
+    back: "Back",
+    next: "Next",
+    deleteOption: "Delete option",
+    deleteField: "Delete field",
+    addOption: "Add option",
+    addField: "Add field",
   },
   texts: {
     allTournaments: "All tournaments",
@@ -95,6 +102,11 @@ export const translationEn = {
     sendRequestSuccess: "The request was successfully sent to the tournament administrator.",
     cancelRequestConfirmation: "Are you sure you want to cancel your request?",
     cancelRequestSuccess: "Request successfully canceled",
+    requiredField: "Required field",
+    announcementInfo: "Tournament information",
+    registrationForm: "Registration form",
+    createRegistrationFormTooltip: "Add form fields for tournament registration (optionally)",
+    optionList: "List of options",
   },
   validationErrors: {
     unknown: "Unexpected error",

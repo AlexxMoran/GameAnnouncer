@@ -13,11 +13,10 @@ export const FormComponent = <TFormValues extends TObjectAny>(props: IFormProps<
     buttonText,
     fields: Fields,
     wrapperStyles,
+    cancelButton,
     onSubmit,
-    onCancel,
     onValidation,
     onValuesChange,
-    cancelWithResult,
   } = props;
 
   const { onSubmit: onFormikSubmit, ...otherSettings } = formikConfig;
@@ -25,15 +24,7 @@ export const FormComponent = <TFormValues extends TObjectAny>(props: IFormProps<
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const formik = useFormik<TFormValues>({
-    onSubmit:
-      onFormikSubmit ||
-      (async (values: TFormValues) => {
-        const result = await onSubmit?.(trimObjectValues(values));
-
-        if (result && cancelWithResult) {
-          onCancel?.();
-        }
-      }),
+    onSubmit: onFormikSubmit || ((values: TFormValues) => onSubmit?.(trimObjectValues(values))),
     validateOnBlur: false,
     validateOnChange: isSubmitted,
     ...otherSettings,
@@ -58,9 +49,20 @@ export const FormComponent = <TFormValues extends TObjectAny>(props: IFormProps<
         <Box display="flex" flexDirection="column" gap={6}>
           <Fields />
         </Box>
-        <Button onClick={handleSubmit} loading={formik.isSubmitting} disabled={!formik.isValid}>
-          {buttonText}
-        </Button>
+        {cancelButton ? (
+          <Box display="flex" gap={2} alignSelf="flex-end">
+            <Button variant="outlined" onClick={cancelButton.onCancel}>
+              {cancelButton.text}
+            </Button>
+            <Button onClick={handleSubmit} loading={formik.isSubmitting} disabled={!formik.isValid}>
+              {buttonText}
+            </Button>
+          </Box>
+        ) : (
+          <Button onClick={handleSubmit} loading={formik.isSubmitting} disabled={!formik.isValid}>
+            {buttonText}
+          </Button>
+        )}
       </Box>
     </FormikContext.Provider>
   );
