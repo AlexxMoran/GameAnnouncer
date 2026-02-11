@@ -17,6 +17,10 @@ export class PaginationService<TEntity extends IEntityIdField, TParams extends I
 
   constructor(private params: IPaginationServiceParams<TEntity, TParams>) {
     makeAutoObservable(this);
+
+    if (params.initImmediately) {
+      this.init();
+    }
   }
 
   private get paginationParams() {

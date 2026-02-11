@@ -11,10 +11,10 @@ import dayjs from "dayjs";
 import { useFormikContext } from "formik";
 import { debounce } from "lodash";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState, type ChangeEvent, type FC, type SyntheticEvent } from "react";
+import { useState, type ChangeEvent, type FC, type SyntheticEvent } from "react";
 import { useTranslation } from "react-i18next";
 
-export const CreateAnnouncementFields: FC = observer(() => {
+export const AnnouncementInfoFields: FC = observer(() => {
   const { t } = useTranslation();
   const { gamesApiService } = useRootService();
   const [input, setInput] = useState("");
@@ -25,6 +25,7 @@ export const CreateAnnouncementFields: FC = observer(() => {
     () =>
       new PaginationService<IGameDto, IGetGamesDto>({
         loadFn: gamesApiService.getGames,
+        initImmediately: true,
       })
   );
 
@@ -51,10 +52,6 @@ export const CreateAnnouncementFields: FC = observer(() => {
   }, 300);
 
   const handlePaginate = () => paginate({ name: input });
-
-  useEffect(() => {
-    init();
-  }, []);
 
   return (
     <>

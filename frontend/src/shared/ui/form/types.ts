@@ -10,11 +10,14 @@ export interface IFormikConfig<T extends TObjectAny> extends Omit<FormikConfig<T
 export interface IFormProps<TFormValues extends TObjectAny> {
   fields: FC;
   formikConfig: IFormikConfig<TFormValues>;
-  onSubmit?: (values: TFormValues) => Promise<unknown> | undefined;
-  onCancel?: () => void;
+  onSubmit?: (values: TFormValues) => Promise<unknown> | void | undefined;
   onValidation?: (isValid: boolean) => void;
   onValuesChange?: (values: TFormValues) => void;
   buttonText?: string;
   wrapperStyles?: IBoxProps;
   cancelWithResult?: boolean;
+  cancelButton?: {
+    text: string;
+    onCancel?: () => void;
+  };
 }
