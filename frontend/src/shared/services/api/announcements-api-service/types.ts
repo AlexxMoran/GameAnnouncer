@@ -3,7 +3,7 @@ import type {
   ERegistrationFormFieldTypes,
 } from "@shared/services/api/announcements-api-service/constants";
 import type { IEntityDateFields, IEntityIdField } from "@shared/types/commonEntity.types";
-import type { TMaybe, TObjectAny } from "@shared/types/main.types";
+import type { TMaybe } from "@shared/types/main.types";
 import type { IPaginationParams } from "@shared/types/pagination.types";
 
 export interface IAnnouncementDto extends IEntityDateFields, IEntityIdField {
@@ -28,7 +28,7 @@ export interface IRegistrationFormField {
   field_type: ERegistrationFormFieldTypes;
   label: string;
   required: boolean;
-  options?: TObjectAny;
+  options?: string[];
 }
 
 export interface ICreateAnnouncementDto {

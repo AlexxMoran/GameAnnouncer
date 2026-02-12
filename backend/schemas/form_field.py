@@ -12,7 +12,7 @@ class FormFieldBase(BaseModel):
     required: bool = Field(
         default=False, description="Whether this field is required or optional"
     )
-    options: dict | None = Field(
+    options: list[str] | None = Field(
         default=None,
         description="The options for fields like selects, dropdowns or multiple choice",
     )
@@ -32,7 +32,7 @@ class FormFieldUpdate(BaseModel):
     required: bool | None = Field(
         None, description="Whether this field is required or optional"
     )
-    options: dict | None = Field(
+    options: list[str] | None = Field(
         None,
         description="The options for fields like selects, dropdowns or multiple choice",
     )

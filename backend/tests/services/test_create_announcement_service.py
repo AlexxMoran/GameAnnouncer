@@ -72,7 +72,7 @@ async def test_create_announcement_with_registration_form(db_session, create_use
             label="Experience Level",
             field_type=FormFieldType.SELECT,
             required=True,
-            options={"choices": ["Beginner", "Intermediate", "Advanced"]},
+            options=["Beginner", "Intermediate", "Advanced"],
             order=2,
         ),
     ]
@@ -118,7 +118,7 @@ async def test_create_announcement_with_registration_form(db_session, create_use
     assert fields[0].required is True
     assert fields[1].label == "Experience Level"
     assert fields[1].field_type == FormFieldType.SELECT
-    assert fields[1].options == {"choices": ["Beginner", "Intermediate", "Advanced"]}
+    assert fields[1].options == ["Beginner", "Intermediate", "Advanced"]
 
 
 @pytest.mark.asyncio
