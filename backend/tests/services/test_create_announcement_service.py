@@ -64,14 +64,12 @@ async def test_create_announcement_with_registration_form(db_session, create_use
     form_fields = [
         FormFieldCreate(
             label="Discord Username",
-            key="discord_username",
             field_type=FormFieldType.TEXT,
             required=True,
             order=1,
         ),
         FormFieldCreate(
             label="Experience Level",
-            key="experience_level",
             field_type=FormFieldType.SELECT,
             required=True,
             options={"choices": ["Beginner", "Intermediate", "Advanced"]},

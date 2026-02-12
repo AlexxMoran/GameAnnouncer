@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import Boolean, Enum, ForeignKey, String, UniqueConstraint
+from sqlalchemy import Boolean, Enum, ForeignKey, String
 from sqlalchemy.dialects.postgresql import JSONB
 from .base import Base
 from enums import FormFieldType
@@ -12,13 +12,6 @@ if TYPE_CHECKING:
 
 class FormField(Base):
     __tablename__ = "form_fields"
-    __table_args__ = (
-        UniqueConstraint(
-            "form_id",
-            "key",
-            name="uq_form_fields_form_id_key",
-        ),
-    )
 
     form_id: Mapped[int] = mapped_column(
         ForeignKey("registration_forms.id", ondelete="CASCADE"),
@@ -34,11 +27,6 @@ class FormField(Base):
         String(200),
         nullable=False,
         comment="The label/question for the form field(Example: 'Nickname in Game')",
-    )
-    key: Mapped[str] = mapped_column(
-        String(100),
-        nullable=False,
-        comment="The unique key/identifier for store response(Example: 'nickname')",
     )
     required: Mapped[bool] = mapped_column(
         Boolean,

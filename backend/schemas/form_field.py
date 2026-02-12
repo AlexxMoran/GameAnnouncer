@@ -9,11 +9,6 @@ class FormFieldBase(BaseModel):
     label: str = Field(
         ..., max_length=200, description="The label/question for the form field"
     )
-    key: str = Field(
-        ...,
-        max_length=100,
-        description="The unique key/identifier for storing response",
-    )
     required: bool = Field(
         default=False, description="Whether this field is required or optional"
     )
@@ -33,11 +28,6 @@ class FormFieldUpdate(BaseModel):
     )
     label: str | None = Field(
         None, max_length=200, description="The label/question for the form field"
-    )
-    key: str | None = Field(
-        None,
-        max_length=100,
-        description="The unique key/identifier for storing response",
     )
     required: bool | None = Field(
         None, description="Whether this field is required or optional"

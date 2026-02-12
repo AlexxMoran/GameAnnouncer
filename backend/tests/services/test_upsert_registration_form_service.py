@@ -40,7 +40,6 @@ async def test_create_new_registration_form(db_session, create_user):
     form_fields = [
         FormFieldCreate(
             label="Discord Username",
-            key="discord_username",
             field_type=FormFieldType.TEXT,
             required=True,
             order=1,
@@ -100,7 +99,6 @@ async def test_update_existing_registration_form(db_session, create_user):
 
     old_field = FormField(
         label="Old Field",
-        key="old_field",
         field_type=FormFieldType.TEXT,
         required=False,
         form_id=old_form.id,
@@ -116,7 +114,6 @@ async def test_update_existing_registration_form(db_session, create_user):
     new_form_fields = [
         FormFieldCreate(
             label="New Field",
-            key="new_field",
             field_type=FormFieldType.TEXT,
             required=True,
             order=1,
@@ -185,7 +182,6 @@ async def test_update_form_cancels_pending_requests(db_session, create_user):
 
     old_field = FormField(
         label="Old Field",
-        key="old_field",
         field_type=FormFieldType.TEXT,
         required=False,
         form_id=old_form.id,
@@ -207,7 +203,6 @@ async def test_update_form_cancels_pending_requests(db_session, create_user):
     new_form_fields = [
         FormFieldCreate(
             label="Updated Field",
-            key="updated_field",
             field_type=FormFieldType.TEXT,
             required=True,
             order=1,
@@ -277,7 +272,6 @@ async def test_update_form_cancels_approved_requests(db_session, create_user):
     new_form_fields = [
         FormFieldCreate(
             label="New Required Field",
-            key="new_required_field",
             field_type=FormFieldType.TEXT,
             required=True,
             order=1,
@@ -347,7 +341,6 @@ async def test_update_form_does_not_cancel_rejected_requests(db_session, create_
     new_form_fields = [
         FormFieldCreate(
             label="New Field",
-            key="new_field",
             field_type=FormFieldType.TEXT,
             required=True,
             order=1,
@@ -397,14 +390,12 @@ async def test_create_form_with_multiple_fields(db_session, create_user):
     form_fields = [
         FormFieldCreate(
             label="Full Name",
-            key="full_name",
             field_type=FormFieldType.TEXT,
             required=True,
             order=1,
         ),
         FormFieldCreate(
             label="Experience Level",
-            key="experience_level",
             field_type=FormFieldType.SELECT,
             required=True,
             options={"choices": ["Beginner", "Intermediate", "Pro"]},
@@ -412,7 +403,6 @@ async def test_create_form_with_multiple_fields(db_session, create_user):
         ),
         FormFieldCreate(
             label="Comments",
-            key="comments",
             field_type=FormFieldType.TEXTAREA,
             required=False,
             order=3,

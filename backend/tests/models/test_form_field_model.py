@@ -9,7 +9,6 @@ def test_form_field_table_and_columns():
     assert "form_id" in cols
     assert "field_type" in cols
     assert "label" in cols
-    assert "key" in cols
     assert "required" in cols
     assert "options" in cols
 
@@ -26,13 +25,6 @@ def test_label_is_string_with_max_length():
     assert col.nullable is False
 
 
-def test_key_is_string_with_max_length():
-    col = FormField.__table__.c["key"]
-    assert isinstance(col.type, String)
-    assert col.type.length == 100
-    assert col.nullable is False
-
-
 def test_required_is_boolean():
     col = FormField.__table__.c["required"]
     assert isinstance(col.type, Boolean)
@@ -43,16 +35,6 @@ def test_options_is_jsonb_and_nullable():
     col = FormField.__table__.c["options"]
     assert isinstance(col.type, JSONB)
     assert col.nullable is True
-
-
-def test_form_field_has_unique_constraint():
-    constraints = FormField.__table__.constraints
-    unique_constraints = [c for c in constraints if hasattr(c, "columns")]
-    assert any(
-        "form_id" in [col.name for col in constraint.columns]
-        and "key" in [col.name for col in constraint.columns]
-        for constraint in unique_constraints
-    )
 
 
 def test_form_field_has_form_relationship():

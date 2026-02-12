@@ -207,14 +207,12 @@ async def test_create_registration_request_with_form_responses(db_session, creat
         form_id=registration_form.id,
         field_type=FormFieldType.TEXT,
         label="Car Name",
-        key="car_name",
         required=True,
     )
     field2 = FormField(
         form_id=registration_form.id,
         field_type=FormFieldType.NUMBER,
         label="Games Won",
-        key="games_won",
         required=False,
     )
     db_session.add_all([field1, field2])
@@ -294,14 +292,12 @@ async def test_create_registration_request_missing_required_fields(
         form_id=registration_form.id,
         field_type=FormFieldType.TEXT,
         label="Car Name",
-        key="car_name",
         required=True,
     )
     field2 = FormField(
         form_id=registration_form.id,
         field_type=FormFieldType.TEXT,
         label="Driver Name",
-        key="driver_name",
         required=True,
     )
     db_session.add_all([field1, field2])
@@ -375,7 +371,6 @@ async def test_create_registration_request_invalid_field_ids(db_session, create_
         form_id=registration_form.id,
         field_type=FormFieldType.TEXT,
         label="Car Name",
-        key="car_name",
         required=True,
     )
     db_session.add(field1)
@@ -502,7 +497,6 @@ async def test_create_registration_request_with_optional_fields_only(
         form_id=registration_form.id,
         field_type=FormFieldType.TEXT,
         label="Optional Field",
-        key="optional",
         required=False,
     )
     db_session.add(field1)

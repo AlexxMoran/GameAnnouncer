@@ -12,7 +12,6 @@ def test_registration_form_create():
         FormFieldCreate(
             field_type=FormFieldType.TEXT,
             label="Nickname",
-            key="nickname",
             required=True,
             order=0,
         )
@@ -32,7 +31,6 @@ def test_registration_form_update():
         FormFieldCreate(
             field_type=FormFieldType.TEXT,
             label="Updated Field",
-            key="updated",
             required=False,
             order=0,
         )
@@ -53,7 +51,6 @@ def test_registration_form_response():
         form_id=1,
         field_type=FormFieldType.TEXT,
         label="Test Field",
-        key="test",
         required=True,
         order=0,
     )
