@@ -47,7 +47,16 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
         const requestValues = Object.assign(
           {},
           rest,
-          !isEmpty(fields) ? { registration_form: { fields: Object.values(fields) } } : {},
+          !isEmpty(fields)
+            ? {
+                registration_form: {
+                  fields: Object.values(fields).map((field) => ({
+                    ...field,
+                    options: field.options ? Object.values(field.options) : undefined,
+                  })),
+                },
+              }
+            : {},
           {
             game_id: game.id,
           }

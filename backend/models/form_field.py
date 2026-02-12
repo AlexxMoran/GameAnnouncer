@@ -34,7 +34,7 @@ class FormField(Base):
         nullable=False,
         comment="Whether this field is required or optional",
     )
-    options: Mapped[dict | None] = mapped_column(
+    options: Mapped[list[str] | None] = mapped_column(
         JSONB,
         nullable=True,
         comment="The options for fields like selects, dropdowns or multiple choice",

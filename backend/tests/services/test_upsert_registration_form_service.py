@@ -398,7 +398,7 @@ async def test_create_form_with_multiple_fields(db_session, create_user):
             label="Experience Level",
             field_type=FormFieldType.SELECT,
             required=True,
-            options={"choices": ["Beginner", "Intermediate", "Pro"]},
+            options=["Beginner", "Intermediate", "Pro"],
             order=2,
         ),
         FormFieldCreate(
@@ -429,7 +429,7 @@ async def test_create_form_with_multiple_fields(db_session, create_user):
     assert fields[0].field_type == FormFieldType.TEXT
     assert fields[1].label == "Experience Level"
     assert fields[1].field_type == FormFieldType.SELECT
-    assert fields[1].options == {"choices": ["Beginner", "Intermediate", "Pro"]}
+    assert fields[1].options == ["Beginner", "Intermediate", "Pro"]
     assert fields[2].label == "Comments"
     assert fields[2].field_type == FormFieldType.TEXTAREA
     assert fields[2].required is False

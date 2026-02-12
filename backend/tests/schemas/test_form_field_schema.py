@@ -25,11 +25,13 @@ def test_form_field_create_with_options():
         label="Game Role",
         required=True,
         order=1,
-        options={"choices": ["Tank", "DPS", "Support"]},
+        options=["Tank", "DPS", "Support"],
     )
     assert field.field_type == FormFieldType.SELECT
     assert field.options is not None
-    assert "choices" in field.options
+    assert "Tank" in field.options
+    assert "DPS" in field.options
+    assert "Support" in field.options
 
 
 def test_form_field_update():
@@ -44,7 +46,7 @@ def test_form_field_update_all_fields():
         label="Description",
         required=False,
         order=2,
-        options={"max_length": 500},
+        options=["Option A", "Option B"],
     )
     assert update.field_type == FormFieldType.TEXTAREA
     assert update.label == "Description"
