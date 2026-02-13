@@ -1,7 +1,8 @@
 from typing import TYPE_CHECKING
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
 from sqlalchemy import ForeignKey, UniqueConstraint, Index
 from .base import Base
+from exceptions import ValidationException
 
 if TYPE_CHECKING:
     from .announcement import Announcement
@@ -53,3 +54,21 @@ class AnnouncementParticipant(Base):
         passive_deletes=True,
         lazy="selectin",
     )
+
+    @validates("seed", "qualification_rank", "qualification_score")
+    def validate_positive_values(self, key: str, value: int | None) -> int | None:
+        """Validate that numeric fields are positive when set."""
+        if value is not None and value <= 0:
+            raise ValidationException(f"{key} must be a positive number")
+        return value
+
+    def __repr__(self) -> str:
+        """String representation for debugging."""
+        return (
+            f"<AnnouncementParticipant(id={self.id}, "
+            f"announcement_id={self.announcement_id}, "
+            f"user_id={self.user_id}, "
+            f"seed={self.seed}, "
+            f"rank={self.qualification_rank}, "
+            f"qualified={self.is_qualified})>"
+        )
