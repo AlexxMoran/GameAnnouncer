@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 from datetime import datetime
 from schemas.base import BaseSchemaWithPermissions
 from schemas.registration_form import RegistrationFormCreate, RegistrationFormResponse
+from schemas.announcement_participant import AnnouncementParticipantResponse
 from enum import Enum
 
 
@@ -83,7 +86,11 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
         ..., description="The ID of the user who organized the announcement"
     )
     status: str = Field(..., description="The current status of the announcement")
-    participants: list = Field(default_factory=list, exclude=True)
+    participants: list[AnnouncementParticipantResponse] = Field(
+        default_factory=list,
+        description="List of participants with their data",
+        exclude=True,
+    )
     registration_form: RegistrationFormResponse | None = Field(
         None, description="Custom registration form for this announcement, if exists"
     )

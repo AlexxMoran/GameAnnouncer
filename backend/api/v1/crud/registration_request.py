@@ -1,5 +1,6 @@
 from typing import Optional
 from models.announcement import Announcement
+from models.announcement_participant import AnnouncementParticipant
 from schemas.registration_request import RegistrationRequestCreate
 from enums.registration_status import RegistrationStatus
 from models.registration_request import RegistrationRequest
@@ -87,7 +88,7 @@ class RegistrationRequestCRUD:
                 selectinload(RegistrationRequest.announcement).selectinload(
                     Announcement.participants
                 ),
-                selectinload(RegistrationRequest.announcement),
+                selectinload(RegistrationRequest.user),
             )
             .where(RegistrationRequest.id == registration_request_id)
         )
@@ -146,8 +147,22 @@ class RegistrationRequestCRUD:
 
         if status == RegistrationStatus.APPROVED:
             announcement = registration_request.announcement
-            if registration_request.user not in announcement.participants:
-                announcement.participants.append(registration_request.user)
+            user = registration_request.user
+
+            participant = await session.scalar(
+                select(AnnouncementParticipant).where(
+                    AnnouncementParticipant.announcement_id == announcement.id,
+                    AnnouncementParticipant.user_id == user.id,
+                )
+            )
+
+            if not participant:
+                participant = AnnouncementParticipant(
+                    announcement_id=announcement.id,
+                    user_id=user.id,
+                    is_qualified=False,
+                )
+                session.add(participant)
 
         await session.commit()
 

@@ -43,14 +43,16 @@ class CreateRegistrationRequestService:
         If announcement has a registration form, validates that all required
         fields are filled and creates form field responses.
         """
-        await self._validate_registration()
+        self._validate_registration()
 
         registration_request = await self._create_registration_request()
-        await self._create_form_responses_if_needed(registration_request)
+        self._create_form_responses_if_needed(registration_request)
+
+        await self.session.commit()
 
         return await self._reload_request(registration_request.id)
 
-    async def _validate_registration(self) -> None:
+    def _validate_registration(self) -> None:
         """
         Validate that registration is possible.
 
@@ -68,7 +70,7 @@ class CreateRegistrationRequestService:
             )
 
         if self.registration_form:
-            await self._validate_form_responses(
+            self._validate_form_responses(
                 self.registration_form, self.form_responses_data
             )
 
@@ -90,7 +92,7 @@ class CreateRegistrationRequestService:
 
         return registration_request
 
-    async def _create_form_responses_if_needed(
+    def _create_form_responses_if_needed(
         self, registration_request: RegistrationRequest
     ) -> None:
         """
@@ -108,8 +110,6 @@ class CreateRegistrationRequestService:
                 registration_request_id=registration_request.id,
             )
             self.session.add(form_response)
-
-        await self.session.commit()
 
     async def _reload_request(self, request_id: int) -> RegistrationRequest:
         """
@@ -132,7 +132,7 @@ class CreateRegistrationRequestService:
         )
         return result.scalar_one()
 
-    async def _validate_form_responses(
+    def _validate_form_responses(
         self,
         registration_form: RegistrationForm,
         form_responses_data: list[FormFieldResponseCreate],

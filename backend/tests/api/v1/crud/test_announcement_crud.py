@@ -143,7 +143,7 @@ async def test_get_by_organizer_and_participant(db_session, create_user):
     ) = await announcement_crud.get_participants_by_announcement_id(
         session=db_session, announcement_id=created.id
     )
-    assert any(p.id == user.id for p in participants)
+    assert any(p.user_id == user.id for p in participants)
     assert participants_total >= 1
 
 
