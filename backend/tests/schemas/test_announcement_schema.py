@@ -80,7 +80,20 @@ def test_announcement_response_participants_count_with_participants():
         registration_end_at=now,
         max_participants=10,
         status="pre_registration",
-        participants=[{"id": 1}, {"id": 2}, {"id": 3}],
+        participants=[
+            {
+                "id": i,
+                "announcement_id": 1,
+                "user_id": i,
+                "qualification_score": None,
+                "qualification_rank": None,
+                "seed": None,
+                "is_qualified": False,
+                "created_at": now,
+                "updated_at": now,
+            }
+            for i in [1, 2, 3]
+        ],
     )
     assert resp.participants_count == 3
 
@@ -100,7 +113,20 @@ def test_announcement_response_participants_excluded_from_json():
         registration_end_at=now,
         max_participants=10,
         status="pre_registration",
-        participants=[{"id": 1}, {"id": 2}],
+        participants=[
+            {
+                "id": i,
+                "announcement_id": 1,
+                "user_id": i,
+                "qualification_score": None,
+                "qualification_rank": None,
+                "seed": None,
+                "is_qualified": False,
+                "created_at": now,
+                "updated_at": now,
+            }
+            for i in [1, 2]
+        ],
     )
     data = resp.model_dump()
     assert "participants" not in data

@@ -56,7 +56,23 @@ async def test_get_announcement_and_permissions(async_client, announcement_facto
 async def test_get_announcement_includes_participants_count(
     async_client, announcement_factory
 ):
-    participants = [{"id": 1}, {"id": 2}, {"id": 3}]
+    from datetime import datetime, timezone
+
+    participants = [
+        SimpleNamespace(
+            id=i,
+            announcement_id=1,
+            user_id=i,
+            qualification_score=None,
+            qualification_rank=None,
+            seed=None,
+            is_qualified=False,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+            user=SimpleNamespace(id=i, email=f"user{i}@example.com"),
+        )
+        for i in [1, 2, 3]
+    ]
     a = announcement_factory.build(participants=participants)
     ann_obj = SimpleNamespace(**a)
 
@@ -78,7 +94,22 @@ async def test_get_announcement_includes_participants_count(
 async def test_get_announcement_participants(async_client, announcement_factory):
     a = announcement_factory.build()
 
-    participants = [{"id": 5, "email": "p@example.com"}]
+    from datetime import datetime, timezone
+
+    participants = [
+        SimpleNamespace(
+            id=1,
+            announcement_id=a["id"],
+            user_id=5,
+            qualification_score=None,
+            qualification_rank=None,
+            seed=None,
+            is_qualified=False,
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc),
+            user=SimpleNamespace(id=5, email="p@example.com"),
+        )
+    ]
 
     with (
         patch(
@@ -93,7 +124,8 @@ async def test_get_announcement_participants(async_client, announcement_factory)
         r = await async_client.get(f"/api/v1/announcements/{a['id']}/participants")
         assert r.status_code == 200
         response_data = r.json()
-        assert response_data["data"][0]["email"] == "p@example.com"
+        assert response_data["data"][0]["user"]["email"] == "p@example.com"
+        assert response_data["data"][0]["user_id"] == 5
         assert response_data["total"] == 1
         assert response_data["skip"] == 0
         assert response_data["limit"] == 10

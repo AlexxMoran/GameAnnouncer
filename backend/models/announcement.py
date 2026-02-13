@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 from .base import Base
 from sqlalchemy.orm import mapped_column, Mapped, relationship, validates
 from sqlalchemy import ForeignKey, String, Text, DateTime, Enum
+from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from exceptions import ValidationException
 from enums import AnnouncementStatus
 
@@ -12,6 +13,7 @@ if TYPE_CHECKING:
     from .user import User
     from .registration_request import RegistrationRequest
     from .registration_form import RegistrationForm
+    from .announcement_participant import AnnouncementParticipant
 
 
 class Announcement(Base):
@@ -51,12 +53,15 @@ class Announcement(Base):
         "Game", back_populates="announcements", passive_deletes=True
     )
 
-    participants: Mapped[list["User"]] = relationship(
-        "User",
-        secondary="announcement_participants",
-        back_populates="participated_announcements",
+    participants: Mapped[list["AnnouncementParticipant"]] = relationship(
+        "AnnouncementParticipant",
+        back_populates="announcement",
         passive_deletes=True,
         lazy="selectin",
+    )
+
+    participant_users: AssociationProxy[list["User"]] = association_proxy(
+        "participants", "user"
     )
 
     registration_requests: Mapped[list["RegistrationRequest"]] = relationship(

@@ -2,6 +2,7 @@ from typing import Optional
 from datetime import datetime, timezone
 from models.user import User
 from models.announcement import Announcement
+from models.announcement_participant import AnnouncementParticipant
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
@@ -58,14 +59,14 @@ class AnnouncementCRUD:
             select(func.count())
             .select_from(Announcement)
             .join(Announcement.participants)
-            .where(User.id == user_id)
+            .where(AnnouncementParticipant.user_id == user_id)
         )
         total = count_result.scalar_one()
 
         data_result = await session.execute(
             select(Announcement)
             .join(Announcement.participants)
-            .where(User.id == user_id)
+            .where(AnnouncementParticipant.user_id == user_id)
             .offset(skip)
             .limit(limit)
             .order_by(Announcement.created_at.desc())
@@ -80,25 +81,24 @@ class AnnouncementCRUD:
         announcement_id: int,
         skip: int = 0,
         limit: int = 10,
-    ) -> tuple[list[User], int]:
+    ) -> tuple[list[AnnouncementParticipant], int]:
         """
         Get paginated participants by announcement with total count.
 
         Returns:
-            Tuple of (participants, total_count)
+            Tuple of (participants with their data, total_count)
         """
         count_result = await session.execute(
             select(func.count())
-            .select_from(User)
-            .join(Announcement.participants)
-            .where(Announcement.id == announcement_id)
+            .select_from(AnnouncementParticipant)
+            .where(AnnouncementParticipant.announcement_id == announcement_id)
         )
         total = count_result.scalar_one()
 
         data_result = await session.execute(
-            select(User)
-            .join(Announcement.participants)
-            .where(Announcement.id == announcement_id)
+            select(AnnouncementParticipant)
+            .options(selectinload(AnnouncementParticipant.user))
+            .where(AnnouncementParticipant.announcement_id == announcement_id)
             .offset(skip)
             .limit(limit)
         )

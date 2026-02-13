@@ -3,7 +3,7 @@ from exceptions import AppException
 
 from schemas.registration_request import RegistrationRequestResponse
 from models.announcement import Announcement
-from schemas.user import UserResponse
+from schemas.announcement_participant import AnnouncementParticipantResponse
 from models.user import User
 from services.avatar_uploader import upload_avatar
 from services.create_announcement_service import CreateAnnouncementService
@@ -87,7 +87,8 @@ async def get_announcement(
 
 
 @router.get(
-    "/{announcement_id}/participants", response_model=PaginatedResponse[UserResponse]
+    "/{announcement_id}/participants",
+    response_model=PaginatedResponse[AnnouncementParticipantResponse],
 )
 async def get_announcement_participants(
     session: SessionDep,
