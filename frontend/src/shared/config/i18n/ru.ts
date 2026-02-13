@@ -88,6 +88,7 @@ export const translationRu = {
     registrationStartDate: "Дата начала регистрации",
     registrationEndDate: "Дата окончания регистрации",
     participantsCount: "Количество участников",
+    announcementFormat: "Формат турнира",
     announcementAddingSuccess: "Турнир успешно добавлен",
     announcementDeletingSuccess: "Турнир успешно удален",
     deletionAnnouncementConfirmation: "Вы уверены, что хотите удалить турнир?",

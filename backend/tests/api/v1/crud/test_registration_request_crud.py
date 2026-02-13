@@ -8,6 +8,7 @@ from models.user import User
 from models.announcement import Announcement
 from models.registration_request import RegistrationRequest
 from enums.registration_status import RegistrationStatus
+from enums import AnnouncementFormat
 from api.v1.crud.registration_request import registration_request_crud
 from schemas.registration_request import RegistrationRequestCreate
 
@@ -30,6 +31,7 @@ async def test_create_registration_request(db_session, create_user):
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -61,6 +63,7 @@ async def test_get_all_by_user_and_announcement(db_session, create_user):
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -102,6 +105,7 @@ async def test_get_by_user_and_announcement(db_session, create_user):
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -136,6 +140,7 @@ async def test_get_by_id_loads_relations(db_session, create_user):
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -172,6 +177,7 @@ async def test_approve_registration_request(db_session, create_user):
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -219,6 +225,7 @@ async def test_approve_adds_user_to_participants(db_session, create_user):
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -281,6 +288,7 @@ async def test_reject_registration_request(db_session, create_user):
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -324,6 +332,7 @@ async def test_cancel_registration_request(db_session, create_user):
         registration_start_at=now,
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(ann)
     await db_session.commit()

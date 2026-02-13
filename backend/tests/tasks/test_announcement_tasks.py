@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, AsyncMock
 from tasks.announcement_tasks import update_announcement_statuses
 from models.announcement import Announcement
 from models.game import Game
-from enums import AnnouncementStatus
+from enums import AnnouncementStatus, AnnouncementFormat
 
 
 @pytest.mark.asyncio
@@ -27,6 +27,7 @@ async def test_update_announcement_statuses_no_changes(db_session, create_user):
         registration_end_at=now + timedelta(hours=2),
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -71,6 +72,7 @@ async def test_update_announcement_statuses_pre_registration_to_open(
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -114,6 +116,7 @@ async def test_update_announcement_statuses_open_to_closed(db_session, create_us
         registration_end_at=now - timedelta(minutes=1),
         start_at=now + timedelta(hours=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -156,6 +159,7 @@ async def test_update_announcement_statuses_closed_to_live(db_session, create_us
         registration_end_at=now - timedelta(hours=1),
         start_at=now - timedelta(minutes=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -201,6 +205,7 @@ async def test_update_announcement_statuses_multiple_transitions(
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
 
     announcement2 = Announcement(
@@ -213,6 +218,7 @@ async def test_update_announcement_statuses_multiple_transitions(
         registration_end_at=now - timedelta(minutes=1),
         start_at=now + timedelta(hours=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
 
     announcement3 = Announcement(
@@ -225,6 +231,7 @@ async def test_update_announcement_statuses_multiple_transitions(
         registration_end_at=now - timedelta(hours=1),
         start_at=now - timedelta(minutes=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
 
     db_session.add_all([announcement1, announcement2, announcement3])
@@ -276,6 +283,7 @@ async def test_update_announcement_statuses_skip_finished_cancelled(
         registration_end_at=now - timedelta(hours=2),
         start_at=now - timedelta(hours=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
 
     announcement_cancelled = Announcement(
@@ -288,6 +296,7 @@ async def test_update_announcement_statuses_skip_finished_cancelled(
         registration_end_at=now - timedelta(hours=2),
         start_at=now - timedelta(hours=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
 
     db_session.add_all([announcement_finished, announcement_cancelled])
@@ -337,6 +346,7 @@ async def test_update_announcement_statuses_exact_time_boundary(
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.commit()

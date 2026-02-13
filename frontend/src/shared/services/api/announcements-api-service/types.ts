@@ -1,4 +1,5 @@
 import type {
+  EAnnouncementFormat,
   EAnnouncementStatuses,
   ERegistrationFormFieldTypes,
 } from "@shared/services/api/announcements-api-service/constants";
@@ -19,6 +20,7 @@ export interface IAnnouncementDto extends IEntityDateFields, IEntityIdField {
   registration_end_at: string;
   max_participants: number;
   participants_count: number;
+  format: EAnnouncementFormat;
   registration_form?: {
     fields: IRegistrationFormField[];
   };
@@ -39,6 +41,7 @@ export interface ICreateAnnouncementDto {
   registration_start_at: string;
   registration_end_at: string;
   max_participants: number;
+  format: EAnnouncementFormat;
   registration_form?: {
     fields: IRegistrationFormField[];
   };

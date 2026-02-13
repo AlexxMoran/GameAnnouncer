@@ -5,7 +5,7 @@ from schemas.announcement import AnnouncementCreate
 from schemas.registration_form import RegistrationFormCreate, FormFieldCreate
 from models.announcement import Announcement
 from models.game import Game
-from enums import AnnouncementStatus, FormFieldType
+from enums import AnnouncementStatus, FormFieldType, AnnouncementFormat
 from sqlalchemy import select
 from models.registration_form import RegistrationForm
 from models.form_field import FormField
@@ -29,6 +29,7 @@ async def test_create_announcement_without_form(db_session, create_user):
         registration_end_at=now + timedelta(days=1),
         start_at=now + timedelta(days=2),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
 
     service = CreateAnnouncementService(
@@ -87,6 +88,7 @@ async def test_create_announcement_with_registration_form(db_session, create_use
         registration_end_at=now + timedelta(days=1),
         start_at=now + timedelta(days=2),
         max_participants=20,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
         registration_form=registration_form,
     )
 
@@ -139,6 +141,7 @@ async def test_create_announcement_status_pre_registration(db_session, create_us
         registration_end_at=now + timedelta(days=1),
         start_at=now + timedelta(days=2),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
 
     service = CreateAnnouncementService(
@@ -168,6 +171,7 @@ async def test_create_announcement_status_registration_open(db_session, create_u
         registration_end_at=now + timedelta(days=1),
         start_at=now + timedelta(days=2),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
 
     service = CreateAnnouncementService(
@@ -199,6 +203,7 @@ async def test_create_announcement_with_empty_form_fields(db_session, create_use
         registration_end_at=now + timedelta(days=1),
         start_at=now + timedelta(days=2),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
         registration_form=registration_form,
     )
 

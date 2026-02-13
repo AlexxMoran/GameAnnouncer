@@ -1,6 +1,7 @@
 import factory
 from faker import Faker
 from datetime import datetime
+from enums import AnnouncementFormat
 
 fake = Faker()
 
@@ -27,4 +28,5 @@ class AnnouncementDictFactory(factory.Factory):
     is_registration_open = False
     max_participants = 10
     status = "pre_registration"
+    format = AnnouncementFormat.SINGLE_ELIMINATION
     participants = factory.LazyFunction(list)

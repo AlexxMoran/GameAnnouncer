@@ -89,6 +89,7 @@ export const translationEn = {
     registrationEndDate: "Registration end date",
     invalidDate: "Invalid date",
     participantsCount: "Number of participants",
+    announcementFormat: "Tournament format",
     announcementAddingSuccess: "Tournament successfully added",
     announcementDeletingSuccess: "Tournament successfully deleted",
     deletionAnnouncementConfirmation: "Are you sure you want to delete tournament?",

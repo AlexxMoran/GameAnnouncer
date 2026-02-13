@@ -15,3 +15,7 @@ export enum ERegistrationFormFieldTypes {
   Select = "select",
   Boolean = "boolean",
 }
+
+export enum EAnnouncementFormat {
+  SingleElimination = "SINGLE_ELIMINATION",
+}

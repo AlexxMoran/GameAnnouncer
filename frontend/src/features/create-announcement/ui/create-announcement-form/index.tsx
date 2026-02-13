@@ -7,6 +7,7 @@ import type { ICreateAnnouncementFormProps } from "@features/create-announcement
 import { RegistrationFormFields } from "@features/create-announcement/ui/registration-form-fields";
 import HelpIcon from "@mui/icons-material/Help";
 import { useDialog } from "@shared/hooks/use-dialog";
+import { EAnnouncementFormat } from "@shared/services/api/announcements-api-service/constants";
 import { Box } from "@shared/ui/box";
 import { Form } from "@shared/ui/form";
 import { Stepper } from "@shared/ui/stepper";
@@ -33,6 +34,7 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
     registration_start_at: "",
     registration_end_at: "",
     max_participants: 0,
+    format: EAnnouncementFormat.SingleElimination,
     fields: {},
   };
 
