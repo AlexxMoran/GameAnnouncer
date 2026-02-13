@@ -11,6 +11,7 @@ from models.game import Game
 from models.registration_request import RegistrationRequest
 from models.registration_form import RegistrationForm
 from exceptions import ValidationException
+from enums import AnnouncementFormat
 
 
 @pytest.mark.asyncio
@@ -32,6 +33,7 @@ async def test_create_registration_request_success(db_session, create_user):
         registration_end_at=now + timedelta(hours=1),  # ends in 1 hour
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -72,6 +74,7 @@ async def test_create_registration_request_before_start(db_session, create_user)
         registration_end_at=now + timedelta(hours=2),
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -112,6 +115,7 @@ async def test_create_registration_request_after_end(db_session, create_user):
         registration_end_at=now - timedelta(hours=1),  # ended 1 hour ago
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -152,6 +156,7 @@ async def test_create_registration_request_at_exact_start(db_session, create_use
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -195,6 +200,7 @@ async def test_create_registration_request_with_form_responses(db_session, creat
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.flush()
@@ -280,6 +286,7 @@ async def test_create_registration_request_missing_required_fields(
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.flush()
@@ -359,6 +366,7 @@ async def test_create_registration_request_invalid_field_ids(db_session, create_
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.flush()
@@ -435,6 +443,7 @@ async def test_create_registration_request_responses_without_form(
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -485,6 +494,7 @@ async def test_create_registration_request_with_optional_fields_only(
         registration_end_at=now + timedelta(hours=1),
         start_at=now + timedelta(days=1),
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     db_session.add(announcement)
     await db_session.flush()

@@ -1,6 +1,8 @@
 import type { ICreateAnnouncementsFields } from "@features/create-announcement/model/create-validation-schema/types";
+import { MenuItem } from "@mui/material";
 import type { PickerValue } from "@mui/x-date-pickers/internals";
 import { useRootService } from "@shared/hooks/use-root-service";
+import { EAnnouncementFormat } from "@shared/services/api/announcements-api-service/constants";
 import type { IGameDto, IGetGamesDto } from "@shared/services/api/games-api-service/types";
 import { PaginationService } from "@shared/services/pagination-service";
 import type { TMaybe } from "@shared/types/main.types";
@@ -89,6 +91,22 @@ export const AnnouncementInfoFields: FC = observer(() => {
         type="number"
         required
       />
+      <TextField
+        name="format"
+        label={t("texts.announcementFormat")}
+        onChange={handleChange}
+        value={values["format"]}
+        error={!!errors["format"]}
+        helperText={errors["format"]}
+        select
+        required
+      >
+        {Object.values(EAnnouncementFormat).map((format) => (
+          <MenuItem key={format} value={format}>
+            {format}
+          </MenuItem>
+        ))}
+      </TextField>
       <DateTimePicker
         slotProps={{
           textField: {

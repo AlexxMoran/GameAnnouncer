@@ -5,6 +5,7 @@ from schemas.announcement import (
     AnnouncementUpdate,
     AnnouncementResponse,
 )
+from enums import AnnouncementFormat
 
 
 def test_announcement_create_and_update_models():
@@ -17,6 +18,7 @@ def test_announcement_create_and_update_models():
         registration_start_at=now,
         registration_end_at=now,
         max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     assert create.title == "T"
     upd = AnnouncementUpdate(title="New", max_participants=20)
@@ -39,6 +41,7 @@ def test_announcement_response_includes_permissions_and_timestamps():
         is_registration_open=True,
         max_participants=10,
         status="pre_registration",
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     assert resp.id == 1
     assert resp.permissions == {}
@@ -60,6 +63,7 @@ def test_announcement_response_participants_count_empty():
         registration_end_at=now,
         max_participants=10,
         status="pre_registration",
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
         participants=[],
     )
     assert resp.participants_count == 0
@@ -80,6 +84,7 @@ def test_announcement_response_participants_count_with_participants():
         registration_end_at=now,
         max_participants=10,
         status="pre_registration",
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
         participants=[
             {
                 "id": i,
@@ -113,6 +118,7 @@ def test_announcement_response_participants_excluded_from_json():
         registration_end_at=now,
         max_participants=10,
         status="pre_registration",
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
         participants=[
             {
                 "id": i,

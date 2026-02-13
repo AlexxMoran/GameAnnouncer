@@ -6,7 +6,7 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship, validates
 from sqlalchemy import ForeignKey, String, Text, DateTime, Enum
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from exceptions import ValidationException
-from enums import AnnouncementStatus
+from enums import AnnouncementStatus, AnnouncementFormat
 
 if TYPE_CHECKING:
     from .game import Game
@@ -36,6 +36,9 @@ class Announcement(Base):
         Enum(AnnouncementStatus, native_enum=False),
         default=AnnouncementStatus.PRE_REGISTRATION,
         nullable=False,
+    )
+    format: Mapped[str] = mapped_column(
+        Enum(AnnouncementFormat, native_enum=False), nullable=False
     )
     max_participants: Mapped[int] = mapped_column(nullable=False)
 
@@ -100,6 +103,15 @@ class Announcement(Base):
             raise ValidationException(
                 "start_at must be after or equal to registration_end_at"
             )
+
+        return value
+
+    @validates("format")
+    def validate_format(self, key: str, value: str) -> str:
+        """Validate the announcement format is supported."""
+
+        if value not in AnnouncementFormat.__members__.values():
+            raise ValidationException(f"Unsupported announcement format: {value}")
 
         return value
 

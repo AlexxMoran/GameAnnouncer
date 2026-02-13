@@ -1,4 +1,5 @@
 import type { ICreateAnnouncementsFields } from "@features/create-announcement/model/create-validation-schema/types";
+import { EAnnouncementFormat } from "@shared/services/api/announcements-api-service/constants";
 import type { IGameDto } from "@shared/services/api/games-api-service/types";
 import dayjs from "dayjs";
 import type { TFunction } from "i18next";
@@ -45,4 +46,5 @@ export const createValidationSchema = (t: TFunction): Yup.ObjectSchema<ICreateAn
         return value <= 64;
       })
       .required(t("validationErrors.required")),
+    format: Yup.mixed<EAnnouncementFormat>().oneOf(Object.values(EAnnouncementFormat)).required(t("validationErrors.required")),
   });

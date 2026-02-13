@@ -2,7 +2,7 @@ import pytest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch, MagicMock
 from datetime import datetime, timedelta, timezone
-from enums import AnnouncementStatus
+from enums import AnnouncementStatus, AnnouncementFormat
 
 
 @pytest.mark.asyncio
@@ -174,6 +174,7 @@ async def test_create_update_delete_announcement(
         "registration_start_at": now.isoformat(),
         "registration_end_at": (now + timedelta(days=2)).isoformat(),
         "max_participants": 10,
+        "format": AnnouncementFormat.SINGLE_ELIMINATION,
     }
 
     created = announcement_factory.build(**ann_in, organizer_id=user.id)
@@ -512,3 +513,60 @@ async def test_get_all_announcements_without_filter(async_client, announcement_f
         body = r.json()
         assert body["total"] == 3
         assert len(body["data"]) == 3
+
+
+@pytest.mark.asyncio
+async def test_create_announcement_with_format(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """Test creating announcement with format field."""
+    client = authenticated_client(user)
+
+    now = datetime.now(timezone.utc)
+    announcement_data = announcement_factory.build(
+        registration_start_at=now.isoformat(),
+        registration_end_at=(now + timedelta(days=1)).isoformat(),
+        start_at=(now + timedelta(days=2)).isoformat(),
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
+    )
+
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.REGISTRATION_OPEN
+
+    class FakeService:
+        def __init__(self, session, announcement_in, user):
+            pass
+
+        async def call(self):
+            return ann_obj
+
+    with (
+        patch(
+            "api.v1.announcements.CreateAnnouncementService",
+            new=FakeService,
+        ),
+        patch("api.v1.announcements.get_permissions", return_value={}),
+    ):
+        r = await client.post("/api/v1/announcements", json=announcement_data)
+        assert r.status_code == 201
+        data = r.json()["data"]
+        assert data["format"] == AnnouncementFormat.SINGLE_ELIMINATION
+
+
+@pytest.mark.asyncio
+async def test_create_announcement_requires_format(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """Test that format field is required when creating announcement."""
+    client = authenticated_client(user)
+
+    now = datetime.now(timezone.utc)
+    announcement_data = announcement_factory.build(
+        registration_start_at=now.isoformat(),
+        registration_end_at=(now + timedelta(days=1)).isoformat(),
+        start_at=(now + timedelta(days=2)).isoformat(),
+    )
+    del announcement_data["format"]
+
+    r = await client.post("/api/v1/announcements", json=announcement_data)
+    assert r.status_code == 422

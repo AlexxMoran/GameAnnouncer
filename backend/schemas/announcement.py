@@ -16,6 +16,7 @@ class AnnouncementAction(str, Enum):
 class AnnouncementBase(BaseModel):
     title: str = Field(..., max_length=200, description="The title of the announcement")
     content: str | None = Field(None, description="The content of the announcement")
+    format: str = Field(..., description="The format of the announcement")
     game_id: int = Field(
         ..., description="The ID of the game this announcement belongs to"
     )
