@@ -82,3 +82,60 @@ def registration_request_factory():
 @pytest.fixture
 def game_factory():
     return GameDictFactory
+
+
+@pytest_asyncio.fixture
+async def create_announcement(db_session):
+    """Async helper fixture that creates and persists an Announcement.
+
+    Uses AnnouncementDictFactory for defaults, allowing field overrides.
+    Similar to Rails FactoryBot pattern.
+    """
+    from models.announcement import Announcement
+    from datetime import datetime
+
+    async def _create(**overrides):
+        factory_data = AnnouncementDictFactory.build()
+
+        # Convert factory dict to model-compatible data
+        data = {
+            "title": factory_data["title"],
+            "content": factory_data["content"],
+            "game_id": factory_data["game_id"],
+            "organizer_id": factory_data["organizer_id"],
+            "registration_start_at": (
+                datetime.fromisoformat(factory_data["registration_start_at"])
+                if isinstance(factory_data["registration_start_at"], str)
+                else factory_data["registration_start_at"]
+            ),
+            "registration_end_at": (
+                datetime.fromisoformat(factory_data["registration_end_at"])
+                if isinstance(factory_data["registration_end_at"], str)
+                else factory_data["registration_end_at"]
+            ),
+            "start_at": (
+                datetime.fromisoformat(factory_data["start_at"])
+                if isinstance(factory_data["start_at"], str)
+                else factory_data["start_at"]
+            ),
+            "max_participants": factory_data["max_participants"],
+            "format": factory_data["format"],
+            "has_qualification": factory_data["has_qualification"],
+            "seed_method": factory_data["seed_method"],
+            "bracket_size": factory_data["bracket_size"],
+            "third_place_match": factory_data["third_place_match"],
+            "qualification_finished": factory_data["qualification_finished"],
+        }
+
+        # Override with any provided values
+        data.update(overrides)
+
+        # Create and persist
+        announcement = Announcement(**data)
+        db_session.add(announcement)
+        await db_session.commit()
+        await db_session.refresh(announcement)
+
+        return announcement
+
+    return _create

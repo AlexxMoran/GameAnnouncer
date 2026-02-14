@@ -14,7 +14,7 @@ from schemas.announcement import (
     AnnouncementAction,
 )
 from core.permissions import authorize_action
-from enums import AnnouncementStatus
+from enums import AnnouncementStatus, SeedMethod
 from exceptions import ValidationException
 
 
@@ -144,6 +144,11 @@ class AnnouncementCRUD:
             announcement.status = AnnouncementStatus.REGISTRATION_OPEN
         else:
             announcement.status = AnnouncementStatus.PRE_REGISTRATION
+
+        if announcement.has_qualification:
+            announcement.seed_method = SeedMethod.QUALIFICATION_SCORE
+        else:
+            announcement.seed_method = SeedMethod.RANDOM
 
         announcement.organizer = user
         session.add(announcement)

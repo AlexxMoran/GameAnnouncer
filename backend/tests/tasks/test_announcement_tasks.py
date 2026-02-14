@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, AsyncMock
 from tasks.announcement_tasks import update_announcement_statuses
 from models.announcement import Announcement
 from models.game import Game
-from enums import AnnouncementStatus, AnnouncementFormat
+from enums import AnnouncementStatus, AnnouncementFormat, SeedMethod
 
 
 @pytest.mark.asyncio
@@ -28,6 +28,8 @@ async def test_update_announcement_statuses_no_changes(db_session, create_user):
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -73,6 +75,8 @@ async def test_update_announcement_statuses_pre_registration_to_open(
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -117,6 +121,8 @@ async def test_update_announcement_statuses_open_to_closed(db_session, create_us
         start_at=now + timedelta(hours=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -160,6 +166,8 @@ async def test_update_announcement_statuses_closed_to_live(db_session, create_us
         start_at=now - timedelta(minutes=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -206,6 +214,8 @@ async def test_update_announcement_statuses_multiple_transitions(
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     announcement2 = Announcement(
@@ -219,6 +229,8 @@ async def test_update_announcement_statuses_multiple_transitions(
         start_at=now + timedelta(hours=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     announcement3 = Announcement(
@@ -232,6 +244,8 @@ async def test_update_announcement_statuses_multiple_transitions(
         start_at=now - timedelta(minutes=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     db_session.add_all([announcement1, announcement2, announcement3])
@@ -284,6 +298,8 @@ async def test_update_announcement_statuses_skip_finished_cancelled(
         start_at=now - timedelta(hours=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     announcement_cancelled = Announcement(
@@ -297,6 +313,8 @@ async def test_update_announcement_statuses_skip_finished_cancelled(
         start_at=now - timedelta(hours=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     db_session.add_all([announcement_finished, announcement_cancelled])
@@ -347,6 +365,8 @@ async def test_update_announcement_statuses_exact_time_boundary(
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()

@@ -42,6 +42,7 @@ export interface ICreateAnnouncementDto {
   registration_end_at: string;
   max_participants: number;
   format: EAnnouncementFormat;
+  has_qualification: boolean;
   registration_form?: {
     fields: IRegistrationFormField[];
   };

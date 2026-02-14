@@ -8,7 +8,7 @@ from models.game import Game
 from models.registration_form import RegistrationForm
 from models.form_field import FormField
 from models.registration_request import RegistrationRequest
-from enums import FormFieldType, RegistrationStatus, AnnouncementFormat
+from enums import FormFieldType, RegistrationStatus, AnnouncementFormat, SeedMethod
 from sqlalchemy import select
 from api.v1.crud.registration_request import registration_request_crud
 
@@ -33,6 +33,8 @@ async def test_create_new_registration_form(db_session, create_user):
         start_at=now + timedelta(days=2),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -89,6 +91,8 @@ async def test_update_existing_registration_form(db_session, create_user):
         start_at=now + timedelta(days=2),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -173,6 +177,8 @@ async def test_update_form_cancels_pending_requests(db_session, create_user):
         start_at=now + timedelta(days=2),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -251,6 +257,8 @@ async def test_update_form_cancels_approved_requests(db_session, create_user):
         start_at=now + timedelta(days=2),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -320,6 +328,8 @@ async def test_update_form_does_not_cancel_rejected_requests(db_session, create_
         start_at=now + timedelta(days=2),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -388,6 +398,8 @@ async def test_create_form_with_multiple_fields(db_session, create_user):
         start_at=now + timedelta(days=2),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()

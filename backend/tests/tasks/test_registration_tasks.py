@@ -6,7 +6,7 @@ from models.announcement import Announcement
 from models.game import Game
 from models.registration_request import RegistrationRequest
 from enums.registration_status import RegistrationStatus
-from enums import AnnouncementFormat
+from enums import AnnouncementFormat, SeedMethod
 
 
 @pytest.mark.asyncio
@@ -29,6 +29,8 @@ async def test_expire_registration_requests_no_expired(db_session, create_user):
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -69,6 +71,8 @@ async def test_expire_registration_requests_with_expired(db_session, create_user
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -124,6 +128,8 @@ async def test_expire_registration_requests_multiple_expired(db_session, create_
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -186,6 +192,8 @@ async def test_expire_registration_requests_ignores_approved(db_session, create_
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -228,6 +236,8 @@ async def test_expire_registration_requests_mixed_statuses(db_session, create_us
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()

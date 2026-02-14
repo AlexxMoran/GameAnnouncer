@@ -34,6 +34,7 @@ async def test_create_announcement(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
     )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
@@ -70,6 +71,7 @@ async def test_list_and_count_by_game(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
     )
     a2 = AnnouncementCreate(
         title="L2",
@@ -80,6 +82,7 @@ async def test_list_and_count_by_game(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
     )
     await announcement_crud.create(session=db_session, announcement_in=a1, user=user)
     await announcement_crud.create(session=db_session, announcement_in=a2, user=user)
@@ -115,6 +118,7 @@ async def test_get_by_organizer_and_participant(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
     )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
@@ -169,6 +173,7 @@ async def test_get_by_id_and_update(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
     )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
@@ -209,6 +214,7 @@ async def test_delete_announcement(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
     )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
@@ -243,6 +249,7 @@ async def test_update_status_finish_success(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
     )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
@@ -283,6 +290,7 @@ async def test_update_status_finish_wrong_status(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
     )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user
@@ -318,6 +326,7 @@ async def test_update_status_cancel_success(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
     )
     created = await announcement_crud.create(
         session=db_session, announcement_in=a_in, user=user

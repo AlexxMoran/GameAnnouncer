@@ -8,6 +8,8 @@ import { PaginationService } from "@shared/services/pagination-service";
 import type { TMaybe } from "@shared/types/main.types";
 import { Autocomplete } from "@shared/ui/autocomplete";
 import { DateTimePicker } from "@shared/ui/date-time-picker";
+import { FormControlLabel } from "@shared/ui/form-control-label";
+import { Switch } from "@shared/ui/switch";
 import { TextField } from "@shared/ui/text-field";
 import dayjs from "dayjs";
 import { useFormikContext } from "formik";
@@ -54,6 +56,10 @@ export const AnnouncementInfoFields: FC = observer(() => {
   }, 300);
 
   const handlePaginate = () => paginate({ name: input });
+
+  const handleHasQualificationChange = (_: SyntheticEvent, checked: boolean) => {
+    setFieldValue("has_qualification", checked);
+  };
 
   return (
     <>
@@ -159,6 +165,12 @@ export const AnnouncementInfoFields: FC = observer(() => {
         helperText={errors["content"]}
         maxRows={3}
         multiline
+      />
+      <FormControlLabel
+        name="has_qualification"
+        label={t("texts.hasQualification")}
+        control={<Switch checked={values["has_qualification"]} />}
+        onChange={handleHasQualificationChange}
       />
     </>
   );
