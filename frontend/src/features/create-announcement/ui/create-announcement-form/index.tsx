@@ -35,6 +35,7 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
     registration_end_at: "",
     max_participants: 0,
     format: EAnnouncementFormat.SingleElimination,
+    has_qualification: false,
     fields: {},
   };
 

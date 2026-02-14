@@ -1,7 +1,7 @@
 import factory
 from faker import Faker
 from datetime import datetime
-from enums import AnnouncementFormat
+from enums import AnnouncementFormat, SeedMethod
 
 fake = Faker()
 
@@ -29,4 +29,9 @@ class AnnouncementDictFactory(factory.Factory):
     max_participants = 10
     status = "pre_registration"
     format = AnnouncementFormat.SINGLE_ELIMINATION
+    has_qualification = False
+    seed_method = SeedMethod.RANDOM
+    bracket_size = None
+    third_place_match = True
+    qualification_finished = False
     participants = factory.LazyFunction(list)

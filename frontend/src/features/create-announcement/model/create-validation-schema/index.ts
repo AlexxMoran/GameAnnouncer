@@ -47,4 +47,5 @@ export const createValidationSchema = (t: TFunction): Yup.ObjectSchema<ICreateAn
       })
       .required(t("validationErrors.required")),
     format: Yup.mixed<EAnnouncementFormat>().oneOf(Object.values(EAnnouncementFormat)).required(t("validationErrors.required")),
+    has_qualification: Yup.boolean().required(),
   });

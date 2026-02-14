@@ -36,9 +36,11 @@ dependencies = [
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+testpaths = ["tests"]
 filterwarnings = [
     "ignore::DeprecationWarning:testcontainers..*",
     "ignore::DeprecationWarning:testcontainers",
+    "ignore::pytest.PytestConfigWarning",
 ]
 
 [dependency-groups]

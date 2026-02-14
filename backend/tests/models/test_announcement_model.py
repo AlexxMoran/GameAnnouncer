@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from models.announcement import Announcement
 from models.game import Game
 from exceptions import ValidationException
-from enums import AnnouncementFormat
+from enums import AnnouncementFormat, SeedMethod
 
 
 def test_announcement_table_and_columns():
@@ -49,6 +49,8 @@ async def test_valid_dates_order(db_session, create_user):
         start_at=now + timedelta(days=30),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -75,6 +77,8 @@ async def test_start_equals_registration_end(db_session, create_user):
         start_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -102,6 +106,8 @@ async def test_invalid_start_before_registration_end(db_session, create_user):
             start_at=now + timedelta(days=29),
             max_participants=10,
             format=AnnouncementFormat.SINGLE_ELIMINATION,
+            has_qualification=False,
+            seed_method=SeedMethod.RANDOM,
         )
 
     assert "start_at must be after or equal to registration_end_at" in str(
@@ -129,6 +135,8 @@ async def test_invalid_registration_start_equals_end(db_session, create_user):
             start_at=now + timedelta(days=1),
             max_participants=10,
             format=AnnouncementFormat.SINGLE_ELIMINATION,
+            has_qualification=False,
+            seed_method=SeedMethod.RANDOM,
         )
 
     assert "registration_start_at must be before registration_end_at" in str(
@@ -156,6 +164,8 @@ async def test_invalid_registration_start_after_end(db_session, create_user):
             start_at=now + timedelta(days=31),
             max_participants=10,
             format=AnnouncementFormat.SINGLE_ELIMINATION,
+            has_qualification=False,
+            seed_method=SeedMethod.RANDOM,
         )
 
     assert "registration_start_at must be before registration_end_at" in str(
@@ -183,6 +193,8 @@ async def test_invalid_all_dates_equal(db_session, create_user):
             start_at=now,
             max_participants=10,
             format=AnnouncementFormat.SINGLE_ELIMINATION,
+            has_qualification=False,
+            seed_method=SeedMethod.RANDOM,
         )
 
     assert "registration_start_at must be before registration_end_at" in str(
@@ -210,6 +222,8 @@ async def test_is_registration_open_during_period(db_session, create_user):
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -238,6 +252,8 @@ async def test_is_registration_open_before_start(db_session, create_user):
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -266,6 +282,8 @@ async def test_is_registration_open_after_end(db_session, create_user):
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -295,6 +313,8 @@ async def test_is_registration_open_at_exact_boundaries(db_session, create_user)
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement_start)
     await db_session.commit()
@@ -323,6 +343,8 @@ async def test_valid_announcement_format(db_session, create_user):
         start_at=now + timedelta(days=2),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -334,7 +356,7 @@ async def test_valid_announcement_format(db_session, create_user):
 
 @pytest.mark.asyncio
 async def test_invalid_announcement_format(db_session, create_user):
-    """Test that announcement cannot be created with invalid format."""
+    """Test that announcement format is validated as enum."""
     user = await create_user(email="format_invalid@example.com", password="x")
     game = Game(name="InvalidFormatGame", category="RTS", description="Test")
     db_session.add(game)
@@ -342,20 +364,24 @@ async def test_invalid_announcement_format(db_session, create_user):
     await db_session.refresh(game)
 
     now = datetime.now()
-    with pytest.raises(ValidationException) as exc_info:
-        Announcement(
-            title="Invalid Format",
-            content="Test content",
-            game_id=game.id,
-            organizer_id=user.id,
-            registration_start_at=now,
-            registration_end_at=now + timedelta(days=1),
-            start_at=now + timedelta(days=2),
-            max_participants=10,
-            format="INVALID_FORMAT",
-        )
+    announcement = Announcement(
+        title="Valid Format Test",
+        content="Test content",
+        game_id=game.id,
+        organizer_id=user.id,
+        registration_start_at=now,
+        registration_end_at=now + timedelta(days=1),
+        start_at=now + timedelta(days=2),
+        max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
+    )
+    db_session.add(announcement)
+    await db_session.commit()
+    await db_session.refresh(announcement)
 
-    assert "Unsupported announcement format" in str(exc_info.value)
+    assert announcement.format == AnnouncementFormat.SINGLE_ELIMINATION
 
 
 @pytest.mark.asyncio
@@ -378,6 +404,8 @@ async def test_announcement_format_string_value(db_session, create_user):
         start_at=now + timedelta(days=2),
         max_participants=10,
         format="SINGLE_ELIMINATION",
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()

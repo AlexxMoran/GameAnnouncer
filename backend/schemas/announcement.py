@@ -32,6 +32,9 @@ class AnnouncementBase(BaseModel):
     max_participants: int = Field(
         ..., gt=0, description="The maximum number of participants allowed"
     )
+    has_qualification: bool = Field(
+        False, description="Whether this announcement has a qualification stage"
+    )
 
 
 class AnnouncementCreate(AnnouncementBase):
@@ -94,6 +97,15 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
     )
     registration_form: RegistrationFormResponse | None = Field(
         None, description="Custom registration form for this announcement, if exists"
+    )
+    bracket_size: int | None = Field(
+        None, description="The size of the tournament bracket, if applicable"
+    )
+    seed_method: str = Field(
+        ..., description="The method used for seeding participants"
+    )
+    qualification_finished: bool = Field(
+        False, description="Whether the qualification stage has been completed"
     )
 
     @computed_field

@@ -90,6 +90,7 @@ export const translationEn = {
     invalidDate: "Invalid date",
     participantsCount: "Number of participants",
     announcementFormat: "Tournament format",
+    hasQualification: "Do you need a qualification stage?",
     announcementAddingSuccess: "Tournament successfully added",
     announcementDeletingSuccess: "Tournament successfully deleted",
     deletionAnnouncementConfirmation: "Are you sure you want to delete tournament?",

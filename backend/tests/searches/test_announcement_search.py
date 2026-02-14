@@ -5,7 +5,7 @@ from searches.announcement_search import AnnouncementSearch
 from schemas.filters.announcement_filter import AnnouncementFilter
 from models.announcement import Announcement
 from models.game import Game
-from enums import AnnouncementFormat
+from enums import AnnouncementFormat, SeedMethod
 
 
 @pytest.mark.asyncio
@@ -36,6 +36,8 @@ async def test_announcement_search_no_filters(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     ann2 = Announcement(
         title="Ann2",
@@ -48,6 +50,8 @@ async def test_announcement_search_no_filters(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add_all([ann1, ann2])
     await db_session.commit()
@@ -86,6 +90,8 @@ async def test_announcement_search_filter_by_game_id(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     ann2 = Announcement(
         title="Game2Ann",
@@ -98,6 +104,8 @@ async def test_announcement_search_filter_by_game_id(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add_all([ann1, ann2])
     await db_session.commit()
@@ -135,6 +143,8 @@ async def test_announcement_search_filter_by_status(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     ann2 = Announcement(
         title="LiveAnn",
@@ -147,6 +157,8 @@ async def test_announcement_search_filter_by_status(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add_all([ann1, ann2])
     await db_session.commit()
@@ -188,6 +200,8 @@ async def test_announcement_search_filter_by_game_and_status(db_session, create_
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     ann2 = Announcement(
@@ -201,6 +215,8 @@ async def test_announcement_search_filter_by_game_and_status(db_session, create_
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     ann3 = Announcement(
@@ -214,6 +230,8 @@ async def test_announcement_search_filter_by_game_and_status(db_session, create_
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     db_session.add_all([ann1, ann2, ann3])
@@ -254,6 +272,8 @@ async def test_announcement_search_pagination(db_session, create_user):
             registration_end_at=now + timedelta(days=29),
             max_participants=10,
             format=AnnouncementFormat.SINGLE_ELIMINATION,
+            has_qualification=False,
+            seed_method=SeedMethod.RANDOM,
         )
         announcements.append(ann)
 
@@ -299,6 +319,8 @@ async def test_announcement_search_count_matches_results(db_session, create_user
             registration_end_at=now + timedelta(days=29),
             max_participants=10,
             format=AnnouncementFormat.SINGLE_ELIMINATION,
+            has_qualification=False,
+            seed_method=SeedMethod.RANDOM,
         )
         db_session.add(ann)
 
@@ -380,6 +402,8 @@ async def test_announcement_search_filter_by_q_finds_game_name(db_session, creat
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     ann_cs = Announcement(
         title="Weekly Tournament",
@@ -392,6 +416,8 @@ async def test_announcement_search_filter_by_q_finds_game_name(db_session, creat
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add_all([ann_dota, ann_cs])
     await db_session.commit()
@@ -429,6 +455,8 @@ async def test_announcement_search_filter_by_q_finds_title(db_session, create_us
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     ann2 = Announcement(
         title="Regular Tournament",
@@ -441,6 +469,8 @@ async def test_announcement_search_filter_by_q_finds_title(db_session, create_us
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add_all([ann1, ann2])
     await db_session.commit()
@@ -478,6 +508,8 @@ async def test_announcement_search_filter_by_q_finds_content(db_session, create_
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     ann2 = Announcement(
         title="Event 2",
@@ -490,6 +522,8 @@ async def test_announcement_search_filter_by_q_finds_content(db_session, create_
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add_all([ann1, ann2])
     await db_session.commit()
@@ -529,6 +563,8 @@ async def test_announcement_search_filter_by_q_case_insensitive(
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -567,6 +603,8 @@ async def test_announcement_search_filter_by_q_priority_game_name_first(
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
         created_at=now - timedelta(hours=2),
     )
 
@@ -581,6 +619,8 @@ async def test_announcement_search_filter_by_q_priority_game_name_first(
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
         created_at=now - timedelta(hours=1),
     )
 
@@ -595,6 +635,8 @@ async def test_announcement_search_filter_by_q_priority_game_name_first(
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
         created_at=now,
     )
 
@@ -634,6 +676,8 @@ async def test_announcement_search_filter_by_q_min_length(db_session, create_use
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -668,6 +712,8 @@ async def test_announcement_search_filter_by_q_no_results(db_session, create_use
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(ann)
     await db_session.commit()
@@ -709,6 +755,8 @@ async def test_announcement_search_filter_by_q_combined_with_other_filters(
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     ann2 = Announcement(
@@ -722,6 +770,8 @@ async def test_announcement_search_filter_by_q_combined_with_other_filters(
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     db_session.add_all([ann1, ann2])
@@ -764,6 +814,8 @@ async def test_announcement_search_sorted_by_created_at_desc_by_default(
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
         created_at=now - timedelta(hours=2),
     )
 
@@ -778,6 +830,8 @@ async def test_announcement_search_sorted_by_created_at_desc_by_default(
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
         created_at=now,
     )
 
@@ -819,6 +873,8 @@ async def test_announcement_search_filter_by_q_handles_null_content(
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     ann_null_content = Announcement(
@@ -832,6 +888,8 @@ async def test_announcement_search_filter_by_q_handles_null_content(
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     db_session.add_all([ann_with_content, ann_null_content])

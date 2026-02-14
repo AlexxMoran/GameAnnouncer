@@ -5,7 +5,7 @@ from schemas.announcement import AnnouncementCreate
 from schemas.registration_form import RegistrationFormCreate, FormFieldCreate
 from models.announcement import Announcement
 from models.game import Game
-from enums import AnnouncementStatus, FormFieldType, AnnouncementFormat
+from enums import AnnouncementStatus, FormFieldType, AnnouncementFormat, SeedMethod
 from sqlalchemy import select
 from models.registration_form import RegistrationForm
 from models.form_field import FormField
@@ -30,6 +30,8 @@ async def test_create_announcement_without_form(db_session, create_user):
         start_at=now + timedelta(days=2),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     service = CreateAnnouncementService(
@@ -90,6 +92,8 @@ async def test_create_announcement_with_registration_form(db_session, create_use
         max_participants=20,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
         registration_form=registration_form,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     service = CreateAnnouncementService(
@@ -142,6 +146,8 @@ async def test_create_announcement_status_pre_registration(db_session, create_us
         start_at=now + timedelta(days=2),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     service = CreateAnnouncementService(
@@ -172,6 +178,8 @@ async def test_create_announcement_status_registration_open(db_session, create_u
         start_at=now + timedelta(days=2),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     service = CreateAnnouncementService(
@@ -205,6 +213,8 @@ async def test_create_announcement_with_empty_form_fields(db_session, create_use
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
         registration_form=registration_form,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
 
     service = CreateAnnouncementService(
@@ -222,3 +232,73 @@ async def test_create_announcement_with_empty_form_fields(db_session, create_use
     )
     form = form_result.scalar_one_or_none()
     assert form is None
+
+
+@pytest.mark.asyncio
+async def test_create_announcement_seed_method_random_without_qualification(
+    db_session, create_user
+):
+    """Test that seed_method is RANDOM when has_qualification is False."""
+    user = await create_user(email="organizer6@example.com")
+    game = Game(name="Test Game 6", category="FPS", description="Test")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    now = datetime.now(timezone.utc)
+    announcement_in = AnnouncementCreate(
+        title="Random Seeding Tournament",
+        content="No qualification needed",
+        game_id=game.id,
+        registration_start_at=now + timedelta(hours=1),
+        registration_end_at=now + timedelta(days=1),
+        start_at=now + timedelta(days=2),
+        max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+    )
+
+    service = CreateAnnouncementService(
+        session=db_session, announcement_in=announcement_in, user=user
+    )
+
+    result = await service.call()
+
+    assert isinstance(result, Announcement)
+    assert result.has_qualification is False
+    assert result.seed_method == SeedMethod.RANDOM
+
+
+@pytest.mark.asyncio
+async def test_create_announcement_seed_method_qualification_score_with_qualification(
+    db_session, create_user
+):
+    """Test that seed_method is QUALIFICATION_SCORE when has_qualification is True."""
+    user = await create_user(email="organizer7@example.com")
+    game = Game(name="Test Game 7", category="MOBA", description="Test")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    now = datetime.now(timezone.utc)
+    announcement_in = AnnouncementCreate(
+        title="Qualification Tournament",
+        content="With qualification round",
+        game_id=game.id,
+        registration_start_at=now + timedelta(hours=1),
+        registration_end_at=now + timedelta(days=1),
+        start_at=now + timedelta(days=2),
+        max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=True,
+    )
+
+    service = CreateAnnouncementService(
+        session=db_session, announcement_in=announcement_in, user=user
+    )
+
+    result = await service.call()
+
+    assert isinstance(result, Announcement)
+    assert result.has_qualification is True
+    assert result.seed_method == SeedMethod.QUALIFICATION_SCORE

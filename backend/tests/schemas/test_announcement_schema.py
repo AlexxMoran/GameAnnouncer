@@ -5,7 +5,7 @@ from schemas.announcement import (
     AnnouncementUpdate,
     AnnouncementResponse,
 )
-from enums import AnnouncementFormat
+from enums import AnnouncementFormat, SeedMethod
 
 
 def test_announcement_create_and_update_models():
@@ -42,6 +42,8 @@ def test_announcement_response_includes_permissions_and_timestamps():
         max_participants=10,
         status="pre_registration",
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     assert resp.id == 1
     assert resp.permissions == {}
@@ -64,6 +66,8 @@ def test_announcement_response_participants_count_empty():
         max_participants=10,
         status="pre_registration",
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
         participants=[],
     )
     assert resp.participants_count == 0
@@ -85,6 +89,8 @@ def test_announcement_response_participants_count_with_participants():
         max_participants=10,
         status="pre_registration",
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
         participants=[
             {
                 "id": i,
@@ -119,6 +125,8 @@ def test_announcement_response_participants_excluded_from_json():
         max_participants=10,
         status="pre_registration",
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
         participants=[
             {
                 "id": i,

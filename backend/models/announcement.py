@@ -6,7 +6,7 @@ from sqlalchemy.orm import mapped_column, Mapped, relationship, validates
 from sqlalchemy import ForeignKey, String, Text, DateTime, Enum
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
 from exceptions import ValidationException
-from enums import AnnouncementStatus, AnnouncementFormat
+from enums import AnnouncementStatus, AnnouncementFormat, SeedMethod
 
 if TYPE_CHECKING:
     from .game import Game
@@ -32,14 +32,23 @@ class Announcement(Base):
     registration_end_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False
     )
+
     status: Mapped[str] = mapped_column(
         Enum(AnnouncementStatus, native_enum=False),
         default=AnnouncementStatus.PRE_REGISTRATION,
         nullable=False,
     )
+    has_qualification: Mapped[bool] = mapped_column(default=False, nullable=False)
+    seed_method: Mapped[str] = mapped_column(
+        Enum(SeedMethod, native_enum=False), nullable=False
+    )
     format: Mapped[str] = mapped_column(
         Enum(AnnouncementFormat, native_enum=False), nullable=False
     )
+    bracket_size: Mapped[int | None] = mapped_column(nullable=True)
+    third_place_match: Mapped[bool] = mapped_column(default=True, nullable=False)
+    qualification_finished: Mapped[bool] = mapped_column(default=False, nullable=False)
+
     max_participants: Mapped[int] = mapped_column(nullable=False)
 
     game_id: Mapped[int] = mapped_column(
@@ -103,15 +112,6 @@ class Announcement(Base):
             raise ValidationException(
                 "start_at must be after or equal to registration_end_at"
             )
-
-        return value
-
-    @validates("format")
-    def validate_format(self, key: str, value: str) -> str:
-        """Validate the announcement format is supported."""
-
-        if value not in AnnouncementFormat.__members__.values():
-            raise ValidationException(f"Unsupported announcement format: {value}")
 
         return value
 

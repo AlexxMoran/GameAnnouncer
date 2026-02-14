@@ -11,7 +11,7 @@ from models.game import Game
 from models.registration_request import RegistrationRequest
 from models.registration_form import RegistrationForm
 from exceptions import ValidationException
-from enums import AnnouncementFormat
+from enums import AnnouncementFormat, SeedMethod
 
 
 @pytest.mark.asyncio
@@ -34,6 +34,8 @@ async def test_create_registration_request_success(db_session, create_user):
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -75,6 +77,8 @@ async def test_create_registration_request_before_start(db_session, create_user)
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -116,6 +120,8 @@ async def test_create_registration_request_after_end(db_session, create_user):
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -157,6 +163,8 @@ async def test_create_registration_request_at_exact_start(db_session, create_use
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -201,6 +209,8 @@ async def test_create_registration_request_with_form_responses(db_session, creat
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.flush()
@@ -287,6 +297,8 @@ async def test_create_registration_request_missing_required_fields(
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.flush()
@@ -367,6 +379,8 @@ async def test_create_registration_request_invalid_field_ids(db_session, create_
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.flush()
@@ -444,6 +458,8 @@ async def test_create_registration_request_responses_without_form(
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.commit()
@@ -495,6 +511,8 @@ async def test_create_registration_request_with_optional_fields_only(
         start_at=now + timedelta(days=1),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add(announcement)
     await db_session.flush()

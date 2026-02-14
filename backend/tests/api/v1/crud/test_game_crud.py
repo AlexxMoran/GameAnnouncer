@@ -7,7 +7,7 @@ from models.game import Game
 from models.announcement import Announcement
 from schemas.game import GameCreate, GameUpdate
 from api.v1.crud.game import game_crud
-from enums import AnnouncementFormat
+from enums import AnnouncementFormat, SeedMethod
 
 
 @pytest.mark.asyncio
@@ -58,6 +58,8 @@ async def test_get_by_id_with_announcements_count(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     a2 = Announcement(
         title="T2",
@@ -69,6 +71,8 @@ async def test_get_by_id_with_announcements_count(db_session, create_user):
         registration_end_at=now + timedelta(days=29),
         max_participants=10,
         format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+        seed_method=SeedMethod.RANDOM,
     )
     db_session.add_all([a1, a2])
     await db_session.commit()
