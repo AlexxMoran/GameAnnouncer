@@ -7,6 +7,7 @@ from .registration_request import RegistrationRequest
 from .registration_form import RegistrationForm
 from .form_field import FormField
 from .form_field_response import FormFieldResponse
+from .match import Match
 
 __all__ = [
     "Base",
@@ -18,4 +19,5 @@ __all__ = [
     "RegistrationForm",
     "FormField",
     "FormFieldResponse",
+    "Match",
 ]

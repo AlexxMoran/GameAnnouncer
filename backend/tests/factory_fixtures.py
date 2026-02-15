@@ -92,16 +92,27 @@ async def create_announcement(db_session):
     Similar to Rails FactoryBot pattern.
     """
     from models.announcement import Announcement
+    from models.game import Game
     from datetime import datetime
 
     async def _create(**overrides):
         factory_data = AnnouncementDictFactory.build()
 
+        # Create a game if game_id not provided
+        if "game_id" not in overrides:
+            game = Game(name="Test Game", category="Test", description="Test game")
+            db_session.add(game)
+            await db_session.commit()
+            await db_session.refresh(game)
+            game_id = game.id
+        else:
+            game_id = overrides.pop("game_id")
+
         # Convert factory dict to model-compatible data
         data = {
             "title": factory_data["title"],
             "content": factory_data["content"],
-            "game_id": factory_data["game_id"],
+            "game_id": game_id,
             "organizer_id": factory_data["organizer_id"],
             "registration_start_at": (
                 datetime.fromisoformat(factory_data["registration_start_at"])
@@ -137,5 +148,62 @@ async def create_announcement(db_session):
         await db_session.refresh(announcement)
 
         return announcement
+
+    return _create
+
+
+@pytest_asyncio.fixture
+async def create_participant(db_session):
+    """Async helper fixture that creates and persists an AnnouncementParticipant.
+
+    Requires announcement_id and user_id. Other fields can be overridden.
+    """
+    from models.announcement_participant import AnnouncementParticipant
+
+    async def _create(**overrides):
+        if "announcement_id" not in overrides or "user_id" not in overrides:
+            raise ValueError("announcement_id and user_id are required")
+
+        participant = AnnouncementParticipant(**overrides)
+        db_session.add(participant)
+        await db_session.commit()
+        await db_session.refresh(participant)
+
+        return participant
+
+    return _create
+
+
+@pytest_asyncio.fixture
+async def create_match(db_session):
+    """Async helper fixture that creates and persists a Match.
+
+    Requires announcement_id, round_number, and match_number.
+    Other fields can be overridden.
+    """
+    from models.match import Match
+    from enums import MatchStatus
+
+    async def _create(**overrides):
+        if "announcement_id" not in overrides:
+            raise ValueError("announcement_id is required")
+        if "round_number" not in overrides:
+            raise ValueError("round_number is required")
+        if "match_number" not in overrides:
+            raise ValueError("match_number is required")
+
+        data = {
+            "status": MatchStatus.PENDING,
+            "is_bye": False,
+            "is_third_place": False,
+        }
+        data.update(overrides)
+
+        match = Match(**data)
+        db_session.add(match)
+        await db_session.commit()
+        await db_session.refresh(match)
+
+        return match
 
     return _create
