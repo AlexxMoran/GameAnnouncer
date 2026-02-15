@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from .registration_request import RegistrationRequest
     from .registration_form import RegistrationForm
     from .announcement_participant import AnnouncementParticipant
+    from .match import Match
 
 
 class Announcement(Base):
@@ -86,6 +87,12 @@ class Announcement(Base):
         passive_deletes=True,
         uselist=False,
         lazy="selectin",
+    )
+
+    matches: Mapped[list["Match"]] = relationship(
+        "Match",
+        back_populates="announcement",
+        passive_deletes=True,
     )
 
     @validates("start_at", "registration_start_at", "registration_end_at")
