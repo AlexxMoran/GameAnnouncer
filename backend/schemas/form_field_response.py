@@ -1,4 +1,5 @@
 from pydantic import BaseModel, ConfigDict, Field, computed_field
+from .form_field import FormFieldResponse as FormFieldSchema
 
 
 class FormFieldResponseBase(BaseModel):
@@ -21,6 +22,7 @@ class FormFieldResponseResponse(FormFieldResponseBase):
 
     id: int
     registration_request_id: int
+    form_field: FormFieldSchema
 
     @computed_field
     @property
