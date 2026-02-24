@@ -22,9 +22,11 @@ export interface IAnnouncementDto extends IEntityDateFields, IEntityIdField {
   participants_count: number;
   format: EAnnouncementFormat;
   registration_form?: {
-    fields: IRegistrationFormField[];
+    fields: IRegistrationFormFieldWithId[];
   };
 }
+
+export interface IRegistrationFormFieldWithId extends IRegistrationFormField, IEntityIdField {}
 
 export interface IRegistrationFormField {
   field_type: ERegistrationFormFieldTypes;

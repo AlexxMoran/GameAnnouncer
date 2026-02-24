@@ -108,6 +108,7 @@ export const translationRu = {
     registrationForm: "Форма регистрации",
     createRegistrationFormTooltip: "Добавьте поля формы для регистрации в турнире (опционально)",
     optionList: "Список опций",
+    fillTheFieldsToParticipate: "Заполните поля для участия в турнире",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",
