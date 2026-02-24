@@ -109,6 +109,7 @@ export const translationEn = {
     registrationForm: "Registration form",
     createRegistrationFormTooltip: "Add form fields for tournament registration (optionally)",
     optionList: "List of options",
+    fillTheFieldsToParticipate: "Fill in the fields to participate in the tournament",
   },
   validationErrors: {
     unknown: "Unexpected error",

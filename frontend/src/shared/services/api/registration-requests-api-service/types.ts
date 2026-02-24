@@ -5,6 +5,11 @@ import type {
 import type { IEntityDateFields, IEntityIdField } from "@shared/types/commonEntity.types";
 import type { IPaginationParams } from "@shared/types/pagination.types";
 
+export interface IFormResponse {
+  form_field_id: number;
+  value: string;
+}
+
 export interface IRegistrationRequestDto extends IEntityDateFields, IEntityIdField {
   announcement_id: number;
   user_id: number;
@@ -13,6 +18,7 @@ export interface IRegistrationRequestDto extends IEntityDateFields, IEntityIdFie
 
 export interface ICreateRegistrationRequestDto {
   announcement_id: number;
+  form_responses?: IFormResponse[];
 }
 
 export interface IEditRegistrationRequestDto {
