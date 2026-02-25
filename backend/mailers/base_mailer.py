@@ -104,6 +104,6 @@ class BaseMailer(ABC):
 
     async def deliver(self, mail: Mail) -> bool:
         """Deliver email via SMTP."""
-        from services.email_service import EmailService
+        from core.services.email import EmailService
 
         return await EmailService.send_email(mail)

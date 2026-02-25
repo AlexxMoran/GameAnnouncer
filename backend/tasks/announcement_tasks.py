@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from sqlalchemy import update
-from models.announcement import Announcement
+from domains.announcements.model import Announcement
 from enums import AnnouncementStatus
 from core.db.container import create_db
 from tasks.broker import broker

@@ -4,7 +4,13 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
-from models.base import Base
+from core.db.base import Base
+import domains.games.model  # noqa: F401
+import domains.announcements.model  # noqa: F401
+import domains.announcements.participant_model  # noqa: F401
+import domains.registration.models  # noqa: F401
+import domains.matches.model  # noqa: F401
+import domains.users.model  # noqa: F401
 
 config = context.config
 

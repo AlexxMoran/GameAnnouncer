@@ -66,7 +66,7 @@ async def test_deliver_calls_email_service():
 
     async_mock = AsyncMock(return_value=True)
 
-    with patch("services.email_service.EmailService.send_email", new=async_mock):
+    with patch("core.services.email.EmailService.send_email", new=async_mock):
         res = await mailer.deliver(mail)
     assert res is True
     async_mock.assert_awaited_once_with(mail)

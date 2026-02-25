@@ -1,6 +1,6 @@
 from fastapi_users import FastAPIUsers
 
-from models.user import User
+from domains.users.model import User
 from core.deps import get_user_manager
 from core.auth import get_auth_backend
 

@@ -2,9 +2,9 @@ import pytest
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock, AsyncMock
 from tasks.registration_request_tasks import expire_registration_requests_task
-from models.announcement import Announcement
-from models.game import Game
-from models.registration_request import RegistrationRequest
+from domains.announcements.model import Announcement
+from domains.games.model import Game
+from domains.registration.models import RegistrationRequest
 from enums.registration_status import RegistrationStatus
 from enums import AnnouncementFormat, SeedMethod
 
