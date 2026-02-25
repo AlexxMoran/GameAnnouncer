@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field
 
@@ -70,12 +69,13 @@ class FormFieldResponseResponse(FormFieldResponseBase):
 
     id: int
     registration_request_id: int
+    form_field: FormFieldResponse | None = None
 
     @computed_field
     @property
-    def label(self) -> str:
+    def label(self) -> str | None:
         """The question/label shown to the user (e.g. 'Nickname in Game')."""
-        return self.form_field.label
+        return self.form_field.label if self.form_field else None
 
 
 class RegistrationFormBase(BaseModel):
@@ -118,7 +118,7 @@ class RegistrationRequestCreate(RegistrationRequestBase):
 
 
 class RegistrationRequestUpdate(BaseModel):
-    status: Optional[str] = Field(
+    status: str | None = Field(
         None, description="The status of the registration request"
     )
 

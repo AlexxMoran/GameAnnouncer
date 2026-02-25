@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, List, Optional
+from typing import TYPE_CHECKING
 from core.db.base import Base
 from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -12,9 +12,9 @@ class Game(Base):
 
     name: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=True)
-    image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
+    image_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     category: Mapped[str] = mapped_column(String(50), nullable=False)
 
-    announcements: Mapped[List["Announcement"]] = relationship(
+    announcements: Mapped[list["Announcement"]] = relationship(
         "Announcement", back_populates="game", cascade="all, delete-orphan"
     )

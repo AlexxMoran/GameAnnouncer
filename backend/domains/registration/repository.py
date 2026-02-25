@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload, noload
@@ -19,7 +17,7 @@ class RegistrationRequestRepository:
 
     async def find_by_id(
         self, registration_request_id: int
-    ) -> Optional[RegistrationRequest]:
+    ) -> RegistrationRequest | None:
         """Fetch a single registration request with announcement participants and user loaded."""
         result = await self.session.execute(
             select(RegistrationRequest)
@@ -75,7 +73,7 @@ class RegistrationRequestRepository:
 
     async def find_by_user_and_announcement(
         self, user_id: int, announcement_id: int
-    ) -> Optional[RegistrationRequest]:
+    ) -> RegistrationRequest | None:
         """Find an active (pending or approved) request for a user and announcement."""
         result = await self.session.execute(
             select(RegistrationRequest).where(
@@ -90,7 +88,7 @@ class RegistrationRequestRepository:
 
     async def find_by_id_with_form_responses(
         self, registration_request_id: int
-    ) -> Optional[RegistrationRequest]:
+    ) -> RegistrationRequest | None:
         """Fetch a registration request with form_responses and form_field loaded."""
         result = await self.session.execute(
             select(RegistrationRequest)
@@ -119,7 +117,7 @@ class RegistrationFormRepository:
 
     async def find_by_announcement_id(
         self, announcement_id: int
-    ) -> Optional[RegistrationForm]:
+    ) -> RegistrationForm | None:
         """Fetch the registration form for an announcement, without eagerly loading fields."""
         result = await self.session.execute(
             select(RegistrationForm)

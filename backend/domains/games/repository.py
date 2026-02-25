@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,7 +11,7 @@ class GameRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def find_by_id(self, game_id: int) -> Optional[Game]:
+    async def find_by_id(self, game_id: int) -> Game | None:
         """
         Find a game by ID, enriched with announcements count.
 

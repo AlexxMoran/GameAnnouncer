@@ -1,3 +1,4 @@
+import asyncio
 import os
 import aiofiles
 import uuid
@@ -17,7 +18,7 @@ async def upload_avatar(
         raise AppException("Invalid image format", status_code=400)
 
     target_dir = os.path.join(BASE_DIR, f"{object_type}s")
-    os.makedirs(target_dir, exist_ok=True)
+    await asyncio.to_thread(os.makedirs, target_dir, exist_ok=True)
 
     filename = f"{object_type}_{object_id}_{uuid.uuid4().hex}{ext}"
     file_path = os.path.join(target_dir, filename)

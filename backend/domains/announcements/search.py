@@ -49,6 +49,6 @@ class AnnouncementSearch(BaseSearch):
             else_=4,
         )
 
-        query = query.order_by(priority)
+        query = query.order_by(priority, desc(Announcement.created_at))
 
         return query

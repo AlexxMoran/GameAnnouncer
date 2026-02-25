@@ -1,5 +1,5 @@
 from core.db.base import Base
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseUserTable, SQLAlchemyUserDatabase
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String
@@ -15,9 +15,9 @@ if TYPE_CHECKING:
 class User(Base, SQLAlchemyBaseUserTable[int]):
     __tablename__ = "users"
 
-    first_name: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
-    last_name: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
-    nickname: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
+    first_name: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    last_name: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    nickname: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
     participation_records: Mapped[list["AnnouncementParticipant"]] = relationship(
         "AnnouncementParticipant",

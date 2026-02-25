@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -10,7 +8,7 @@ class MatchRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def find_by_id(self, match_id: int) -> Optional[Match]:
+    async def find_by_id(self, match_id: int) -> Match | None:
         """Fetch a single match by ID."""
         result = await self.session.execute(select(Match).where(Match.id == match_id))
         return result.scalar_one_or_none()

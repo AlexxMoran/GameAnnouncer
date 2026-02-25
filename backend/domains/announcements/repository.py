@@ -1,5 +1,3 @@
-from typing import Optional
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
@@ -12,7 +10,7 @@ class AnnouncementRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def find_by_id(self, announcement_id: int) -> Optional[Announcement]:
+    async def find_by_id(self, announcement_id: int) -> Announcement | None:
         """Fetch a single announcement with organizer and game loaded."""
         result = await self.session.execute(
             select(Announcement)
@@ -111,7 +109,7 @@ class ParticipantRepository:
 
     async def find_by_announcement_and_user(
         self, announcement_id: int, user_id: int
-    ) -> Optional[AnnouncementParticipant]:
+    ) -> AnnouncementParticipant | None:
         """Find a participant record by announcement and user IDs."""
         result = await self.session.execute(
             select(AnnouncementParticipant).where(

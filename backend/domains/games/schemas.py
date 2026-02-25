@@ -1,5 +1,4 @@
 from pydantic import BaseModel, Field, field_validator
-from typing import Optional
 from datetime import datetime
 
 from core.schemas.base import BaseSchemaWithPermissions
@@ -33,7 +32,7 @@ class CategoryValidator:
 
 class GameBase(BaseModel):
     name: str = Field(..., max_length=100)
-    description: Optional[str] = None
+    description: str | None = None
     category: str
 
 
@@ -42,17 +41,17 @@ class GameCreate(GameBase, CategoryValidator):
 
 
 class GameUpdate(GameBase, CategoryValidator):
-    name: Optional[str] = Field(None, max_length=100)
-    description: Optional[str] = None
-    category: Optional[str] = None
+    name: str | None = Field(None, max_length=100)
+    description: str | None = None
+    category: str | None = None
 
 
 class GameResponse(GameBase, BaseSchemaWithPermissions):
     id: int
     created_at: datetime
     updated_at: datetime
-    image_url: Optional[str] = Field(None, max_length=500)
-    announcements_count: Optional[int] = None
+    image_url: str | None = Field(None, max_length=500)
+    announcements_count: int | None = None
 
     model_config = {"from_attributes": True}
 

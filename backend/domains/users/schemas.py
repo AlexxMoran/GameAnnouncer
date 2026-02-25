@@ -1,13 +1,12 @@
-from typing import Optional
 from pydantic import Field
 
 from fastapi_users import schemas
 
 
 class UserBaseFieldsMixin:
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    nickname: Optional[str] = None
+    first_name: str | None = None
+    last_name: str | None = None
+    nickname: str | None = None
 
 
 class UserResponse(schemas.BaseUser[int], UserBaseFieldsMixin):

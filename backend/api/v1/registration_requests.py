@@ -19,6 +19,7 @@ from domains.registration.services.create_request import (
     CreateRegistrationRequestService,
 )
 from domains.registration.services import update_status as registration_status
+from core.permissions import authorize_action
 
 
 router = APIRouter(prefix="/registration_requests", tags=["registration_requests"])
@@ -49,7 +50,9 @@ async def get_registration_request(
     registration_request: RegistrationRequest = Depends(
         get_registration_request_dependency
     ),
+    user: User = Depends(current_user),
 ) -> DataResponse[RegistrationRequestResponse]:
+    authorize_action(user, registration_request, "view")
     return DataResponse(data=registration_request)
 
 
@@ -97,5 +100,7 @@ async def update_registration_request_status(
         )
     elif action == RegistrationAction.CANCEL:
         result = await registration_status.cancel(registration_request, user, session)
+    else:
+        raise AppException("Invalid action", status_code=400)
 
     return DataResponse(data=result)
