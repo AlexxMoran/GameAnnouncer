@@ -1,17 +1,16 @@
 from fastapi import APIRouter, UploadFile, File, Depends
 
-from searches.game_search import GameSearch
-from models.game import Game
-from models.user import User
+from domains.games.model import Game
+from domains.games.repository import GameRepository
+from domains.games.schemas import GameCreate, GameResponse, GameUpdate, GameFilter
+from domains.games.search import GameSearch
+from domains.users.model import User
 from exceptions import AppException
-from services.avatar_uploader import upload_avatar
+from core.services.avatar_uploader import upload_avatar
 from core.deps import SessionDep
-from api.v1.crud.game import game_crud
-from schemas.game import GameCreate, GameResponse, GameUpdate
-from schemas.base import PaginatedResponse, DataResponse
+from core.schemas.base import PaginatedResponse, DataResponse
 from core.users import current_user, current_user_or_none
-from core.permissions import get_permissions, get_batch_permissions
-from schemas.filters.game_filter import GameFilter
+from core.permissions import authorize_action, get_permissions, get_batch_permissions
 
 router = APIRouter(prefix="/games", tags=["games"])
 
@@ -20,27 +19,10 @@ async def get_game_dependency(
     session: SessionDep,
     game_id: int,
 ) -> Game:
-    game = await game_crud.get_by_id(session=session, game_id=game_id)
+    repo = GameRepository(session)
+    game = await repo.find_by_id(game_id)
     if not game:
         raise AppException("Game not found", status_code=404)
-
-    return game
-
-
-async def get_game_for_edit_dependency(
-    session: SessionDep,
-    game_id: int,
-    user: User = Depends(current_user),
-) -> Game:
-    game = await game_crud.get_by_id(
-        session=session,
-        game_id=game_id,
-        user=user,
-        action="edit",
-    )
-    if not game:
-        raise AppException("Game not found", status_code=404)
-
     return game
 
 
@@ -51,12 +33,11 @@ async def get_games(
     filters: GameFilter = Depends(),
     skip: int = 0,
     limit: int = 10,
-):
+) -> PaginatedResponse[GameResponse]:
     search = GameSearch(session=session, filters=filters)
     games = await search.results(skip=skip, limit=limit)
-    get_batch_permissions(user, games)
     games_count = await search.count()
-
+    get_batch_permissions(user, games)
     return PaginatedResponse(data=games, skip=skip, limit=limit, total=games_count)
 
 
@@ -64,20 +45,23 @@ async def get_games(
 async def get_game(
     game: Game = Depends(get_game_dependency),
     user: User | None = Depends(current_user_or_none),
-):
+) -> DataResponse[GameResponse]:
     game.permissions = get_permissions(user, game)
-
     return DataResponse(data=game)
 
 
 @router.post("", response_model=DataResponse[GameResponse])
 async def create_game(
-    session: SessionDep, game_in: GameCreate, current_user: User = Depends(current_user)
-):
-    game = await game_crud.create(
-        session=session, game_in=game_in, user=current_user, action="create"
-    )
-
+    session: SessionDep,
+    game_in: GameCreate,
+    user: User = Depends(current_user),
+) -> DataResponse[GameResponse]:
+    authorize_action(user, Game(), "create")
+    repo = GameRepository(session)
+    game = Game(**game_in.model_dump())
+    game = await repo.save(game)
+    await session.commit()
+    await session.refresh(game)
     return DataResponse(data=game)
 
 
@@ -85,30 +69,29 @@ async def create_game(
 async def update_game(
     session: SessionDep,
     game_in: GameUpdate,
-    current_user: User = Depends(current_user),
-    game: Game = Depends(get_game_for_edit_dependency),
-):
-    updated_game = await game_crud.update(
-        session=session,
-        game=game,
-        game_in=game_in,
-        user=current_user,
-        action="edit",
-    )
-
-    return DataResponse(data=updated_game)
+    game: Game = Depends(get_game_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[GameResponse]:
+    authorize_action(user, game, "edit")
+    repo = GameRepository(session)
+    for field, value in game_in.model_dump(exclude_unset=True).items():
+        setattr(game, field, value)
+    game = await repo.save(game)
+    await session.commit()
+    await session.refresh(game)
+    return DataResponse(data=game)
 
 
 @router.delete("/{game_id}", response_model=DataResponse[str])
 async def delete_game(
     session: SessionDep,
-    game: Game = Depends(get_game_for_edit_dependency),
-    current_user: User = Depends(current_user),
-):
-    await game_crud.delete(
-        session=session, game=game, user=current_user, action="delete"
-    )
-
+    game: Game = Depends(get_game_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[str]:
+    authorize_action(user, game, "delete")
+    repo = GameRepository(session)
+    await repo.delete(game)
+    await session.commit()
     return DataResponse(data="Game deleted successfully")
 
 
@@ -116,15 +99,14 @@ async def delete_game(
 async def upload_game_image(
     session: SessionDep,
     file: UploadFile = File(...),
-    game: Game = Depends(get_game_for_edit_dependency),
-):
+    game: Game = Depends(get_game_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[GameResponse]:
+    authorize_action(user, game, "edit")
     image_url = await upload_avatar(object_type="game", object_id=game.id, file=file)
-
     game.image_url = image_url
-
+    repo = GameRepository(session)
+    game = await repo.save(game)
     await session.commit()
     await session.refresh(game)
-
     return DataResponse(data=game)
-
-    return game

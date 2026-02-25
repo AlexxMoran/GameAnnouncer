@@ -1,15 +1,14 @@
 from fastapi import APIRouter, Depends
 
-from schemas.registration_request import RegistrationRequestResponse
-from schemas.announcement import AnnouncementResponse
-from schemas.base import PaginatedResponse
-from models.user import User
-
+from core.schemas.base import PaginatedResponse
+from domains.users.model import User
 from core.deps import SessionDep
-from api.v1.crud.announcement import announcement_crud
-from api.v1.crud.registration_request import registration_request_crud
-
 from core.users import current_user
+
+from domains.announcements.repository import AnnouncementRepository
+from domains.announcements.schemas import AnnouncementResponse
+from domains.registration.repository import RegistrationRequestRepository
+from domains.registration.schemas import RegistrationRequestResponse
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -22,12 +21,12 @@ async def get_my_organized_announcements(
     session: SessionDep,
     skip: int = 0,
     limit: int = 10,
-    current_user: User = Depends(current_user),
-):
-    announcements, total = await announcement_crud.get_all_by_organizer_id(
-        session, current_user.id, skip=skip, limit=limit
+    user: User = Depends(current_user),
+) -> PaginatedResponse[AnnouncementResponse]:
+    repo = AnnouncementRepository(session)
+    announcements, total = await repo.find_all_by_organizer_id(
+        user.id, skip=skip, limit=limit
     )
-
     return PaginatedResponse(data=announcements, skip=skip, limit=limit, total=total)
 
 
@@ -39,12 +38,12 @@ async def get_my_participated_announcements(
     session: SessionDep,
     skip: int = 0,
     limit: int = 10,
-    current_user: User = Depends(current_user),
-):
-    announcements, total = await announcement_crud.get_all_by_participant_id(
-        session, current_user.id, skip=skip, limit=limit
+    user: User = Depends(current_user),
+) -> PaginatedResponse[AnnouncementResponse]:
+    repo = AnnouncementRepository(session)
+    announcements, total = await repo.find_all_by_participant_id(
+        user.id, skip=skip, limit=limit
     )
-
     return PaginatedResponse(data=announcements, skip=skip, limit=limit, total=total)
 
 
@@ -56,12 +55,12 @@ async def get_my_registration_requests(
     session: SessionDep,
     skip: int = 0,
     limit: int = 10,
-    current_user: User = Depends(current_user),
-):
-    registration_requests, total = await registration_request_crud.get_all_by_user_id(
-        session, current_user.id, skip=skip, limit=limit
+    user: User = Depends(current_user),
+) -> PaginatedResponse[RegistrationRequestResponse]:
+    repo = RegistrationRequestRepository(session)
+    registration_requests, total = await repo.find_all_by_user_id(
+        user.id, skip=skip, limit=limit
     )
-
     return PaginatedResponse(
         data=registration_requests, skip=skip, limit=limit, total=total
     )
@@ -76,9 +75,9 @@ async def get_user_organized_announcements(
     session: SessionDep,
     skip: int = 0,
     limit: int = 10,
-):
-    announcements, total = await announcement_crud.get_all_by_organizer_id(
-        session, user_id, skip=skip, limit=limit
+) -> PaginatedResponse[AnnouncementResponse]:
+    repo = AnnouncementRepository(session)
+    announcements, total = await repo.find_all_by_organizer_id(
+        user_id, skip=skip, limit=limit
     )
-
     return PaginatedResponse(data=announcements, skip=skip, limit=limit, total=total)

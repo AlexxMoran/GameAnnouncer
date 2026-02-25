@@ -1,8 +1,8 @@
 from typing import Any
 
 from core.permissions.registry import PoliciesRegistry
-from services.permissions_service import PermissionsService
-from services.authorize_action_service import AuthorizationService
+from core.services.permissions import PermissionsService
+from core.services.authorize_action import AuthorizationService
 
 _registry = PoliciesRegistry()
 _permissions_service = PermissionsService(_registry)

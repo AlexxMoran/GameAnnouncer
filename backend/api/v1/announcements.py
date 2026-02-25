@@ -1,30 +1,34 @@
 from fastapi import APIRouter, UploadFile, File, Depends
-from exceptions import AppException
 
-from schemas.registration_request import RegistrationRequestResponse
-from models.announcement import Announcement
-from schemas.announcement_participant import AnnouncementParticipantResponse
-from models.user import User
-from services.avatar_uploader import upload_avatar
-from services.create_announcement_service import CreateAnnouncementService
-from services.upsert_registration_form_service import UpsertRegistrationFormService
-from schemas.announcement import (
+from exceptions import AppException
+from domains.users.model import User
+from core.services.avatar_uploader import upload_avatar
+from core.schemas.base import PaginatedResponse, DataResponse
+from domains.registration.schemas import (
+    RegistrationRequestResponse,
+    RegistrationFormCreate,
+    RegistrationFormResponse,
+)
+from domains.registration.services.upsert_form import UpsertRegistrationFormService
+from core.deps import SessionDep
+from core.users import current_user, current_user_or_none
+from core.permissions import authorize_action, get_permissions, get_batch_permissions
+
+from domains.announcements.model import Announcement
+from domains.announcements.repository import AnnouncementRepository
+from domains.announcements.search import AnnouncementSearch
+from domains.announcements.schemas import (
     AnnouncementCreate,
     AnnouncementResponse,
     AnnouncementUpdate,
     AnnouncementStatusUpdate,
+    AnnouncementFilter,
+    AnnouncementParticipantResponse,
 )
-from schemas.base import PaginatedResponse, DataResponse
-from schemas.filters.announcement_filter import AnnouncementFilter
-from schemas.registration_form import RegistrationFormCreate, RegistrationFormResponse
-from core.deps import SessionDep
-from api.v1.crud.announcement import announcement_crud
-from api.v1.crud.registration_request import registration_request_crud
-from searches.announcement_search import AnnouncementSearch
+from domains.announcements.services.create import CreateAnnouncementService
+from domains.announcements.services.update_status import update_announcement_status
 
-from core.users import current_user, current_user_or_none
-from core.permissions import get_permissions, get_batch_permissions
-
+from domains.registration.repository import RegistrationRequestRepository
 
 router = APIRouter(prefix="/announcements", tags=["announcements"])
 
@@ -33,26 +37,8 @@ async def get_announcement_dependency(
     session: SessionDep,
     announcement_id: int,
 ) -> Announcement:
-    announcement = await announcement_crud.get_by_id(
-        session=session,
-        announcement_id=announcement_id,
-    )
-    if not announcement:
-        raise AppException("Announcement not found", status_code=404)
-    return announcement
-
-
-async def get_announcement_for_edit_dependency(
-    session: SessionDep,
-    announcement_id: int,
-    user: User = Depends(current_user),
-) -> Announcement:
-    announcement = await announcement_crud.get_by_id(
-        session=session,
-        announcement_id=announcement_id,
-        user=user,
-        action="edit",
-    )
+    repo = AnnouncementRepository(session)
+    announcement = await repo.find_by_id(announcement_id)
     if not announcement:
         raise AppException("Announcement not found", status_code=404)
     return announcement
@@ -65,13 +51,11 @@ async def get_announcements(
     user: User | None = Depends(current_user_or_none),
     skip: int = 0,
     limit: int = 10,
-):
+) -> PaginatedResponse[AnnouncementResponse]:
     search = AnnouncementSearch(session=session, filters=filters)
     announcements = await search.results(skip=skip, limit=limit)
     announcements_count = await search.count()
-
     get_batch_permissions(user, announcements)
-
     return PaginatedResponse(
         data=announcements, skip=skip, limit=limit, total=announcements_count
     )
@@ -81,7 +65,7 @@ async def get_announcements(
 async def get_announcement(
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User | None = Depends(current_user_or_none),
-):
+) -> DataResponse[AnnouncementResponse]:
     announcement.permissions = get_permissions(user, announcement)
     return DataResponse(data=announcement)
 
@@ -95,11 +79,11 @@ async def get_announcement_participants(
     skip: int = 0,
     limit: int = 10,
     announcement: Announcement = Depends(get_announcement_dependency),
-):
-    participants, total = await announcement_crud.get_participants_by_announcement_id(
-        session=session, announcement_id=announcement.id, skip=skip, limit=limit
+) -> PaginatedResponse[AnnouncementParticipantResponse]:
+    repo = AnnouncementRepository(session)
+    participants, total = await repo.find_participants_by_announcement_id(
+        announcement_id=announcement.id, skip=skip, limit=limit
     )
-
     return PaginatedResponse(data=participants, skip=skip, limit=limit, total=total)
 
 
@@ -112,14 +96,11 @@ async def get_announcement_registration_requests(
     skip: int = 0,
     limit: int = 10,
     announcement: Announcement = Depends(get_announcement_dependency),
-):
-    (
-        registration_requests,
-        total,
-    ) = await registration_request_crud.get_all_by_announcement_id(
-        session=session, announcement_id=announcement.id, skip=skip, limit=limit
+) -> PaginatedResponse[RegistrationRequestResponse]:
+    repo = RegistrationRequestRepository(session)
+    registration_requests, total = await repo.find_all_by_announcement_id(
+        announcement_id=announcement.id, skip=skip, limit=limit
     )
-
     return PaginatedResponse(
         data=registration_requests, skip=skip, limit=limit, total=total
     )
@@ -130,12 +111,11 @@ async def create_announcement(
     session: SessionDep,
     announcement_in: AnnouncementCreate,
     user: User = Depends(current_user),
-):
+) -> DataResponse[AnnouncementResponse]:
     service = CreateAnnouncementService(
         session=session, announcement_in=announcement_in, user=user
     )
     announcement = await service.call()
-
     return DataResponse(data=announcement)
 
 
@@ -143,30 +123,28 @@ async def create_announcement(
 async def update_announcement(
     session: SessionDep,
     announcement_in: AnnouncementUpdate,
-    announcement: Announcement = Depends(get_announcement_for_edit_dependency),
-    current_user: User = Depends(current_user),
-):
-    updated_announcement = await announcement_crud.update(
-        session=session,
-        announcement=announcement,
-        announcement_in=announcement_in,
-        user=current_user,
-        action="edit",
-    )
-
-    return DataResponse(data=updated_announcement)
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[AnnouncementResponse]:
+    authorize_action(user, announcement, "edit")
+    repo = AnnouncementRepository(session)
+    for field, value in announcement_in.model_dump(exclude_unset=True).items():
+        setattr(announcement, field, value)
+    announcement = await repo.save(announcement)
+    await session.commit()
+    return DataResponse(data=announcement)
 
 
 @router.delete("/{announcement_id}", response_model=DataResponse[str])
 async def delete_announcement(
     session: SessionDep,
-    announcement: Announcement = Depends(get_announcement_for_edit_dependency),
-    current_user: User = Depends(current_user),
-):
-    await announcement_crud.delete(
-        session=session, announcement=announcement, user=current_user, action="delete"
-    )
-
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[str]:
+    authorize_action(user, announcement, "delete")
+    repo = AnnouncementRepository(session)
+    await repo.delete(announcement)
+    await session.commit()
     return DataResponse(data="Announcement deleted successfully")
 
 
@@ -176,17 +154,16 @@ async def delete_announcement(
 async def update_status(
     session: SessionDep,
     announcement_in: AnnouncementStatusUpdate,
-    announcement: Announcement = Depends(get_announcement_for_edit_dependency),
-    current_user: User = Depends(current_user),
-):
-    updated_announcement = await announcement_crud.update_status(
-        session=session,
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[AnnouncementResponse]:
+    announcement = await update_announcement_status(
         announcement=announcement,
         action=announcement_in.action,
-        user=current_user,
+        user=user,
+        session=session,
     )
-
-    return DataResponse(data=updated_announcement)
+    return DataResponse(data=announcement)
 
 
 @router.put(
@@ -196,15 +173,16 @@ async def update_status(
 async def upsert_registration_form(
     session: SessionDep,
     registration_form_in: RegistrationFormCreate,
-    announcement: Announcement = Depends(get_announcement_for_edit_dependency),
-):
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[RegistrationFormResponse]:
+    authorize_action(user, announcement, "edit")
     service = UpsertRegistrationFormService(
         session=session,
         announcement=announcement,
         registration_form_in=registration_form_in,
     )
     registration_form = await service.call()
-
     return DataResponse(data=registration_form)
 
 
@@ -214,15 +192,15 @@ async def upsert_registration_form(
 async def upload_announcement_image(
     session: SessionDep,
     file: UploadFile = File(...),
-    announcement: Announcement = Depends(get_announcement_for_edit_dependency),
-):
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[AnnouncementResponse]:
+    authorize_action(user, announcement, "edit")
     image_url = await upload_avatar(
         object_type="announcement", object_id=announcement.id, file=file
     )
-
     announcement.image_url = image_url
-
+    repo = AnnouncementRepository(session)
+    announcement = await repo.save(announcement)
     await session.commit()
-    await session.refresh(announcement)
-
     return DataResponse(data=announcement)

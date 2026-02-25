@@ -1,20 +1,25 @@
-from fastapi import APIRouter, Depends
 from enum import Enum
+
+from fastapi import APIRouter, Depends
+
 from exceptions import AppException
-from schemas.registration_request import (
+from core.schemas.base import DataResponse
+from core.deps import SessionDep
+from domains.users.model import User
+from core.users import current_user
+
+from domains.announcements.repository import AnnouncementRepository
+from domains.registration.models import RegistrationRequest
+from domains.registration.repository import RegistrationRequestRepository
+from domains.registration.schemas import (
     RegistrationRequestCreate,
     RegistrationRequestResponse,
 )
-from schemas.base import DataResponse
-from core.deps import SessionDep
-from models.registration_request import RegistrationRequest
-from models.user import User
-from api.v1.crud.registration_request import registration_request_crud
-from api.v1.announcements import get_announcement_dependency
-from core.users import current_user
-from services.create_registration_request_service import (
+from domains.registration.services.create_request import (
     CreateRegistrationRequestService,
 )
+from domains.registration.services import update_status as registration_status
+from core.permissions import authorize_action
 
 
 router = APIRouter(prefix="/registration_requests", tags=["registration_requests"])
@@ -30,13 +35,10 @@ async def get_registration_request_dependency(
     session: SessionDep,
     registration_request_id: int,
 ) -> RegistrationRequest:
-    registration_request = await registration_request_crud.get_by_id(
-        session=session,
-        registration_request_id=registration_request_id,
-    )
+    repo = RegistrationRequestRepository(session)
+    registration_request = await repo.find_by_id(registration_request_id)
     if not registration_request:
         raise AppException("Registration Request not found", status_code=404)
-
     return registration_request
 
 
@@ -48,7 +50,9 @@ async def get_registration_request(
     registration_request: RegistrationRequest = Depends(
         get_registration_request_dependency
     ),
-):
+    user: User = Depends(current_user),
+) -> DataResponse[RegistrationRequestResponse]:
+    authorize_action(user, registration_request, "view")
     return DataResponse(data=registration_request)
 
 
@@ -57,21 +61,13 @@ async def create(
     session: SessionDep,
     registration_request_in: RegistrationRequestCreate,
     user: User = Depends(current_user),
-):
-    announcement = await get_announcement_dependency(
-        session, registration_request_in.announcement_id
+) -> DataResponse[RegistrationRequestResponse]:
+    announcement_repo = AnnouncementRepository(session)
+    announcement = await announcement_repo.find_by_id(
+        registration_request_in.announcement_id
     )
-
-    existing_request = await registration_request_crud.get_by_user_and_announcement(
-        session=session,
-        user_id=user.id,
-        announcement_id=registration_request_in.announcement_id,
-    )
-    if existing_request:
-        raise AppException(
-            "Registration request already exists for this user and announcement",
-            status_code=400,
-        )
+    if not announcement:
+        raise AppException("Announcement not found", status_code=404)
 
     registration_request = await CreateRegistrationRequestService(
         session=session,
@@ -94,19 +90,17 @@ async def update_registration_request_status(
     registration_request: RegistrationRequest = Depends(
         get_registration_request_dependency
     ),
-    current_user: User = Depends(current_user),
-):
+    user: User = Depends(current_user),
+) -> DataResponse[RegistrationRequestResponse]:
     if action == RegistrationAction.APPROVE:
-        result = await registration_request_crud.approve(
-            session, registration_request, current_user
-        )
+        result = await registration_status.approve(registration_request, user, session)
     elif action == RegistrationAction.REJECT:
-        result = await registration_request_crud.reject(
-            session, registration_request, current_user, cancellation_reason
+        result = await registration_status.reject(
+            registration_request, user, session, cancellation_reason
         )
     elif action == RegistrationAction.CANCEL:
-        result = await registration_request_crud.cancel(
-            session, registration_request, current_user
-        )
+        result = await registration_status.cancel(registration_request, user, session)
+    else:
+        raise AppException("Invalid action", status_code=400)
 
     return DataResponse(data=result)
