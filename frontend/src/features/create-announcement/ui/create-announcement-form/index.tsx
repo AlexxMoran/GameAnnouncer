@@ -8,6 +8,7 @@ import { RegistrationFormFields } from "@features/create-announcement/ui/registr
 import HelpIcon from "@mui/icons-material/Help";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { EAnnouncementFormat } from "@shared/services/api/announcements-api-service/constants";
+import type { TMaybe } from "@shared/types/main.types";
 import { Box } from "@shared/ui/box";
 import { Form } from "@shared/ui/form";
 import { Stepper } from "@shared/ui/stepper";
@@ -17,14 +18,13 @@ import isEmpty from "lodash/isEmpty";
 import { useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
 
-let cashedValues: (ICreateAnnouncementsFields & IRegistrationFormFields) | undefined;
-
 export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) => {
   const { onSubmit } = props;
 
   const { closeDialog } = useDialog();
   const { t } = useTranslation();
   const [activeStep, setActiveStep] = useState(0);
+  const [cashedValues, setCashedValues] = useState<TMaybe<ICreateAnnouncementsFields & IRegistrationFormFields>>(null);
 
   const initialValues = cashedValues || {
     title: "",
@@ -68,14 +68,14 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
         const result = await onSubmit?.(requestValues);
 
         if (result) {
-          cashedValues = undefined;
+          setCashedValues(null);
         }
       }
     }
   };
 
   const handleValuesChange = (values: ICreateAnnouncementsFields & IRegistrationFormFields) => {
-    cashedValues = values;
+    setCashedValues(values);
   };
 
   const handleBackStep = () => {
