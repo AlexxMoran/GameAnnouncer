@@ -75,7 +75,7 @@ async def create(
         user=user,
         registration_request_in=registration_request_in,
     ).call()
-
+    await session.commit()
     return DataResponse(data=registration_request)
 
 
@@ -103,4 +103,5 @@ async def update_registration_request_status(
     else:
         raise AppException("Invalid action", status_code=400)
 
+    await session.commit()
     return DataResponse(data=result)

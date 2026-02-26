@@ -19,7 +19,7 @@ from exceptions import ValidationException
 
 if TYPE_CHECKING:
     from domains.announcements.model import Announcement
-    from domains.announcements.participant_model import AnnouncementParticipant
+    from domains.participants.model import AnnouncementParticipant
 
 
 class Match(Base):

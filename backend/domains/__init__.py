@@ -1,7 +1,7 @@
 from domains.games.model import Game
 from domains.users.model import User
 from domains.announcements.model import Announcement
-from domains.announcements.participant_model import AnnouncementParticipant
+from domains.participants.model import AnnouncementParticipant
 from domains.registration.models import (
     RegistrationRequest,
     RegistrationForm,

@@ -22,7 +22,7 @@ async def update_announcement_status(
 
     Validates that the current status allows the requested transition,
     applies the new status (and sets end_at when finishing), then
-    persists and commits.
+    persists and flushes.
 
     Raises ValidationException for invalid state transitions.
     """
@@ -40,6 +40,5 @@ async def update_announcement_status(
 
     repo = AnnouncementRepository(session)
     announcement = await repo.save(announcement)
-    await session.commit()
 
     return announcement
