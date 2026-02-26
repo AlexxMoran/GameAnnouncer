@@ -79,7 +79,7 @@ class CreateAnnouncementService:
         """
         Create a new announcement with optional custom registration form.
 
-        Authorizes, persists announcement + form fields, commits, and returns
+        Authorizes, persists announcement + form fields, and returns
         the reloaded announcement with all relationships.
         """
         authorize_action(self.user, Announcement(), "create")
@@ -94,8 +94,6 @@ class CreateAnnouncementService:
         await self.session.flush()
 
         await self._create_registration_form(announcement.id)
-
-        await self.session.commit()
 
         result = await self.session.execute(
             select(Announcement)

@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
 
-from domains.announcements.participant_model import AnnouncementParticipant
+from domains.participants.model import AnnouncementParticipant
+from domains.participants.repository import ParticipantRepository
 from domains.registration.models import RegistrationRequest
 from domains.registration.repository import RegistrationRequestRepository
 from domains.users.model import User
@@ -17,18 +17,17 @@ async def approve(
     """
     Approve a registration request and create an AnnouncementParticipant if not already present.
 
-    Commits the transaction and returns the reloaded request.
+    Flushes changes and returns the reloaded request.
     """
     authorize_action(user, registration_request, "approve")
 
     registration_request.status = RegistrationStatus.APPROVED
 
     announcement = registration_request.announcement
-    participant = await session.scalar(
-        select(AnnouncementParticipant).where(
-            AnnouncementParticipant.announcement_id == announcement.id,
-            AnnouncementParticipant.user_id == registration_request.user_id,
-        )
+    participant_repo = ParticipantRepository(session)
+    participant = await participant_repo.find_by_announcement_and_user(
+        announcement_id=announcement.id,
+        user_id=registration_request.user_id,
     )
     if not participant:
         participant = AnnouncementParticipant(
@@ -39,7 +38,6 @@ async def approve(
         session.add(participant)
 
     await session.flush()
-    await session.commit()
 
     repo = RegistrationRequestRepository(session)
     return await repo.find_by_id(registration_request.id)
@@ -54,7 +52,7 @@ async def reject(
     """
     Reject a registration request with an optional reason.
 
-    Commits the transaction and returns the reloaded request.
+    Flushes changes and returns the reloaded request.
     """
     authorize_action(user, registration_request, "reject")
 
@@ -63,7 +61,6 @@ async def reject(
         registration_request.cancellation_reason = cancellation_reason
 
     await session.flush()
-    await session.commit()
 
     repo = RegistrationRequestRepository(session)
     return await repo.find_by_id(registration_request.id)
@@ -77,14 +74,13 @@ async def cancel(
     """
     Cancel a registration request.
 
-    Commits the transaction and returns the reloaded request.
+    Flushes changes and returns the reloaded request.
     """
     authorize_action(user, registration_request, "cancel")
 
     registration_request.status = RegistrationStatus.CANCELLED
 
     await session.flush()
-    await session.commit()
 
     repo = RegistrationRequestRepository(session)
     return await repo.find_by_id(registration_request.id)

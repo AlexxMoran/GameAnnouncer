@@ -3,8 +3,9 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import insert, select
 
 from domains.announcements.model import Announcement
-from domains.announcements.participant_model import AnnouncementParticipant
+from domains.participants.model import AnnouncementParticipant
 from domains.announcements.repository import AnnouncementRepository
+from domains.participants.repository import ParticipantRepository
 from domains.games.model import Game
 from enums import AnnouncementFormat, SeedMethod
 
@@ -107,8 +108,8 @@ async def test_find_participants_by_announcement_id(db_session, create_user):
     )
     await db_session.commit()
 
-    repo = AnnouncementRepository(db_session)
-    participants, total = await repo.find_participants_by_announcement_id(ann.id)
+    repo = ParticipantRepository(db_session)
+    participants, total = await repo.find_by_announcement_id(ann.id)
 
     assert any(p.user_id == user.id for p in participants)
     assert total >= 1

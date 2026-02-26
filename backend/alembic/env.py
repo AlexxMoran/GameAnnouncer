@@ -7,7 +7,7 @@ from alembic import context
 from core.db.base import Base
 import domains.games.model  # noqa: F401
 import domains.announcements.model  # noqa: F401
-import domains.announcements.participant_model  # noqa: F401
+import domains.participants.model  # noqa: F401
 import domains.registration.models  # noqa: F401
 import domains.matches.model  # noqa: F401
 import domains.users.model  # noqa: F401

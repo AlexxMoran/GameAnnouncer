@@ -9,7 +9,7 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
     from domains.announcements.model import Announcement
     from domains.registration.models import RegistrationRequest
-    from domains.announcements.participant_model import AnnouncementParticipant
+    from domains.participants.model import AnnouncementParticipant
 
 
 class User(Base, SQLAlchemyBaseUserTable[int]):

@@ -45,14 +45,12 @@ class CreateRegistrationRequestService:
         Create a new registration request with validation.
 
         Validates registration window and form responses, creates the request
-        (and optional form field responses), commits, and returns fully loaded result.
+        (and optional form field responses), and returns fully loaded result.
         """
         await self._validate_registration()
 
         registration_request = await self._create_registration_request()
         self._create_form_responses_if_needed(registration_request)
-
-        await self.session.commit()
 
         repo = RegistrationRequestRepository(self.session)
         return await repo.find_by_id_with_form_responses(registration_request.id)

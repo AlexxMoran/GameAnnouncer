@@ -7,6 +7,8 @@ from domains.announcements.schemas import (
     AnnouncementUpdate,
     AnnouncementResponse,
     AnnouncementFilter,
+)
+from domains.participants.schemas import (
     AnnouncementParticipantBase,
     AnnouncementParticipantUpdate,
     AnnouncementParticipantResponse,

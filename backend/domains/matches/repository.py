@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from domains.matches.model import Match
 
@@ -13,14 +13,25 @@ class MatchRepository:
         result = await self.session.execute(select(Match).where(Match.id == match_id))
         return result.scalar_one_or_none()
 
-    async def find_all_by_announcement_id(self, announcement_id: int) -> list[Match]:
-        """Fetch all matches for an announcement ordered by round and match number."""
-        result = await self.session.execute(
+    async def find_all_by_announcement_id(
+        self, announcement_id: int, skip: int = 0, limit: int = 10
+    ) -> tuple[list[Match], int]:
+        """Fetch paginated matches for an announcement ordered by round and match number."""
+        count_result = await self.session.execute(
+            select(func.count())
+            .select_from(Match)
+            .where(Match.announcement_id == announcement_id)
+        )
+        total = count_result.scalar_one()
+
+        data_result = await self.session.execute(
             select(Match)
             .where(Match.announcement_id == announcement_id)
             .order_by(Match.round_number, Match.match_number)
+            .offset(skip)
+            .limit(limit)
         )
-        return list(result.scalars().all())
+        return list(data_result.scalars().all()), total
 
     async def save(self, match: Match) -> Match:
         """Persist a match. Flushes but does not commit."""
