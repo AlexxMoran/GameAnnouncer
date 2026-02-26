@@ -1,5 +1,5 @@
 import pytest
-from domains.announcements.participant_model import AnnouncementParticipant
+from domains.participants.model import AnnouncementParticipant
 from exceptions import ValidationException
 
 

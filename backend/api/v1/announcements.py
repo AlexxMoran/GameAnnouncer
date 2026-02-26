@@ -23,8 +23,9 @@ from domains.announcements.schemas import (
     AnnouncementUpdate,
     AnnouncementStatusUpdate,
     AnnouncementFilter,
-    AnnouncementParticipantResponse,
 )
+from domains.participants.repository import ParticipantRepository
+from domains.participants.schemas import AnnouncementParticipantResponse
 from domains.announcements.services.create import CreateAnnouncementService
 from domains.announcements.services.update_status import update_announcement_status
 
@@ -80,8 +81,8 @@ async def get_announcement_participants(
     limit: int = 10,
     announcement: Announcement = Depends(get_announcement_dependency),
 ) -> PaginatedResponse[AnnouncementParticipantResponse]:
-    repo = AnnouncementRepository(session)
-    participants, total = await repo.find_participants_by_announcement_id(
+    repo = ParticipantRepository(session)
+    participants, total = await repo.find_by_announcement_id(
         announcement_id=announcement.id, skip=skip, limit=limit
     )
     return PaginatedResponse(data=participants, skip=skip, limit=limit, total=total)
@@ -116,6 +117,7 @@ async def create_announcement(
         session=session, announcement_in=announcement_in, user=user
     )
     announcement = await service.call()
+    await session.commit()
     return DataResponse(data=announcement)
 
 
@@ -163,6 +165,7 @@ async def update_status(
         user=user,
         session=session,
     )
+    await session.commit()
     return DataResponse(data=announcement)
 
 
@@ -183,6 +186,8 @@ async def upsert_registration_form(
         registration_form_in=registration_form_in,
     )
     registration_form = await service.call()
+    await session.commit()
+    await session.refresh(registration_form)
     return DataResponse(data=registration_form)
 
 

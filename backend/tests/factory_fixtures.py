@@ -158,7 +158,7 @@ async def create_participant(db_session):
 
     Requires announcement_id and user_id. Other fields can be overridden.
     """
-    from domains.announcements.participant_model import AnnouncementParticipant
+    from domains.participants.model import AnnouncementParticipant
 
     async def _create(**overrides):
         if "announcement_id" not in overrides or "user_id" not in overrides:

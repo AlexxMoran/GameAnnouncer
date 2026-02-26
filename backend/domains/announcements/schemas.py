@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validat
 
 from core.schemas.base import BaseSchemaWithPermissions
 from core.search.base_filter import BaseFilter
-from domains.users.schemas import UserResponse
+from domains.participants.schemas import AnnouncementParticipantResponse
 from domains.registration.schemas import (
     RegistrationFormCreate,
     RegistrationFormResponse,
@@ -17,43 +17,6 @@ from domains.registration.schemas import (
 class AnnouncementAction(str, Enum):
     FINISH = "finish"
     CANCEL = "cancel"
-
-
-class AnnouncementParticipantBase(BaseModel):
-    qualification_score: int | None = Field(
-        None, description="Qualification score of the participant"
-    )
-    qualification_rank: int | None = Field(
-        None, description="Qualification rank of the participant"
-    )
-    seed: int | None = Field(None, description="Tournament seed of the participant")
-    is_qualified: bool = Field(
-        False, description="Whether the participant is qualified"
-    )
-
-
-class AnnouncementParticipantUpdate(BaseModel):
-    qualification_score: int | None = Field(
-        None, description="Qualification score of the participant"
-    )
-    qualification_rank: int | None = Field(
-        None, description="Qualification rank of the participant"
-    )
-    seed: int | None = Field(None, description="Tournament seed of the participant")
-    is_qualified: bool | None = Field(
-        None, description="Whether the participant is qualified"
-    )
-
-
-class AnnouncementParticipantResponse(AnnouncementParticipantBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    announcement_id: int
-    user_id: int
-    created_at: datetime
-    updated_at: datetime
-    user: UserResponse | None = Field(None, description="User information")
 
 
 class AnnouncementBase(BaseModel):

@@ -44,9 +44,6 @@ class UpsertRegistrationFormService:
             )
             self.session.add(form_field)
 
-        await self.session.commit()
-        await self.session.refresh(registration_form)
-
         return registration_form
 
     async def _cancel_active_requests(self) -> None:

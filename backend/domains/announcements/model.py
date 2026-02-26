@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from domains.users.model import User
     from domains.registration.models import RegistrationRequest
     from domains.registration.models import RegistrationForm
-    from domains.announcements.participant_model import AnnouncementParticipant
+    from domains.participants.model import AnnouncementParticipant
     from domains.matches.model import Match
 
 
