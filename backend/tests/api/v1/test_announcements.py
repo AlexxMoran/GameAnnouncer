@@ -206,3 +206,79 @@ async def test_create_announcement_requires_format(
 
     r = await client.post("/api/v1/announcements", json=announcement_data)
     assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_patch_participant_score_updates_score(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """PATCH participant score returns 200 with updated score."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+
+    announcement_data = announcement_factory.build(organizer_id=user.id)
+    ann_obj = SimpleNamespace(**announcement_data)
+
+    participant_obj = SimpleNamespace(
+        id=7,
+        announcement_id=ann_obj.id,
+        user_id=99,
+        qualification_score=50,
+        qualification_rank=None,
+        seed=None,
+        is_qualified=False,
+        created_at=datetime.now(timezone.utc).isoformat(),
+        updated_at=datetime.now(timezone.utc).isoformat(),
+        user=None,
+    )
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.update_participant_score",
+            new=AsyncMock(return_value=participant_obj),
+        ) as mock_service:
+            r = await client.patch(
+                f"/api/v1/announcements/{ann_obj.id}/participants/7",
+                json={"qualification_score": 50},
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 200
+    assert r.json()["data"]["qualification_score"] == 50
+    mock_service.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_patch_participant_score_rejects_non_positive_score(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """PATCH participant score returns 422 when score is not a positive integer."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    announcement_data = announcement_factory.build()
+    ann_obj = SimpleNamespace(**announcement_data)
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        r = await client.patch(
+            f"/api/v1/announcements/{ann_obj.id}/participants/1",
+            json={"qualification_score": 0},
+        )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 422
