@@ -51,13 +51,11 @@ def upgrade() -> None:
     )
 
     op.execute("CREATE SEQUENCE announcement_participants_id_seq")
-    op.execute(
-        """
+    op.execute("""
         UPDATE announcement_participants
         SET id = nextval('announcement_participants_id_seq')
         WHERE id IS NULL
-        """
-    )
+        """)
 
     op.alter_column(
         "announcement_participants",

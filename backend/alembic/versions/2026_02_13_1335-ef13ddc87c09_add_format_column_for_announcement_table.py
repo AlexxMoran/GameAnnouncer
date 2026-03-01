@@ -23,13 +23,11 @@ def upgrade() -> None:
         "announcements", sa.Column("format", sa.String(length=50), nullable=True)
     )
 
-    op.execute(
-        """
+    op.execute("""
         UPDATE announcements
         SET format = 'SINGLE_ELIMINATION'
         WHERE format IS NULL
-        """
-    )
+        """)
 
     op.alter_column("announcements", "format", nullable=False)
 
