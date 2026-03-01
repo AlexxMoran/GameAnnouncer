@@ -21,7 +21,6 @@ from domains.announcements.schemas import (
     AnnouncementCreate,
     AnnouncementResponse,
     AnnouncementUpdate,
-    AnnouncementStatusUpdate,
     AnnouncementFilter,
 )
 from domains.participants.repository import ParticipantRepository
@@ -31,7 +30,7 @@ from domains.participants.schemas import (
 )
 from domains.participants.services.update_score import update_participant_score
 from domains.announcements.services.create import CreateAnnouncementService
-from domains.announcements.services.update_status import update_announcement_status
+from domains.announcements.services.lifecycle import AnnouncementLifecycleService
 
 from domains.registration.repository import RegistrationRequestRepository
 
@@ -176,21 +175,62 @@ async def delete_announcement(
     return DataResponse(data="Announcement deleted successfully")
 
 
-@router.patch(
-    "/{announcement_id}/status", response_model=DataResponse[AnnouncementResponse]
+@router.post(
+    "/{announcement_id}/start_qualification",
+    response_model=DataResponse[AnnouncementResponse],
 )
-async def update_status(
+async def start_qualification(
     session: SessionDep,
-    announcement_in: AnnouncementStatusUpdate,
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
-    announcement = await update_announcement_status(
-        announcement=announcement,
-        action=announcement_in.action,
-        user=user,
-        session=session,
-    )
+    service = AnnouncementLifecycleService(announcement, session)
+    announcement = await service.start_qualification(user)
+    await session.commit()
+    return DataResponse(data=announcement)
+
+
+@router.post(
+    "/{announcement_id}/finalize_qualification",
+    response_model=DataResponse[AnnouncementResponse],
+)
+async def finalize_qualification(
+    session: SessionDep,
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[AnnouncementResponse]:
+    service = AnnouncementLifecycleService(announcement, session)
+    announcement = await service.finalize_qualification(user)
+    await session.commit()
+    return DataResponse(data=announcement)
+
+
+@router.post(
+    "/{announcement_id}/generate_bracket",
+    response_model=DataResponse[AnnouncementResponse],
+)
+async def generate_bracket(
+    session: SessionDep,
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[AnnouncementResponse]:
+    service = AnnouncementLifecycleService(announcement, session)
+    announcement = await service.generate_bracket(user)
+    await session.commit()
+    return DataResponse(data=announcement)
+
+
+@router.post(
+    "/{announcement_id}/cancel",
+    response_model=DataResponse[AnnouncementResponse],
+)
+async def cancel_announcement(
+    session: SessionDep,
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[AnnouncementResponse]:
+    service = AnnouncementLifecycleService(announcement, session)
+    announcement = await service.cancel(user)
     await session.commit()
     return DataResponse(data=announcement)
 

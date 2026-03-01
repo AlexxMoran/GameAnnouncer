@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch, MagicMock
 from datetime import datetime, timedelta, timezone
 from enums import AnnouncementStatus, AnnouncementFormat
+from exceptions import AppException, ValidationException
 
 
 @pytest.mark.asyncio
@@ -282,3 +283,214 @@ async def test_patch_participant_score_rejects_non_positive_score(
         del app.dependency_overrides[get_announcement_dependency]
 
     assert r.status_code == 422
+
+
+def _make_lifecycle_service_mock(method_name: str, return_value):
+    """Build a mock AnnouncementLifecycleService with one async method configured."""
+    mock = MagicMock()
+    setattr(mock, method_name, AsyncMock(return_value=return_value))
+    return mock
+
+
+@pytest.mark.asyncio
+async def test_start_qualification_returns_live_announcement(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /start_qualification returns 200 and transitions announcement to LIVE."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    announcement_data = announcement_factory.build(organizer_id=user.id)
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.LIVE
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.AnnouncementLifecycleService",
+            return_value=_make_lifecycle_service_mock("start_qualification", ann_obj),
+        ):
+            r = await client.post(
+                f"/api/v1/announcements/{ann_obj.id}/start_qualification"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 200
+    assert r.json()["data"]["status"] == AnnouncementStatus.LIVE.value
+
+
+@pytest.mark.asyncio
+async def test_finalize_qualification_returns_200(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /finalize_qualification returns 200 when announcement is LIVE."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    announcement_data = announcement_factory.build(organizer_id=user.id)
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.LIVE
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.AnnouncementLifecycleService",
+            return_value=_make_lifecycle_service_mock(
+                "finalize_qualification", ann_obj
+            ),
+        ):
+            r = await client.post(
+                f"/api/v1/announcements/{ann_obj.id}/finalize_qualification"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 200
+    assert r.json()["data"]["status"] == AnnouncementStatus.LIVE.value
+
+
+@pytest.mark.asyncio
+async def test_generate_bracket_transitions_to_live(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /generate_bracket returns 200 and transitions announcement to LIVE."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    announcement_data = announcement_factory.build(organizer_id=user.id)
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.LIVE
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.AnnouncementLifecycleService",
+            return_value=_make_lifecycle_service_mock("generate_bracket", ann_obj),
+        ):
+            r = await client.post(
+                f"/api/v1/announcements/{ann_obj.id}/generate_bracket"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 200
+    assert r.json()["data"]["status"] == AnnouncementStatus.LIVE.value
+
+
+@pytest.mark.asyncio
+async def test_cancel_announcement_returns_cancelled(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /cancel returns 200 and transitions announcement to CANCELLED."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    announcement_data = announcement_factory.build(organizer_id=user.id)
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.CANCELLED
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.AnnouncementLifecycleService",
+            return_value=_make_lifecycle_service_mock("cancel", ann_obj),
+        ):
+            r = await client.post(f"/api/v1/announcements/{ann_obj.id}/cancel")
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 200
+    assert r.json()["data"]["status"] == AnnouncementStatus.CANCELLED.value
+
+
+@pytest.mark.asyncio
+async def test_lifecycle_endpoint_returns_422_on_invalid_status(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /start_qualification returns 422 when the transition is not allowed."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    announcement_data = announcement_factory.build(organizer_id=user.id)
+    ann_obj = SimpleNamespace(**announcement_data)
+
+    async def override_announcement():
+        return ann_obj
+
+    mock_service = MagicMock()
+    mock_service.start_qualification = AsyncMock(
+        side_effect=ValidationException(
+            "'start_qualification' is not allowed when status is 'live'"
+        )
+    )
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.AnnouncementLifecycleService",
+            return_value=mock_service,
+        ):
+            r = await client.post(
+                f"/api/v1/announcements/{ann_obj.id}/start_qualification"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_lifecycle_endpoint_returns_403_for_non_organizer(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /cancel returns 403 when the user is not the organizer."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    announcement_data = announcement_factory.build(organizer_id=user.id + 999)
+    ann_obj = SimpleNamespace(**announcement_data)
+
+    async def override_announcement():
+        return ann_obj
+
+    mock_service = MagicMock()
+    mock_service.cancel = AsyncMock(
+        side_effect=AppException("Forbidden", status_code=403)
+    )
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.AnnouncementLifecycleService",
+            return_value=mock_service,
+        ):
+            r = await client.post(f"/api/v1/announcements/{ann_obj.id}/cancel")
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 403
