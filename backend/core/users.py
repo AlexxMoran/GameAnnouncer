@@ -4,7 +4,6 @@ from domains.users.model import User
 from core.deps import get_user_manager
 from core.auth import get_auth_backend
 
-
 fastapi_users = FastAPIUsers[User, int](
     get_user_manager,
     [get_auth_backend()],

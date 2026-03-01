@@ -46,10 +46,10 @@ def test_settings(sync_db_url: str) -> config.Settings:
             "echo": False,
         },
         "auth": {
-            "secret_key": "test-secret",
-            "refresh_secret_key": "test-refresh",
-            "verification_token_secret": "test-verify",
-            "reset_password_token_secret": "test-reset",
+            "secret_key": "test-secret-key-for-testing-purposes-only",
+            "refresh_secret_key": "test-refresh-secret-key-for-testing-only",
+            "verification_token_secret": "test-verification-token-secret-key-only",
+            "reset_password_token_secret": "test-reset-password-token-secret-only",
         },
     }
 

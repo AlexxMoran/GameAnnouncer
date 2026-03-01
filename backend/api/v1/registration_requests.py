@@ -21,7 +21,6 @@ from domains.registration.services.create_request import (
 from domains.registration.services import update_status as registration_status
 from core.permissions import authorize_action
 
-
 router = APIRouter(prefix="/registration_requests", tags=["registration_requests"])
 
 

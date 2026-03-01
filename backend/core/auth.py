@@ -5,7 +5,6 @@ from fastapi_users.authentication import (
 )
 from core.config import get_settings
 
-
 bearer_transport = BearerTransport(tokenUrl="/api/auth/login")
 refresh_bearer_transport = BearerTransport(tokenUrl="/api/auth/jwt/refresh")
 
