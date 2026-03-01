@@ -15,7 +15,6 @@ from core.schemas.base import DataResponse
 from domains.users.model import User
 from core.permissions import get_user_permissions
 
-
 http_bearer = HTTPBearer(auto_error=False)
 
 router = APIRouter(

@@ -11,7 +11,6 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-
 # revision identifiers, used by Alembic.
 revision: str = "c6e0e0bb5c35"
 down_revision: Union[str, Sequence[str], None] = "d7c5f10fd503"
@@ -39,29 +38,23 @@ def upgrade() -> None:
     start_of_year = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
     end_of_year = datetime(2026, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
 
-    op.execute(
-        f"""
+    op.execute(f"""
         UPDATE announcements
         SET start_at = '{end_of_year}'
         WHERE start_at IS NULL
-        """
-    )
+        """)
 
-    op.execute(
-        f"""
+    op.execute(f"""
         UPDATE announcements
         SET registration_start_at = '{start_of_year}'
         WHERE registration_start_at IS NULL
-        """
-    )
+        """)
 
-    op.execute(
-        f"""
+    op.execute(f"""
         UPDATE announcements
         SET registration_end_at = '{end_of_year}'
         WHERE registration_end_at IS NULL
-        """
-    )
+        """)
 
     op.alter_column("announcements", "start_at", nullable=False)
     op.alter_column("announcements", "registration_start_at", nullable=False)

@@ -11,7 +11,6 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 
-
 # revision identifiers, used by Alembic.
 revision: str = "082de460c6a5"
 down_revision: Union[str, Sequence[str], None] = "ef13ddc87c09"
@@ -28,13 +27,11 @@ def upgrade() -> None:
         ),
     )
     op.add_column("announcements", sa.Column("seed_method", sa.String(), nullable=True))
-    op.execute(
-        """
+    op.execute("""
         UPDATE announcements
         SET seed_method = 'RANDOM'
         WHERE seed_method IS NULL
-        """
-    )
+        """)
     op.alter_column("announcements", "seed_method", nullable=False)
 
     op.add_column(

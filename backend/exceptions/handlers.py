@@ -11,7 +11,6 @@ from .exception_handler import (
     generic_exception_handler,
 )
 
-
 EXCEPTION_HANDLERS = [
     (AppException, app_exception_handler),
     (StarletteHTTPException, http_exception_handler),

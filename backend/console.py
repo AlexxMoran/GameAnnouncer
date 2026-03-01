@@ -8,13 +8,11 @@ import asyncio
 import sys
 from pathlib import Path
 
-
 sys.path.append(str(Path(__file__).parent))
 
 from core.config import get_settings
 from core.db.container import create_db
 from sqlalchemy import select
-
 
 db = create_db()
 settings = get_settings()
