@@ -146,8 +146,14 @@ async def test_update_announcement_statuses_open_to_closed(db_session, create_us
 
 
 @pytest.mark.asyncio
-async def test_update_announcement_statuses_closed_to_live(db_session, create_user):
-    """Test transition from REGISTRATION_CLOSED to LIVE."""
+async def test_update_announcement_statuses_closed_stays_closed(
+    db_session, create_user
+):
+    """REGISTRATION_CLOSED announcements are not auto-started by the cron task.
+
+    Moving to LIVE requires a manual organizer action (generate_bracket or
+    start_qualification) via the lifecycle endpoints.
+    """
     user = await create_user(email="organizer3@example.com")
     game = Game(name="Game 3", category="MOBA", description="Test")
     db_session.add(game)
@@ -185,7 +191,7 @@ async def test_update_announcement_statuses_closed_to_live(db_session, create_us
         await update_announcement_statuses()
 
         await db_session.refresh(announcement)
-        assert announcement.status == AnnouncementStatus.LIVE
+        assert announcement.status == AnnouncementStatus.REGISTRATION_CLOSED
     finally:
         tasks.announcement_tasks.create_db = original_create_db
 
@@ -194,7 +200,7 @@ async def test_update_announcement_statuses_closed_to_live(db_session, create_us
 async def test_update_announcement_statuses_multiple_transitions(
     db_session, create_user
 ):
-    """Test multiple announcements transitioning simultaneously."""
+    """Cron transitions PRE_REGISTRATION→OPEN and REGISTRATION_OPEN→CLOSED; CLOSED stays unchanged."""
     user = await create_user(email="organizer4@example.com")
     game = Game(name="Game 4", category="Strategy", description="Test")
     db_session.add(game)
@@ -269,7 +275,7 @@ async def test_update_announcement_statuses_multiple_transitions(
 
         assert announcement1.status == AnnouncementStatus.REGISTRATION_OPEN
         assert announcement2.status == AnnouncementStatus.REGISTRATION_CLOSED
-        assert announcement3.status == AnnouncementStatus.LIVE
+        assert announcement3.status == AnnouncementStatus.REGISTRATION_CLOSED
     finally:
         tasks.announcement_tasks.create_db = original_create_db
 

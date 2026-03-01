@@ -12,7 +12,9 @@ async def update_announcement_statuses():
     Automatically update announcement statuses based on current time:
     - pre_registration → registration_open (when registration_start_at is reached)
     - registration_open → registration_closed (when registration_end_at is reached)
-    - registration_closed → live (when start_at is reached)
+
+    Moving to LIVE requires a manual organizer action (generate_bracket or
+    start_qualification) via the lifecycle endpoints.
     """
     now = datetime.now(timezone.utc)
 
@@ -30,13 +32,6 @@ async def update_announcement_statuses():
             .where(Announcement.status == AnnouncementStatus.REGISTRATION_OPEN)
             .where(Announcement.registration_end_at <= now)
             .values(status=AnnouncementStatus.REGISTRATION_CLOSED)
-        )
-
-        await session.execute(
-            update(Announcement)
-            .where(Announcement.status == AnnouncementStatus.REGISTRATION_CLOSED)
-            .where(Announcement.start_at <= now)
-            .values(status=AnnouncementStatus.LIVE)
         )
 
         await session.commit()

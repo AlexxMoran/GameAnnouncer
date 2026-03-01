@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from enum import Enum
 from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
@@ -12,11 +11,6 @@ from domains.registration.schemas import (
     RegistrationFormCreate,
     RegistrationFormResponse,
 )
-
-
-class AnnouncementAction(str, Enum):
-    FINISH = "finish"
-    CANCEL = "cancel"
 
 
 class AnnouncementBase(BaseModel):
@@ -71,12 +65,6 @@ class AnnouncementUpdate(BaseModel):
 class AnnouncementAvatarUpdate(BaseModel):
     image_url: str | None = Field(
         None, max_length=500, description="URL to the announcement's image"
-    )
-
-
-class AnnouncementStatusUpdate(BaseModel):
-    action: AnnouncementAction = Field(
-        ..., description="Action to perform: 'finish' or 'cancel'"
     )
 
 
