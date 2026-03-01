@@ -109,7 +109,7 @@ async def test_find_participants_by_announcement_id(db_session, create_user):
     await db_session.commit()
 
     repo = ParticipantRepository(db_session)
-    participants, total = await repo.find_by_announcement_id(ann.id)
+    participants, total = await repo.find_all_by_announcement_id(ann.id)
 
     assert any(p.user_id == user.id for p in participants)
     assert total >= 1

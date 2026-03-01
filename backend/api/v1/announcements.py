@@ -25,7 +25,11 @@ from domains.announcements.schemas import (
     AnnouncementFilter,
 )
 from domains.participants.repository import ParticipantRepository
-from domains.participants.schemas import AnnouncementParticipantResponse
+from domains.participants.schemas import (
+    AnnouncementParticipantResponse,
+    AnnouncementParticipantScoreUpdate,
+)
+from domains.participants.services.update_score import update_participant_score
 from domains.announcements.services.create import CreateAnnouncementService
 from domains.announcements.services.update_status import update_announcement_status
 
@@ -82,10 +86,32 @@ async def get_announcement_participants(
     announcement: Announcement = Depends(get_announcement_dependency),
 ) -> PaginatedResponse[AnnouncementParticipantResponse]:
     repo = ParticipantRepository(session)
-    participants, total = await repo.find_by_announcement_id(
+    participants, total = await repo.find_all_by_announcement_id(
         announcement_id=announcement.id, skip=skip, limit=limit
     )
     return PaginatedResponse(data=participants, skip=skip, limit=limit, total=total)
+
+
+@router.patch(
+    "/{announcement_id}/participants/{participant_id}",
+    response_model=DataResponse[AnnouncementParticipantResponse],
+)
+async def patch_participant_score(
+    session: SessionDep,
+    participant_id: int,
+    score_in: AnnouncementParticipantScoreUpdate,
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[AnnouncementParticipantResponse]:
+    participant = await update_participant_score(
+        participant_id=participant_id,
+        qualification_score=score_in.qualification_score,
+        announcement=announcement,
+        user=user,
+        session=session,
+    )
+    await session.commit()
+    return DataResponse(data=participant)
 
 
 @router.get(

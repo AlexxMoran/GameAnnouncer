@@ -10,7 +10,6 @@ from domains.announcements.schemas import (
 )
 from domains.participants.schemas import (
     AnnouncementParticipantBase,
-    AnnouncementParticipantUpdate,
     AnnouncementParticipantResponse,
 )
 from enums import AnnouncementFormat, SeedMethod
@@ -177,15 +176,6 @@ def test_announcement_participant_base_with_values():
     assert base.qualification_rank == 5
     assert base.seed == 3
     assert base.is_qualified is True
-
-
-def test_announcement_participant_update_all_optional():
-    """Test AnnouncementParticipantUpdate with optional fields."""
-    update = AnnouncementParticipantUpdate()
-    assert update.qualification_score is None
-    assert update.qualification_rank is None
-    assert update.seed is None
-    assert update.is_qualified is None
 
 
 def test_announcement_participant_response_required_fields():
