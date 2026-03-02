@@ -311,9 +311,14 @@ async def test_start_qualification_returns_live_announcement(
     app.dependency_overrides[get_announcement_dependency] = override_announcement
 
     try:
-        with patch(
-            "api.v1.announcements.AnnouncementLifecycleService",
-            return_value=_make_lifecycle_service_mock("start_qualification", ann_obj),
+        with (
+            patch("api.v1.announcements.authorize_action"),
+            patch(
+                "api.v1.announcements.AnnouncementLifecycleService",
+                return_value=_make_lifecycle_service_mock(
+                    "start_qualification", ann_obj
+                ),
+            ),
         ):
             r = await client.post(
                 f"/api/v1/announcements/{ann_obj.id}/start_qualification"
@@ -345,10 +350,8 @@ async def test_finalize_qualification_returns_200(
 
     try:
         with patch(
-            "api.v1.announcements.AnnouncementLifecycleService",
-            return_value=_make_lifecycle_service_mock(
-                "finalize_qualification", ann_obj
-            ),
+            "api.v1.announcements.FinalizeQualificationService",
+            return_value=MagicMock(call=AsyncMock(return_value=ann_obj)),
         ):
             r = await client.post(
                 f"/api/v1/announcements/{ann_obj.id}/finalize_qualification"
@@ -379,9 +382,12 @@ async def test_generate_bracket_transitions_to_live(
     app.dependency_overrides[get_announcement_dependency] = override_announcement
 
     try:
-        with patch(
-            "api.v1.announcements.AnnouncementLifecycleService",
-            return_value=_make_lifecycle_service_mock("generate_bracket", ann_obj),
+        with (
+            patch("api.v1.announcements.authorize_action"),
+            patch(
+                "api.v1.announcements.AnnouncementLifecycleService",
+                return_value=_make_lifecycle_service_mock("generate_bracket", ann_obj),
+            ),
         ):
             r = await client.post(
                 f"/api/v1/announcements/{ann_obj.id}/generate_bracket"
@@ -412,9 +418,12 @@ async def test_cancel_announcement_returns_cancelled(
     app.dependency_overrides[get_announcement_dependency] = override_announcement
 
     try:
-        with patch(
-            "api.v1.announcements.AnnouncementLifecycleService",
-            return_value=_make_lifecycle_service_mock("cancel", ann_obj),
+        with (
+            patch("api.v1.announcements.authorize_action"),
+            patch(
+                "api.v1.announcements.AnnouncementLifecycleService",
+                return_value=_make_lifecycle_service_mock("cancel", ann_obj),
+            ),
         ):
             r = await client.post(f"/api/v1/announcements/{ann_obj.id}/cancel")
     finally:
@@ -449,9 +458,12 @@ async def test_lifecycle_endpoint_returns_422_on_invalid_status(
     app.dependency_overrides[get_announcement_dependency] = override_announcement
 
     try:
-        with patch(
-            "api.v1.announcements.AnnouncementLifecycleService",
-            return_value=mock_service,
+        with (
+            patch("api.v1.announcements.authorize_action"),
+            patch(
+                "api.v1.announcements.AnnouncementLifecycleService",
+                return_value=mock_service,
+            ),
         ):
             r = await client.post(
                 f"/api/v1/announcements/{ann_obj.id}/start_qualification"
@@ -476,18 +488,13 @@ async def test_lifecycle_endpoint_returns_403_for_non_organizer(
     async def override_announcement():
         return ann_obj
 
-    mock_service = MagicMock()
-    mock_service.cancel = AsyncMock(
-        side_effect=AppException("Forbidden", status_code=403)
-    )
-
     app = async_client._transport.app
     app.dependency_overrides[get_announcement_dependency] = override_announcement
 
     try:
         with patch(
-            "api.v1.announcements.AnnouncementLifecycleService",
-            return_value=mock_service,
+            "api.v1.announcements.authorize_action",
+            side_effect=AppException("Forbidden", status_code=403),
         ):
             r = await client.post(f"/api/v1/announcements/{ann_obj.id}/cancel")
     finally:

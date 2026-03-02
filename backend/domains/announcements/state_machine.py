@@ -9,23 +9,21 @@ from transitions.extensions.asyncio import AsyncMachine
 from domains.announcements.repository import AnnouncementRepository
 from enums import AnnouncementStatus, AnnouncementTrigger
 from exceptions import ValidationException
-from core.permissions import authorize_action
 
 if TYPE_CHECKING:
     from domains.announcements.model import Announcement
-    from domains.users.model import User
 
 
 class AnnouncementStateMachine:
     """
     State machine for the announcement lifecycle.
 
-    Enforces valid status transitions and organizer authorization.
-    Business logic and side effects are handled by the calling service.
+    Enforces valid status transitions only. Authorization is the caller's
+    responsibility and must be performed before firing a trigger.
 
     Usage:
         sm = AnnouncementStateMachine(announcement, session)
-        await sm.fire(AnnouncementTrigger.START_QUALIFICATION, user=user)
+        await sm.fire(AnnouncementTrigger.START_QUALIFICATION)
     """
 
     states = [s.value for s in AnnouncementStatus]
@@ -35,25 +33,21 @@ class AnnouncementStateMachine:
             "trigger": AnnouncementTrigger.START_QUALIFICATION.value,
             "source": AnnouncementStatus.REGISTRATION_CLOSED.value,
             "dest": AnnouncementStatus.LIVE.value,
-            "before": ["_auth"],
         },
         {
             "trigger": AnnouncementTrigger.FINALIZE_QUALIFICATION.value,
             "source": AnnouncementStatus.LIVE.value,
             "dest": AnnouncementStatus.LIVE.value,
-            "before": ["_auth"],
         },
         {
             "trigger": AnnouncementTrigger.GENERATE_BRACKET.value,
             "source": AnnouncementStatus.REGISTRATION_CLOSED.value,
             "dest": AnnouncementStatus.LIVE.value,
-            "before": ["_auth"],
         },
         {
             "trigger": AnnouncementTrigger.GENERATE_BRACKET.value,
             "source": AnnouncementStatus.LIVE.value,
             "dest": AnnouncementStatus.LIVE.value,
-            "before": ["_auth"],
         },
         {
             "trigger": AnnouncementTrigger.AUTO_FINISH.value,
@@ -69,14 +63,12 @@ class AnnouncementStateMachine:
                 AnnouncementStatus.LIVE.value,
             ],
             "dest": AnnouncementStatus.CANCELLED.value,
-            "before": ["_auth"],
         },
     ]
 
     def __init__(self, announcement: Announcement, session: AsyncSession) -> None:
         self._ann = announcement
         self._session = session
-        self._user: User | None = None
         AsyncMachine(
             model=self,
             states=self.states,
@@ -86,19 +78,13 @@ class AnnouncementStateMachine:
             ignore_invalid_triggers=False,
         )
 
-    async def fire(
-        self,
-        trigger: AnnouncementTrigger,
-        user: User | None = None,
-    ) -> Announcement:
+    async def fire(self, trigger: AnnouncementTrigger) -> Announcement:
         """
         Fire a lifecycle trigger and persist the new status.
 
         Raises:
-            ValidationException: If the trigger is not valid from the current
-                                  status, or if authorization fails.
+            ValidationException: If the trigger is not valid from the current status.
         """
-        self._user = user
         try:
             await getattr(self, trigger.value)()
         except MachineError:
@@ -107,7 +93,3 @@ class AnnouncementStateMachine:
             )
         self._ann.status = AnnouncementStatus(self.state)
         return await AnnouncementRepository(self._session).save(self._ann)
-
-    async def _auth(self) -> None:
-        """Verify the current user has manage_lifecycle permission on this announcement."""
-        authorize_action(self._user, self._ann, "manage_lifecycle")

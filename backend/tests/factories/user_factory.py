@@ -12,4 +12,4 @@ class UserDictFactory(factory.Factory):
     password = factory.Sequence(lambda n: f"pass{n}word")
     first_name = factory.LazyFunction(lambda: fake.first_name())
     last_name = factory.LazyFunction(lambda: fake.last_name())
-    nickname = factory.LazyFunction(lambda: fake.user_name())
+    nickname = factory.LazyFunction(lambda: fake.user_name()[:20])
