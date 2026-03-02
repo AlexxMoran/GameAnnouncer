@@ -31,6 +31,9 @@ from domains.participants.schemas import (
 from domains.participants.services.update_score import update_participant_score
 from domains.announcements.services.create import CreateAnnouncementService
 from domains.announcements.services.lifecycle import AnnouncementLifecycleService
+from domains.announcements.services.finalize_qualification import (
+    FinalizeQualificationService,
+)
 
 from domains.registration.repository import RegistrationRequestRepository
 
@@ -184,8 +187,9 @@ async def start_qualification(
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
+    authorize_action(user, announcement, "manage_lifecycle")
     service = AnnouncementLifecycleService(announcement, session)
-    announcement = await service.start_qualification(user)
+    announcement = await service.start_qualification()
     await session.commit()
     return DataResponse(data=announcement)
 
@@ -199,8 +203,8 @@ async def finalize_qualification(
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
-    service = AnnouncementLifecycleService(announcement, session)
-    announcement = await service.finalize_qualification(user)
+    service = FinalizeQualificationService(announcement, session)
+    announcement = await service.call(user)
     await session.commit()
     return DataResponse(data=announcement)
 
@@ -214,8 +218,9 @@ async def generate_bracket(
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
+    authorize_action(user, announcement, "manage_lifecycle")
     service = AnnouncementLifecycleService(announcement, session)
-    announcement = await service.generate_bracket(user)
+    announcement = await service.generate_bracket()
     await session.commit()
     return DataResponse(data=announcement)
 
@@ -229,8 +234,9 @@ async def cancel_announcement(
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
+    authorize_action(user, announcement, "manage_lifecycle")
     service = AnnouncementLifecycleService(announcement, session)
-    announcement = await service.cancel(user)
+    announcement = await service.cancel()
     await session.commit()
     return DataResponse(data=announcement)
 

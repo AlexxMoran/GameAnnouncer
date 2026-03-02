@@ -1,6 +1,5 @@
 import pytest
 from datetime import datetime, timedelta, timezone
-from unittest.mock import patch
 
 from domains.announcements.model import Announcement
 from domains.announcements.state_machine import AnnouncementStateMachine
@@ -11,7 +10,7 @@ from enums import (
     AnnouncementTrigger,
     SeedMethod,
 )
-from exceptions import AppException, ValidationException
+from exceptions import ValidationException
 
 
 def _make_announcement(
@@ -53,14 +52,13 @@ async def _setup(db_session, create_user, email: str, status: AnnouncementStatus
 @pytest.mark.asyncio
 async def test_start_qualification_transitions_to_live(db_session, create_user):
     """start_qualification moves REGISTRATION_CLOSED → LIVE."""
-    user, ann = await _setup(
+    _, ann = await _setup(
         db_session, create_user, "sm1@test.com", AnnouncementStatus.REGISTRATION_CLOSED
     )
 
-    with patch("domains.announcements.state_machine.authorize_action"):
-        result = await AnnouncementStateMachine(ann, db_session).fire(
-            AnnouncementTrigger.START_QUALIFICATION, user=user
-        )
+    result = await AnnouncementStateMachine(ann, db_session).fire(
+        AnnouncementTrigger.START_QUALIFICATION
+    )
 
     assert result.status == AnnouncementStatus.LIVE
 
@@ -70,14 +68,13 @@ async def test_generate_bracket_from_registration_closed_transitions_to_live(
     db_session, create_user
 ):
     """generate_bracket moves REGISTRATION_CLOSED → LIVE."""
-    user, ann = await _setup(
+    _, ann = await _setup(
         db_session, create_user, "sm2@test.com", AnnouncementStatus.REGISTRATION_CLOSED
     )
 
-    with patch("domains.announcements.state_machine.authorize_action"):
-        result = await AnnouncementStateMachine(ann, db_session).fire(
-            AnnouncementTrigger.GENERATE_BRACKET, user=user
-        )
+    result = await AnnouncementStateMachine(ann, db_session).fire(
+        AnnouncementTrigger.GENERATE_BRACKET
+    )
 
     assert result.status == AnnouncementStatus.LIVE
 
@@ -85,14 +82,13 @@ async def test_generate_bracket_from_registration_closed_transitions_to_live(
 @pytest.mark.asyncio
 async def test_generate_bracket_from_live_stays_live(db_session, create_user):
     """generate_bracket from LIVE is a self-transition — status stays LIVE."""
-    user, ann = await _setup(
+    _, ann = await _setup(
         db_session, create_user, "sm3@test.com", AnnouncementStatus.LIVE
     )
 
-    with patch("domains.announcements.state_machine.authorize_action"):
-        result = await AnnouncementStateMachine(ann, db_session).fire(
-            AnnouncementTrigger.GENERATE_BRACKET, user=user
-        )
+    result = await AnnouncementStateMachine(ann, db_session).fire(
+        AnnouncementTrigger.GENERATE_BRACKET
+    )
 
     assert result.status == AnnouncementStatus.LIVE
 
@@ -100,14 +96,13 @@ async def test_generate_bracket_from_live_stays_live(db_session, create_user):
 @pytest.mark.asyncio
 async def test_finalize_qualification_stays_live(db_session, create_user):
     """finalize_qualification from LIVE is a self-transition — status stays LIVE."""
-    user, ann = await _setup(
+    _, ann = await _setup(
         db_session, create_user, "sm4@test.com", AnnouncementStatus.LIVE
     )
 
-    with patch("domains.announcements.state_machine.authorize_action"):
-        result = await AnnouncementStateMachine(ann, db_session).fire(
-            AnnouncementTrigger.FINALIZE_QUALIFICATION, user=user
-        )
+    result = await AnnouncementStateMachine(ann, db_session).fire(
+        AnnouncementTrigger.FINALIZE_QUALIFICATION
+    )
 
     assert result.status == AnnouncementStatus.LIVE
 
@@ -115,14 +110,13 @@ async def test_finalize_qualification_stays_live(db_session, create_user):
 @pytest.mark.asyncio
 async def test_cancel_from_live_transitions_to_cancelled(db_session, create_user):
     """cancel moves LIVE → CANCELLED."""
-    user, ann = await _setup(
+    _, ann = await _setup(
         db_session, create_user, "sm5@test.com", AnnouncementStatus.LIVE
     )
 
-    with patch("domains.announcements.state_machine.authorize_action"):
-        result = await AnnouncementStateMachine(ann, db_session).fire(
-            AnnouncementTrigger.CANCEL, user=user
-        )
+    result = await AnnouncementStateMachine(ann, db_session).fire(
+        AnnouncementTrigger.CANCEL
+    )
 
     assert result.status == AnnouncementStatus.CANCELLED
 
@@ -132,29 +126,26 @@ async def test_cancel_from_pre_registration_transitions_to_cancelled(
     db_session, create_user
 ):
     """cancel moves PRE_REGISTRATION → CANCELLED."""
-    user, ann = await _setup(
+    _, ann = await _setup(
         db_session, create_user, "sm6@test.com", AnnouncementStatus.PRE_REGISTRATION
     )
 
-    with patch("domains.announcements.state_machine.authorize_action"):
-        result = await AnnouncementStateMachine(ann, db_session).fire(
-            AnnouncementTrigger.CANCEL, user=user
-        )
+    result = await AnnouncementStateMachine(ann, db_session).fire(
+        AnnouncementTrigger.CANCEL
+    )
 
     assert result.status == AnnouncementStatus.CANCELLED
 
 
 @pytest.mark.asyncio
-async def test_auto_finish_transitions_to_finished_without_user(
-    db_session, create_user
-):
-    """auto_finish moves LIVE → FINISHED with no user — no auth check."""
-    user, ann = await _setup(
+async def test_auto_finish_transitions_to_finished(db_session, create_user):
+    """auto_finish moves LIVE → FINISHED."""
+    _, ann = await _setup(
         db_session, create_user, "sm7@test.com", AnnouncementStatus.LIVE
     )
 
     result = await AnnouncementStateMachine(ann, db_session).fire(
-        AnnouncementTrigger.AUTO_FINISH, user=None
+        AnnouncementTrigger.AUTO_FINISH
     )
 
     assert result.status == AnnouncementStatus.FINISHED
@@ -165,15 +156,14 @@ async def test_invalid_trigger_from_wrong_status_raises_validation_exception(
     db_session, create_user
 ):
     """Firing start_qualification when LIVE raises ValidationException."""
-    user, ann = await _setup(
+    _, ann = await _setup(
         db_session, create_user, "sm8@test.com", AnnouncementStatus.LIVE
     )
 
     with pytest.raises(ValidationException, match="start_qualification"):
-        with patch("domains.announcements.state_machine.authorize_action"):
-            await AnnouncementStateMachine(ann, db_session).fire(
-                AnnouncementTrigger.START_QUALIFICATION, user=user
-            )
+        await AnnouncementStateMachine(ann, db_session).fire(
+            AnnouncementTrigger.START_QUALIFICATION
+        )
 
 
 @pytest.mark.asyncio
@@ -181,31 +171,9 @@ async def test_cancel_from_finished_raises_validation_exception(
     db_session, create_user
 ):
     """cancel from a terminal state raises ValidationException."""
-    user, ann = await _setup(
+    _, ann = await _setup(
         db_session, create_user, "sm9@test.com", AnnouncementStatus.FINISHED
     )
 
     with pytest.raises(ValidationException, match="cancel"):
-        with patch("domains.announcements.state_machine.authorize_action"):
-            await AnnouncementStateMachine(ann, db_session).fire(
-                AnnouncementTrigger.CANCEL, user=user
-            )
-
-
-@pytest.mark.asyncio
-async def test_unauthorized_user_cannot_fire_transition(db_session, create_user):
-    """_auth blocks a user without manage_lifecycle permission."""
-    user, ann = await _setup(
-        db_session, create_user, "sm10@test.com", AnnouncementStatus.LIVE
-    )
-
-    with patch(
-        "domains.announcements.state_machine.authorize_action",
-        side_effect=AppException("Forbidden", status_code=403),
-    ):
-        with pytest.raises(AppException) as exc_info:
-            await AnnouncementStateMachine(ann, db_session).fire(
-                AnnouncementTrigger.CANCEL, user=user
-            )
-
-    assert exc_info.value.status_code == 403
+        await AnnouncementStateMachine(ann, db_session).fire(AnnouncementTrigger.CANCEL)
