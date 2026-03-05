@@ -1,10 +1,9 @@
-import math
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.permissions import authorize_action
 from domains.announcements.model import Announcement
 from domains.announcements.services.lifecycle import AnnouncementLifecycleService
+from domains.announcements.utils.bracket import compute_bracket_size
 from domains.participants.model import AnnouncementParticipant
 from domains.users.model import User
 from enums import AnnouncementStatus
@@ -22,30 +21,17 @@ class FinalizeQualificationService:
     even if the computed bracket size would otherwise include their rank position.
 
     Usage:
-        service = FinalizeQualificationService(announcement, session)
-        announcement = await service.call(user)
+        service = FinalizeQualificationService(announcement, session, user)
+        announcement = await service.call()
         await session.commit()
     """
 
-    def __init__(self, announcement: Announcement, session: AsyncSession) -> None:
+    def __init__(
+        self, announcement: Announcement, session: AsyncSession, user: User
+    ) -> None:
         self._announcement = announcement
         self._session = session
-
-    def _compute_bracket_size(self, n: int) -> int:
-        """
-        Compute the nearest power-of-two bracket size for n participants.
-
-        If n is exactly a power of two, returns n (no BYEs, no cuts).
-        If n is closer to the lower power → lower bracket (bottom participants cut).
-        If n is closer to the upper power or equidistant → upper bracket (BYEs for top seeds).
-        """
-        lower = 2 ** math.floor(math.log2(n))
-        if lower == n:
-            return n
-        upper = lower * 2
-        if n - lower < upper - n:
-            return lower
-        return upper
+        self._user = user
 
     def _sorted_participants(self) -> list[AnnouncementParticipant]:
         """
@@ -63,7 +49,7 @@ class FinalizeQualificationService:
             ),
         )
 
-    async def call(self, user: User) -> Announcement:
+    async def call(self) -> Announcement:
         """
         Rank participants, set qualified flags, compute bracket size, and finalize.
 
@@ -75,7 +61,7 @@ class FinalizeQualificationService:
                                   in LIVE status, has_qualification is False, qualification
                                   is already finished, or there are no participants.
         """
-        authorize_action(user, self._announcement, "manage_lifecycle")
+        authorize_action(self._user, self._announcement, "manage_lifecycle")
 
         if self._announcement.status != AnnouncementStatus.LIVE:
             raise ValidationException(
@@ -95,7 +81,7 @@ class FinalizeQualificationService:
             raise ValidationException("No participants to finalize qualification for")
 
         sorted_participants = self._sorted_participants()
-        bracket_size = self._compute_bracket_size(len(participants))
+        bracket_size = compute_bracket_size(len(participants))
 
         for rank, participant in enumerate(sorted_participants, start=1):
             participant.qualification_rank = rank

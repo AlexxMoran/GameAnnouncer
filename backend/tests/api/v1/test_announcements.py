@@ -382,12 +382,9 @@ async def test_generate_bracket_transitions_to_live(
     app.dependency_overrides[get_announcement_dependency] = override_announcement
 
     try:
-        with (
-            patch("api.v1.announcements.authorize_action"),
-            patch(
-                "api.v1.announcements.AnnouncementLifecycleService",
-                return_value=_make_lifecycle_service_mock("generate_bracket", ann_obj),
-            ),
+        with patch(
+            "api.v1.announcements.GenerateBracketService",
+            return_value=MagicMock(call=AsyncMock(return_value=ann_obj)),
         ):
             r = await client.post(
                 f"/api/v1/announcements/{ann_obj.id}/generate_bracket"
@@ -501,3 +498,95 @@ async def test_lifecycle_endpoint_returns_403_for_non_organizer(
         del app.dependency_overrides[get_announcement_dependency]
 
     assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_get_bracket_returns_rounds(async_client, announcement_factory):
+    """GET /bracket returns bracket_size and grouped rounds when matches exist."""
+    from api.v1.announcements import get_announcement_dependency
+    from enums import MatchStatus
+
+    announcement_data = announcement_factory.build(organizer_id=1, bracket_size=4)
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.bracket_size = 4
+
+    match1 = SimpleNamespace(
+        id=1,
+        round_number=1,
+        match_number=1,
+        participant1=None,
+        participant2=None,
+        winner_id=None,
+        status=MatchStatus.PENDING,
+        is_bye=False,
+        is_third_place=False,
+        next_match_winner_id=2,
+    )
+    match2 = SimpleNamespace(
+        id=2,
+        round_number=2,
+        match_number=1,
+        participant1=None,
+        participant2=None,
+        winner_id=None,
+        status=MatchStatus.PENDING,
+        is_bye=False,
+        is_third_place=False,
+        next_match_winner_id=None,
+    )
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.MatchRepository",
+            return_value=MagicMock(
+                find_all_unpaginated_by_announcement_id=AsyncMock(
+                    return_value=[match1, match2]
+                )
+            ),
+        ):
+            r = await async_client.get(f"/api/v1/announcements/{ann_obj.id}/bracket")
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 200
+    body = r.json()["data"]
+    assert body["bracket_size"] == 4
+    assert len(body["rounds"]) == 2
+    assert len(body["rounds"][0]) == 1
+    assert len(body["rounds"][1]) == 1
+
+
+@pytest.mark.asyncio
+async def test_get_bracket_returns_404_when_no_matches(
+    async_client, announcement_factory
+):
+    """GET /bracket returns 404 when no matches have been generated yet."""
+    from api.v1.announcements import get_announcement_dependency
+
+    announcement_data = announcement_factory.build(organizer_id=1)
+    ann_obj = SimpleNamespace(**announcement_data)
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.MatchRepository",
+            return_value=MagicMock(
+                find_all_unpaginated_by_announcement_id=AsyncMock(return_value=[])
+            ),
+        ):
+            r = await async_client.get(f"/api/v1/announcements/{ann_obj.id}/bracket")
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 404

@@ -52,7 +52,7 @@ async def test_finalize_assigns_ranks_by_score_descending(
 
     announcement = await _reload(db_session, announcement.id)
 
-    await FinalizeQualificationService(announcement, db_session).call(organizer)
+    await FinalizeQualificationService(announcement, db_session, organizer).call()
     await db_session.commit()
 
     await db_session.refresh(p_high)
@@ -87,7 +87,7 @@ async def test_finalize_equal_scores_ordered_by_registration_time(
 
     announcement = await _reload(db_session, announcement.id)
 
-    await FinalizeQualificationService(announcement, db_session).call(organizer)
+    await FinalizeQualificationService(announcement, db_session, organizer).call()
     await db_session.commit()
 
     await db_session.refresh(p_first)
@@ -123,7 +123,7 @@ async def test_finalize_sets_is_qualified_for_top_bracket_size(
 
     announcement = await _reload(db_session, announcement.id)
 
-    await FinalizeQualificationService(announcement, db_session).call(organizer)
+    await FinalizeQualificationService(announcement, db_session, organizer).call()
     await db_session.commit()
 
     for p in participants:
@@ -161,7 +161,7 @@ async def test_finalize_unscored_participant_is_not_qualified(
 
     announcement = await _reload(db_session, announcement.id)
 
-    await FinalizeQualificationService(announcement, db_session).call(organizer)
+    await FinalizeQualificationService(announcement, db_session, organizer).call()
     await db_session.commit()
 
     await db_session.refresh(p_scored)
@@ -193,9 +193,9 @@ async def test_finalize_sets_bracket_size_on_announcement(
 
     announcement = await _reload(db_session, announcement.id)
 
-    result = await FinalizeQualificationService(announcement, db_session).call(
-        organizer
-    )
+    result = await FinalizeQualificationService(
+        announcement, db_session, organizer
+    ).call()
     await db_session.commit()
 
     assert result.bracket_size == 4
@@ -219,9 +219,9 @@ async def test_finalize_sets_qualification_finished_flag(
 
     announcement = await _reload(db_session, announcement.id)
 
-    result = await FinalizeQualificationService(announcement, db_session).call(
-        organizer
-    )
+    result = await FinalizeQualificationService(
+        announcement, db_session, organizer
+    ).call()
     await db_session.commit()
 
     assert result.qualification_finished is True
@@ -242,7 +242,7 @@ async def test_finalize_raises_when_no_qualification_phase(
     with pytest.raises(
         ValidationException, match="does not have a qualification phase"
     ):
-        await FinalizeQualificationService(announcement, db_session).call(organizer)
+        await FinalizeQualificationService(announcement, db_session, organizer).call()
 
 
 @pytest.mark.asyncio
@@ -259,7 +259,7 @@ async def test_finalize_raises_when_already_finished(
     )
 
     with pytest.raises(ValidationException, match="already been finalized"):
-        await FinalizeQualificationService(announcement, db_session).call(organizer)
+        await FinalizeQualificationService(announcement, db_session, organizer).call()
 
 
 @pytest.mark.asyncio
@@ -276,7 +276,7 @@ async def test_finalize_raises_when_no_participants(
     announcement = await _reload(db_session, announcement.id)
 
     with pytest.raises(ValidationException, match="No participants"):
-        await FinalizeQualificationService(announcement, db_session).call(organizer)
+        await FinalizeQualificationService(announcement, db_session, organizer).call()
 
 
 @pytest.mark.asyncio
@@ -292,4 +292,4 @@ async def test_finalize_raises_when_status_is_not_live(
     )
 
     with pytest.raises(ValidationException, match="not allowed"):
-        await FinalizeQualificationService(announcement, db_session).call(organizer)
+        await FinalizeQualificationService(announcement, db_session, organizer).call()
