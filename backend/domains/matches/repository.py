@@ -1,8 +1,9 @@
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 
 from domains.matches.model import Match
+from enums import MatchStatus
 
 
 class MatchRepository:
@@ -10,8 +11,15 @@ class MatchRepository:
         self.session = session
 
     async def find_by_id(self, match_id: int) -> Match | None:
-        """Fetch a single match by ID."""
-        result = await self.session.execute(select(Match).where(Match.id == match_id))
+        """Fetch a single match by ID with participants preloaded."""
+        result = await self.session.execute(
+            select(Match)
+            .options(
+                selectinload(Match.participant1),
+                selectinload(Match.participant2),
+            )
+            .where(Match.id == match_id)
+        )
         return result.scalar_one_or_none()
 
     async def find_all_by_announcement_id(
@@ -27,6 +35,10 @@ class MatchRepository:
 
         data_result = await self.session.execute(
             select(Match)
+            .options(
+                selectinload(Match.participant1),
+                selectinload(Match.participant2),
+            )
             .where(Match.announcement_id == announcement_id)
             .order_by(Match.round_number, Match.match_number)
             .offset(skip)
@@ -71,6 +83,29 @@ class MatchRepository:
             select(Match.id).where(Match.announcement_id == announcement_id).limit(1)
         )
         return result.scalar() is not None
+
+    async def has_unfinished_non_bye_matches(self, announcement_id: int) -> bool:
+        """Return True if any non-BYE match is not COMPLETED."""
+        result = await self.session.execute(
+            select(Match.id)
+            .where(
+                Match.announcement_id == announcement_id,
+                Match.is_bye.is_(False),
+                Match.status != MatchStatus.COMPLETED,
+            )
+            .limit(1)
+        )
+        return result.scalar() is not None
+
+    async def find_third_place_match(self, announcement_id: int) -> Match | None:
+        """Fetch the third-place match for an announcement, if one exists."""
+        result = await self.session.execute(
+            select(Match).where(
+                Match.announcement_id == announcement_id,
+                Match.is_third_place.is_(True),
+            )
+        )
+        return result.scalar_one_or_none()
 
     async def delete(self, match: Match) -> None:
         """Delete a match. Flushes but does not commit."""

@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict
 
 from enums import MatchStatus
@@ -28,6 +30,12 @@ class MatchResponse(BaseModel):
     is_bye: bool
     is_third_place: bool
     next_match_winner_id: int | None
+
+
+class MatchResultUpdate(BaseModel):
+    """Request body for reporting a match result — organizer picks the winner."""
+
+    winner: Literal["participant1", "participant2"]
 
 
 class BracketResponse(BaseModel):
