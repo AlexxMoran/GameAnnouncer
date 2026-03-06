@@ -68,6 +68,19 @@ class AnnouncementRepository:
 
         return announcements, total
 
+    async def find_by_id_for_update(self, announcement_id: int) -> Announcement | None:
+        """Fetch and lock an announcement row with SELECT ... FOR UPDATE.
+
+        Used to serialize concurrent operations that depend on participant
+        count (e.g. approve).
+        """
+        result = await self.session.execute(
+            select(Announcement)
+            .where(Announcement.id == announcement_id)
+            .with_for_update()
+        )
+        return result.scalar_one_or_none()
+
     async def save(self, announcement: Announcement) -> Announcement:
         """Persist an announcement (create or update). Flushes but does not commit."""
         self.session.add(announcement)

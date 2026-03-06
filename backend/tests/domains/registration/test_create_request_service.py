@@ -1,9 +1,13 @@
 import pytest
 from datetime import datetime, timedelta, timezone
+from unittest.mock import AsyncMock
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import async_sessionmaker
 
 from domains.announcements.model import Announcement
 from domains.games.model import Game
 from domains.registration.models import RegistrationRequest
+from domains.users.model import User
 from domains.registration.schemas import RegistrationRequestCreate
 from domains.registration.services.create_request import (
     CreateRegistrationRequestService,
@@ -115,3 +119,91 @@ async def test_create_registration_request_duplicate_raises(db_session, create_u
         ).call()
 
     assert "already exists" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_create_registration_request_integrity_error_path_raises(
+    engine, monkeypatch
+):
+    """DB-level duplicate insert is converted to ValidationException."""
+    session_factory = async_sessionmaker(bind=engine, expire_on_commit=False)
+
+    async with session_factory() as session:
+        user = User(
+            email="integrity-path@example.com",
+            hashed_password="hashed",
+            is_active=True,
+            is_superuser=False,
+            is_verified=True,
+        )
+        game = Game(name="Test Game 4", category="RTS", description="Test")
+        session.add_all([user, game])
+        await session.commit()
+        await session.refresh(user)
+        await session.refresh(game)
+
+        ann = _make_announcement(game.id, user.id, reg_open=True)
+        session.add(ann)
+        await session.commit()
+        await session.refresh(ann)
+
+        existing = RegistrationRequest(
+            announcement_id=ann.id,
+            user_id=user.id,
+        )
+        session.add(existing)
+        await session.commit()
+
+        service = CreateRegistrationRequestService(
+            session=session,
+            announcement=ann,
+            user=user,
+            registration_request_in=RegistrationRequestCreate(announcement_id=ann.id),
+        )
+        monkeypatch.setattr(
+            service,
+            "_validate_registration",
+            AsyncMock(return_value=None),
+        )
+
+        with pytest.raises(ValidationException) as exc_info:
+            await service.call()
+
+        assert "already exists" in str(exc_info.value)
+
+
+@pytest.mark.asyncio
+async def test_create_registration_request_non_duplicate_integrity_error_propagates(
+    db_session, create_user, monkeypatch
+):
+    """Unexpected integrity failures should not be rewritten as duplicate-request errors."""
+    user = await create_user(email="test5@example.com")
+    game = Game(name="Test Game 5", category="RTS", description="Test")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    ann = _make_announcement(game.id, user.id, reg_open=True)
+    db_session.add(ann)
+    await db_session.commit()
+    await db_session.refresh(ann)
+
+    service = CreateRegistrationRequestService(
+        session=db_session,
+        announcement=ann,
+        user=user,
+        registration_request_in=RegistrationRequestCreate(announcement_id=ann.id),
+    )
+    monkeypatch.setattr(service, "_validate_registration", AsyncMock(return_value=None))
+
+    async def raise_other_integrity_error():
+        raise IntegrityError(
+            "INSERT INTO registration_requests ...",
+            {},
+            Exception('duplicate key value violates unique constraint "other_index"'),
+        )
+
+    monkeypatch.setattr(db_session, "flush", raise_other_integrity_error)
+
+    with pytest.raises(IntegrityError):
+        await service.call()

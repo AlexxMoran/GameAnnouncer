@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import delete, select, func
 from sqlalchemy.orm import selectinload
 
 from domains.participants.model import AnnouncementParticipant
@@ -66,6 +66,27 @@ class ParticipantRepository:
             )
         )
         return result.scalar_one_or_none()
+
+    async def count_by_announcement_id(self, announcement_id: int) -> int:
+        """Return the current number of participants for an announcement."""
+        result = await self.session.execute(
+            select(func.count())
+            .select_from(AnnouncementParticipant)
+            .where(AnnouncementParticipant.announcement_id == announcement_id)
+        )
+        return result.scalar_one()
+
+    async def delete_by_announcement_and_user(
+        self, announcement_id: int, user_id: int
+    ) -> None:
+        """Delete a participant by announcement and user. Flushes but does not commit."""
+        await self.session.execute(
+            delete(AnnouncementParticipant).where(
+                AnnouncementParticipant.announcement_id == announcement_id,
+                AnnouncementParticipant.user_id == user_id,
+            )
+        )
+        await self.session.flush()
 
     async def save(
         self, participant: AnnouncementParticipant

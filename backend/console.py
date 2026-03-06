@@ -11,10 +11,10 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 from core.config import get_settings
-from core.db.container import create_db
+from core.db.container import get_db
 from sqlalchemy import select
 
-db = create_db()
+db = get_db()
 settings = get_settings()
 
 

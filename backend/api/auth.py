@@ -5,6 +5,7 @@ from fastapi.security import (
 )
 from pydantic import EmailStr
 from exceptions import AppException
+from core.config import get_settings
 from core.deps import get_user_manager
 from core.users import current_user
 from jwt.exceptions import InvalidTokenError
@@ -118,17 +119,12 @@ async def login(
     elif not user.is_verified:
         raise AppException("Inactive user", status_code=403, error_type="inactive_user")
 
+    settings = get_settings()
+
     access_token = await get_jwt_strategy().write_token(user)
     refresh_token = await get_refresh_jwt_strategy().write_token(user)
 
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="strict",
-        max_age=60 * 60 * 24 * 30,
-    )
+    _set_refresh_cookie(response, refresh_token, settings)
 
     return TokenResponse(
         access_token=access_token,
@@ -138,7 +134,7 @@ async def login(
 
 @router.post("/logout")
 async def logout(response: Response):
-    response.delete_cookie(key="refresh_token")
+    _clear_refresh_cookie(response, get_settings())
 
     return {"detail": "Successfully logged out"}
 
@@ -165,20 +161,41 @@ async def refresh_access_token(
             "Invalid refresh token", status_code=401, error_type="invalid_token"
         )
 
+    settings = get_settings()
+
     access_strategy = get_jwt_strategy()
     access_token = await access_strategy.write_token(user)
     new_refresh_token = await refresh_strategy.write_token(user)
 
-    response.set_cookie(
-        key="refresh_token",
-        value=new_refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="strict",
-        max_age=60 * 60 * 24 * 30,
-    )
+    _set_refresh_cookie(response, new_refresh_token, settings)
 
     return TokenResponse(
         access_token=access_token,
         token_type="bearer",
+    )
+
+
+def _set_refresh_cookie(response: Response, token: str, settings) -> None:
+    """Set the refresh token cookie using config-driven settings."""
+    cookie_config = settings.auth.cookie
+    response.set_cookie(
+        key="refresh_token",
+        value=token,
+        httponly=True,
+        secure=cookie_config.secure,
+        samesite=cookie_config.samesite,
+        domain=cookie_config.domain,
+        max_age=settings.auth.refresh_token_expire_days * 24 * 60 * 60,
+    )
+
+
+def _clear_refresh_cookie(response: Response, settings) -> None:
+    """Delete the refresh token cookie using the same config as when it was set."""
+    cookie_config = settings.auth.cookie
+    response.delete_cookie(
+        key="refresh_token",
+        secure=cookie_config.secure,
+        httponly=True,
+        samesite=cookie_config.samesite,
+        domain=cookie_config.domain,
     )
