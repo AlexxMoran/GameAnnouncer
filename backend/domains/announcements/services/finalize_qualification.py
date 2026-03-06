@@ -77,8 +77,10 @@ class FinalizeQualificationService:
             raise ValidationException("Qualification has already been finalized")
 
         participants = self._announcement.participants
-        if not participants:
-            raise ValidationException("No participants to finalize qualification for")
+        if len(participants) < 2:
+            raise ValidationException(
+                "At least 2 participants are required to finalize qualification"
+            )
 
         sorted_participants = self._sorted_participants()
         bracket_size = compute_bracket_size(len(participants))

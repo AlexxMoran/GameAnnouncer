@@ -34,4 +34,4 @@ class BracketResponse(BaseModel):
     """Full bracket for an announcement, grouped by round."""
 
     bracket_size: int
-    rounds: list[list[MatchResponse]]
+    rounds: dict[int, list[MatchResponse]]

@@ -543,7 +543,7 @@ async def test_get_bracket_returns_rounds(async_client, announcement_factory):
 
     try:
         with patch(
-            "api.v1.announcements.MatchRepository",
+            "domains.announcements.utils.bracket.MatchRepository",
             return_value=MagicMock(
                 find_all_unpaginated_by_announcement_id=AsyncMock(
                     return_value=[match1, match2]
@@ -558,8 +558,8 @@ async def test_get_bracket_returns_rounds(async_client, announcement_factory):
     body = r.json()["data"]
     assert body["bracket_size"] == 4
     assert len(body["rounds"]) == 2
-    assert len(body["rounds"][0]) == 1
-    assert len(body["rounds"][1]) == 1
+    assert len(body["rounds"]["1"]) == 1
+    assert len(body["rounds"]["2"]) == 1
 
 
 @pytest.mark.asyncio
@@ -580,7 +580,7 @@ async def test_get_bracket_returns_404_when_no_matches(
 
     try:
         with patch(
-            "api.v1.announcements.MatchRepository",
+            "domains.announcements.utils.bracket.MatchRepository",
             return_value=MagicMock(
                 find_all_unpaginated_by_announcement_id=AsyncMock(return_value=[])
             ),

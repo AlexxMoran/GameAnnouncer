@@ -207,15 +207,16 @@ async def test_finalize_sets_qualification_finished_flag(
 ):
     """announcement.qualification_finished is True after finalization."""
     organizer = await create_user(email="fq_org6@example.com")
-    u = await create_user(email="fq_u6@example.com")
     announcement = await create_announcement(
         organizer_id=organizer.id,
         has_qualification=True,
         status=AnnouncementStatus.LIVE,
     )
-    await create_participant(
-        announcement_id=announcement.id, user_id=u.id, qualification_score=50
-    )
+    for i, score in enumerate([50, 40], start=1):
+        u = await create_user(email=f"fq_u6_{i}@example.com")
+        await create_participant(
+            announcement_id=announcement.id, user_id=u.id, qualification_score=score
+        )
 
     announcement = await _reload(db_session, announcement.id)
 
@@ -275,7 +276,7 @@ async def test_finalize_raises_when_no_participants(
     )
     announcement = await _reload(db_session, announcement.id)
 
-    with pytest.raises(ValidationException, match="No participants"):
+    with pytest.raises(ValidationException, match="At least 2 participants"):
         await FinalizeQualificationService(announcement, db_session, organizer).call()
 
 

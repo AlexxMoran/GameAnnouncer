@@ -15,6 +15,14 @@ class BracketMatchBuilder:
     Does not handle seeding logic — seeding_slots and assigned seeds are
     provided by the caller.
 
+    Third-place match design note:
+        The third-place match is created with no participants. Its participant slots
+        (participant1_id / participant2_id) must be populated by the match result
+        recording service when both semifinal matches are completed — the losers
+        of those matches become the third-place participants. The Match model does
+        not have a next_match_loser_id field, so this linking is deferred to result
+        recording logic.
+
     Usage:
         builder = BracketMatchBuilder(announcement_id=1, third_place_match=True)
         await builder.call(eligible, bracket_size, seeding_slots, match_repo)

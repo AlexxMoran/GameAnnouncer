@@ -1,5 +1,36 @@
 import math
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from domains.announcements.model import Announcement
+from domains.matches.repository import MatchRepository
+from domains.matches.schemas import BracketResponse, MatchResponse
+from exceptions import AppException
+
+
+async def get_bracket(
+    announcement: Announcement, session: AsyncSession
+) -> BracketResponse:
+    """
+    Fetch all matches for the announcement and group them by round number.
+
+    Raises:
+        AppException: If no matches exist (bracket not yet generated).
+    """
+    matches = await MatchRepository(session).find_all_unpaginated_by_announcement_id(
+        announcement.id
+    )
+    if not matches:
+        raise AppException("Bracket has not been generated yet", status_code=404)
+
+    rounds: dict[int, list[MatchResponse]] = {}
+    for match in matches:
+        rounds.setdefault(match.round_number, []).append(
+            MatchResponse.model_validate(match)
+        )
+
+    return BracketResponse(bracket_size=announcement.bracket_size, rounds=rounds)
+
 
 def compute_bracket_size(n: int) -> int:
     """

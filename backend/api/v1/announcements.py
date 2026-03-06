@@ -35,8 +35,8 @@ from domains.announcements.services.finalize_qualification import (
     FinalizeQualificationService,
 )
 from domains.announcements.services.generate_bracket import GenerateBracketService
-from domains.matches.repository import MatchRepository
-from domains.matches.schemas import BracketResponse, MatchResponse
+from domains.announcements.utils.bracket import get_bracket
+from domains.matches.schemas import BracketResponse
 
 from domains.registration.repository import RegistrationRequestRepository
 
@@ -231,28 +231,13 @@ async def generate_bracket(
     "/{announcement_id}/bracket",
     response_model=DataResponse[BracketResponse],
 )
-async def get_bracket(
+async def get_announcement_bracket(
     session: SessionDep,
     announcement: Announcement = Depends(get_announcement_dependency),
 ) -> DataResponse[BracketResponse]:
-    matches = await MatchRepository(session).find_all_unpaginated_by_announcement_id(
-        announcement.id
-    )
-    if not matches:
-        raise AppException("Bracket has not been generated yet", status_code=404)
+    data = await get_bracket(announcement, session)
 
-    rounds: dict[int, list[MatchResponse]] = {}
-    for match in matches:
-        rounds.setdefault(match.round_number, []).append(
-            MatchResponse.model_validate(match)
-        )
-
-    return DataResponse(
-        data=BracketResponse(
-            bracket_size=announcement.bracket_size,
-            rounds=[rounds[round_number] for round_number in sorted(rounds)],
-        )
-    )
+    return DataResponse(data=data)
 
 
 @router.post(
