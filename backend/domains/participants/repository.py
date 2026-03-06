@@ -44,6 +44,7 @@ class ParticipantRepository:
             .order_by(
                 AnnouncementParticipant.qualification_score.desc().nulls_last(),
                 AnnouncementParticipant.created_at,
+                AnnouncementParticipant.id,
             )
             .offset(skip)
             .limit(limit)
