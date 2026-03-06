@@ -101,15 +101,6 @@ class RegistrationRequestRepository:
         )
         return result.scalar_one_or_none()
 
-    async def save(
-        self, registration_request: RegistrationRequest
-    ) -> RegistrationRequest:
-        """Persist a registration request. Flushes but does not commit."""
-        self.session.add(registration_request)
-        await self.session.flush()
-        await self.session.refresh(registration_request)
-        return registration_request
-
 
 class RegistrationFormRepository:
     def __init__(self, session: AsyncSession) -> None:
@@ -125,13 +116,6 @@ class RegistrationFormRepository:
             .where(RegistrationForm.announcement_id == announcement_id)
         )
         return result.scalar_one_or_none()
-
-    async def save(self, registration_form: RegistrationForm) -> RegistrationForm:
-        """Persist a registration form. Flushes but does not commit."""
-        self.session.add(registration_form)
-        await self.session.flush()
-        await self.session.refresh(registration_form)
-        return registration_form
 
     async def delete(self, registration_form: RegistrationForm) -> None:
         """Delete a registration form. Flushes but does not commit."""
