@@ -1,6 +1,14 @@
+from enum import Enum
+from functools import lru_cache
+
 from pydantic import BaseModel, PostgresDsn, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from functools import lru_cache
+
+
+class Environment(str, Enum):
+    DEVELOPMENT = "development"
+    STAGING = "staging"
+    PRODUCTION = "production"
 
 
 class RunConfig(BaseModel):
@@ -62,6 +70,12 @@ class CORSConfig(BaseModel):
         return cleaned
 
 
+class CookieConfig(BaseModel):
+    secure: bool = True
+    samesite: str = "strict"
+    domain: str | None = None
+
+
 class AuthConfig(BaseModel):
     secret_key: str
     refresh_secret_key: str
@@ -70,6 +84,7 @@ class AuthConfig(BaseModel):
     algorithm: str = "HS256"
     verification_token_secret: str
     reset_password_token_secret: str
+    cookie: CookieConfig = CookieConfig()
 
 
 class RedisConfig(BaseModel):
@@ -98,12 +113,17 @@ class Settings(BaseSettings):
         case_sensitive=False,
         env_nested_delimiter="__",
     )
+    environment: Environment = Environment.DEVELOPMENT
     run: RunConfig = RunConfig()
     db: DatabaseConfig
     cors: CORSConfig = CORSConfig()
     auth: AuthConfig
     redis: RedisConfig = RedisConfig()
     email: EmailConfig = EmailConfig()
+
+    @property
+    def is_production(self) -> bool:
+        return self.environment == Environment.PRODUCTION
 
 
 @lru_cache()

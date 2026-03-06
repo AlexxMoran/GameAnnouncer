@@ -15,4 +15,4 @@ async def test_health(async_client):
     data = response.json()
     assert data["status"] == "healthy"
     assert data["service"] == "GameAnnouncer"
-    assert "database_url" in data
+    assert "database_url" not in data

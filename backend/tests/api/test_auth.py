@@ -1,5 +1,6 @@
 import pytest
 from unittest.mock import patch
+from core.config import Settings
 
 
 class FakeStrategy:
@@ -94,6 +95,36 @@ async def test_logout_clears_cookie(async_client, create_user):
     assert "refresh_token=" in set_cookie and (
         "Max-Age=0" in set_cookie or "expires=" in set_cookie
     )
+
+
+@pytest.mark.asyncio
+async def test_logout_clears_cookie_with_configured_domain(async_client, monkeypatch):
+    settings = Settings(
+        environment="development",
+        db={
+            "server": "localhost",
+            "user": "test",
+            "password": "test",
+            "database": "test",
+        },
+        auth={
+            "secret_key": "secret",
+            "refresh_secret_key": "refresh",
+            "verification_token_secret": "verify",
+            "reset_password_token_secret": "reset",
+            "cookie": {
+                "domain": ".example.com",
+                "secure": True,
+                "samesite": "strict",
+            },
+        },
+    )
+    monkeypatch.setattr("api.auth.get_settings", lambda: settings)
+
+    r = await async_client.post("/api/auth/logout")
+
+    assert r.status_code == 200
+    assert "Domain=.example.com" in r.headers.get("set-cookie", "")
 
 
 @pytest.mark.asyncio

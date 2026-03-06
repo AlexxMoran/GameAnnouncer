@@ -38,4 +38,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 EXPOSE 3000
 
-CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000", "--reload"]
+CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000"]

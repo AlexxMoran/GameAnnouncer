@@ -18,16 +18,17 @@ from domains.registration.schemas import (
 from domains.registration.services.create_request import (
     CreateRegistrationRequestService,
 )
-from domains.registration.services import update_status as registration_status
+from domains.registration.services.lifecycle import RegistrationLifecycleService
 from core.permissions import authorize_action
+from enums.registration_trigger import RegistrationTrigger
 
 router = APIRouter(prefix="/registration_requests", tags=["registration_requests"])
 
 
 class RegistrationAction(str, Enum):
-    APPROVE = "approve"
-    REJECT = "reject"
-    CANCEL = "cancel"
+    APPROVE = RegistrationTrigger.APPROVE.value
+    REJECT = RegistrationTrigger.REJECT.value
+    CANCEL = RegistrationTrigger.CANCEL.value
 
 
 async def get_registration_request_dependency(
@@ -75,6 +76,7 @@ async def create(
         registration_request_in=registration_request_in,
     ).call()
     await session.commit()
+    await session.refresh(registration_request)
     return DataResponse(data=registration_request)
 
 
@@ -91,16 +93,21 @@ async def update_registration_request_status(
     ),
     user: User = Depends(current_user),
 ) -> DataResponse[RegistrationRequestResponse]:
+    authorize_action(user, registration_request, action.value)
+
+    lifecycle = RegistrationLifecycleService(
+        registration_request, registration_request.announcement, session
+    )
+
     if action == RegistrationAction.APPROVE:
-        result = await registration_status.approve(registration_request, user, session)
+        result = await lifecycle.approve()
     elif action == RegistrationAction.REJECT:
-        result = await registration_status.reject(
-            registration_request, user, session, cancellation_reason
-        )
+        result = await lifecycle.reject(reason=cancellation_reason)
     elif action == RegistrationAction.CANCEL:
-        result = await registration_status.cancel(registration_request, user, session)
+        result = await lifecycle.cancel()
     else:
         raise AppException("Invalid action", status_code=400)
 
     await session.commit()
+    await session.refresh(result)
     return DataResponse(data=result)

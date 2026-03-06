@@ -40,8 +40,8 @@ async def test_update_announcement_statuses_no_changes(db_session, create_user):
 
     import tasks.announcement_tasks
 
-    original_create_db = tasks.announcement_tasks.create_db
-    tasks.announcement_tasks.create_db = lambda: mock_db
+    original_get_db = tasks.announcement_tasks.get_db
+    tasks.announcement_tasks.get_db = lambda: mock_db
 
     try:
         await update_announcement_statuses()
@@ -49,7 +49,7 @@ async def test_update_announcement_statuses_no_changes(db_session, create_user):
         await db_session.refresh(announcement)
         assert announcement.status == AnnouncementStatus.PRE_REGISTRATION
     finally:
-        tasks.announcement_tasks.create_db = original_create_db
+        tasks.announcement_tasks.get_db = original_get_db
 
 
 @pytest.mark.asyncio
@@ -81,15 +81,15 @@ async def test_update_announcement_statuses_pre_registration_to_open(
     db_session.add(announcement)
     await db_session.commit()
 
-    # Mock create_db
+    # Mock get_db
     mock_db = MagicMock()
     mock_db.session_factory.return_value.__aenter__.return_value = db_session
     mock_db.session_factory.return_value.__aexit__.return_value = AsyncMock()
 
     import tasks.announcement_tasks
 
-    original_create_db = tasks.announcement_tasks.create_db
-    tasks.announcement_tasks.create_db = lambda: mock_db
+    original_get_db = tasks.announcement_tasks.get_db
+    tasks.announcement_tasks.get_db = lambda: mock_db
 
     try:
         await update_announcement_statuses()
@@ -97,7 +97,7 @@ async def test_update_announcement_statuses_pre_registration_to_open(
         await db_session.refresh(announcement)
         assert announcement.status == AnnouncementStatus.REGISTRATION_OPEN
     finally:
-        tasks.announcement_tasks.create_db = original_create_db
+        tasks.announcement_tasks.get_db = original_get_db
 
 
 @pytest.mark.asyncio
@@ -133,8 +133,8 @@ async def test_update_announcement_statuses_open_to_closed(db_session, create_us
 
     import tasks.announcement_tasks
 
-    original_create_db = tasks.announcement_tasks.create_db
-    tasks.announcement_tasks.create_db = lambda: mock_db
+    original_get_db = tasks.announcement_tasks.get_db
+    tasks.announcement_tasks.get_db = lambda: mock_db
 
     try:
         await update_announcement_statuses()
@@ -142,7 +142,7 @@ async def test_update_announcement_statuses_open_to_closed(db_session, create_us
         await db_session.refresh(announcement)
         assert announcement.status == AnnouncementStatus.REGISTRATION_CLOSED
     finally:
-        tasks.announcement_tasks.create_db = original_create_db
+        tasks.announcement_tasks.get_db = original_get_db
 
 
 @pytest.mark.asyncio
@@ -184,8 +184,8 @@ async def test_update_announcement_statuses_closed_stays_closed(
 
     import tasks.announcement_tasks
 
-    original_create_db = tasks.announcement_tasks.create_db
-    tasks.announcement_tasks.create_db = lambda: mock_db
+    original_get_db = tasks.announcement_tasks.get_db
+    tasks.announcement_tasks.get_db = lambda: mock_db
 
     try:
         await update_announcement_statuses()
@@ -193,7 +193,7 @@ async def test_update_announcement_statuses_closed_stays_closed(
         await db_session.refresh(announcement)
         assert announcement.status == AnnouncementStatus.REGISTRATION_CLOSED
     finally:
-        tasks.announcement_tasks.create_db = original_create_db
+        tasks.announcement_tasks.get_db = original_get_db
 
 
 @pytest.mark.asyncio
@@ -263,8 +263,8 @@ async def test_update_announcement_statuses_multiple_transitions(
 
     import tasks.announcement_tasks
 
-    original_create_db = tasks.announcement_tasks.create_db
-    tasks.announcement_tasks.create_db = lambda: mock_db
+    original_get_db = tasks.announcement_tasks.get_db
+    tasks.announcement_tasks.get_db = lambda: mock_db
 
     try:
         await update_announcement_statuses()
@@ -277,7 +277,7 @@ async def test_update_announcement_statuses_multiple_transitions(
         assert announcement2.status == AnnouncementStatus.REGISTRATION_CLOSED
         assert announcement3.status == AnnouncementStatus.REGISTRATION_CLOSED
     finally:
-        tasks.announcement_tasks.create_db = original_create_db
+        tasks.announcement_tasks.get_db = original_get_db
 
 
 @pytest.mark.asyncio
@@ -332,8 +332,8 @@ async def test_update_announcement_statuses_skip_finished_cancelled(
 
     import tasks.announcement_tasks
 
-    original_create_db = tasks.announcement_tasks.create_db
-    tasks.announcement_tasks.create_db = lambda: mock_db
+    original_get_db = tasks.announcement_tasks.get_db
+    tasks.announcement_tasks.get_db = lambda: mock_db
 
     try:
         await update_announcement_statuses()
@@ -344,7 +344,7 @@ async def test_update_announcement_statuses_skip_finished_cancelled(
         assert announcement_finished.status == AnnouncementStatus.FINISHED
         assert announcement_cancelled.status == AnnouncementStatus.CANCELLED
     finally:
-        tasks.announcement_tasks.create_db = original_create_db
+        tasks.announcement_tasks.get_db = original_get_db
 
 
 @pytest.mark.asyncio
@@ -383,8 +383,8 @@ async def test_update_announcement_statuses_exact_time_boundary(
 
     import tasks.announcement_tasks
 
-    original_create_db = tasks.announcement_tasks.create_db
-    tasks.announcement_tasks.create_db = lambda: mock_db
+    original_get_db = tasks.announcement_tasks.get_db
+    tasks.announcement_tasks.get_db = lambda: mock_db
 
     try:
         await update_announcement_statuses()
@@ -392,4 +392,4 @@ async def test_update_announcement_statuses_exact_time_boundary(
         await db_session.refresh(announcement)
         assert announcement.status == AnnouncementStatus.REGISTRATION_OPEN
     finally:
-        tasks.announcement_tasks.create_db = original_create_db
+        tasks.announcement_tasks.get_db = original_get_db

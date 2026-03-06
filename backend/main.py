@@ -11,11 +11,10 @@ from exceptions import EXCEPTION_HANDLERS, API_RESPONSES
 from core.config import get_settings
 from core.logger import setup_logging, logger
 from api import router as api_router
-from core.db.container import create_db
+from core.db.container import get_db
 
 setup_logging()
 
-db = create_db()
 settings = get_settings()
 
 
@@ -29,7 +28,7 @@ async def lifespan(app: FastAPI):
 
     await shutdown_broker()
     logger.info("🛑 Shutting down GameAnnouncer API...")
-    await db.dispose()
+    await get_db().dispose()
 
 
 app = FastAPI(
@@ -56,6 +55,11 @@ app.include_router(api_router, prefix="/api")
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host=settings.run.host, port=settings.run.port, reload=True)
+    uvicorn.run(
+        "main:app",
+        host=settings.run.host,
+        port=settings.run.port,
+        reload=not settings.is_production,
+    )
 
 logger.info("🎮 GameAnnouncer API initialized")

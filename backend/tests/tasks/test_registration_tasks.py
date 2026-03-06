@@ -44,11 +44,23 @@ async def test_expire_registration_requests_no_expired(db_session, create_user):
     db_session.add(registration_request)
     await db_session.commit()
 
-    result = await expire_registration_requests_task()
+    mock_db = MagicMock()
+    mock_db.session_factory.return_value.__aenter__.return_value = db_session
+    mock_db.session_factory.return_value.__aexit__.return_value = AsyncMock()
 
-    assert result == 0
-    await db_session.refresh(registration_request)
-    assert registration_request.status == RegistrationStatus.PENDING
+    import tasks.registration_request_tasks
+
+    original_get_db = tasks.registration_request_tasks.get_db
+    tasks.registration_request_tasks.get_db = lambda: mock_db
+
+    try:
+        result = await expire_registration_requests_task()
+
+        assert result == 0
+        await db_session.refresh(registration_request)
+        assert registration_request.status == RegistrationStatus.PENDING
+    finally:
+        tasks.registration_request_tasks.get_db = original_get_db
 
 
 @pytest.mark.asyncio
@@ -87,15 +99,15 @@ async def test_expire_registration_requests_with_expired(db_session, create_user
     await db_session.commit()
     await db_session.refresh(registration_request)
 
-    # Mock create_db to return our test session
+    # Mock get_db to return our test session
     mock_db = MagicMock()
     mock_db.session_factory.return_value.__aenter__.return_value = db_session
     mock_db.session_factory.return_value.__aexit__.return_value = AsyncMock()
 
     import tasks.registration_request_tasks
 
-    original_create_db = tasks.registration_request_tasks.create_db
-    tasks.registration_request_tasks.create_db = lambda: mock_db
+    original_get_db = tasks.registration_request_tasks.get_db
+    tasks.registration_request_tasks.get_db = lambda: mock_db
 
     try:
         result = await expire_registration_requests_task()
@@ -104,7 +116,7 @@ async def test_expire_registration_requests_with_expired(db_session, create_user
         await db_session.refresh(registration_request)
         assert registration_request.status == RegistrationStatus.EXPIRED
     finally:
-        tasks.registration_request_tasks.create_db = original_create_db
+        tasks.registration_request_tasks.get_db = original_get_db
 
 
 @pytest.mark.asyncio
@@ -157,8 +169,8 @@ async def test_expire_registration_requests_multiple_expired(db_session, create_
 
     import tasks.registration_request_tasks
 
-    original_create_db = tasks.registration_request_tasks.create_db
-    tasks.registration_request_tasks.create_db = lambda: mock_db
+    original_get_db = tasks.registration_request_tasks.get_db
+    tasks.registration_request_tasks.get_db = lambda: mock_db
 
     try:
         result = await expire_registration_requests_task()
@@ -169,7 +181,7 @@ async def test_expire_registration_requests_multiple_expired(db_session, create_
         assert request1.status == RegistrationStatus.EXPIRED
         assert request2.status == RegistrationStatus.EXPIRED
     finally:
-        tasks.registration_request_tasks.create_db = original_create_db
+        tasks.registration_request_tasks.get_db = original_get_db
 
 
 @pytest.mark.asyncio
@@ -207,11 +219,23 @@ async def test_expire_registration_requests_ignores_approved(db_session, create_
     db_session.add(approved_request)
     await db_session.commit()
 
-    result = await expire_registration_requests_task()
+    mock_db = MagicMock()
+    mock_db.session_factory.return_value.__aenter__.return_value = db_session
+    mock_db.session_factory.return_value.__aexit__.return_value = AsyncMock()
 
-    assert result == 0
-    await db_session.refresh(approved_request)
-    assert approved_request.status == RegistrationStatus.APPROVED
+    import tasks.registration_request_tasks
+
+    original_get_db = tasks.registration_request_tasks.get_db
+    tasks.registration_request_tasks.get_db = lambda: mock_db
+
+    try:
+        result = await expire_registration_requests_task()
+
+        assert result == 0
+        await db_session.refresh(approved_request)
+        assert approved_request.status == RegistrationStatus.APPROVED
+    finally:
+        tasks.registration_request_tasks.get_db = original_get_db
 
 
 @pytest.mark.asyncio
@@ -272,8 +296,8 @@ async def test_expire_registration_requests_mixed_statuses(db_session, create_us
 
     import tasks.registration_request_tasks
 
-    original_create_db = tasks.registration_request_tasks.create_db
-    tasks.registration_request_tasks.create_db = lambda: mock_db
+    original_get_db = tasks.registration_request_tasks.get_db
+    tasks.registration_request_tasks.get_db = lambda: mock_db
 
     try:
         result = await expire_registration_requests_task()
@@ -286,4 +310,4 @@ async def test_expire_registration_requests_mixed_statuses(db_session, create_us
         assert approved_request.status == RegistrationStatus.APPROVED
         assert rejected_request.status == RegistrationStatus.REJECTED
     finally:
-        tasks.registration_request_tasks.create_db = original_create_db
+        tasks.registration_request_tasks.get_db = original_get_db

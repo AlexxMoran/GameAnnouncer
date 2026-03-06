@@ -1,4 +1,5 @@
 from .registration_status import RegistrationStatus
+from .registration_trigger import RegistrationTrigger
 from .form_field_type import FormFieldType
 from .announcement_status import AnnouncementStatus
 from .announcement_trigger import AnnouncementTrigger
@@ -14,4 +15,5 @@ __all__ = [
     "FormFieldType",
     "SeedMethod",
     "MatchStatus",
+    "RegistrationTrigger",
 ]

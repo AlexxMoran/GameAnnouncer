@@ -1,8 +1,12 @@
+from functools import lru_cache
+
 from .database import Database
 from core.config import get_settings
 
 
-def create_db():
+@lru_cache(maxsize=1)
+def get_db() -> Database:
+    """Return a process-wide singleton Database instance."""
     settings = get_settings()
 
     return Database(

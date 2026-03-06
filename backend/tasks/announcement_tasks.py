@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from sqlalchemy import update
 from domains.announcements.model import Announcement
 from enums import AnnouncementStatus
-from core.db.container import create_db
+from core.db.container import get_db
 from tasks.broker import broker
 
 
@@ -18,7 +18,7 @@ async def update_announcement_statuses():
     """
     now = datetime.now(timezone.utc)
 
-    db = create_db()
+    db = get_db()
     async with db.session_factory() as session:
         await session.execute(
             update(Announcement)

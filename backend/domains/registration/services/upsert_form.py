@@ -1,18 +1,29 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from domains.announcements.model import Announcement
 from domains.registration.models import RegistrationRequest, RegistrationForm, FormField
 from domains.registration.schemas import RegistrationFormCreate
 from domains.registration.repository import RegistrationFormRepository
+from domains.registration.services.lifecycle import RegistrationLifecycleService
+from enums import AnnouncementStatus
 from enums.registration_status import RegistrationStatus
-from sqlalchemy import select
+from exceptions import ValidationException
+
+ALLOWED_FORM_UPDATE_STATUSES = {
+    AnnouncementStatus.PRE_REGISTRATION,
+    AnnouncementStatus.REGISTRATION_OPEN,
+}
 
 
 class UpsertRegistrationFormService:
     """Service for creating or replacing a registration form for an announcement.
 
-    When an existing form is present, all active registration requests are cancelled
-    before the form is deleted and recreated.
+    When an existing form is present, all active registration requests are rejected
+    via the lifecycle service before the form is deleted and recreated.
+
+    Form updates are only allowed when the announcement is in PRE_REGISTRATION
+    or REGISTRATION_OPEN status.
     """
 
     def __init__(
@@ -26,12 +37,14 @@ class UpsertRegistrationFormService:
         self.registration_form_in = registration_form_in
 
     async def call(self) -> RegistrationForm:
-        """Replace the registration form, cancelling active requests if a form already exists."""
+        """Replace the registration form, rejecting active requests if a form already exists."""
+        self._validate_announcement_status()
+
         repo = RegistrationFormRepository(self.session)
         existing_form = await repo.find_by_announcement_id(self.announcement.id)
 
         if existing_form:
-            await self._cancel_active_requests()
+            await self._reject_active_requests()
             await repo.delete(existing_form)
 
         registration_form = RegistrationForm(announcement_id=self.announcement.id)
@@ -46,8 +59,22 @@ class UpsertRegistrationFormService:
 
         return registration_form
 
-    async def _cancel_active_requests(self) -> None:
-        """Cancel all pending and approved registration requests for this announcement."""
+    def _validate_announcement_status(self) -> None:
+        """Ensure the announcement is in a status that allows form updates."""
+        status = AnnouncementStatus(self.announcement.status)
+        if status not in ALLOWED_FORM_UPDATE_STATUSES:
+            raise ValidationException(
+                f"Registration form can only be updated when announcement is in "
+                f"PRE_REGISTRATION or REGISTRATION_OPEN status, "
+                f"current status is {status.value}"
+            )
+
+    async def _reject_active_requests(self) -> None:
+        """Reject all active registration requests due to form change.
+
+        Uses batch_system_reject to bulk-delete participants and transition
+        each request via the state machine.
+        """
         result = await self.session.execute(
             select(RegistrationRequest).where(
                 RegistrationRequest.announcement_id == self.announcement.id,
@@ -56,10 +83,7 @@ class UpsertRegistrationFormService:
                 ),
             )
         )
-        cancellation_reason = (
-            "Registration form has been updated by the organizer. "
-            "Please submit a new registration request with the updated form."
+        active_requests = list(result.scalars().all())
+        await RegistrationLifecycleService.batch_system_reject(
+            active_requests, self.announcement, self.session
         )
-        for request in result.scalars().all():
-            request.status = RegistrationStatus.CANCELLED
-            request.cancellation_reason = cancellation_reason

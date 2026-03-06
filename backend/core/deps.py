@@ -3,12 +3,12 @@ from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Depends
 from core.user_manager import UserManager
-from core.db.container import create_db
+from core.db.container import get_db
 from core.config import get_settings, Settings
 
 
 async def _session_getter_dep():
-    async for session in create_db().session_getter():
+    async for session in get_db().session_getter():
         yield session
 
 

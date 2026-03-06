@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domains.announcements.model import Announcement
@@ -13,6 +14,8 @@ from domains.registration.schemas import (
 from domains.registration.repository import RegistrationRequestRepository
 from domains.users.model import User
 from exceptions import ValidationException
+
+ACTIVE_REQUEST_UNIQUE_INDEX = "ix_registration_requests_active_user_announcement"
 
 
 class CreateRegistrationRequestService:
@@ -88,17 +91,36 @@ class CreateRegistrationRequestService:
             )
 
     async def _create_registration_request(self) -> RegistrationRequest:
-        """Create and flush the registration request object."""
+        """Create and flush the registration request object.
+
+        If a concurrent request has already created an active registration
+        (race condition), the partial unique index will raise an IntegrityError
+        which is converted to a user-friendly ValidationException.
+        """
         registration_request_data = self.registration_request_in.model_dump(
             exclude={"form_responses"}
         )
         registration_request = RegistrationRequest(**registration_request_data)
-        registration_request.user = self.user
+        registration_request.user_id = self.user.id
 
-        self.session.add(registration_request)
-        await self.session.flush()
+        try:
+            async with self.session.begin_nested():
+                self.session.add(registration_request)
+                await self.session.flush()
+        except IntegrityError as exc:
+            if not self._is_active_request_conflict(exc):
+                raise
+            raise ValidationException(
+                "Registration request already exists for this user and announcement"
+            ) from exc
 
         return registration_request
+
+    @staticmethod
+    def _is_active_request_conflict(exc: IntegrityError) -> bool:
+        """Return True only for the partial unique index enforcing active requests."""
+        error_text = str(getattr(exc, "orig", exc))
+        return ACTIVE_REQUEST_UNIQUE_INDEX in error_text
 
     def _create_form_responses_if_needed(
         self, registration_request: RegistrationRequest
