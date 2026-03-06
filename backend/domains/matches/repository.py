@@ -46,13 +46,6 @@ class MatchRepository:
         )
         return list(data_result.scalars().all()), total
 
-    async def save(self, match: Match) -> Match:
-        """Persist a match. Flushes but does not commit."""
-        self.session.add(match)
-        await self.session.flush()
-        await self.session.refresh(match)
-        return match
-
     async def save_many(self, matches: list[Match]) -> list[Match]:
         """Persist multiple matches in a single flush. Does not commit."""
         for match in matches:
@@ -106,8 +99,3 @@ class MatchRepository:
             )
         )
         return result.scalar_one_or_none()
-
-    async def delete(self, match: Match) -> None:
-        """Delete a match. Flushes but does not commit."""
-        await self.session.delete(match)
-        await self.session.flush()

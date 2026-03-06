@@ -6,7 +6,6 @@ from fastapi_users.authentication import (
 from core.config import get_settings
 
 bearer_transport = BearerTransport(tokenUrl="/api/auth/login")
-refresh_bearer_transport = BearerTransport(tokenUrl="/api/auth/jwt/refresh")
 
 
 def get_jwt_strategy() -> JWTStrategy:
@@ -36,12 +35,4 @@ def get_auth_backend() -> AuthenticationBackend:
         name="jwt",
         transport=bearer_transport,
         get_strategy=get_jwt_strategy,
-    )
-
-
-def get_refresh_auth_backend() -> AuthenticationBackend:
-    return AuthenticationBackend(
-        name="jwt_refresh",
-        transport=refresh_bearer_transport,
-        get_strategy=get_refresh_jwt_strategy,
     )

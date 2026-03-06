@@ -28,27 +28,6 @@ def _make_announcement(
 
 
 @pytest.mark.asyncio
-async def test_save_creates_registration_request(db_session, create_user):
-    user = await create_user(email="rr_user@example.com", password="x")
-    game = Game(name="RRGame", category="RTS", description="d")
-    db_session.add(game)
-    await db_session.commit()
-    await db_session.refresh(game)
-
-    ann = _make_announcement(game.id, user.id)
-    db_session.add(ann)
-    await db_session.commit()
-    await db_session.refresh(ann)
-
-    rr = RegistrationRequest(announcement_id=ann.id, user_id=user.id)
-    repo = RegistrationRequestRepository(db_session)
-    created = await repo.save(rr)
-    await db_session.commit()
-
-    assert created.id is not None
-
-
-@pytest.mark.asyncio
 async def test_find_all_by_user_id(db_session, create_user):
     user = await create_user(email="rr_user_list@example.com", password="x")
     game = Game(name="RRGame2", category="RTS", description="d")
