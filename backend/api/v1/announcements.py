@@ -1,4 +1,4 @@
-from fastapi import APIRouter, UploadFile, File, Depends
+from fastapi import APIRouter, UploadFile, File, Depends, Query
 
 from exceptions import AppException
 from domains.users.model import User
@@ -36,7 +36,8 @@ from domains.announcements.services.finalize_qualification import (
 )
 from domains.announcements.services.generate_bracket import GenerateBracketService
 from domains.announcements.utils.bracket import get_bracket
-from domains.matches.schemas import BracketResponse
+from domains.matches.repository import MatchRepository
+from domains.matches.schemas import BracketResponse, MatchResponse
 
 from domains.registration.repository import RegistrationRequestRepository
 
@@ -225,6 +226,23 @@ async def generate_bracket(
     announcement = await service.call()
     await session.commit()
     return DataResponse(data=announcement)
+
+
+@router.get(
+    "/{announcement_id}/matches",
+    response_model=PaginatedResponse[MatchResponse],
+)
+async def get_announcement_matches(
+    session: SessionDep,
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=100, ge=1, le=500),
+    announcement: Announcement = Depends(get_announcement_dependency),
+) -> PaginatedResponse[MatchResponse]:
+    repo = MatchRepository(session)
+    matches, total = await repo.find_all_by_announcement_id(
+        announcement_id=announcement.id, skip=skip, limit=limit
+    )
+    return PaginatedResponse(data=matches, skip=skip, limit=limit, total=total)
 
 
 @router.get(

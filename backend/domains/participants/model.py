@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
+
+from sqlalchemy import ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship, validates
-from sqlalchemy import ForeignKey, UniqueConstraint, Index
+
 from core.db.base import Base
 from exceptions import ValidationException
 
@@ -45,6 +47,7 @@ class AnnouncementParticipant(Base):
     qualification_score: Mapped[int | None] = mapped_column(nullable=True)
     qualification_rank: Mapped[int | None] = mapped_column(nullable=True)
     seed: Mapped[int | None] = mapped_column(nullable=True)
+    placement: Mapped[int | None] = mapped_column(nullable=True)
     is_qualified: Mapped[bool] = mapped_column(default=False, nullable=False)
 
     announcement: Mapped["Announcement"] = relationship(
@@ -57,7 +60,7 @@ class AnnouncementParticipant(Base):
         lazy="selectin",
     )
 
-    @validates("seed", "qualification_rank", "qualification_score")
+    @validates("seed", "qualification_rank", "qualification_score", "placement")
     def validate_positive_values(self, key: str, value: int | None) -> int | None:
         """Validate that numeric fields are positive when set."""
         if value is not None and value <= 0:
@@ -72,5 +75,6 @@ class AnnouncementParticipant(Base):
             f"user_id={self.user_id}, "
             f"seed={self.seed}, "
             f"rank={self.qualification_rank}, "
+            f"placement={self.placement}, "
             f"qualified={self.is_qualified})>"
         )
