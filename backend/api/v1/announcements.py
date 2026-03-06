@@ -34,6 +34,9 @@ from domains.announcements.services.lifecycle import AnnouncementLifecycleServic
 from domains.announcements.services.finalize_qualification import (
     FinalizeQualificationService,
 )
+from domains.announcements.services.generate_bracket import GenerateBracketService
+from domains.announcements.utils.bracket import get_bracket
+from domains.matches.schemas import BracketResponse
 
 from domains.registration.repository import RegistrationRequestRepository
 
@@ -203,8 +206,8 @@ async def finalize_qualification(
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
-    service = FinalizeQualificationService(announcement, session)
-    announcement = await service.call(user)
+    service = FinalizeQualificationService(announcement, session, user)
+    announcement = await service.call()
     await session.commit()
     return DataResponse(data=announcement)
 
@@ -218,11 +221,23 @@ async def generate_bracket(
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
-    authorize_action(user, announcement, "manage_lifecycle")
-    service = AnnouncementLifecycleService(announcement, session)
-    announcement = await service.generate_bracket()
+    service = GenerateBracketService(announcement, session, user)
+    announcement = await service.call()
     await session.commit()
     return DataResponse(data=announcement)
+
+
+@router.get(
+    "/{announcement_id}/bracket",
+    response_model=DataResponse[BracketResponse],
+)
+async def get_announcement_bracket(
+    session: SessionDep,
+    announcement: Announcement = Depends(get_announcement_dependency),
+) -> DataResponse[BracketResponse]:
+    data = await get_bracket(announcement, session)
+
+    return DataResponse(data=data)
 
 
 @router.post(
