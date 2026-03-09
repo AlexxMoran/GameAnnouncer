@@ -38,7 +38,7 @@ def _make_announcement(game_id: int, organizer_id: int) -> Announcement:
 async def test_create_new_registration_form(db_session, create_user):
     """Creates a new form when none exists."""
     user = await create_user(email="organizer@example.com")
-    game = Game(name="Test Game", category="RTS", description="Test")
+    game = Game(name="UpsertForm Game", category="RTS", description="Test")
     db_session.add(game)
     await db_session.commit()
     await db_session.refresh(game)
@@ -76,7 +76,7 @@ async def test_replace_existing_form_rejects_active_requests(db_session, create_
     """Replacing an existing form rejects all active registration requests."""
     organizer = await create_user(email="organizer2@example.com")
     applicant = await create_user(email="applicant@example.com")
-    game = Game(name="Test Game 2", category="RTS", description="Test")
+    game = Game(name="UpsertForm Game 2", category="RTS", description="Test")
     db_session.add(game)
     await db_session.commit()
     await db_session.refresh(game)
@@ -121,7 +121,7 @@ async def test_form_update_removes_participants_for_approved(db_session, create_
     """Form update removes participants for previously approved users."""
     organizer = await create_user(email="organizer3@example.com")
     applicant = await create_user(email="applicant3@example.com")
-    game = Game(name="Test Game 3", category="RTS", description="Test")
+    game = Game(name="UpsertForm Game 3", category="RTS", description="Test")
     db_session.add(game)
     await db_session.commit()
     await db_session.refresh(game)
@@ -174,7 +174,7 @@ async def test_form_update_removes_participants_for_approved(db_session, create_
 async def test_form_update_blocked_for_live_announcement(db_session, create_user):
     """Form update raises ValidationException when announcement is LIVE."""
     organizer = await create_user(email="organizer4@example.com")
-    game = Game(name="Test Game 4", category="RTS", description="Test")
+    game = Game(name="UpsertForm Game 4", category="RTS", description="Test")
     db_session.add(game)
     await db_session.commit()
     await db_session.refresh(game)
@@ -206,7 +206,7 @@ async def test_form_update_blocked_for_live_announcement(db_session, create_user
 async def test_form_update_allowed_for_pre_registration(db_session, create_user):
     """Form update is allowed when announcement is in PRE_REGISTRATION."""
     organizer = await create_user(email="organizer5@example.com")
-    game = Game(name="Test Game 5", category="RTS", description="Test")
+    game = Game(name="UpsertForm Game 5", category="RTS", description="Test")
     db_session.add(game)
     await db_session.commit()
     await db_session.refresh(game)
