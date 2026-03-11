@@ -65,10 +65,15 @@ async def get_announcements(
 ) -> PaginatedResponse[AnnouncementResponse]:
     search = AnnouncementSearch(session=session, filters=filters)
     announcements = await search.results(skip=skip, limit=limit)
-    announcements_count = await search.count()
+    filtered_announcements_count = await search.filtered_count()
+    total_announcements_count = await search.total_count()
     get_batch_permissions(user, announcements)
     return PaginatedResponse(
-        data=announcements, skip=skip, limit=limit, total=announcements_count
+        data=announcements,
+        skip=skip,
+        limit=limit,
+        filtered_count=filtered_announcements_count,
+        total_count=total_announcements_count,
     )
 
 
@@ -95,7 +100,13 @@ async def get_announcement_participants(
     participants, total = await repo.find_all_by_announcement_id(
         announcement_id=announcement.id, skip=skip, limit=limit
     )
-    return PaginatedResponse(data=participants, skip=skip, limit=limit, total=total)
+    return PaginatedResponse(
+        data=participants,
+        skip=skip,
+        limit=limit,
+        filtered_count=total,
+        total_count=total,
+    )
 
 
 @router.patch(
@@ -143,7 +154,11 @@ async def get_announcement_registration_requests(
         announcement_id=announcement.id, skip=skip, limit=limit
     )
     return PaginatedResponse(
-        data=registration_requests, skip=skip, limit=limit, total=total
+        data=registration_requests,
+        skip=skip,
+        limit=limit,
+        filtered_count=total,
+        total_count=total,
     )
 
 
@@ -253,7 +268,9 @@ async def get_announcement_matches(
     matches, total = await repo.find_all_by_announcement_id(
         announcement_id=announcement.id, skip=skip, limit=limit
     )
-    return PaginatedResponse(data=matches, skip=skip, limit=limit, total=total)
+    return PaginatedResponse(
+        data=matches, skip=skip, limit=limit, filtered_count=total, total_count=total
+    )
 
 
 @router.get(

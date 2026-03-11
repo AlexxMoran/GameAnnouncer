@@ -15,7 +15,8 @@ async def test_get_announcements_paginated(async_client, announcement_factory):
 
     mock_search = MagicMock()
     mock_search.results = AsyncMock(return_value=announcements)
-    mock_search.count = AsyncMock(return_value=2)
+    mock_search.filtered_count = AsyncMock(return_value=2)
+    mock_search.total_count = AsyncMock(return_value=2)
 
     with (
         patch("api.v1.announcements.AnnouncementSearch", return_value=mock_search),
@@ -30,7 +31,7 @@ async def test_get_announcements_paginated(async_client, announcement_factory):
         assert body["data"][1]["id"] == a2["id"]
         assert body["skip"] == 0
         assert body["limit"] == 10
-        assert body["total"] == 2
+        assert body["filtered_count"] == 2
 
 
 @pytest.mark.asyncio
@@ -115,7 +116,8 @@ async def test_get_announcements_with_game_filter(async_client, announcement_fac
 
     mock_search = MagicMock()
     mock_search.results = AsyncMock(return_value=announcements)
-    mock_search.count = AsyncMock(return_value=2)
+    mock_search.filtered_count = AsyncMock(return_value=2)
+    mock_search.total_count = AsyncMock(return_value=5)
 
     with (
         patch("api.v1.announcements.AnnouncementSearch", return_value=mock_search),
@@ -124,7 +126,8 @@ async def test_get_announcements_with_game_filter(async_client, announcement_fac
         r = await async_client.get(f"/api/v1/announcements?game_id={game_id}")
         assert r.status_code == 200
         body = r.json()
-        assert body["total"] == 2
+        assert body["filtered_count"] == 2
+        assert body["total_count"] == 5
         assert all(item["game_id"] == game_id for item in body["data"])
 
 
@@ -141,7 +144,8 @@ async def test_get_all_announcements_without_filter(async_client, announcement_f
 
     mock_search = MagicMock()
     mock_search.results = AsyncMock(return_value=announcements)
-    mock_search.count = AsyncMock(return_value=3)
+    mock_search.filtered_count = AsyncMock(return_value=3)
+    mock_search.total_count = AsyncMock(return_value=3)
 
     with (
         patch("api.v1.announcements.AnnouncementSearch", return_value=mock_search),
@@ -150,7 +154,7 @@ async def test_get_all_announcements_without_filter(async_client, announcement_f
         r = await async_client.get("/api/v1/announcements")
         assert r.status_code == 200
         body = r.json()
-        assert body["total"] == 3
+        assert body["filtered_count"] == 3
         assert len(body["data"]) == 3
 
 
@@ -698,7 +702,7 @@ async def test_get_announcement_registration_requests_allowed_for_organizer(
 
     assert r.status_code == 200
     assert r.json()["data"] == []
-    assert r.json()["total"] == 0
+    assert r.json()["filtered_count"] == 0
 
 
 @pytest.mark.asyncio

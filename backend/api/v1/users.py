@@ -27,7 +27,13 @@ async def get_my_organized_announcements(
     announcements, total = await repo.find_all_by_organizer_id(
         user.id, skip=skip, limit=limit
     )
-    return PaginatedResponse(data=announcements, skip=skip, limit=limit, total=total)
+    return PaginatedResponse(
+        data=announcements,
+        skip=skip,
+        limit=limit,
+        filtered_count=total,
+        total_count=total,
+    )
 
 
 @router.get(
@@ -44,7 +50,13 @@ async def get_my_participated_announcements(
     announcements, total = await repo.find_all_by_participant_id(
         user.id, skip=skip, limit=limit
     )
-    return PaginatedResponse(data=announcements, skip=skip, limit=limit, total=total)
+    return PaginatedResponse(
+        data=announcements,
+        skip=skip,
+        limit=limit,
+        filtered_count=total,
+        total_count=total,
+    )
 
 
 @router.get(
@@ -62,7 +74,11 @@ async def get_my_registration_requests(
         user.id, skip=skip, limit=limit
     )
     return PaginatedResponse(
-        data=registration_requests, skip=skip, limit=limit, total=total
+        data=registration_requests,
+        skip=skip,
+        limit=limit,
+        filtered_count=total,
+        total_count=total,
     )
 
 
@@ -80,4 +96,10 @@ async def get_user_organized_announcements(
     announcements, total = await repo.find_all_by_organizer_id(
         user_id, skip=skip, limit=limit
     )
-    return PaginatedResponse(data=announcements, skip=skip, limit=limit, total=total)
+    return PaginatedResponse(
+        data=announcements,
+        skip=skip,
+        limit=limit,
+        filtered_count=total,
+        total_count=total,
+    )

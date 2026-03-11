@@ -16,4 +16,5 @@ class PaginatedResponse(BaseModel, Generic[T]):
     data: list[T]
     skip: int
     limit: int
-    total: int
+    filtered_count: int
+    total_count: int
