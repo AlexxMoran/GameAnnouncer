@@ -1,6 +1,6 @@
 ---
-allowed-tools: Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(find:*), Bash(grep:*), Bash(cat:*), Bash(wc:*)
-description: Perform a thorough code review of the current branch before sending it to a human reviewer. All findings are presented in chat — no GitHub actions.
+allowed-tools: Bash(git diff:*), Bash(git log:*), Bash(git show:*), Bash(find:*), Bash(grep:*), Bash(cat:*), Bash(wc:*), Task
+description: Perform a thorough code review of the current branch before sending it to a human reviewer. Delegates to two specialized sub-agents in parallel. All findings are presented in chat — no GitHub actions.
 ---
 
 ## Context
@@ -13,9 +13,7 @@ description: Perform a thorough code review of the current branch before sending
 
 ## Your Role
 
-You are a **principal engineer / CTO** doing a pre-review before the code goes to a human reviewer. Your goal: **catch everything embarrassing before someone else sees it.**
-
-Tone — **direct, constructive, like a senior mentor.** Praise good decisions. Flag problems with reasoning and a suggested fix. No fluff.
+You are a **principal engineer / CTO** orchestrating a pre-review before the code goes to a human reviewer. You delegate deep analysis to two specialized agents, then merge and present their findings. Your goal: **catch everything embarrassing before someone else sees it.**
 
 ## Review Process
 
@@ -27,31 +25,86 @@ Assess the diff size:
   - If "Suggest how to split": propose 2-4 independently shippable PRs
   - If "Focus on critical files only": pick high-risk files (security, data layer, core logic)
 
-### Step 1: Read the Full Diff
+### Step 1: Collect Full Diff
 
-Read every changed file with `git diff main...HEAD -- <file>`. Understand the full picture before commenting.
+Read every changed file with `git diff main...HEAD -- <file>`. Assemble the full diff text to pass to sub-agents.
 
-### Step 2: Detailed Review
+### Step 2: Delegate to Sub-Agents in Parallel
 
-Go through the diff. For each issue found:
+Launch both agents simultaneously via Task tool. Pass each agent:
+- The full diff
+- The list of changed files
+- Recent commit messages
+- Project context (language, framework) inferred from file extensions and structure
 
+---
+
+**Task for `architect-code-reviewer`:**
 ```
+You are performing a code review focused on Architecture, Style, and Readability.
+
+Context:
+- Branch: <branch>
+- Changed files: <files>
+- Commits: <commits>
+- Full diff: <diff>
+
+Review these categories only:
+
+### 🏗️ Architecture & Design
+- Over-engineering — unnecessary abstractions, patterns for patterns' sake
+- Under-engineering — copy-paste, missing obvious abstraction, hardcoded values
+- Single responsibility violations
+- Tight coupling, hidden dependencies
+- Layer violations (biz logic in controllers, queries in views)
+- Consistency with existing codebase patterns
+- Missing feature flag / rollback path for risky changes
+
+### 📖 Readability & Maintainability
+- Bad naming (variables, functions, classes)
+- Long/complex functions, deep nesting
+- Missing "why" comments for non-obvious decisions
+- Dead code, unused imports, unreachable branches
+- Magic numbers/strings without named constants
+
+### 🧪 Testing
+- New code paths without tests
+- Tests that don't assert meaningful behavior
+- Missing negative / edge case tests
+- Flaky test risk (timing, order, environment dependent)
+- Test isolation — shared state, external dependencies
+
+For each issue use this format:
 📍 file:line(s)
 🏷️ [severity] [category]
 💬 What's wrong and why it matters
 ✏️ Suggested fix (code snippet if helpful)
+
+Severity levels: 🔴 Blocker · 🟠 Major · 🟡 Minor · 💭 Nit · 💚 Praise
+
+Rules:
+- Every criticism needs a suggested fix
+- Flag patterns, not every instance — same issue 5 times → note once with "repeats in N places"
+- Call out 1-3 things done well
+- Skip categories with zero findings
+- Never modify any files
 ```
 
-**Severity:**
-- 🔴 **Blocker** — Must fix. Security holes, data loss, crashes, broken logic.
-- 🟠 **Major** — Strongly recommend fixing. Bugs, perf issues, missing error handling.
-- 🟡 **Minor** — Should fix, not blocking. Naming, style, small improvements.
-- 💭 **Nit** — Optional. "I'd do it differently" territory.
-- 💚 **Praise** — Something done well. Call it out.
+---
 
-**Categories to check (skip any that have zero findings):**
+**Task for `code-reviewer`:**
+```
+You are performing a code review focused on Security, Correctness, Performance, and Ops.
 
-#### 🛡️ Security & Data Safety
+Context:
+- Branch: <branch>
+- Changed files: <files>
+- Commits: <commits>
+- Full diff: <diff>
+
+Review these categories only:
+
+### 🛡️ Security & Data Safety
 - Injection (SQL, XSS, command, template)
 - Auth/authz gaps, privilege escalation, IDOR
 - Hardcoded secrets, tokens in logs
@@ -61,7 +114,7 @@ Go through the diff. For each issue found:
 - Path traversal, unrestricted uploads
 - CORS / CSRF / security headers
 
-#### 🐛 Correctness & Logic
+### 🐛 Correctness & Logic
 - Edge cases: nulls, empty collections, zero/negative, boundaries
 - Off-by-one errors
 - Race conditions, shared mutable state
@@ -71,8 +124,8 @@ Go through the diff. For each issue found:
 - Backwards compatibility / breaking changes
 - State management, memory leaks, dangling references
 
-#### ⚡ Performance
-- **N+1 queries** — queries inside loops, missing eager loading
+### ⚡ Performance
+- N+1 queries — queries inside loops, missing eager loading
 - Missing DB indexes for new queries
 - Unbounded operations — loading all records, no pagination/limit
 - Redundant computation, missing caching
@@ -81,39 +134,35 @@ Go through the diff. For each issue found:
 - Resource leaks — unclosed connections, streams, handles
 - Bad algorithmic complexity (O(n²) where O(n) is possible)
 
-#### 🏗️ Architecture & Design
-- **Over-engineering** — unnecessary abstractions, patterns for patterns' sake, premature generalization
-- **Under-engineering** — copy-paste, missing obvious abstraction, hardcoded values
-- Single responsibility violations
-- Tight coupling, hidden dependencies
-- Layer violations (biz logic in controllers, queries in views)
-- Consistency with existing codebase patterns
-- Missing feature flag / rollback path for risky changes
-
-#### 📖 Readability & Maintainability
-- Bad naming (variables, functions, classes)
-- Long/complex functions, deep nesting
-- Missing "why" comments for non-obvious decisions
-- Dead code, unused imports, unreachable branches
-- Magic numbers/strings without named constants
-
-#### 🧪 Testing
-- New code paths without tests
-- Tests that don't assert meaningful behavior
-- Missing negative / edge case tests
-- Flaky test risk (timing, order, environment dependent)
-- Test isolation — shared state, external dependencies
-
-#### 🚀 Deployment & Ops
+### 🚀 Deployment & Ops
 - DB migrations — reversible? Zero-downtime safe?
 - Missing logging for key operations
 - New env vars undocumented, no defaults
 - Breaking API changes without versioning
 
-### Step 3: Summary
+For each issue use this format:
+📍 file:line(s)
+🏷️ [severity] [category]
+💬 What's wrong and why it matters
+✏️ Suggested fix (code snippet if helpful)
 
-Present a verdict in chat:
+Severity levels: 🔴 Blocker · 🟠 Major · 🟡 Minor · 💭 Nit · 💚 Praise
 
+Rules:
+- Every criticism needs a suggested fix
+- Flag patterns, not every instance — same issue 5 times → note once with "repeats in N places"
+- Call out 1-3 things done well
+- Skip categories with zero findings
+- Never modify any files
+```
+
+---
+
+### Step 3: Merge & Present Findings
+
+Wait for both agents to complete, then merge their findings into a single unified report:
+
+Present all issues grouped by severity (Blockers first), deduplicated (if both agents flagged the same thing — merge into one entry, note both agents agreed).
 ```
 ## 🔍 Review Summary
 
@@ -131,10 +180,9 @@ Present a verdict in chat:
 |---|----------|----------|----------|---------|
 | 1 | 🔴 Blocker | Security | auth.py:45 | SQL injection in user lookup |
 | 2 | 🟠 Major | Performance | users.py:112 | N+1 in user list endpoint |
-| ... | ... | ... | ... | ... |
 
 ### What's done well
-<Explicitly list 1-3 things the author did right>
+<1-3 things the author did right — from both agents combined>
 ```
 
 ### Step 4: Next Steps

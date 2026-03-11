@@ -37,8 +37,16 @@ class PoliciesRegistry:
         return methods
 
     def get_policy_for_record(self, record: Any) -> type:
-        """Find policy class for a record using the discovered policy cache."""
-        record_class_name = record.__class__.__name__
+        """Find policy class for a record using the discovered policy cache.
+
+        Accepts either a model instance or the model class itself.  Passing the
+        class is the preferred form for resource-agnostic checks (e.g. 'create')
+        because it avoids constructing a throwaway ORM object.
+        """
+        if isinstance(record, type):
+            record_class_name = record.__name__
+        else:
+            record_class_name = record.__class__.__name__
         policy_class_name = f"{record_class_name}Policy"
         all_policies = self.get_all_policies()
 

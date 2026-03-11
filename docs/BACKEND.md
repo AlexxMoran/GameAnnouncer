@@ -218,6 +218,38 @@ async def update_game(game_id: int, user: User, session: AsyncSession):
         raise HTTPException(403)
 ```
 
+### Authorization Rules
+
+**Authorization lives exclusively at entrypoints. Services must not know about users or permissions.**
+
+| Layer | Responsibility |
+|---|---|
+| `api/**` routes | Call `authorize_action(user, resource, "action")` **before** delegating to a service |
+| `domains/**/services/` | Business logic only — no imports from `core.permissions`, no `user` argument for auth purposes |
+| `tasks/` | System entrypoints — no user context, no `authorize_action` |
+
+**Correct pattern in endpoints:**
+```python
+@router.patch("/{announcement_id}/participants/{participant_id}")
+async def patch_participant_score(
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+    ...
+) -> ...:
+    authorize_action(user, announcement, "edit")          # auth at entrypoint
+    participant = await update_participant_score(...)     # service has no auth
+```
+
+**Service files must NOT contain:**
+```python
+# NEVER in domains/**/services/*.py
+from core.permissions import authorize_action
+authorize_action(user, resource, "action")
+```
+
+The architecture guardrail test in `tests/unit/test_architecture.py` automatically
+verifies that no service file imports `core.permissions`.
+
 ---
 
 ## Async Tasks

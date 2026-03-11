@@ -109,11 +109,11 @@ async def patch_participant_score(
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementParticipantResponse]:
+    authorize_action(user, announcement, "edit")
     participant = await update_participant_score(
         participant_id=participant_id,
         qualification_score=score_in.qualification_score,
         announcement=announcement,
-        user=user,
         session=session,
     )
     await session.commit()
@@ -129,7 +129,15 @@ async def get_announcement_registration_requests(
     skip: int = 0,
     limit: int = 10,
     announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
 ) -> PaginatedResponse[RegistrationRequestResponse]:
+    """
+    List all registration requests for an announcement.
+
+    Restricted to the announcement organizer and admins.
+    Returns 401 if unauthenticated, 403 if authenticated but unauthorized.
+    """
+    authorize_action(user, announcement, "edit")
     repo = RegistrationRequestRepository(session)
     registration_requests, total = await repo.find_all_by_announcement_id(
         announcement_id=announcement.id, skip=skip, limit=limit
@@ -145,6 +153,7 @@ async def create_announcement(
     announcement_in: AnnouncementCreate,
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
+    authorize_action(user, Announcement, "create")
     service = CreateAnnouncementService(
         session=session, announcement_in=announcement_in, user=user
     )
@@ -207,7 +216,8 @@ async def finalize_qualification(
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
-    service = FinalizeQualificationService(announcement, session, user)
+    authorize_action(user, announcement, "manage_lifecycle")
+    service = FinalizeQualificationService(announcement, session)
     announcement = await service.call()
     await session.commit()
     return DataResponse(data=announcement)
@@ -222,7 +232,8 @@ async def generate_bracket(
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
-    service = GenerateBracketService(announcement, session, user)
+    authorize_action(user, announcement, "manage_lifecycle")
+    service = GenerateBracketService(announcement, session)
     announcement = await service.call()
     await session.commit()
     return DataResponse(data=announcement)

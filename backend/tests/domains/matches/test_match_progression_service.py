@@ -42,9 +42,7 @@ async def test_winner_is_set_and_match_completed(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(
-        final, announcement, body, db_session, organizer
-    ).call()
+    await MatchProgressionService(final, announcement, body, db_session).call()
     await db_session.commit()
 
     final = await _reload_match(db_session, final.id)
@@ -87,9 +85,7 @@ async def test_winner_advances_to_next_match_odd_slot(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(
-        semi, announcement, body, db_session, organizer
-    ).call()
+    await MatchProgressionService(semi, announcement, body, db_session).call()
     await db_session.commit()
 
     final = await _reload_match(db_session, final.id)
@@ -131,9 +127,7 @@ async def test_winner_advances_to_next_match_even_slot(
     )
 
     body = MatchResultUpdate(winner="participant2")
-    await MatchProgressionService(
-        semi, announcement, body, db_session, organizer
-    ).call()
+    await MatchProgressionService(semi, announcement, body, db_session).call()
     await db_session.commit()
 
     final = await _reload_match(db_session, final.id)
@@ -175,9 +169,7 @@ async def test_next_match_becomes_ready_when_both_slots_filled(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(
-        semi, announcement, body, db_session, organizer
-    ).call()
+    await MatchProgressionService(semi, announcement, body, db_session).call()
     await db_session.commit()
 
     final = await _reload_match(db_session, final.id)
@@ -230,9 +222,7 @@ async def test_semifinal_loser_fills_third_place_odd_slot(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(
-        semi, announcement, body, db_session, organizer
-    ).call()
+    await MatchProgressionService(semi, announcement, body, db_session).call()
     await db_session.commit()
 
     third_place = await _reload_match(db_session, third_place.id)
@@ -293,16 +283,12 @@ async def test_third_place_match_becomes_ready_after_both_semis(
     )
 
     body1 = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(
-        semi1, announcement, body1, db_session, organizer
-    ).call()
+    await MatchProgressionService(semi1, announcement, body1, db_session).call()
     await db_session.flush()
 
     semi2 = await _reload_match(db_session, semi2.id)
     body2 = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(
-        semi2, announcement, body2, db_session, organizer
-    ).call()
+    await MatchProgressionService(semi2, announcement, body2, db_session).call()
     await db_session.commit()
 
     third_place = await _reload_match(db_session, third_place.id)
@@ -335,9 +321,7 @@ async def test_final_assigns_placements_1_and_2(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(
-        final, announcement, body, db_session, organizer
-    ).call()
+    await MatchProgressionService(final, announcement, body, db_session).call()
     await db_session.commit()
 
     await db_session.refresh(p1)
@@ -380,9 +364,7 @@ async def test_third_place_match_assigns_placements_3_and_4(
     )
 
     body = MatchResultUpdate(winner="participant2")
-    await MatchProgressionService(
-        third_place, announcement, body, db_session, organizer
-    ).call()
+    await MatchProgressionService(third_place, announcement, body, db_session).call()
     await db_session.commit()
 
     await db_session.refresh(p1)
@@ -415,9 +397,7 @@ async def test_tournament_completes_and_announcement_becomes_finished(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(
-        final, announcement, body, db_session, organizer
-    ).call()
+    await MatchProgressionService(final, announcement, body, db_session).call()
     await db_session.commit()
 
     await db_session.refresh(announcement)
@@ -453,7 +433,6 @@ async def test_raises_when_match_not_ready(
             announcement,
             MatchResultUpdate(winner="participant1"),
             db_session,
-            organizer,
         ).call()
 
 
@@ -485,7 +464,6 @@ async def test_raises_when_match_is_bye(
             announcement,
             MatchResultUpdate(winner="participant1"),
             db_session,
-            organizer,
         ).call()
 
 
@@ -516,5 +494,4 @@ async def test_raises_when_selected_winner_slot_is_empty(
             announcement,
             MatchResultUpdate(winner="participant2"),
             db_session,
-            organizer,
         ).call()

@@ -3,7 +3,8 @@ from core.policies.base_policy import BasePolicy
 
 class GamePolicy(BasePolicy):
     def can_view(self) -> bool:
-        return self.is_admin
+        """Games are public catalog data; anyone may view them."""
+        return True
 
     def can_create(self) -> bool:
         return self.is_admin

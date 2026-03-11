@@ -56,7 +56,7 @@ async def create_game(
     game_in: GameCreate,
     user: User = Depends(current_user),
 ) -> DataResponse[GameResponse]:
-    authorize_action(user, Game(), "create")
+    authorize_action(user, Game, "create")
     repo = GameRepository(session)
     game = Game(**game_in.model_dump())
     game = await repo.save(game)

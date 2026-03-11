@@ -53,7 +53,7 @@ async def test_bracket_generated_for_non_qual_announcement(
         await create_participant(announcement_id=announcement.id, user_id=user.id)
 
     announcement = await _reload(db_session, announcement.id)
-    await GenerateBracketService(announcement, db_session, organizer).call()
+    await GenerateBracketService(announcement, db_session).call()
     await db_session.commit()
 
     matches = await _get_matches(db_session, announcement.id)
@@ -101,7 +101,7 @@ async def test_bracket_generated_after_qualification(
     )
 
     announcement = await _reload(db_session, announcement.id)
-    await GenerateBracketService(announcement, db_session, organizer).call()
+    await GenerateBracketService(announcement, db_session).call()
     await db_session.commit()
 
     matches = await _get_matches(db_session, announcement.id)
@@ -128,7 +128,7 @@ async def test_seeds_assigned_correctly(
         participants.append(participant)
 
     announcement = await _reload(db_session, announcement.id)
-    await GenerateBracketService(announcement, db_session, organizer).call()
+    await GenerateBracketService(announcement, db_session).call()
     await db_session.commit()
 
     for participant in participants:
@@ -159,7 +159,7 @@ async def test_standard_seeding_order_r1(
         participants.append(participant)
 
     announcement = await _reload(db_session, announcement.id)
-    await GenerateBracketService(announcement, db_session, organizer).call()
+    await GenerateBracketService(announcement, db_session).call()
     await db_session.commit()
 
     for participant in participants:
@@ -195,7 +195,7 @@ async def test_bye_match_has_correct_winner(
         await create_participant(announcement_id=announcement.id, user_id=user.id)
 
     announcement = await _reload(db_session, announcement.id)
-    await GenerateBracketService(announcement, db_session, organizer).call()
+    await GenerateBracketService(announcement, db_session).call()
     await db_session.commit()
 
     matches = await _get_matches(db_session, announcement.id)
@@ -228,7 +228,7 @@ async def test_bye_winner_propagated_to_r2(
         await create_participant(announcement_id=announcement.id, user_id=user.id)
 
     announcement = await _reload(db_session, announcement.id)
-    await GenerateBracketService(announcement, db_session, organizer).call()
+    await GenerateBracketService(announcement, db_session).call()
     await db_session.commit()
 
     matches = await _get_matches(db_session, announcement.id)
@@ -267,7 +267,7 @@ async def test_third_place_match_created(
         await create_participant(announcement_id=announcement.id, user_id=user.id)
 
     announcement = await _reload(db_session, announcement.id)
-    await GenerateBracketService(announcement, db_session, organizer).call()
+    await GenerateBracketService(announcement, db_session).call()
     await db_session.commit()
 
     matches = await _get_matches(db_session, announcement.id)
@@ -297,7 +297,7 @@ async def test_next_match_winner_id_linked(
         await create_participant(announcement_id=announcement.id, user_id=user.id)
 
     announcement = await _reload(db_session, announcement.id)
-    await GenerateBracketService(announcement, db_session, organizer).call()
+    await GenerateBracketService(announcement, db_session).call()
     await db_session.commit()
 
     matches = await _get_matches(db_session, announcement.id)
@@ -329,7 +329,7 @@ async def test_raises_when_qual_not_finished(
 
     announcement = await _reload(db_session, announcement.id)
     with pytest.raises(ValidationException, match="Qualification must be finalized"):
-        await GenerateBracketService(announcement, db_session, organizer).call()
+        await GenerateBracketService(announcement, db_session).call()
 
 
 @pytest.mark.asyncio
@@ -351,7 +351,7 @@ async def test_raises_when_bracket_already_generated(
 
     announcement = await _reload(db_session, announcement.id)
     with pytest.raises(ValidationException, match="already been generated"):
-        await GenerateBracketService(announcement, db_session, organizer).call()
+        await GenerateBracketService(announcement, db_session).call()
 
 
 @pytest.mark.asyncio
@@ -368,7 +368,7 @@ async def test_raises_when_no_eligible_participants(
 
     announcement = await _reload(db_session, announcement.id)
     with pytest.raises(ValidationException, match="At least 2 eligible participants"):
-        await GenerateBracketService(announcement, db_session, organizer).call()
+        await GenerateBracketService(announcement, db_session).call()
 
 
 @pytest.mark.asyncio
@@ -387,7 +387,7 @@ async def test_bracket_size_set_on_announcement_for_non_qual(
         await create_participant(announcement_id=announcement.id, user_id=user.id)
 
     announcement = await _reload(db_session, announcement.id)
-    result = await GenerateBracketService(announcement, db_session, organizer).call()
+    result = await GenerateBracketService(announcement, db_session).call()
     await db_session.commit()
 
     assert result.bracket_size == 8

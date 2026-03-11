@@ -79,13 +79,14 @@ async def test_set_match_result_returns_200_for_organizer(
     )
 
     class FakeService:
-        def __init__(self, match, announcement, result_in, session, user):
+        def __init__(self, match, announcement, result_in, session):
             pass
 
         async def call(self):
             return completed_match
 
     with (
+        patch("api.v1.matches.authorize_action"),
         patch(
             "api.v1.matches.MatchRepository.find_by_id",
             new=AsyncMock(return_value=match),
@@ -158,8 +159,8 @@ async def test_set_match_result_returns_403_for_non_organizer(
             new=AsyncMock(return_value=announcement),
         ),
         patch(
-            "api.v1.matches.MatchProgressionService.call",
-            new=AsyncMock(side_effect=AppException("Forbidden", status_code=403)),
+            "api.v1.matches.authorize_action",
+            side_effect=AppException("Forbidden", status_code=403),
         ),
     ):
         r = await client.patch(

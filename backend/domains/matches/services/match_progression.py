@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.permissions import authorize_action
 from domains.announcements.model import Announcement
 from domains.announcements.services.lifecycle import AnnouncementLifecycleService
 from domains.matches.model import Match
@@ -32,19 +31,15 @@ class MatchProgressionService:
         announcement: Announcement,
         result_in: MatchResultUpdate,
         session: AsyncSession,
-        user,
     ) -> None:
         self._match = match
         self._announcement = announcement
         self._result_in = result_in
         self._session = session
-        self._user = user
         self._repo = MatchRepository(session)
 
     async def call(self) -> Match:
         """Report a match result and progress the bracket."""
-        authorize_action(self._user, self._announcement, "manage_lifecycle")
-
         self._validate()
         winner_id, loser_id = self._resolve_winner_and_loser_ids()
 

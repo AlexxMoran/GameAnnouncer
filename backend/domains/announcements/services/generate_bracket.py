@@ -2,14 +2,12 @@ from typing import Protocol
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.permissions import authorize_action
 from domains.announcements.model import Announcement
 from domains.announcements.services.lifecycle import AnnouncementLifecycleService
 from domains.announcements.utils.bracket import compute_bracket_size
 from domains.matches.repository import MatchRepository
 from domains.matches.services.bracket_match_builder import BracketMatchBuilder
 from domains.participants.model import AnnouncementParticipant
-from domains.users.model import User
 from enums import AnnouncementStatus
 from exceptions import ValidationException
 
@@ -109,17 +107,14 @@ class GenerateBracketService:
     propagates BYE winners into round 2, and fires the generate_bracket lifecycle trigger.
 
     Usage:
-        service = GenerateBracketService(announcement, session, user)
+        service = GenerateBracketService(announcement, session)
         announcement = await service.call()
         await session.commit()
     """
 
-    def __init__(
-        self, announcement: Announcement, session: AsyncSession, user: User
-    ) -> None:
+    def __init__(self, announcement: Announcement, session: AsyncSession) -> None:
         self._announcement = announcement
         self._session = session
-        self._user = user
         self._strategy: BracketStrategy = (
             QualificationBracketStrategy(announcement)
             if announcement.has_qualification
@@ -155,11 +150,9 @@ class GenerateBracketService:
         Generate the bracket: assign seeds, build matches, link rounds, propagate BYEs.
 
         Raises:
-            ValidationException: If the user is not authorized, preconditions fail,
-                                  or fewer than 2 eligible participants are found.
+            ValidationException: If preconditions fail or fewer than 2 eligible
+                                  participants are found.
         """
-        authorize_action(self._user, self._announcement, "manage_lifecycle")
-
         match_repo = MatchRepository(self._session)
         if await match_repo.exists_for_announcement(self._announcement.id):
             raise ValidationException("Bracket has already been generated")
