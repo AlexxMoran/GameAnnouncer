@@ -11,7 +11,13 @@ export interface IFormResponse {
 }
 
 export interface IRegistrationRequestDto extends IEntityDateFields, IEntityIdField {
-  announcement_id: number;
+  announcement: {
+    id: number;
+    title: string;
+    game: {
+      name: string;
+    };
+  };
   user_id: number;
   status: ERegistrationRequestStatuses;
 }

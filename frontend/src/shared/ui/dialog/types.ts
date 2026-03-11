@@ -5,7 +5,3 @@ export interface IDialogProps extends Omit<DialogProps, "onClose"> {
   onCloseDialog?: () => void;
   disableBackdropClick?: boolean;
 }
-
-export interface ITStylesProps {
-  $capitalizeFirst?: boolean;
-}

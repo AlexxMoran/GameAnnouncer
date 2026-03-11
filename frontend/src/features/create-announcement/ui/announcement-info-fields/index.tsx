@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 import { useFormikContext } from "formik";
 import { debounce } from "lodash";
 import { observer } from "mobx-react-lite";
-import { useState, type ChangeEvent, type FC, type SyntheticEvent } from "react";
+import { useCallback, useMemo, useState, type ChangeEvent, type FC, type SyntheticEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 export const AnnouncementInfoFields: FC = observer(() => {
@@ -35,20 +35,86 @@ export const AnnouncementInfoFields: FC = observer(() => {
 
   const { list, isInitialLoading, isPaginating, paginate, init } = paginationService;
 
-  const handlePickerChange = (name: keyof ICreateAnnouncementsFields, value: PickerValue) => {
+  const startSlotProps = useMemo(
+    () => ({
+      textField: {
+        required: true,
+        label: t("texts.registrationStartDate"),
+        error: !!errors.registration_start_at,
+        helperText: errors.registration_start_at,
+      },
+    }),
+    [t, errors.registration_start_at]
+  );
+
+  const endSlotProps = useMemo(
+    () => ({
+      textField: {
+        required: true,
+        label: t("texts.registrationEndDate"),
+        error: !!errors.registration_end_at,
+        helperText: errors.registration_end_at,
+      },
+    }),
+    [t, errors.registration_end_at]
+  );
+
+  const announcementStartSlotProps = useMemo(
+    () => ({
+      textField: {
+        required: true,
+        label: t("texts.announcementStartDate"),
+        error: !!errors.start_at,
+        helperText: errors.start_at,
+      },
+    }),
+    [t, errors.start_at]
+  );
+
+  const registrationStartValue = useMemo(() => dayjs(values.registration_start_at), [values.registration_start_at]);
+  const registrationEndValue = useMemo(() => dayjs(values.registration_end_at), [values.registration_end_at]);
+  const startAtValue = useMemo(() => dayjs(values.start_at), [values.start_at]);
+
+  const registrationStartMax = useMemo(() => {
+    return startAtValue || registrationEndValue;
+  }, [startAtValue, registrationEndValue]);
+
+  const registrationEndMin = useMemo(() => registrationStartValue, [registrationStartValue]);
+  const registrationEndMax = useMemo(() => startAtValue, [startAtValue]);
+
+  const startAtMin = useMemo(() => {
+    return registrationEndValue || registrationStartValue;
+  }, [registrationEndValue, registrationStartValue]);
+
+  const handlePickerChange = useCallback((name: keyof ICreateAnnouncementsFields, value: PickerValue) => {
     if (dayjs(value).isValid()) {
       setFieldValue(name, value?.toISOString());
     }
-  };
+  }, []);
+
+  const handleStartChange = useCallback(
+    (value: PickerValue) => handlePickerChange("registration_start_at", value),
+    [handlePickerChange]
+  );
+
+  const handleEndChange = useCallback(
+    (value: PickerValue) => handlePickerChange("registration_end_at", value),
+    [handlePickerChange]
+  );
+
+  const handleAnnouncementStartChange = useCallback(
+    (value: PickerValue) => handlePickerChange("start_at", value),
+    [handlePickerChange]
+  );
 
   const handleMaxParticipantsChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value ? parseInt(event.target.value, 10).toString() : 0;
     setFieldValue("max_participants", value);
   };
 
-  const handleChangeGame = (_: SyntheticEvent, value: TMaybe<IGameDto>) => {
+  const handleChangeGame = useCallback((_: SyntheticEvent, value: TMaybe<IGameDto>) => {
     setFieldValue("game", value);
-  };
+  }, []);
 
   const handleInputChange = debounce((_: SyntheticEvent, value: string) => {
     init({ name: value });
@@ -74,7 +140,7 @@ export const AnnouncementInfoFields: FC = observer(() => {
       />
       <Autocomplete
         name="category"
-        label={t("entities.game")}
+        label={t("entities.game.one")}
         value={values["game"]}
         error={!!errors["game"]}
         helperText={errors["game"]}
@@ -114,46 +180,25 @@ export const AnnouncementInfoFields: FC = observer(() => {
         ))}
       </TextField>
       <DateTimePicker
-        slotProps={{
-          textField: {
-            required: true,
-            label: t("texts.registrationStartDate"),
-            error: !!errors["registration_start_at"],
-            helperText: errors["registration_start_at"],
-          },
-        }}
-        onChange={(value) => handlePickerChange("registration_start_at", value)}
-        value={dayjs(values["registration_start_at"])}
-        maxDateTime={dayjs(values["start_at"]) || dayjs(values["registration_end_at"])}
+        slotProps={startSlotProps}
+        onChange={handleStartChange}
+        value={registrationStartValue}
+        maxDateTime={registrationStartMax}
         disablePast
       />
       <DateTimePicker
-        slotProps={{
-          textField: {
-            required: true,
-            label: t("texts.registrationEndDate"),
-            error: !!errors["registration_start_at"],
-            helperText: errors["registration_end_at"],
-          },
-        }}
-        onChange={(value) => handlePickerChange("registration_end_at", value)}
-        value={dayjs(values["registration_end_at"])}
-        minDateTime={dayjs(values["registration_start_at"])}
-        maxDateTime={dayjs(values["start_at"])}
+        slotProps={endSlotProps}
+        onChange={handleEndChange}
+        value={registrationEndValue}
+        minDateTime={registrationEndMin}
+        maxDateTime={registrationEndMax}
         disablePast
       />
       <DateTimePicker
-        slotProps={{
-          textField: {
-            required: true,
-            label: t("texts.announcementStartDate"),
-            error: !!errors["start_at"],
-            helperText: errors["start_at"],
-          },
-        }}
-        onChange={(value) => handlePickerChange("start_at", value)}
-        value={dayjs(values["start_at"])}
-        minDateTime={dayjs(values["registration_end_at"]) || dayjs(values["registration_start_at"])}
+        slotProps={announcementStartSlotProps}
+        onChange={handleAnnouncementStartChange}
+        value={startAtValue}
+        minDateTime={startAtMin}
         disablePast
       />
       <TextField
@@ -163,7 +208,7 @@ export const AnnouncementInfoFields: FC = observer(() => {
         value={values["content"]}
         error={!!errors["content"]}
         helperText={errors["content"]}
-        maxRows={3}
+        rows={3}
         multiline
       />
       <FormControlLabel

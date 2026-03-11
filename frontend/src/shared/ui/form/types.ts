@@ -1,23 +1,21 @@
 import type { TObjectAny } from "@shared/types/main.types";
-import type { IBoxProps } from "@shared/ui/box/types";
 import type { FormikConfig } from "formik";
-import type { FC } from "react";
+import type { FC, PropsWithChildren } from "react";
 
 export interface IFormikConfig<T extends TObjectAny> extends Omit<FormikConfig<T>, "onSubmit"> {
   onSubmit?: FormikConfig<T>["onSubmit"];
 }
 
-export interface IFormProps<TFormValues extends TObjectAny> {
+export interface IFormProps<TFormValues extends TObjectAny> extends PropsWithChildren {
   fields: FC;
   formikConfig: IFormikConfig<TFormValues>;
   onSubmit?: (values: TFormValues) => Promise<unknown> | void | undefined;
   onValidation?: (isValid: boolean) => void;
   onValuesChange?: (values: TFormValues) => void;
-  buttonText?: string;
-  wrapperStyles?: IBoxProps;
+  onCancel?: () => void;
+  confirmButtonText?: string;
+  cancelButtonText?: string;
   cancelWithResult?: boolean;
-  cancelButton?: {
-    text: string;
-    onCancel?: () => void;
-  };
+  isForDialog?: boolean;
+  disableOnSameValues?: boolean;
 }

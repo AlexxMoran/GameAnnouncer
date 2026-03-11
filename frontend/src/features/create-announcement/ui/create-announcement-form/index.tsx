@@ -5,14 +5,12 @@ import type { IRegistrationFormFields } from "@features/create-announcement/mode
 import { AnnouncementInfoFields } from "@features/create-announcement/ui/announcement-info-fields";
 import type { ICreateAnnouncementFormProps } from "@features/create-announcement/ui/create-announcement-form/types";
 import { RegistrationFormFields } from "@features/create-announcement/ui/registration-form-fields";
-import HelpIcon from "@mui/icons-material/Help";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { EAnnouncementFormat } from "@shared/services/api/announcements-api-service/constants";
 import type { TMaybe } from "@shared/types/main.types";
 import { Box } from "@shared/ui/box";
 import { Form } from "@shared/ui/form";
 import { Stepper } from "@shared/ui/stepper";
-import { Tooltip } from "@shared/ui/tooltip";
 import { T } from "@shared/ui/typography";
 import isEmpty from "lodash/isEmpty";
 import { useState, type FC } from "react";
@@ -40,7 +38,7 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
   };
 
   const validationSchema = createValidationSchema(t);
-  const stepList = [t("texts.announcementInfo"), t("texts.registrationForm")];
+  const stepList = [t("texts.announcementInfo"), t("texts.applicationForm")];
 
   const handleCreateAnnouncement = async () => {
     if (cashedValues) {
@@ -65,11 +63,7 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
           }
         );
 
-        const result = await onSubmit?.(requestValues);
-
-        if (result) {
-          setCashedValues(null);
-        }
+        await onSubmit?.(requestValues);
       }
     }
   };
@@ -86,12 +80,20 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
     setActiveStep((step) => step + 1);
   };
 
-  const cancelButtonProps = (() => {
+  const cancelButtonText = (() => {
     if (activeStep === 0) {
-      return { text: t("actions.cancel"), onCancel: closeDialog };
+      return t("actions.cancel");
     }
 
-    return { text: t("actions.back"), onCancel: handleBackStep };
+    return t("actions.back");
+  })();
+
+  const handleCancel = (() => {
+    if (activeStep === 0) {
+      return closeDialog;
+    }
+
+    return handleBackStep;
   })();
 
   const fields = (() => {
@@ -102,7 +104,7 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
     return RegistrationFormFields;
   })();
 
-  const submitButtonText = (() => {
+  const confirmButtonText = (() => {
     if (activeStep === 0) {
       return t("actions.next");
     }
@@ -110,10 +112,12 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
     return t("actions.add");
   })();
 
-  const subtitleTooltip = (() => {
+  const subtitle = (() => {
     if (activeStep === 1) {
-      return t("texts.createRegistrationFormTooltip");
+      return t("texts.customizeForm");
     }
+
+    return t("texts.fillInBasicTournamentInfo");
   })();
 
   const handleSubmit = (() => {
@@ -133,28 +137,26 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
   })();
 
   return (
-    <Box display="flex" flexDirection="column" gap={10}>
-      <Stepper steps={stepList} activeStep={activeStep} />
-      <Box display="flex" flexDirection="column" gap={6}>
-        <Box display="flex" alignItems="flex-start">
-          <T variant="h6">{stepList[activeStep]}</T>
-          {subtitleTooltip && (
-            <Tooltip title={subtitleTooltip}>
-              <HelpIcon fontSize="small" sx={{ cursor: "pointer" }} />
-            </Tooltip>
-          )}
-        </Box>
-        <Form
-          onSubmit={handleSubmit}
-          formikConfig={{ initialValues, ...validation }}
-          fields={fields}
-          buttonText={submitButtonText}
-          wrapperStyles={{ minWidth: "500px" }}
-          onValuesChange={handleValuesChange}
-          cancelButton={cancelButtonProps}
-          key={activeStep}
-        />
+    <>
+      <Box display="flex" flexDirection="column" gap={2} paddingInline={3}>
+        <Stepper steps={stepList} activeStep={activeStep} />
+        {subtitle && (
+          <T variant="caption" color="textSecondary">
+            {subtitle}
+          </T>
+        )}
       </Box>
-    </Box>
+      <Form
+        onSubmit={handleSubmit}
+        formikConfig={{ initialValues, ...validation }}
+        fields={fields}
+        confirmButtonText={confirmButtonText}
+        onValuesChange={handleValuesChange}
+        cancelButtonText={cancelButtonText}
+        onCancel={handleCancel}
+        key={activeStep}
+        isForDialog
+      />
+    </>
   );
 };

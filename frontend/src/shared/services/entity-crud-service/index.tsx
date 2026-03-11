@@ -42,7 +42,9 @@ export class EntityCrudService<
       list: this.paginationService.list,
       isInitialLoading: this.paginationService.isInitialLoading,
       isPaginating: this.paginationService.isPaginating,
-      total: this.paginationService.total,
+      totalCount: this.paginationService.totalCount,
+      filteredCount: this.paginationService.filteredCount,
+      hasMore: this.paginationService.hasMore,
     };
   }
 
@@ -104,5 +106,9 @@ export class EntityCrudService<
 
   setFilter = <K extends keyof TGetListParams>(key: K, value: TGetListParams[K]) => {
     this.filterService.setFilter(key, value);
+  };
+
+  setItem = (entity: TEntity) => {
+    this.paginationService.setItem(entity);
   };
 }

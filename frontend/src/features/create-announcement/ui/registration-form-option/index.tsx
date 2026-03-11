@@ -23,6 +23,7 @@ export const RegistrationFormOption: FC<IRegistrationFormOptionProps> = memo((pr
       />
       <Tooltip title={t("actions.deleteOption")}>
         <IconButton
+          color="error"
           sx={{ alignSelf: "center" }}
           disabled={isDeletionDisabled}
           onClick={() => onDeleteOption?.(fieldKey, optionKey)}

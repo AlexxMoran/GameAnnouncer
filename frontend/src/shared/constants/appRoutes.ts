@@ -6,15 +6,10 @@ export enum EAppRoutes {
   Announcements = "/announcements",
   AccountSettings = "/account-settings",
   MyAnnouncements = "/my-announcements",
+  RegistrationRequests = "/registration-requests",
 }
 
-export enum ERouteParams {
-  GameId = "gameId",
-  AnnouncementId = "announcementId",
-}
-
-export enum EAppSubRoutes {
-  ParticipatedAnnouncements = "participated",
-  OrganizedAnnouncements = "organized",
-  MyRegistrationRequests = "my-requests",
+export enum EMyAnnouncementsTabs {
+  Organized = "organized",
+  Participated = "participated",
 }
