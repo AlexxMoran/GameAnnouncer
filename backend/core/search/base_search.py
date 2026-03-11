@@ -42,10 +42,16 @@ class BaseSearch:
 
         return result.scalars().all()
 
-    async def count(self):
+    async def filtered_count(self) -> int:
         filtered_subquery = self.base_query().subquery()
 
         count_query = select(func.count()).select_from(filtered_subquery)
         result = await self.session.execute(count_query)
 
+        return result.scalar_one()
+
+    async def total_count(self) -> int:
+        """Return total count of all records without any filters applied."""
+        count_query = select(func.count()).select_from(self.model)
+        result = await self.session.execute(count_query)
         return result.scalar_one()

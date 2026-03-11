@@ -36,9 +36,16 @@ async def get_games(
 ) -> PaginatedResponse[GameResponse]:
     search = GameSearch(session=session, filters=filters)
     games = await search.results(skip=skip, limit=limit)
-    games_count = await search.count()
+    filtered_games_count = await search.filtered_count()
+    total_games_count = await search.total_count()
     get_batch_permissions(user, games)
-    return PaginatedResponse(data=games, skip=skip, limit=limit, total=games_count)
+    return PaginatedResponse(
+        data=games,
+        skip=skip,
+        limit=limit,
+        filtered_count=filtered_games_count,
+        total_count=total_games_count,
+    )
 
 
 @router.get("/{game_id}", response_model=DataResponse[GameResponse])

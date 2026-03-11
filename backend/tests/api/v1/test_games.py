@@ -17,7 +17,8 @@ async def test_get_games_accessible_without_auth(async_client):
     """GET /games returns 200 for unauthenticated callers."""
     with (
         patch("api.v1.games.GameSearch.results", new=AsyncMock(return_value=[])),
-        patch("api.v1.games.GameSearch.count", new=AsyncMock(return_value=0)),
+        patch("api.v1.games.GameSearch.filtered_count", new=AsyncMock(return_value=0)),
+        patch("api.v1.games.GameSearch.total_count", new=AsyncMock(return_value=0)),
         patch("api.v1.games.get_batch_permissions", return_value=None),
     ):
         r = await async_client.get("/api/v1/games")
@@ -35,17 +36,15 @@ async def test_get_games_paginated(async_client, game_factory):
             "api.v1.games.GameSearch.results",
             new=AsyncMock(return_value=games),
         ),
-        patch(
-            "api.v1.games.GameSearch.count",
-            new=AsyncMock(return_value=2),
-        ),
+        patch("api.v1.games.GameSearch.filtered_count", new=AsyncMock(return_value=2)),
+        patch("api.v1.games.GameSearch.total_count", new=AsyncMock(return_value=5)),
         patch("api.v1.games.get_batch_permissions", return_value=None),
     ):
         r = await async_client.get("/api/v1/games?skip=0&limit=10")
         assert r.status_code == 200
         body = r.json()
 
-        assert body["total"] == 2
+        assert body["filtered_count"] == 2
         assert body["limit"] == 10
         assert len(body["data"]) == 2
         assert body["data"][0]["id"] == g1["id"]
