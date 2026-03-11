@@ -22,7 +22,7 @@ async def test_game_search_no_filters(db_session):
     search = GameSearch(session=db_session, filters=filters)
 
     results = await search.results()
-    count = await search.count()
+    count = await search.filtered_count()
 
     assert len(results) >= 2
     assert count >= 2
@@ -39,7 +39,7 @@ async def test_game_search_filter_by_name_exact(db_session):
     search = GameSearch(session=db_session, filters=filters)
 
     results = await search.results()
-    count = await search.count()
+    count = await search.filtered_count()
 
     assert count >= 1
     assert any(game.name == "Dota 2" for game in results)
@@ -57,7 +57,7 @@ async def test_game_search_filter_by_name_partial(db_session):
     search = GameSearch(session=db_session, filters=filters)
 
     results = await search.results()
-    count = await search.count()
+    count = await search.filtered_count()
 
     assert count >= 2
     assert all("dota" in game.name.lower() for game in results)
@@ -81,7 +81,7 @@ async def test_game_search_pagination(db_session):
     assert len(page1) == 2
     assert len(page2) == 2
     assert {g.id for g in page1}.isdisjoint({g.id for g in page2})
-    assert await search.count() >= 5
+    assert await search.filtered_count() >= 5
 
 
 @pytest.mark.asyncio
@@ -90,4 +90,4 @@ async def test_game_search_empty_results(db_session):
     search = GameSearch(session=db_session, filters=filters)
 
     assert len(await search.results()) == 0
-    assert await search.count() == 0
+    assert await search.filtered_count() == 0
