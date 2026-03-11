@@ -22,7 +22,8 @@ class AuthorizationService:
             )
 
         policy_class = self.registry.get_policy_for_record(record)
-        policy = policy_class(user, record)
+        record_instance = None if isinstance(record, type) else record
+        policy = policy_class(user, record_instance)
         method_name = f"can_{action}"
 
         if not hasattr(policy, method_name):

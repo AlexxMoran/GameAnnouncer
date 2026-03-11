@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from core.deps import SessionDep
+from core.permissions import authorize_action
 from core.schemas.base import DataResponse
 from core.users import current_user
 from domains.announcements.model import Announcement
@@ -56,7 +57,8 @@ async def set_match_result(
 
     Requires organizer or admin privileges on the announcement.
     """
-    service = MatchProgressionService(match, announcement, result_in, session, user)
+    authorize_action(user, announcement, "manage_lifecycle")
+    service = MatchProgressionService(match, announcement, result_in, session)
     match = await service.call()
     await session.commit()
     return DataResponse(data=match)

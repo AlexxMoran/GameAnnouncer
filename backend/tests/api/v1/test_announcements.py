@@ -58,6 +58,7 @@ async def test_create_announcement_sets_pre_registration_status(
             return ann_obj
 
     with (
+        patch("api.v1.announcements.authorize_action"),
         patch(
             "api.v1.announcements.CreateAnnouncementService",
             new=FakeService,
@@ -93,6 +94,7 @@ async def test_create_announcement_sets_registration_open_status(
             return ann_obj
 
     with (
+        patch("api.v1.announcements.authorize_action"),
         patch(
             "api.v1.announcements.CreateAnnouncementService",
             new=FakeService,
@@ -178,6 +180,7 @@ async def test_create_announcement_with_format(
             return ann_obj
 
     with (
+        patch("api.v1.announcements.authorize_action"),
         patch(
             "api.v1.announcements.CreateAnnouncementService",
             new=FakeService,
@@ -241,10 +244,13 @@ async def test_patch_participant_score_updates_score(
     app.dependency_overrides[get_announcement_dependency] = override_announcement
 
     try:
-        with patch(
-            "api.v1.announcements.update_participant_score",
-            new=AsyncMock(return_value=participant_obj),
-        ) as mock_service:
+        with (
+            patch("api.v1.announcements.authorize_action"),
+            patch(
+                "api.v1.announcements.update_participant_score",
+                new=AsyncMock(return_value=participant_obj),
+            ) as mock_service,
+        ):
             r = await client.patch(
                 f"/api/v1/announcements/{ann_obj.id}/participants/7",
                 json={"qualification_score": 50},
@@ -349,9 +355,12 @@ async def test_finalize_qualification_returns_200(
     app.dependency_overrides[get_announcement_dependency] = override_announcement
 
     try:
-        with patch(
-            "api.v1.announcements.FinalizeQualificationService",
-            return_value=MagicMock(call=AsyncMock(return_value=ann_obj)),
+        with (
+            patch("api.v1.announcements.authorize_action"),
+            patch(
+                "api.v1.announcements.FinalizeQualificationService",
+                return_value=MagicMock(call=AsyncMock(return_value=ann_obj)),
+            ),
         ):
             r = await client.post(
                 f"/api/v1/announcements/{ann_obj.id}/finalize_qualification"
@@ -382,9 +391,12 @@ async def test_generate_bracket_transitions_to_live(
     app.dependency_overrides[get_announcement_dependency] = override_announcement
 
     try:
-        with patch(
-            "api.v1.announcements.GenerateBracketService",
-            return_value=MagicMock(call=AsyncMock(return_value=ann_obj)),
+        with (
+            patch("api.v1.announcements.authorize_action"),
+            patch(
+                "api.v1.announcements.GenerateBracketService",
+                return_value=MagicMock(call=AsyncMock(return_value=ann_obj)),
+            ),
         ):
             r = await client.post(
                 f"/api/v1/announcements/{ann_obj.id}/generate_bracket"
@@ -590,3 +602,234 @@ async def test_get_bracket_returns_404_when_no_matches(
         del app.dependency_overrides[get_announcement_dependency]
 
     assert r.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_get_announcement_registration_requests_requires_auth(
+    async_client, announcement_factory
+):
+    """GET /registration_requests returns 401 for unauthenticated requests."""
+    from api.v1.announcements import get_announcement_dependency
+
+    ann_obj = SimpleNamespace(**announcement_factory.build(organizer_id=1))
+
+    async def override_announcement():
+        return ann_obj
+
+    import core.users as users_mod
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+    popped = app.dependency_overrides.pop(users_mod.current_user, None)
+
+    try:
+        r = await async_client.get(
+            f"/api/v1/announcements/{ann_obj.id}/registration_requests"
+        )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+        if popped is not None:
+            app.dependency_overrides[users_mod.current_user] = popped
+
+    assert r.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_get_announcement_registration_requests_forbidden_for_non_organizer(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """GET /registration_requests returns 403 for authenticated non-organizers."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    ann_obj = SimpleNamespace(**announcement_factory.build(organizer_id=user.id + 999))
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.authorize_action",
+            side_effect=AppException("Forbidden", status_code=403),
+        ):
+            r = await client.get(
+                f"/api/v1/announcements/{ann_obj.id}/registration_requests"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_get_announcement_registration_requests_allowed_for_organizer(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """GET /registration_requests returns 200 for the announcement organizer."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    ann_obj = SimpleNamespace(**announcement_factory.build(organizer_id=user.id))
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with (
+            patch("api.v1.announcements.authorize_action"),
+            patch(
+                "api.v1.announcements.RegistrationRequestRepository",
+                return_value=MagicMock(
+                    find_all_by_announcement_id=AsyncMock(return_value=([], 0))
+                ),
+            ),
+        ):
+            r = await client.get(
+                f"/api/v1/announcements/{ann_obj.id}/registration_requests"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 200
+    assert r.json()["data"] == []
+    assert r.json()["total"] == 0
+
+
+@pytest.mark.asyncio
+async def test_create_announcement_returns_401_when_unauthenticated(
+    async_client, announcement_factory
+):
+    """POST /announcements returns 401 for unauthenticated callers."""
+    import core.users as users_mod
+
+    app = async_client._transport.app
+    app.dependency_overrides.pop(users_mod.current_user, None)
+
+    now = datetime.now(timezone.utc)
+    announcement_data = announcement_factory.build(
+        registration_start_at=now.isoformat(),
+        registration_end_at=(now + timedelta(days=1)).isoformat(),
+        start_at=(now + timedelta(days=2)).isoformat(),
+    )
+    r = await async_client.post("/api/v1/announcements", json=announcement_data)
+    assert r.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_create_announcement_returns_403_when_not_allowed(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /announcements returns 403 when the user cannot create announcements."""
+    client = authenticated_client(user)
+
+    now = datetime.now(timezone.utc)
+    announcement_data = announcement_factory.build(
+        registration_start_at=now.isoformat(),
+        registration_end_at=(now + timedelta(days=1)).isoformat(),
+        start_at=(now + timedelta(days=2)).isoformat(),
+    )
+
+    with patch(
+        "api.v1.announcements.authorize_action",
+        side_effect=AppException("Forbidden", status_code=403),
+    ):
+        r = await client.post("/api/v1/announcements", json=announcement_data)
+
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_patch_participant_score_returns_403_for_non_organizer(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """PATCH participant score returns 403 when the user is not the organizer."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    ann_obj = SimpleNamespace(**announcement_factory.build(organizer_id=user.id + 999))
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.authorize_action",
+            side_effect=AppException("Forbidden", status_code=403),
+        ):
+            r = await client.patch(
+                f"/api/v1/announcements/{ann_obj.id}/participants/1",
+                json={"qualification_score": 10},
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_finalize_qualification_returns_403_for_non_organizer(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /finalize_qualification returns 403 when the user is not the organizer."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    ann_obj = SimpleNamespace(**announcement_factory.build(organizer_id=user.id + 999))
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.authorize_action",
+            side_effect=AppException("Forbidden", status_code=403),
+        ):
+            r = await client.post(
+                f"/api/v1/announcements/{ann_obj.id}/finalize_qualification"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_generate_bracket_returns_403_for_non_organizer(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /generate_bracket returns 403 when the user is not the organizer."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    ann_obj = SimpleNamespace(**announcement_factory.build(organizer_id=user.id + 999))
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.authorize_action",
+            side_effect=AppException("Forbidden", status_code=403),
+        ):
+            r = await client.post(
+                f"/api/v1/announcements/{ann_obj.id}/generate_bracket"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 403

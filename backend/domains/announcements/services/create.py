@@ -10,7 +10,6 @@ from domains.users.model import User
 from domains.registration.models import RegistrationForm
 from domains.registration.models import FormField
 from enums import AnnouncementStatus, SeedMethod
-from core.permissions import authorize_action
 
 
 class CreateAnnouncementService:
@@ -79,11 +78,9 @@ class CreateAnnouncementService:
         """
         Create a new announcement with optional custom registration form.
 
-        Authorizes, persists announcement + form fields, and returns
-        the reloaded announcement with all relationships.
+        Persists announcement + form fields and returns the reloaded
+        announcement with all relationships.
         """
-        authorize_action(self.user, Announcement(), "create")
-
         announcement_data = self.announcement_in.model_dump(
             exclude={"registration_form"}
         )
