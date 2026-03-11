@@ -20,7 +20,7 @@ import { useNavigate } from "react-router";
 import { useAsync } from "react-use";
 
 import "@app/styles/fonts.scss";
-import "@app/styles/scrollbar.scss";
+import "@app/styles/utils.scss";
 
 // TODO убрать цвет #fff
 const action = (snackbarId: string | number) => (

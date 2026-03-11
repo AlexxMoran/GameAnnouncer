@@ -2,7 +2,7 @@ import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import type { IGameCardProps } from "@pages/games/ul/game-card/types";
 import { CardLabelStyled } from "@shared/ui/_styled/card-label-styled";
 import { EntityCardStyled } from "@shared/ui/_styled/entity-card-styled";
-import { EntityImgStyled } from "@shared/ui/_styled/entity-img-styled";
+import { ImgStyled } from "@shared/ui/_styled/img-styled";
 import { WithLineClampStyled } from "@shared/ui/_styled/with-line-clamp-styled";
 import { ActionsMenu } from "@shared/ui/actions-menu";
 import { Box } from "@shared/ui/box";
@@ -18,17 +18,17 @@ export const GameCard = forwardRef<HTMLDivElement, IGameCardProps>((props, ref) 
 
   return (
     <EntityCardStyled ref={ref} sx={{ height: "300px" }} withPointer>
-      <EntityImgStyled imgUrl={image_url}>
+      <ImgStyled imgUrl={image_url}>
         <CardLabelStyled
           sx={{
             backgroundColor: (theme) => theme.palette.secondary.main,
-            top: (theme) => theme.spacing(2),
-            left: (theme) => theme.spacing(2),
+            top: (theme) => theme.spacing(1.5),
+            left: (theme) => theme.spacing(1.5),
           }}
         >
           {t("countedEntities.announcement", { count: announcements_count })}
         </CardLabelStyled>
-      </EntityImgStyled>
+      </ImgStyled>
       {actionList?.length && (
         <Box position="absolute" top={8} right={8}>
           <ActionsMenu actionList={actionList}>

@@ -1,8 +1,8 @@
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import type { IRequestCardProps } from "@pages/my-announcements/ui/request-card/types";
-import { prepareDate } from "@shared/helpers/prepareDate";
 import { useRootService } from "@shared/hooks/use-root-service";
+import { formatDate } from "@shared/lib/formatDate";
 import { ActionsMenu } from "@shared/ui/actions-menu";
 import { Box } from "@shared/ui/box";
 import { IconButton } from "@shared/ui/icon-button";
@@ -45,14 +45,14 @@ export const RequestCard = forwardRef<HTMLDivElement, IRequestCardProps>(({ requ
     { label: t("entities.name"), value: announcement?.title },
     { label: t("entities.description"), value: announcement?.content || "-" },
     { label: t("entities.game"), value: announcement?.game?.name },
-    { label: t("texts.announcementStartDate"), value: prepareDate(announcement?.start_at) },
+    { label: t("texts.announcementStartDate"), value: formatDate(announcement?.start_at) },
     {
       label: t("texts.registrationStartDate"),
-      value: prepareDate(announcement?.registration_start_at),
+      value: formatDate(announcement?.registration_start_at),
     },
     {
       label: t("texts.registrationEndDate"),
-      value: prepareDate(announcement?.registration_end_at),
+      value: formatDate(announcement?.registration_end_at),
     },
   ];
 
@@ -71,7 +71,7 @@ export const RequestCard = forwardRef<HTMLDivElement, IRequestCardProps>(({ requ
             <Box display="flex" gap={4} flexDirection="column">
               {announcementFieldList.map(({ label, value }) => (
                 <Box display="flex" gap={2} key={label}>
-                  <T variant="caption" sx={{ flex: 1 }} capitalizeFirst>
+                  <T variant="caption" sx={{ flex: 1 }} className="capitalize-first">
                     {label}
                   </T>
                   <T variant="caption" sx={{ flex: 1 }}>
@@ -88,9 +88,9 @@ export const RequestCard = forwardRef<HTMLDivElement, IRequestCardProps>(({ requ
         <HelpOutlineIcon sx={{ cursor: "pointer" }} />
       </Tooltip>
       <T sx={{ flex: 0.5 }}>
-        № {id} | {prepareDate(created_at)}
+        № {id} | {formatDate(created_at)}
       </T>
-      <T capitalizeFirst sx={{ flex: 0.5 }}>
+      <T className="capitalize-first" sx={{ flex: 0.5 }}>
         {t("entities.status")}: {t(`enums.registrationRequestStatuses.${status}`)}
       </T>
       {actionList?.length && (

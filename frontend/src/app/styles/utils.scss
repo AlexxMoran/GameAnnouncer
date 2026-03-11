@@ -1,0 +1,11 @@
+.capitalize-first {
+  &::first-letter {
+    text-transform: capitalize;
+  }
+}
+
+.capitalize-first-all {
+  *::first-letter {
+    text-transform: capitalize;
+  }
+}

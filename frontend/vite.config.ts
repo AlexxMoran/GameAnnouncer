@@ -19,6 +19,7 @@ export default defineConfig({
       "@shared": resolve(__dirname, "src/shared"),
       "@features": resolve(__dirname, "src/features"),
       "@widgets": resolve(__dirname, "src/widgets"),
+      "@entities": resolve(__dirname, "src/entities"),
     },
   },
   server: {

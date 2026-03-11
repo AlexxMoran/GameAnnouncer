@@ -4,10 +4,9 @@ import type { IEntityCardStyledProps } from "@shared/ui/_styled/entity-card-styl
 
 export const EntityCardStyled = styled(CardStyled)<IEntityCardStyledProps>(({ theme, withPointer, withBorder }) => {
   const baseStyles = {
-    gap: theme.spacing(2),
-    padding: theme.spacing(1),
     boxShadow: "none",
     width: "100%",
+    overflow: "hidden",
   };
 
   const pointerStyles = {

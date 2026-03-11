@@ -2,16 +2,23 @@ import { EAnnouncementStatuses } from "@shared/services/api/announcements-api-se
 import { ERegistrationRequestStatuses } from "@shared/services/api/registration-requests-api-service/constants";
 
 export const translationEn = {
-  lang: {
-    ru: "Russian",
-    en: "English",
-  },
   countedEntities: {
     announcement: "{count, plural, =0{no tournaments} =1{1 tournament} other{# tournaments}}",
     game: "{count, plural, =0{no games} =1{game} other{# games}}",
   },
   entities: {
-    announcement: "tournament",
+    announcement: {
+      one: "tournament",
+      many: "tournaments",
+    },
+    bid: {
+      one: "bid",
+      many: "bids",
+    },
+    account: {
+      one: "account",
+      many: "accounts",
+    },
     game: "game",
     email: "email",
     password: "password",
@@ -60,6 +67,7 @@ export const translationEn = {
     deleteField: "Delete field",
     addOption: "Add option",
     addField: "Add field",
+    takePart: "Take part",
   },
   texts: {
     allTournaments: "All tournaments",
@@ -75,7 +83,6 @@ export const translationEn = {
     requestSendingSuccess: "The request has sent successfully",
     gameUploadSuccess: "Image successfully uploaded",
     fileUploadTooltip: "Suitable formats - {formats}, size no more than {size} MB",
-    introduction: "Create tournaments of any size — from quick duels to full-fledged championships",
     welcome: "Welcome!",
     ok: "OK!",
     registrationConfirmation:
@@ -110,6 +117,13 @@ export const translationEn = {
     createRegistrationFormTooltip: "Add form fields for tournament registration (optionally)",
     optionList: "List of options",
     fillTheFieldsToParticipate: "Fill in the fields to participate in the tournament",
+    mainTitleCompete: "Compete.",
+    mainTitleWin: "Win.",
+    mainTitleImprove: "Improve.",
+    mainSubtitle:
+      "Platform for organizing and participating in cyber tournaments. Create your own tournaments and track results in real time.",
+    nothingFound: "Nothing found",
+    tryChangeSearchParameters: "Try to change search parameters or reset filters",
   },
   validationErrors: {
     unknown: "Unexpected error",
@@ -130,10 +144,6 @@ export const translationEn = {
     select: "select",
     search: "search",
   },
-  pageTitles: {
-    games: "Games",
-    announcements: "Announcement",
-  },
   enums: {
     announcementStatuses: {
       [EAnnouncementStatuses.PreRegistration]: "Pre-registration",
@@ -150,6 +160,10 @@ export const translationEn = {
       [ERegistrationRequestStatuses.Expired]: "Expired",
       [ERegistrationRequestStatuses.Pending]: "Pending",
       [ERegistrationRequestStatuses.Rejected]: "Rejected",
+    },
+    langs: {
+      ru: "Russian",
+      en: "English",
     },
   },
 };

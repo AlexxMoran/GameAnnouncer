@@ -1,57 +1,27 @@
-import { HeaderStyled, LayoutStyled } from "@app/layout/styles";
+import { BottomBar } from "@app/bottom-bar";
+import { TopBar } from "@app/top-bar";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import ManageAccountsOutlinedIcon from "@mui/icons-material/ManageAccountsOutlined";
+import StarIcon from "@mui/icons-material/Star";
 import { useScrollTrigger } from "@mui/material";
 import { EAppRoutes } from "@shared/constants/appRoutes";
-import { useDialog } from "@shared/hooks/use-dialog";
-import { useRootService } from "@shared/hooks/use-root-service";
-import { ActionsMenu } from "@shared/ui/actions-menu";
+import { useDeviceType } from "@shared/hooks/use-device-type";
 import { Box } from "@shared/ui/box";
 import { Fab } from "@shared/ui/fab-button";
-import { IconButton } from "@shared/ui/icon-button";
-import { Link } from "@shared/ui/link";
-import { Tooltip } from "@shared/ui/tooltip";
 import { Zoom } from "@shared/ui/zoom";
 import type { FC, PropsWithChildren } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router";
 
 export const Layout: FC<PropsWithChildren> = ({ children }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { authService } = useRootService();
-  const { confirm } = useDialog();
+  const { isMobile } = useDeviceType();
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 500,
   });
-
-  const { isAuthenticated, me, logout } = authService;
-
-  const handleLogout = async () => {
-    const result = await confirm({
-      title: t("entities.confirmation"),
-      children: t("texts.logoutConfirmation"),
-    });
-
-    if (result) {
-      const { setIsLoading, closeDialog } = result;
-
-      setIsLoading(true);
-
-      await logout();
-
-      navigate(EAppRoutes.Login);
-      closeDialog();
-    }
-  };
-
-  const handleNavigateToSettings = () => {
-    navigate(EAppRoutes.AccountSettings);
-  };
 
   const handleScrollToTop = () => {
     window.scrollTo({
@@ -60,56 +30,50 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
     });
   };
 
-  const actionList = [
-    {
-      id: 1,
-      title: t("texts.accountSettings"),
-      onClick: handleNavigateToSettings,
-      icon: <ManageAccountsOutlinedIcon />,
-    },
-    {
-      id: 2,
-      title: t("actions.logout"),
-      onClick: handleLogout,
-      icon: <LogoutOutlinedIcon />,
-    },
-  ];
+  const navItemList = (() => {
+    const list = [
+      {
+        label: t("entities.announcement.many"),
+        icon: <EmojiEventsIcon />,
+        url: EAppRoutes.Announcements,
+      },
+      {
+        label: t("texts.myAnnouncementsTitle"),
+        icon: <StarIcon />,
+        url: EAppRoutes.MyAnnouncements,
+      },
+      {
+        label: t("entities.bid.many"),
+        icon: <AssignmentIcon />,
+        url: "/tournaments/applications",
+      },
+    ];
+
+    if (isMobile) {
+      list.push({
+        label: t("entities.account.one"),
+        icon: <AccountCircleIcon />,
+        url: EAppRoutes.AccountSettings,
+      });
+    }
+
+    return list;
+  })();
 
   return (
     <Box display="flex" flexDirection="column" height="100vh">
-      <HeaderStyled>
-        <div>LOGO</div>
-        <Box display="flex" alignItems="center" gap={4}>
-          {!isAuthenticated && <Link to={EAppRoutes.Login}>{t("actions.login")}</Link>}
-          <Link to={EAppRoutes.Games}>{t("pageTitles.games")}</Link>
-          <Link to={EAppRoutes.Announcements}>{t("pageTitles.announcements")}</Link>
-          <Link to={EAppRoutes.MyAnnouncements}>{t("texts.myAnnouncementsTitle")}</Link>
-        </Box>
-        <Box display="flex" alignItems="center">
-          {isAuthenticated && (
-            <ActionsMenu actionList={actionList}>
-              {({ onClick, ref }) => (
-                <Tooltip title={me?.email}>
-                  <IconButton onClick={onClick} ref={ref}>
-                    <AccountCircleIcon />
-                  </IconButton>
-                </Tooltip>
-              )}
-            </ActionsMenu>
-          )}
-        </Box>
-      </HeaderStyled>
-      <LayoutStyled>{children}</LayoutStyled>
+      <TopBar navItemList={navItemList} />
+      {children}
+      {isMobile && <BottomBar navItemList={navItemList} />}
       <Zoom in={trigger}>
         <Fab
           onClick={handleScrollToTop}
           sx={{
             position: "fixed",
-            bottom: 32,
-            right: 32,
+            bottom: { xs: 72, md: 32 },
+            right: { xs: 16, md: 32 },
           }}
-          size="medium"
-          aria-label="scroll back to top"
+          size={isMobile ? "small" : "medium"}
         >
           <KeyboardArrowUpIcon />
         </Fab>

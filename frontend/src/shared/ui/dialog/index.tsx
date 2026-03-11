@@ -1,8 +1,23 @@
 import CloseIcon from "@mui/icons-material/Close";
-import { DialogContent, DialogTitle, Dialog as MuiDialog } from "@mui/material";
+import {
+  DialogTitle,
+  Dialog as MuiDialog,
+  DialogActions as MuiDialogActions,
+  DialogContent as MuiDialogContent,
+  type DialogActionsProps,
+  type DialogContentProps,
+} from "@mui/material";
 import type { IDialogProps } from "@shared/ui/dialog/types";
 import { IconButton } from "@shared/ui/icon-button";
 import { type FC } from "react";
+
+export const DialogActions: FC<DialogActionsProps> = ({ children, ...props }) => {
+  return <MuiDialogActions {...props}>{children}</MuiDialogActions>;
+};
+
+export const DialogContent: FC<DialogContentProps> = ({ children, ...props }) => {
+  return <MuiDialogContent {...props}>{children}</MuiDialogContent>;
+};
 
 export const Dialog: FC<IDialogProps> = (props) => {
   const { title = "", disableBackdropClick, onCloseDialog, children, ...rest } = props;
@@ -21,18 +36,11 @@ export const Dialog: FC<IDialogProps> = (props) => {
         <CloseIcon />
       </IconButton>
       {title && (
-        <DialogTitle
-          variant="h6"
-          sx={{
-            "&::first-letter": {
-              textTransform: "capitalize",
-            },
-          }}
-        >
+        <DialogTitle variant="h6" className="capitalize-first">
           {title}
         </DialogTitle>
       )}
-      <DialogContent sx={{ overflowY: "unset" }}>{children}</DialogContent>
+      {children}
     </MuiDialog>
   );
 };

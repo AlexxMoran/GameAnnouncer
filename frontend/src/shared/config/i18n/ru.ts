@@ -2,16 +2,23 @@ import { EAnnouncementStatuses } from "@shared/services/api/announcements-api-se
 import { ERegistrationRequestStatuses } from "@shared/services/api/registration-requests-api-service/constants";
 
 export const translationRu = {
-  lang: {
-    ru: "Русский",
-    en: "Английский",
-  },
   countedEntities: {
     announcement: "{count, plural, =0{нет турниров} =1{1 турнир} few{# турнира} many{# турниров} other{# турнира}}",
     game: "{count, plural, =0{нет игр} =1{1 игра} few{# игр} many{# игр} other{# игр}}",
   },
   entities: {
-    announcement: "турнир",
+    announcement: {
+      one: "турнир",
+      many: "турниры",
+    },
+    bid: {
+      one: "заявка",
+      many: "заявки",
+    },
+    account: {
+      one: "аккаунт",
+      many: "аккаунты",
+    },
     game: "игра",
     email: "электронная почта",
     password: "пароль",
@@ -60,6 +67,7 @@ export const translationRu = {
     deleteField: "Удалить поле",
     addOption: "Добавить опцию",
     addField: "Добавить поле",
+    takePart: "Принять участие",
   },
   texts: {
     allTournaments: "Все турниры",
@@ -75,7 +83,6 @@ export const translationRu = {
     requestSendingSuccess: "Запрос успешно отправлен",
     gameUploadSuccess: "Изображение успешно загружено",
     fileUploadTooltip: "Подходящие форматы - {formats}, размер не более {size} MB",
-    introduction: "Создавай турниры любого масштаба — от быстрых дуэлей до полноценных чемпионатов",
     welcome: "Добро пожаловать!",
     ok: "Хорошо!",
     registrationConfirmation:
@@ -109,6 +116,13 @@ export const translationRu = {
     createRegistrationFormTooltip: "Добавьте поля формы для регистрации в турнире (опционально)",
     optionList: "Список опций",
     fillTheFieldsToParticipate: "Заполните поля для участия в турнире",
+    mainTitleCompete: "Соревнуйтесь.",
+    mainTitleWin: "Побеждайте.",
+    mainTitleImprove: "Становитесь лучше.",
+    mainSubtitle:
+      "Платформа для организации и участия в киберспортивных турнирах. Создавайте свои турниры и отслеживайте результаты в реальном времени.",
+    nothingFound: "Ничего не найдено",
+    tryChangeSearchParameters: "Попробуйте изменить параметры поиска или сбросить фильтры",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",
@@ -132,10 +146,6 @@ export const translationRu = {
     select: "выберите",
     search: "поиск",
   },
-  pageTitles: {
-    games: "Игры",
-    announcements: "Турниры",
-  },
   enums: {
     announcementStatuses: {
       [EAnnouncementStatuses.PreRegistration]: "Ожидает регистрации",
@@ -152,6 +162,10 @@ export const translationRu = {
       [ERegistrationRequestStatuses.Expired]: "Истекла",
       [ERegistrationRequestStatuses.Pending]: "В ожидании",
       [ERegistrationRequestStatuses.Rejected]: "Отклонена",
+    },
+    langs: {
+      ru: "Русский",
+      en: "Английский",
     },
   },
 };

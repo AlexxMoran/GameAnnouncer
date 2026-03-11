@@ -8,11 +8,6 @@ export enum EAppRoutes {
   MyAnnouncements = "/my-announcements",
 }
 
-export enum ERouteParams {
-  GameId = "gameId",
-  AnnouncementId = "announcementId",
-}
-
 export enum EAppSubRoutes {
   ParticipatedAnnouncements = "participated",
   OrganizedAnnouncements = "organized",

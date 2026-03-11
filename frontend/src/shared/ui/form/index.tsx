@@ -1,4 +1,4 @@
-import { trimObjectValues } from "@shared/helpers/trimObjectValues";
+import { trimObjectValues } from "@shared/lib/trimObjectValues";
 import type { TObjectAny } from "@shared/types/main.types";
 import { Box } from "@shared/ui/box";
 import { Button } from "@shared/ui/button";

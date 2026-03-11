@@ -43,6 +43,7 @@ export class EntityCrudService<
       isInitialLoading: this.paginationService.isInitialLoading,
       isPaginating: this.paginationService.isPaginating,
       total: this.paginationService.total,
+      hasMore: this.paginationService.hasMore,
     };
   }
 

@@ -1,3 +1,4 @@
+import { createAnnouncementStatusColor } from "@entities/announcement/lib/create-announcement-status-color";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
@@ -5,11 +6,10 @@ import PeopleIcon from "@mui/icons-material/People";
 import { IconButton, useTheme } from "@mui/material";
 import { CARD_HEIGHT } from "@pages/my-announcements/ui/announcement-card/constants";
 import type { IAnnouncementCardProps } from "@pages/my-announcements/ui/announcement-card/types";
-import { createAnnouncementStatusColor } from "@shared/helpers/createAnnouncementStatusColor";
-import { prepareDate } from "@shared/helpers/prepareDate";
+import { formatDate } from "@shared/lib/formatDate";
 import { CardLabelStyled } from "@shared/ui/_styled/card-label-styled";
 import { CardStyled } from "@shared/ui/_styled/card-styled";
-import { EntityImgStyled } from "@shared/ui/_styled/entity-img-styled";
+import { ImgStyled } from "@shared/ui/_styled/img-styled";
 import { WithLineClampStyled } from "@shared/ui/_styled/with-line-clamp-styled";
 import { ActionsMenu } from "@shared/ui/actions-menu";
 import { Box } from "@shared/ui/box";
@@ -41,14 +41,14 @@ export const AnnouncementCard = forwardRef<HTMLDivElement, IAnnouncementCardProp
   const statusColor = createAnnouncementStatusColor(theme, status);
 
   const moreInfoList = [
-    { label: t("texts.announcementStartDate"), value: prepareDate(start_at) },
+    { label: t("texts.announcementStartDate"), value: formatDate(start_at) },
     {
       label: t("texts.registrationStartDate"),
-      value: prepareDate(registration_start_at),
+      value: formatDate(registration_start_at),
     },
     {
       label: t("texts.registrationEndDate"),
-      value: prepareDate(registration_end_at),
+      value: formatDate(registration_end_at),
     },
   ];
 
@@ -66,7 +66,7 @@ export const AnnouncementCard = forwardRef<HTMLDivElement, IAnnouncementCardProp
           gap: (theme) => theme.spacing(2),
         }}
       >
-        <EntityImgStyled imgUrl={image_url} sx={{ maxHeight: CARD_HEIGHT }}>
+        <ImgStyled imgUrl={image_url} sx={{ maxHeight: CARD_HEIGHT }}>
           <CardLabelStyled
             sx={{
               backgroundColor: (theme) => theme.palette.secondary.main,
@@ -89,7 +89,7 @@ export const AnnouncementCard = forwardRef<HTMLDivElement, IAnnouncementCardProp
           >
             {t(`enums.announcementStatuses.${status}`)}
           </CardLabelStyled>
-        </EntityImgStyled>
+        </ImgStyled>
         <Box display="flex" flexDirection="column" gap={2} px={3} flex={2}>
           <WithLineClampStyled lineClamp={1} variant="subtitle2">
             {title}

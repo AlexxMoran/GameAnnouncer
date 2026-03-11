@@ -12,7 +12,7 @@ export const AuthWindow: FC<IAuthWindowProps> = (props) => {
   return (
     <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" width="100%" height="100%">
       <AuthFormWrapperStyled>
-        <T variant="h5" capitalizeFirst>
+        <T variant="h5" className="capitalize-first">
           {titleText}
         </T>
         <AuthForm buttonText={buttonText} onSubmit={onSubmit} />

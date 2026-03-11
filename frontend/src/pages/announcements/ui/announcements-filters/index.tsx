@@ -31,23 +31,9 @@ export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = (props) => {
   };
 
   return (
-    <Box display="flex" width="100%" justifyContent="space-between" alignItems="center">
-      <Box display="flex" gap={1}>
-        {[EAnnouncementStatuses.Live, EAnnouncementStatuses.RegistrationOpen, EAnnouncementStatuses.Cancelled].map(
-          (status) => (
-            <Chip
-              key={status}
-              size="small"
-              label={t(`enums.announcementStatuses.${status}`)}
-              variant={filters.status === status ? "filled" : "outlined"}
-              onClick={() => handleSetStatus(status)}
-            />
-          )
-        )}
-      </Box>
+    <>
       <TextField
         value={filters["q"] || ""}
-        sx={{ width: "250px" }}
         endAdornment={
           <>
             {filters["q"] && (
@@ -61,6 +47,22 @@ export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = (props) => {
         placeholder={t("placeholders.search")}
         onChange={handleSearchInputChange}
       />
-    </Box>
+      <Box display="flex" gap={1} width="100%" flexWrap="wrap">
+        {[
+          EAnnouncementStatuses.Live,
+          EAnnouncementStatuses.RegistrationOpen,
+          EAnnouncementStatuses.PreRegistration,
+          EAnnouncementStatuses.Cancelled,
+        ].map((status) => (
+          <Chip
+            key={status}
+            size="small"
+            label={t(`enums.announcementStatuses.${status}`)}
+            variant={filters.status === status ? "filled" : "outlined"}
+            onClick={() => handleSetStatus(status)}
+          />
+        ))}
+      </Box>
+    </>
   );
 };

@@ -13,7 +13,7 @@ export class PaginationService<TEntity extends IEntityIdField, TParams extends I
 
   isPaginating = false;
   isInitialLoading = false;
-  hasDataToLoad = true;
+  hasMore = true;
 
   constructor(private params: IPaginationServiceParams<TEntity, TParams>) {
     makeAutoObservable(this);
@@ -40,7 +40,7 @@ export class PaginationService<TEntity extends IEntityIdField, TParams extends I
   };
 
   paginate = async (params?: Partial<TParams>) => {
-    if (this.isPaginating || this.isInitialLoading || !this.hasDataToLoad) {
+    if (this.isPaginating || this.isInitialLoading || !this.hasMore) {
       return;
     }
 
@@ -58,7 +58,7 @@ export class PaginationService<TEntity extends IEntityIdField, TParams extends I
         runInAction(() => {
           this.setList(list);
           this.total = total;
-          this.hasDataToLoad = this.list.length < total;
+          this.hasMore = this.list.length < total;
         });
       }
     } finally {
@@ -84,7 +84,7 @@ export class PaginationService<TEntity extends IEntityIdField, TParams extends I
         runInAction(() => {
           this.setList(list);
           this.total = total;
-          this.hasDataToLoad = list.length < total;
+          this.hasMore = list.length < total;
         });
       }
     } catch (_) {

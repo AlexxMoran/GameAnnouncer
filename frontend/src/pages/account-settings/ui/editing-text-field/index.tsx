@@ -1,6 +1,6 @@
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import type { IEditingTextFieldProps } from "@pages/account-settings/ui/editing-text-field/types";
-import { trimObjectValues } from "@shared/helpers/trimObjectValues";
+import { trimObjectValues } from "@shared/lib/trimObjectValues";
 import { TextField } from "@shared/ui/text-field";
 import { useFormik } from "formik";
 import type { ChangeEvent } from "react";

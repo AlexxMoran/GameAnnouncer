@@ -1,0 +1,30 @@
+import { useDeviceType } from "@shared/hooks/use-device-type";
+import { Button } from "@shared/ui/button";
+import { DialogActions } from "@shared/ui/dialog";
+import type { IDialogButtonGroupProps } from "@shared/ui/dialog-button-group/interfaces";
+import type { FC } from "react";
+import { useTranslation } from "react-i18next";
+
+export const DialogButtonGroup: FC<IDialogButtonGroupProps> = (props) => {
+  const { onCancel, onConfirm, isLoading, cancellationText, confirmationText, disabled } = props;
+
+  const { t } = useTranslation();
+  const { isMobile } = useDeviceType();
+
+  return (
+    <DialogActions sx={{ px: 3, pb: isMobile ? 3 : 2, pt: 1, flexDirection: isMobile ? "column" : "row", gap: 1 }}>
+      <Button onClick={onCancel} variant="outlined" fullWidth={isMobile} sx={{ order: isMobile ? 2 : 1 }}>
+        {cancellationText || t("actions.cancel")}
+      </Button>
+      <Button
+        onClick={onConfirm}
+        loading={isLoading}
+        fullWidth={isMobile}
+        sx={{ order: isMobile ? 1 : 2 }}
+        disabled={disabled}
+      >
+        {confirmationText || t("actions.confirm")}
+      </Button>
+    </DialogActions>
+  );
+};
