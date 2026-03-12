@@ -51,6 +51,7 @@ def test_announcement_response_includes_permissions_and_timestamps():
         format=AnnouncementFormat.SINGLE_ELIMINATION,
         has_qualification=False,
         seed_method=SeedMethod.RANDOM,
+        game={"id": 2, "name": "Test Game", "image_url": None, "category": "RTS"},
     )
     assert resp.id == 1
     assert resp.permissions == {}
@@ -76,6 +77,7 @@ def test_announcement_response_participants_count_empty():
         has_qualification=False,
         seed_method=SeedMethod.RANDOM,
         participants=[],
+        game={"id": 2, "name": "Test Game", "image_url": None, "category": "RTS"},
     )
     assert resp.participants_count == 0
 
@@ -112,6 +114,7 @@ def test_announcement_response_participants_count_with_participants():
             }
             for i in [1, 2, 3]
         ],
+        game={"id": 2, "name": "Test Game", "image_url": None, "category": "RTS"},
     )
     assert resp.participants_count == 3
 
@@ -148,6 +151,7 @@ def test_announcement_response_participants_excluded_from_json():
             }
             for i in [1, 2]
         ],
+        game={"id": 2, "name": "Test Game", "image_url": None, "category": "RTS"},
     )
     data = resp.model_dump()
     assert "participants" not in data

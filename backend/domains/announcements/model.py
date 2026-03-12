@@ -124,11 +124,6 @@ class Announcement(Base):
         return value
 
     @property
-    def effective_image_url(self) -> str | None:
-        """Return announcement image URL, falling back to the game image URL."""
-        return self.image_url or self.game.image_url
-
-    @property
     def is_registration_open(self) -> bool:
         """Check if the registration is currently open."""
         now = datetime.now(timezone.utc)

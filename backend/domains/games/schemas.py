@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from datetime import datetime
 
 from core.schemas.base import BaseSchemaWithPermissions
@@ -47,13 +47,22 @@ class GameUpdate(GameBase, CategoryValidator):
 
 
 class GameResponse(GameBase, BaseSchemaWithPermissions):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     created_at: datetime
     updated_at: datetime
     image_url: str | None = Field(None, max_length=500)
     announcements_count: int | None = None
 
-    model_config = {"from_attributes": True}
+
+class GameForAnnouncementResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    name: str
+    image_url: str | None = Field(None, max_length=500)
+    category: str
 
 
 class GameFilter(BaseFilter):

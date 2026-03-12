@@ -35,3 +35,11 @@ class AnnouncementDictFactory(factory.Factory):
     third_place_match = True
     qualification_finished = False
     participants = factory.LazyFunction(list)
+    game = factory.LazyAttribute(
+        lambda obj: {
+            "id": obj.game_id,
+            "name": "Test Game",
+            "image_url": None,
+            "category": "RTS",
+        }
+    )

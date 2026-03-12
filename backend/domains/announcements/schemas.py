@@ -4,6 +4,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
 
+from domains.games.schemas import GameForAnnouncementResponse
 from core.schemas.base import BaseSchemaWithPermissions
 from core.search.base_filter import BaseFilter
 from domains.participants.schemas import AnnouncementParticipantResponse
@@ -77,12 +78,6 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
     end_at: datetime | None = Field(
         None, description="The end date and time of the announcement"
     )
-    image_url: str | None = Field(
-        None,
-        max_length=500,
-        validation_alias="effective_image_url",
-        description="Announcement image URL, falls back to the game image URL",
-    )
     organizer_id: int = Field(
         ..., description="The ID of the user who organized the announcement"
     )
@@ -101,8 +96,12 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
     seed_method: str = Field(
         ..., description="The method used for seeding participants"
     )
+    game_id: int = Field(..., exclude=True)
     qualification_finished: bool = Field(
         False, description="Whether the qualification stage has been completed"
+    )
+    game: GameForAnnouncementResponse = Field(
+        ..., description="The game associated with this announcement"
     )
 
     @computed_field

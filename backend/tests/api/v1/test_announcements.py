@@ -128,7 +128,7 @@ async def test_get_announcements_with_game_filter(async_client, announcement_fac
         body = r.json()
         assert body["filtered_count"] == 2
         assert body["total_count"] == 5
-        assert all(item["game_id"] == game_id for item in body["data"])
+        assert all(item["game"]["id"] == game_id for item in body["data"])
 
 
 @pytest.mark.asyncio
