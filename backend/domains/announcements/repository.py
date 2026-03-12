@@ -11,13 +11,10 @@ class AnnouncementRepository:
         self.session = session
 
     async def find_by_id(self, announcement_id: int) -> Announcement | None:
-        """Fetch a single announcement with organizer and game loaded."""
+        """Fetch a single announcement with organizer loaded."""
         result = await self.session.execute(
             select(Announcement)
-            .options(
-                selectinload(Announcement.organizer),
-                selectinload(Announcement.game),
-            )
+            .options(selectinload(Announcement.organizer))
             .where(Announcement.id == announcement_id)
         )
         return result.scalar_one_or_none()

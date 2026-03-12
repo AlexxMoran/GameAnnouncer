@@ -94,10 +94,7 @@ class CreateAnnouncementService:
 
         result = await self.session.execute(
             select(Announcement)
-            .options(
-                selectinload(Announcement.organizer),
-                selectinload(Announcement.game),
-            )
+            .options(selectinload(Announcement.organizer))
             .where(Announcement.id == announcement.id)
         )
         return result.scalar_one()

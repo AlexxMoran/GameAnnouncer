@@ -65,7 +65,7 @@ class Announcement(Base):
         "User", back_populates="organized_announcements", passive_deletes=True
     )
     game: Mapped["Game"] = relationship(
-        "Game", back_populates="announcements", passive_deletes=True
+        "Game", back_populates="announcements", passive_deletes=True, lazy="selectin"
     )
 
     participants: Mapped[list["AnnouncementParticipant"]] = relationship(
@@ -122,6 +122,11 @@ class Announcement(Base):
             )
 
         return value
+
+    @property
+    def effective_image_url(self) -> str | None:
+        """Return announcement image URL, falling back to the game image URL."""
+        return self.image_url or self.game.image_url
 
     @property
     def is_registration_open(self) -> bool:

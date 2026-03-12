@@ -69,7 +69,7 @@ class AnnouncementAvatarUpdate(BaseModel):
 
 
 class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
     id: int
     created_at: datetime
@@ -78,7 +78,10 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
         None, description="The end date and time of the announcement"
     )
     image_url: str | None = Field(
-        None, max_length=500, description="URL to the announcement's image"
+        None,
+        max_length=500,
+        validation_alias="effective_image_url",
+        description="Announcement image URL, falls back to the game image URL",
     )
     organizer_id: int = Field(
         ..., description="The ID of the user who organized the announcement"

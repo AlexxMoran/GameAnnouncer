@@ -1,9 +1,44 @@
 import pytest
 from datetime import datetime, timedelta
+from types import SimpleNamespace
+from unittest.mock import MagicMock
 from domains.announcements.model import Announcement
 from domains.games.model import Game
 from exceptions import ValidationException
 from enums import AnnouncementFormat, SeedMethod
+
+
+def _make_ann(image_url=None, game_image_url="https://cdn.example.com/game.png"):
+    """Build a plain mock that satisfies effective_image_url's attribute contract."""
+    ann = MagicMock()
+    ann.image_url = image_url
+    ann.game = SimpleNamespace(image_url=game_image_url)
+    return ann
+
+
+def test_effective_image_url_prefers_announcement_image():
+    """Announcement-specific image takes priority over the game image."""
+    ann = _make_ann(
+        image_url="https://cdn.example.com/ann.png",
+        game_image_url="https://cdn.example.com/game.png",
+    )
+    assert (
+        Announcement.effective_image_url.fget(ann) == "https://cdn.example.com/ann.png"
+    )
+
+
+def test_effective_image_url_falls_back_to_game_image():
+    """When announcement has no image_url, the game image URL is returned."""
+    ann = _make_ann(image_url=None, game_image_url="https://cdn.example.com/game.png")
+    assert (
+        Announcement.effective_image_url.fget(ann) == "https://cdn.example.com/game.png"
+    )
+
+
+def test_effective_image_url_returns_none_when_both_absent():
+    """When neither announcement nor game has an image, None is returned."""
+    ann = _make_ann(image_url=None, game_image_url=None)
+    assert Announcement.effective_image_url.fget(ann) is None
 
 
 def test_announcement_table_and_columns():
