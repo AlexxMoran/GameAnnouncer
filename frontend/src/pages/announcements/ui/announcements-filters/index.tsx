@@ -6,10 +6,11 @@ import { Box } from "@shared/ui/box";
 import { Chip } from "@shared/ui/chip";
 import { IconButton } from "@shared/ui/icon-button";
 import { TextField } from "@shared/ui/text-field";
+import { observer } from "mobx-react-lite";
 import { type ChangeEvent, type FC } from "react";
 import { useTranslation } from "react-i18next";
 
-export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = (props) => {
+export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = observer((props) => {
   const { filters, handleFilter } = props;
 
   const { t } = useTranslation();
@@ -65,4 +66,4 @@ export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = (props) => {
       </Box>
     </>
   );
-};
+});

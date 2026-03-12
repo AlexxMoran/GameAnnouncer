@@ -13,7 +13,7 @@ import { forwardRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAsync } from "react-use";
 
-export const RequestCard = forwardRef<HTMLDivElement, IRequestCardProps>(({ request, actionList }) => {
+export const RequestCard = forwardRef<HTMLDivElement, IRequestCardProps>(({ request, actionList }, ref) => {
   const { t } = useTranslation();
   const { announcementsApiService } = useRootService();
   const { gamesApiService } = useRootService();
@@ -61,7 +61,7 @@ export const RequestCard = forwardRef<HTMLDivElement, IRequestCardProps>(({ requ
   };
 
   return (
-    <Box display="flex" gap={4} alignItems="center">
+    <Box display="flex" gap={4} alignItems="center" ref={ref}>
       <Tooltip
         placement="right"
         title={

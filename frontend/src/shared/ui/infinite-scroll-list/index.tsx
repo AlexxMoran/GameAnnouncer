@@ -3,27 +3,46 @@ import type { TObjectAny } from "@shared/types/main.types";
 import { CardsWrapperStyled } from "@shared/ui/_styled/cards-wrapper-styled";
 import { Box } from "@shared/ui/box";
 import { ElementObserver } from "@shared/ui/element-observer";
-import type { IInfiniteScrollListProps } from "@shared/ui/infinite-scroll-list/interfaces";
+import type { IEntityListProps, IInfiniteScrollListProps } from "@shared/ui/infinite-scroll-list/types";
 import { Spinner } from "@shared/ui/spinner";
 import { T } from "@shared/ui/typography";
+import { observer } from "mobx-react-lite";
 import { Fragment, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 
-export function InfiniteScrollList<T extends TObjectAny>(props: IInfiniteScrollListProps<T>) {
-  const {
+const defaultItemKeyExtractor = <T extends TObjectAny>(item: T) => item.id;
+
+const EntityList = observer(
+  <T extends TObjectAny>({
+    list,
     containerComponent: Container = CardsWrapperStyled,
+    itemKeyExtractor = defaultItemKeyExtractor,
+    renderItem,
+  }: IEntityListProps<T>) => {
+    return (
+      <Container>
+        {list.map((item) => (
+          <Fragment key={itemKeyExtractor(item)}>{renderItem(item)}</Fragment>
+        ))}
+      </Container>
+    );
+  }
+);
+
+export const InfiniteScrollList = observer(<T extends TObjectAny>(props: IInfiniteScrollListProps<T>) => {
+  const {
+    containerComponent,
     isInitialLoading,
     isPaginating,
+    hasMore,
     total,
     list,
-    itemKeyExtractor = (item) => item.id,
+    itemKeyExtractor,
     renderItem,
     onLoadMore,
   } = props;
 
   const { t } = useTranslation();
-
-  const hasMore = total && list.length < total;
 
   if (isInitialLoading) {
     return <Spinner type="backdrop" />;
@@ -32,8 +51,6 @@ export function InfiniteScrollList<T extends TObjectAny>(props: IInfiniteScrollL
   if (total === 0) {
     return null;
   }
-
-  console.log(list, total);
 
   if (list.length === 0 && total !== 0) {
     return (
@@ -60,11 +77,12 @@ export function InfiniteScrollList<T extends TObjectAny>(props: IInfiniteScrollL
 
   return (
     <div>
-      <Container>
-        {list.map((item) => (
-          <Fragment key={itemKeyExtractor(item)}>{renderItem(item)}</Fragment>
-        ))}
-      </Container>
+      <EntityList
+        list={list}
+        containerComponent={containerComponent}
+        itemKeyExtractor={itemKeyExtractor}
+        renderItem={renderItem}
+      />
       {hasMore && (
         <Fragment>
           <Box display="flex" justifyContent="center" alignItems="center" width="100%" height="60px">
@@ -77,4 +95,4 @@ export function InfiniteScrollList<T extends TObjectAny>(props: IInfiniteScrollL
       )}
     </div>
   );
-}
+});

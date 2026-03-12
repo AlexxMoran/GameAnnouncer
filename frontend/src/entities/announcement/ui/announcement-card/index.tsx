@@ -14,10 +14,10 @@ import { IconButton } from "@shared/ui/icon-button";
 import { LinearProgress } from "@shared/ui/linear-progress";
 import { Tooltip } from "@shared/ui/tooltip";
 import { T } from "@shared/ui/typography";
-import { forwardRef } from "react";
+import { type FC } from "react";
 import { useTranslation } from "react-i18next";
 
-export const AnnouncementCard = forwardRef<HTMLDivElement, IAnnouncementCardProps>((props, ref) => {
+export const AnnouncementCard: FC<IAnnouncementCardProps> = (props) => {
   const { announcement, actionList, button } = props;
 
   const { t } = useTranslation();
@@ -41,7 +41,6 @@ export const AnnouncementCard = forwardRef<HTMLDivElement, IAnnouncementCardProp
 
   return (
     <Card
-      ref={ref}
       sx={{
         height: "375px",
         cursor: "pointer",
@@ -118,4 +117,4 @@ export const AnnouncementCard = forwardRef<HTMLDivElement, IAnnouncementCardProp
       </Box>
     </Card>
   );
-});
+};
