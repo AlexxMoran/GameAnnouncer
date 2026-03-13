@@ -42,7 +42,8 @@ export class EntityCrudService<
       list: this.paginationService.list,
       isInitialLoading: this.paginationService.isInitialLoading,
       isPaginating: this.paginationService.isPaginating,
-      total: this.paginationService.total,
+      totalCount: this.paginationService.totalCount,
+      filteredCount: this.paginationService.filteredCount,
       hasMore: this.paginationService.hasMore,
     };
   }

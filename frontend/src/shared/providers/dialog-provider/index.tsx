@@ -75,6 +75,7 @@ export const DialogProvider: FC<PropsWithChildren> = ({ children }) => {
               isLoading={isLoading}
               cancellationText={options?.cancellationText}
               confirmationText={options?.confirmationText}
+              isForDialog
             />
           </>
         )}

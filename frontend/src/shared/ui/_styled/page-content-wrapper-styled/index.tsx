@@ -1,6 +1,6 @@
 import { styled } from "@mui/material";
 
-export const PageWrapperStyled = styled("div")(({ theme }) => ({
+export const PageContentWrapperStyled = styled("div")(({ theme }) => ({
   maxWidth: "1280px",
   width: "100%",
   marginInline: "auto",

@@ -8,8 +8,7 @@ export enum EAppRoutes {
   MyAnnouncements = "/my-announcements",
 }
 
-export enum EAppSubRoutes {
-  ParticipatedAnnouncements = "participated",
-  OrganizedAnnouncements = "organized",
-  MyRegistrationRequests = "my-requests",
+export enum EMyAnnouncementsTabs {
+  Organized = "organized",
+  Participated = "participated",
 }

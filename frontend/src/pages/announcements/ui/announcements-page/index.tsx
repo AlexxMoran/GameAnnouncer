@@ -6,10 +6,9 @@ import { AnnouncementsFilters } from "@pages/announcements/ui/announcements-filt
 import { AnnouncementsWelcomeImg } from "@pages/announcements/ui/announcements-welcome-img";
 import { EAnnouncementStatuses } from "@shared/services/api/announcements-api-service/constants";
 import type { IAnnouncementDto } from "@shared/services/api/announcements-api-service/types";
-import { PageWrapperStyled } from "@shared/ui/_styled/page-wrapper-styled";
-import { Badge } from "@shared/ui/badge";
+import { PageContentWrapperStyled } from "@shared/ui/_styled/page-content-wrapper-styled";
 import { InfiniteScrollList } from "@shared/ui/infinite-scroll-list";
-import { T } from "@shared/ui/typography";
+import { PageTitle } from "@shared/ui/page-title";
 import { observer } from "mobx-react-lite";
 import { useCallback, type FC } from "react";
 import { useTranslation } from "react-i18next";
@@ -41,15 +40,11 @@ export const AnnouncementsPage: FC = observer(() => {
   return (
     <>
       <AnnouncementsWelcomeImg />
-      <PageWrapperStyled>
-        <Badge badgeContent={listData.total} color="secondary">
-          <T variant="h5" className="capitalize-first">
-            {t("entities.announcement.many")}
-          </T>
-        </Badge>
+      <PageContentWrapperStyled>
+        <PageTitle title={t("entities.announcement.many")} count={listData.filteredCount} />
         <AnnouncementsFilters filters={filters} handleFilter={setFilter} />
         <InfiniteScrollList renderItem={renderItem} onLoadMore={paginate} {...listData} />
-      </PageWrapperStyled>
+      </PageContentWrapperStyled>
     </>
   );
 });

@@ -199,6 +199,13 @@ export const THEME = createTheme({
     },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        "#root": {
+          height: "100vh",
+        },
+      },
+    },
     MuiDialog: {
       styleOverrides: {
         paper: ({ theme }) => ({
@@ -321,6 +328,35 @@ export const THEME = createTheme({
         bar: {
           borderRadius: 3,
         },
+      },
+    },
+    MuiTabs: {
+      styleOverrides: {
+        root: {
+          borderBottom: 1,
+          borderColor: "divider",
+        },
+        indicator: ({ theme }) => ({
+          backgroundColor: theme.palette.primary.main,
+          height: 2,
+        }),
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          textTransform: "none",
+          fontWeight: 500,
+          "@media (min-width:600px)": {
+            fontSize: "0.85rem",
+          },
+          color: "text.secondary",
+          minHeight: 48,
+          "&.Mui-selected": {
+            color: theme.palette.primary.main,
+            fontWeight: 600,
+          },
+        }),
       },
     },
   },

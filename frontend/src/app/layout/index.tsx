@@ -11,7 +11,7 @@ import { useDeviceType } from "@shared/hooks/use-device-type";
 import { Box } from "@shared/ui/box";
 import { Fab } from "@shared/ui/fab-button";
 import { Zoom } from "@shared/ui/zoom";
-import type { FC, PropsWithChildren } from "react";
+import { type FC, type PropsWithChildren } from "react";
 import { useTranslation } from "react-i18next";
 
 export const Layout: FC<PropsWithChildren> = ({ children }) => {
@@ -20,7 +20,7 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
 
   const trigger = useScrollTrigger({
     disableHysteresis: true,
-    threshold: 500,
+    threshold: 1000,
   });
 
   const handleScrollToTop = () => {
@@ -61,7 +61,7 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
   })();
 
   return (
-    <Box display="flex" flexDirection="column" height="100vh">
+    <Box display="flex" flexDirection="column" height="100%">
       <TopBar navItemList={navItemList} />
       {children}
       {isMobile && <BottomBar navItemList={navItemList} />}

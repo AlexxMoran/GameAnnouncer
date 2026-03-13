@@ -6,10 +6,11 @@ import { forwardRef } from "react";
 import { useTranslation } from "react-i18next";
 
 export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>((props, ref) => {
-  const { loading, endAdornment, ...rest } = props;
+  const { loading, endAdornment, slotProps, ...rest } = props;
 
   const { t } = useTranslation();
 
+  // TODO сделать так, чтобы компонент был управляемым (чистил по кнопке и тд)
   return (
     <TextFieldStyled
       size="small"
@@ -18,11 +19,11 @@ export const TextField = forwardRef<HTMLInputElement, ITextFieldProps>((props, r
       variant="outlined"
       {...rest}
       slotProps={{
-        ...props.slotProps,
+        ...slotProps,
         input: {
           ...props.slotProps?.input,
-          endAdornment: (
-            <Box display="flex" alignItems="center" gap={2}>
+          endAdornment: (endAdornment || loading) && (
+            <Box display="flex" alignItems="center" gap={0.5}>
               {loading ? <Spinner color="inherit" size={20} /> : null}
               {endAdornment}
             </Box>

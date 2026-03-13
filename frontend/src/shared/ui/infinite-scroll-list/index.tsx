@@ -19,6 +19,8 @@ const EntityList = observer(
     itemKeyExtractor = defaultItemKeyExtractor,
     renderItem,
   }: IEntityListProps<T>) => {
+    console.log("render");
+
     return (
       <Container>
         {list.map((item) => (
@@ -35,7 +37,7 @@ export const InfiniteScrollList = observer(<T extends TObjectAny>(props: IInfini
     isInitialLoading,
     isPaginating,
     hasMore,
-    total,
+    totalCount,
     list,
     itemKeyExtractor,
     renderItem,
@@ -48,11 +50,11 @@ export const InfiniteScrollList = observer(<T extends TObjectAny>(props: IInfini
     return <Spinner type="backdrop" />;
   }
 
-  if (total === 0) {
+  if (totalCount === 0) {
     return null;
   }
 
-  if (list.length === 0 && total !== 0) {
+  if (list.length === 0 && totalCount !== 0) {
     return (
       <Box
         sx={{

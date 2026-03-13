@@ -9,7 +9,8 @@ export class PaginationService<TEntity extends IEntityIdField, TParams extends I
   private listMap = new Map<TEntityId, TEntity>();
 
   limit = DEFAULT_PAGINATION_LIMIT;
-  total: TMaybe<number> = null;
+  filteredCount: TMaybe<number> = null;
+  totalCount: TMaybe<number> = null;
 
   isPaginating = false;
   isInitialLoading = false;
@@ -53,12 +54,13 @@ export class PaginationService<TEntity extends IEntityIdField, TParams extends I
       });
 
       if (data) {
-        const { total, data: list } = data;
+        const { total_count, filtered_count, data: list } = data;
 
         runInAction(() => {
           this.setList(list);
-          this.total = total;
-          this.hasMore = this.list.length < total;
+          this.totalCount = total_count;
+          this.filteredCount = filtered_count;
+          this.hasMore = this.list.length < filtered_count;
         });
       }
     } finally {
@@ -70,7 +72,8 @@ export class PaginationService<TEntity extends IEntityIdField, TParams extends I
     this.listMap.clear();
     this.isPaginating = false;
     this.isInitialLoading = true;
-    this.total = null;
+    this.filteredCount = null;
+    this.totalCount = null;
 
     try {
       const { data } = await this.params.loadFn({
@@ -79,16 +82,20 @@ export class PaginationService<TEntity extends IEntityIdField, TParams extends I
       });
 
       if (data) {
-        const { total, data: list } = data;
+        const { total_count, filtered_count, data: list } = data;
 
         runInAction(() => {
           this.setList(list);
-          this.total = total;
-          this.hasMore = list.length < total;
+          this.totalCount = total_count;
+          this.filteredCount = filtered_count;
+          this.hasMore = list.length < filtered_count;
         });
       }
     } catch (_) {
-      runInAction(() => (this.total = 0));
+      runInAction(() => {
+        this.totalCount = 0;
+        this.filteredCount = 0;
+      });
     } finally {
       runInAction(() => (this.isInitialLoading = false));
     }

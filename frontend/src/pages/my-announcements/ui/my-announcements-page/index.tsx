@@ -1,8 +1,7 @@
-import { EMyAnnouncementsTabs } from "@pages/my-announcements/ui/my-announcements-page/constants";
-import { EAppSubRoutes } from "@shared/constants/appRoutes";
-import { Box } from "@shared/ui/box";
+import { EMyAnnouncementsTabs } from "@shared/constants/appRoutes";
+import { PageContentWrapperStyled } from "@shared/ui/_styled/page-content-wrapper-styled";
+import { PageTitle } from "@shared/ui/page-title";
 import { Tabs } from "@shared/ui/tabs";
-import { T } from "@shared/ui/typography";
 import type { FC, SyntheticEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate } from "react-router";
@@ -20,25 +19,18 @@ export const MyAnnouncementsPage: FC = () => {
       value: EMyAnnouncementsTabs.Participated,
     },
     { label: t("entities.organizer"), value: EMyAnnouncementsTabs.Organized },
-    { label: t("texts.myRequests"), value: EMyAnnouncementsTabs.MyRegistrationRequests },
   ];
 
   const handleChangeTab = (_: SyntheticEvent, value: EMyAnnouncementsTabs) => {
     switch (value) {
       case EMyAnnouncementsTabs.Participated: {
-        navigate(EAppSubRoutes.ParticipatedAnnouncements);
+        navigate(EMyAnnouncementsTabs.Participated);
 
         break;
       }
 
       case EMyAnnouncementsTabs.Organized: {
-        navigate(EAppSubRoutes.OrganizedAnnouncements);
-
-        break;
-      }
-
-      case EMyAnnouncementsTabs.MyRegistrationRequests: {
-        navigate(EAppSubRoutes.MyRegistrationRequests);
+        navigate(EMyAnnouncementsTabs.Organized);
 
         break;
       }
@@ -46,11 +38,11 @@ export const MyAnnouncementsPage: FC = () => {
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap={8} height="100%">
-      <T variant="h4">{t("texts.myAnnouncementsTitle")}</T>
+    <PageContentWrapperStyled>
+      <PageTitle title={t("texts.myAnnouncementsTitle")} />
       <Tabs tabList={tabList} onChange={handleChangeTab} value={pathParts.at(-1)}>
         <Outlet />
       </Tabs>
-    </Box>
+    </PageContentWrapperStyled>
   );
 };

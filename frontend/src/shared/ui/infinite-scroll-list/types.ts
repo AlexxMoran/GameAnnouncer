@@ -12,6 +12,6 @@ export interface IInfiniteScrollListProps<T extends TObjectAny> extends IEntityL
   isInitialLoading: boolean;
   isPaginating: boolean;
   hasMore: boolean;
-  total: TMaybe<number>;
+  totalCount: TMaybe<number>;
   onLoadMore: () => Promise<void>;
 }

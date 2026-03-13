@@ -57,7 +57,7 @@ export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = observer((pr
         ].map((status) => (
           <Chip
             key={status}
-            size="small"
+            size="medium"
             label={t(`enums.announcementStatuses.${status}`)}
             variant={filters.status === status ? "filled" : "outlined"}
             onClick={() => handleSetStatus(status)}

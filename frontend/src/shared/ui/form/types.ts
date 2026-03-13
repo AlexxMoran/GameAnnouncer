@@ -1,5 +1,4 @@
 import type { TObjectAny } from "@shared/types/main.types";
-import type { IBoxProps } from "@shared/ui/box/types";
 import type { FormikConfig } from "formik";
 import type { FC } from "react";
 
@@ -13,11 +12,9 @@ export interface IFormProps<TFormValues extends TObjectAny> {
   onSubmit?: (values: TFormValues) => Promise<unknown> | void | undefined;
   onValidation?: (isValid: boolean) => void;
   onValuesChange?: (values: TFormValues) => void;
-  buttonText?: string;
-  wrapperStyles?: IBoxProps;
+  onCancel?: () => void;
+  confirmButtonText?: string;
+  cancelButtonText?: string;
   cancelWithResult?: boolean;
-  cancelButton?: {
-    text: string;
-    onCancel?: () => void;
-  };
+  isForDialog?: boolean;
 }

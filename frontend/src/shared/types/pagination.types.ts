@@ -4,5 +4,6 @@ export interface IPaginationParams {
 }
 
 export interface IPaginationMeta {
-  total: number;
+  filtered_count: number;
+  total_count: number;
 }

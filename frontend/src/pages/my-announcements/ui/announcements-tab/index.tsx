@@ -3,7 +3,7 @@ import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
 import { AnnouncementCard } from "@pages/my-announcements/ui/announcement-card";
 import type { IAnnouncementsTabProps } from "@pages/my-announcements/ui/announcements-tab/types";
-import { EAppSubRoutes } from "@shared/constants/appRoutes";
+import { EMyAnnouncementsTabs } from "@shared/constants/appRoutes";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
 import type { IAnnouncementDto, ICreateAnnouncementDto } from "@shared/services/api/announcements-api-service/types";
@@ -29,11 +29,9 @@ export const AnnouncementsTab: FC<IAnnouncementsTabProps> = observer(({ canAddAn
   const { openDialog, closeDialog, confirm } = useDialog();
   const { announcementsApiService } = useRootService();
 
-  const tabType = location.pathname.split("/").at(-1) as
-    | EAppSubRoutes.OrganizedAnnouncements
-    | EAppSubRoutes.ParticipatedAnnouncements;
+  const tabType = location.pathname.split("/").at(-1) as EMyAnnouncementsTabs;
 
-  const isParticipatedAnnouncements = tabType === EAppSubRoutes.ParticipatedAnnouncements;
+  const isParticipatedAnnouncements = tabType === EMyAnnouncementsTabs.Participated;
 
   const [announcementsService] = useState(
     () =>

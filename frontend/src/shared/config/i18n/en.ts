@@ -19,7 +19,10 @@ export const translationEn = {
       one: "account",
       many: "accounts",
     },
-    game: "game",
+    game: {
+      one: "game",
+      many: "games",
+    },
     email: "email",
     password: "password",
     registration: "registration",
@@ -68,6 +71,7 @@ export const translationEn = {
     addOption: "Add option",
     addField: "Add field",
     takePart: "Take part",
+    close: "Close",
   },
   texts: {
     allTournaments: "All tournaments",

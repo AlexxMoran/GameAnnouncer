@@ -1,7 +1,8 @@
 import type { IImageUploadFormProps } from "@pages/games/ul/image-upload-form/type";
+import { useDialog } from "@shared/hooks/use-dialog";
 import type { TMaybe } from "@shared/types/main.types";
-import { Box } from "@shared/ui/box";
-import { Button } from "@shared/ui/button";
+import { DialogContent } from "@shared/ui/dialog";
+import { DialogButtonGroup } from "@shared/ui/dialog-button-group";
 import { ImageCropper } from "@shared/ui/image-cropper";
 import type { TFunction } from "i18next";
 import { useSnackbar, type EnqueueSnackbar } from "notistack";
@@ -38,6 +39,7 @@ const convertRefToFile = async (
 
 export const ImageUploadForm: FC<IImageUploadFormProps> = ({ onUploadImage, fileName }) => {
   const { enqueueSnackbar } = useSnackbar();
+  const { closeDialog } = useDialog();
   const { t } = useTranslation();
   const cropperRef = useRef<ReactCropperElement>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -57,11 +59,17 @@ export const ImageUploadForm: FC<IImageUploadFormProps> = ({ onUploadImage, file
   };
 
   return (
-    <Box display="flex" flexDirection="column" gap={10}>
-      <ImageCropper ref={cropperRef} aspectRatio={37 / 16} />
-      <Button onClick={handleSubmit} loading={isLoading}>
-        {t("actions.upload")}
-      </Button>
-    </Box>
+    <>
+      <DialogContent>
+        <ImageCropper ref={cropperRef} aspectRatio={37 / 16} />
+      </DialogContent>
+      <DialogButtonGroup
+        confirmationText={t("actions.upload")}
+        onCancel={closeDialog}
+        onConfirm={handleSubmit}
+        isLoading={isLoading}
+        isForDialog
+      />
+    </>
   );
 };

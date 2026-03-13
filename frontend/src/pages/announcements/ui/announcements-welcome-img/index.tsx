@@ -11,7 +11,7 @@ export const AnnouncementsWelcomeImg: FC = () => {
   return (
     <MainPageImgStyled>
       <MainPageImgContentStyled>
-        <T variant="h4" sx={{ maxWidth: { xs: "350px", md: "500px" } }}>
+        <T variant="h3" sx={{ maxWidth: { xs: "350px", md: "700px" } }}>
           {t("texts.mainTitleCompete")}{" "}
           <span style={{ color: theme.palette.primary.main }}>{t("texts.mainTitleWin")}</span>{" "}
           {t("texts.mainTitleImprove")}

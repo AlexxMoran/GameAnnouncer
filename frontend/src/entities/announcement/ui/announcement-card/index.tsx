@@ -58,8 +58,8 @@ export const AnnouncementCard: FC<IAnnouncementCardProps> = (props) => {
           size="small"
           sx={{
             position: "absolute",
-            top: (theme) => theme.spacing(2),
-            left: (theme) => theme.spacing(2),
+            top: (theme) => theme.spacing(1.5),
+            left: (theme) => theme.spacing(1.5),
             color: theme.palette.getContrastText(statusColor),
             backgroundColor: statusColor,
           }}
@@ -76,7 +76,7 @@ export const AnnouncementCard: FC<IAnnouncementCardProps> = (props) => {
           </Box>
         )}
       </ImgStyled>
-      <Box display="flex" flexDirection="column" justifyContent="space-between" flex={1} pb={3} pt={2} px={2}>
+      <Box display="flex" flexDirection="column" gap={2.5} flex={1} pb={3} pt={1.5} px={1.5}>
         <Box display="flex" flexDirection="column" gap={0.5}>
           <WithLineClampStyled lineClamp={1} variant="h6">
             {title}
@@ -110,7 +110,7 @@ export const AnnouncementCard: FC<IAnnouncementCardProps> = (props) => {
           </div>
         </Box>
         {button && (
-          <Button onClick={button.onClick} startIcon={button.icon}>
+          <Button sx={{ marginTop: "auto" }} onClick={button.onClick} startIcon={button.icon}>
             {button.title}
           </Button>
         )}

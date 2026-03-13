@@ -8,10 +8,11 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import i18nextInstance from "@shared/config/i18n/config";
 import { THEME } from "@shared/config/theme";
 import { EAppRoutes } from "@shared/constants/appRoutes";
+import { useDeviceType } from "@shared/hooks/use-device-type";
 import { RootServiceContext } from "@shared/hooks/use-root-service";
 import { DialogProvider } from "@shared/providers/dialog-provider";
 import { RootService } from "@shared/services/root-service";
-import { IconButton } from "@shared/ui/icon-button";
+import { Button } from "@shared/ui/button";
 import { Spinner } from "@shared/ui/spinner";
 import { closeSnackbar, enqueueSnackbar, SnackbarProvider } from "notistack";
 import { useState, type FC } from "react";
@@ -22,15 +23,20 @@ import { useAsync } from "react-use";
 import "@app/styles/fonts.scss";
 import "@app/styles/utils.scss";
 
-// TODO убрать цвет #fff
 const action = (snackbarId: string | number) => (
-  <IconButton onClick={() => closeSnackbar(snackbarId)}>
-    <CloseIcon color="info" sx={{ fill: "#fff" }} />
-  </IconButton>
+  <Button
+    sx={{ textTransform: "none", color: (theme) => theme.palette.common.white }}
+    variant="text"
+    onClick={() => closeSnackbar(snackbarId)}
+    startIcon={<CloseIcon />}
+  >
+    {i18nextInstance.t("actions.close")}
+  </Button>
 );
 
 export const App: FC = () => {
   const navigate = useNavigate();
+  const { isMobile } = useDeviceType();
 
   const [rootService] = useState(
     () =>
@@ -54,9 +60,10 @@ export const App: FC = () => {
   // TODO вынести в общие стили элементы карточек и стили их позиционаирования
   return (
     <SnackbarProvider
-      autoHideDuration={2000}
+      autoHideDuration={3000}
       action={action}
-      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      maxSnack={3}
+      anchorOrigin={{ vertical: isMobile ? "top" : "bottom", horizontal: isMobile ? "center" : "right" }}
     >
       <ThemeProvider theme={THEME}>
         <LocalizationProvider
@@ -68,7 +75,13 @@ export const App: FC = () => {
             <RootServiceContext.Provider value={rootService}>
               <DialogProvider>
                 <CssBaseline />
-                <Layout>{loading ? <Spinner type="backdrop" /> : <Pages />}</Layout>
+                {loading ? (
+                  <Spinner type="backdrop" />
+                ) : (
+                  <Layout>
+                    <Pages />
+                  </Layout>
+                )}
               </DialogProvider>
             </RootServiceContext.Provider>
           </I18nextProvider>

@@ -5,4 +5,5 @@ export interface IDialogButtonGroupProps {
   disabled?: boolean;
   cancellationText?: string;
   confirmationText?: string;
+  isForDialog?: boolean;
 }

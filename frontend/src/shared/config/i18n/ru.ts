@@ -19,7 +19,10 @@ export const translationRu = {
       one: "аккаунт",
       many: "аккаунты",
     },
-    game: "игра",
+    game: {
+      one: "игра",
+      many: "игры",
+    },
     email: "электронная почта",
     password: "пароль",
     registration: "регистрация",
@@ -68,6 +71,7 @@ export const translationRu = {
     addOption: "Добавить опцию",
     addField: "Добавить поле",
     takePart: "Принять участие",
+    close: "Закрыть",
   },
   texts: {
     allTournaments: "Все турниры",
