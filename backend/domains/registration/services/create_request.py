@@ -7,10 +7,8 @@ from domains.registration.models import (
     FormFieldResponse,
     RegistrationForm,
 )
-from domains.registration.schemas import (
-    RegistrationRequestCreate,
-    FormFieldResponseCreate,
-)
+from domains.registration.schemas import RegistrationRequestCreate
+from domains.registration.form_schemas import FormFieldResponseCreate
 from domains.registration.repository import RegistrationRequestRepository
 from domains.users.model import User
 from exceptions import ValidationException
@@ -54,9 +52,7 @@ class CreateRegistrationRequestService:
 
         registration_request = await self._create_registration_request()
         self._create_form_responses_if_needed(registration_request)
-
-        repo = RegistrationRequestRepository(self.session)
-        return await repo.find_by_id_with_form_responses(registration_request.id)
+        return registration_request
 
     async def _validate_registration(self) -> None:
         """

@@ -6,7 +6,7 @@ from domains.announcements.model import Announcement
 from domains.announcements.schemas import AnnouncementCreate
 from domains.announcements.services.create import CreateAnnouncementService
 from domains.registration.models import RegistrationForm, FormField
-from domains.registration.schemas import RegistrationFormCreate, FormFieldCreate
+from domains.registration.form_schemas import RegistrationFormCreate, FormFieldCreate
 from domains.games.model import Game
 from enums import AnnouncementStatus, FormFieldType, AnnouncementFormat, SeedMethod
 

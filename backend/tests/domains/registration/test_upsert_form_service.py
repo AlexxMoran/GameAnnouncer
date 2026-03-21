@@ -7,7 +7,7 @@ from domains.games.model import Game
 from domains.participants.model import AnnouncementParticipant
 from domains.participants.repository import ParticipantRepository
 from domains.registration.models import RegistrationRequest, RegistrationForm, FormField
-from domains.registration.schemas import (
+from domains.registration.form_schemas import (
     RegistrationFormCreate,
     FormFieldCreate,
 )

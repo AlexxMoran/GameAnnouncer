@@ -4,8 +4,8 @@ from exceptions import AppException
 from domains.users.model import User
 from core.services.avatar_uploader import upload_avatar
 from core.schemas.base import PaginatedResponse, DataResponse
-from domains.registration.schemas import (
-    RegistrationRequestResponse,
+from domains.registration.schemas import RegistrationRequestResponse
+from domains.registration.form_schemas import (
     RegistrationFormCreate,
     RegistrationFormResponse,
 )

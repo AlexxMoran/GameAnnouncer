@@ -76,8 +76,13 @@ async def create(
         registration_request_in=registration_request_in,
     ).call()
     await session.commit()
-    await session.refresh(registration_request)
-    return DataResponse(data=registration_request)
+    repo = RegistrationRequestRepository(session)
+    result = await repo.find_by_id(registration_request.id)
+    if result is None:
+        raise AppException(
+            "Registration request not found after commit", status_code=500
+        )
+    return DataResponse(data=result)
 
 
 @router.patch(
@@ -109,5 +114,10 @@ async def update_registration_request_status(
         raise AppException("Invalid action", status_code=400)
 
     await session.commit()
-    await session.refresh(result)
-    return DataResponse(data=result)
+    repo = RegistrationRequestRepository(session)
+    refreshed = await repo.find_by_id(result.id)
+    if refreshed is None:
+        raise AppException(
+            "Registration request not found after update", status_code=500
+        )
+    return DataResponse(data=refreshed)

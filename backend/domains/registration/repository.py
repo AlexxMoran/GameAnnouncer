@@ -2,7 +2,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload, noload
 
-from domains.announcements.model import Announcement
 from domains.registration.models import (
     RegistrationRequest,
     RegistrationForm,
@@ -18,13 +17,15 @@ class RegistrationRequestRepository:
     async def find_by_id(
         self, registration_request_id: int
     ) -> RegistrationRequest | None:
-        """Fetch a single registration request with announcement participants and user loaded."""
+        """Fetch a registration request with announcement and user loaded.
+
+        Announcement sub-relationships (game, participants, registration_form)
+        are loaded automatically via lazy='selectin' on the Announcement model.
+        """
         result = await self.session.execute(
             select(RegistrationRequest)
             .options(
-                selectinload(RegistrationRequest.announcement).selectinload(
-                    Announcement.participants
-                ),
+                selectinload(RegistrationRequest.announcement),
                 selectinload(RegistrationRequest.user),
             )
             .where(RegistrationRequest.id == registration_request_id)
@@ -34,7 +35,7 @@ class RegistrationRequestRepository:
     async def find_all_by_user_id(
         self, user_id: int, skip: int = 0, limit: int = 10
     ) -> tuple[list[RegistrationRequest], int]:
-        """Get paginated registration requests for a user."""
+        """Get paginated registration requests for a user with announcement loaded."""
         count_result = await self.session.execute(
             select(func.count())
             .select_from(RegistrationRequest)
@@ -44,6 +45,7 @@ class RegistrationRequestRepository:
 
         data_result = await self.session.execute(
             select(RegistrationRequest)
+            .options(selectinload(RegistrationRequest.announcement))
             .where(RegistrationRequest.user_id == user_id)
             .offset(skip)
             .limit(limit)
@@ -64,6 +66,7 @@ class RegistrationRequestRepository:
 
         data_result = await self.session.execute(
             select(RegistrationRequest)
+            .options(selectinload(RegistrationRequest.announcement))
             .where(RegistrationRequest.announcement_id == announcement_id)
             .offset(skip)
             .limit(limit)

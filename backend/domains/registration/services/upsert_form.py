@@ -3,7 +3,7 @@ from sqlalchemy import select
 
 from domains.announcements.model import Announcement
 from domains.registration.models import RegistrationRequest, RegistrationForm, FormField
-from domains.registration.schemas import RegistrationFormCreate
+from domains.registration.form_schemas import RegistrationFormCreate
 from domains.registration.repository import RegistrationFormRepository
 from domains.registration.services.lifecycle import RegistrationLifecycleService
 from enums import AnnouncementStatus

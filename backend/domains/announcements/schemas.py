@@ -8,7 +8,7 @@ from domains.games.schemas import GameForAnnouncementResponse
 from core.schemas.base import BaseSchemaWithPermissions
 from core.search.base_filter import BaseFilter
 from domains.participants.schemas import AnnouncementParticipantResponse
-from domains.registration.schemas import (
+from domains.registration.form_schemas import (
     RegistrationFormCreate,
     RegistrationFormResponse,
 )
@@ -107,6 +107,27 @@ class AnnouncementResponse(AnnouncementBase, BaseSchemaWithPermissions):
     @computed_field
     @property
     def participants_count(self) -> int:
+        """Number of confirmed participants in the announcement."""
+        return len(self.participants)
+
+
+class AnnouncementForRegistrationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    title: str
+    content: str | None
+    format: str
+    registration_end_at: datetime
+    game: GameForAnnouncementResponse
+    participants: list[AnnouncementParticipantResponse] = Field(
+        default_factory=list, exclude=True
+    )
+
+    @computed_field
+    @property
+    def participants_count(self) -> int:
+        """Number of confirmed participants in the announcement."""
         return len(self.participants)
 
 
