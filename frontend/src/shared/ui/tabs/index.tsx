@@ -1,26 +1,20 @@
-import { CardStyled } from "@shared/ui/_styled/card-styled";
+import { Tabs as MuiTabs, Tab } from "@mui/material";
+import { useDeviceType } from "@shared/hooks/use-device-type";
 import { Box } from "@shared/ui/box";
-import { TabsStyled, TabStyled } from "@shared/ui/tabs/styles";
 import type { ITabsProps } from "@shared/ui/tabs/types";
 import { type FC } from "react";
 
 export const Tabs: FC<ITabsProps> = ({ tabList, children, ...rest }) => {
+  const { isMobile } = useDeviceType();
+
   return (
-    <Box height="100%" display="flex" flexDirection="column">
-      <TabsStyled {...rest}>
+    <Box height="100%" display="flex" flexDirection="column" gap={3}>
+      <MuiTabs variant={isMobile ? "scrollable" : "standard"} {...rest}>
         {tabList.map(({ label, value }) => (
-          <TabStyled key={label} label={label} value={value} />
+          <Tab key={label} label={label} value={value} />
         ))}
-      </TabsStyled>
-      <CardStyled
-        sx={{
-          p: (theme) => theme.spacing(8),
-          borderTopLeftRadius: 0,
-          flex: 1,
-        }}
-      >
-        {children}
-      </CardStyled>
+      </MuiTabs>
+      {children}
     </Box>
   );
 };

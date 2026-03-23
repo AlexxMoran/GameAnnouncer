@@ -1,9 +1,8 @@
-import { ListItem, Autocomplete as MuiAutocomplete } from "@mui/material";
+import { Autocomplete as MuiAutocomplete } from "@mui/material";
 import type { IEntityIdField } from "@shared/types/commonEntity.types";
+import { Option } from "@shared/ui/autocomplete/option";
 import type { IAutocompleteProps } from "@shared/ui/autocomplete/types";
-import { ElementObserver } from "@shared/ui/element-observer";
 import { TextField } from "@shared/ui/text-field";
-import { type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 
 export const Autocomplete = <
@@ -24,25 +23,16 @@ export const Autocomplete = <
       size="small"
       noOptionsText={t("texts.noOptions")}
       slotProps={{ listbox: { sx: { maxHeight: "200px" } } }}
-      renderOption={({ key: _, ...otherProps }, option, counter, ownerState) => {
+      renderOption={(props, _, counter, ownerState) => {
         const isLastOption = counter.index === rest.options.length - 1;
-        const label = ownerState.getOptionLabel?.(option);
-        const optionId = typeof option === "object" ? option.id : label;
 
-        const key = typeof option === "object" ? optionId : (option as string | number);
-
-        return isLastOption ? (
-          <ElementObserver onVisible={onLastItemVisible} key={key}>
-            {({ ref }) => (
-              <ListItem ref={ref as RefObject<HTMLLIElement>} {...otherProps}>
-                {label}
-              </ListItem>
-            )}
-          </ElementObserver>
-        ) : (
-          <ListItem key={key} {...otherProps}>
-            {label}
-          </ListItem>
+        return (
+          <Option
+            onLastItemVisible={onLastItemVisible}
+            label={ownerState.getOptionLabel(rest.options[counter.index])}
+            isLastOption={isLastOption}
+            liAttributes={props}
+          />
         );
       }}
       renderInput={(params) => (

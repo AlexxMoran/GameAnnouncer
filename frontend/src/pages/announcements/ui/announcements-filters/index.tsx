@@ -6,10 +6,11 @@ import { Box } from "@shared/ui/box";
 import { Chip } from "@shared/ui/chip";
 import { IconButton } from "@shared/ui/icon-button";
 import { TextField } from "@shared/ui/text-field";
+import { observer } from "mobx-react-lite";
 import { type ChangeEvent, type FC } from "react";
 import { useTranslation } from "react-i18next";
 
-export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = (props) => {
+export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = observer((props) => {
   const { filters, handleFilter } = props;
 
   const { t } = useTranslation();
@@ -31,23 +32,9 @@ export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = (props) => {
   };
 
   return (
-    <Box display="flex" width="100%" justifyContent="space-between" alignItems="center">
-      <Box display="flex" gap={1}>
-        {[EAnnouncementStatuses.Live, EAnnouncementStatuses.RegistrationOpen, EAnnouncementStatuses.Cancelled].map(
-          (status) => (
-            <Chip
-              key={status}
-              size="small"
-              label={t(`enums.announcementStatuses.${status}`)}
-              variant={filters.status === status ? "filled" : "outlined"}
-              onClick={() => handleSetStatus(status)}
-            />
-          )
-        )}
-      </Box>
+    <>
       <TextField
         value={filters["q"] || ""}
-        sx={{ width: "250px" }}
         endAdornment={
           <>
             {filters["q"] && (
@@ -61,6 +48,22 @@ export const AnnouncementsFilters: FC<IAnnouncementsFiltersProps> = (props) => {
         placeholder={t("placeholders.search")}
         onChange={handleSearchInputChange}
       />
-    </Box>
+      <Box display="flex" gap={1} width="100%" flexWrap="wrap">
+        {[
+          EAnnouncementStatuses.Live,
+          EAnnouncementStatuses.RegistrationOpen,
+          EAnnouncementStatuses.PreRegistration,
+          EAnnouncementStatuses.Cancelled,
+        ].map((status) => (
+          <Chip
+            key={status}
+            size="medium"
+            label={t(`enums.announcementStatuses.${status}`)}
+            variant={filters.status === status ? "filled" : "outlined"}
+            onClick={() => handleSetStatus(status)}
+          />
+        ))}
+      </Box>
+    </>
   );
-};
+});

@@ -6,6 +6,7 @@ import type { ChangeEvent } from "react";
 
 export interface IRegistrationFormFieldProps extends IRegistrationFormField {
   fieldKey: string;
+  index: number;
   errors?: FormikErrors<Record<string, IRegistrationFormField>>;
   onChangeOption?: (
     event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,

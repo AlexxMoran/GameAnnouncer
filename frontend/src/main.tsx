@@ -8,6 +8,7 @@ import { BrowserRouter } from "react-router";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
+dayjs.locale("ru");
 
 const root = document.getElementById("root");
 

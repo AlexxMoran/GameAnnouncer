@@ -11,14 +11,8 @@ export const Spinner: FC<ISpinnerProps> = (props) => {
   }
 
   return (
-    <Box
-      width="100%"
-      height={type === "backdrop" ? "100%" : "60px"}
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-    >
-      <CircularProgress {...rest} size={type === "backdrop" ? 80 : 40} />
+    <Box width="100%" height="100%" display="flex" justifyContent="center" alignItems="center">
+      <CircularProgress {...rest} size={80} />
     </Box>
   );
 };

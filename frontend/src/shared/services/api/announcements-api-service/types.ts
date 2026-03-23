@@ -3,15 +3,15 @@ import type {
   EAnnouncementStatuses,
   ERegistrationFormFieldTypes,
 } from "@shared/services/api/announcements-api-service/constants";
+import type { IGameDto } from "@shared/services/api/games-api-service/types";
 import type { IEntityDateFields, IEntityIdField } from "@shared/types/commonEntity.types";
-import type { TMaybe } from "@shared/types/main.types";
+import type { TMaybe, TObjectAny } from "@shared/types/main.types";
 import type { IPaginationParams } from "@shared/types/pagination.types";
 
 export interface IAnnouncementDto extends IEntityDateFields, IEntityIdField {
   title: string;
   content: TMaybe<string>;
-  game_id: number;
-  image_url: string;
+  game: Pick<IGameDto, "category" | "id" | "image_url" | "name">;
   organizer_id: number;
   status: EAnnouncementStatuses;
   start_at: string;
@@ -22,15 +22,17 @@ export interface IAnnouncementDto extends IEntityDateFields, IEntityIdField {
   participants_count: number;
   format: EAnnouncementFormat;
   registration_form?: {
-    fields: IRegistrationFormField[];
+    fields: IRegistrationFormFieldWithId[];
   };
 }
+
+export interface IRegistrationFormFieldWithId extends IRegistrationFormField, IEntityIdField {}
 
 export interface IRegistrationFormField {
   field_type: ERegistrationFormFieldTypes;
   label: string;
   required: boolean;
-  options?: string[];
+  options?: TObjectAny;
 }
 
 export interface ICreateAnnouncementDto {
@@ -55,8 +57,6 @@ export interface IAnnouncementListFilters {
 }
 
 export interface IEditAnnouncementDto extends Partial<Omit<ICreateAnnouncementDto, "game_id">> {}
-
 export interface IGetAnnouncementsDto extends IPaginationParams, IAnnouncementListFilters {}
-
 export interface IGetParticipatedAnnouncementsDto extends IPaginationParams {}
 export interface IGetOrganizedAnnouncementsDto extends IPaginationParams {}

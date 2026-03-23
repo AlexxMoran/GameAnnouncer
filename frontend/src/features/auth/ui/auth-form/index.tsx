@@ -18,7 +18,7 @@ export const AuthForm: FC<IAuthFormProps> = (props) => {
       onSubmit={(values) => onSubmit?.(values)}
       formikConfig={{ initialValues, validationSchema }}
       fields={AuthFields}
-      buttonText={buttonText}
+      confirmButtonText={buttonText}
     />
   );
 };

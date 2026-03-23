@@ -144,11 +144,12 @@ export const RegistrationFormFields: FC = observer(() => {
 
   return (
     <>
-      {Object.entries(fields || {}).map(([fieldKey, fieldValues]) => (
+      {Object.entries(fields || {}).map(([fieldKey, fieldValues], index) => (
         <RegistrationFormField
           key={fieldKey}
           errors={memoErrors}
           fieldKey={fieldKey}
+          index={index}
           onAddOption={handleAddOption}
           onChangeCheckbox={handleChangeCheckbox}
           onChangeLabel={handleChangeLabel}

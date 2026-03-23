@@ -19,17 +19,18 @@ export default defineConfig({
       "@shared": resolve(__dirname, "src/shared"),
       "@features": resolve(__dirname, "src/features"),
       "@widgets": resolve(__dirname, "src/widgets"),
+      "@entities": resolve(__dirname, "src/entities"),
     },
   },
   server: {
     proxy: {
       "/api": {
-        target: "http://backend:3000",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },
       "/static": {
-        target: "http://backend:3000",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },

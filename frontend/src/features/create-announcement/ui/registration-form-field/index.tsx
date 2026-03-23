@@ -7,8 +7,9 @@ import { ERegistrationFormFieldTypes } from "@shared/services/api/announcements-
 import { Autocomplete } from "@shared/ui/autocomplete";
 import { Box } from "@shared/ui/box";
 import { Button } from "@shared/ui/button";
+import { Card } from "@shared/ui/card";
+import { Checkbox } from "@shared/ui/checkbox";
 import { IconButton } from "@shared/ui/icon-button";
-import { Switch } from "@shared/ui/switch";
 import { TextField } from "@shared/ui/text-field";
 import { Tooltip } from "@shared/ui/tooltip";
 import { T } from "@shared/ui/typography";
@@ -25,6 +26,7 @@ export const RegistrationFormField: FC<IRegistrationFormFieldProps> = memo((prop
     field_type,
     label,
     required,
+    index,
     onChangeOption,
     onDeleteOption,
     onChangeType,
@@ -48,16 +50,28 @@ export const RegistrationFormField: FC<IRegistrationFormFieldProps> = memo((prop
   })();
 
   return (
-    <Box
-      border={(theme) => `1px solid ${theme.palette.divider}`}
-      flexDirection="column"
-      display="flex"
-      borderRadius={2}
+    <Card
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        backgroundColor: (theme) => theme.palette.background.accent,
+        gap: 1,
+        p: 2,
+      }}
       key={fieldKey}
-      gap={4}
-      p={4}
     >
-      <Box display="flex" gap={2}>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <T variant="caption">
+          {t("texts.fieldNumberText")}
+          {index + 1}
+        </T>
+        <Tooltip title={t("actions.deleteField")}>
+          <IconButton color="error" sx={{ alignSelf: "center" }} onClick={() => onDeleteField?.(fieldKey)}>
+            <DeleteOutlinedIcon />
+          </IconButton>
+        </Tooltip>
+      </Box>
+      <Box display="flex" gap={1}>
         <TextField
           value={label}
           label={t("entities.name")}
@@ -77,11 +91,6 @@ export const RegistrationFormField: FC<IRegistrationFormFieldProps> = memo((prop
           helperText={fieldErrors?.field_type}
           required
         />
-        <Tooltip title={t("actions.deleteField")}>
-          <IconButton sx={{ alignSelf: "center" }} onClick={() => onDeleteField?.(fieldKey)}>
-            <DeleteOutlinedIcon />
-          </IconButton>
-        </Tooltip>
       </Box>
       {field_type === ERegistrationFormFieldTypes.Select && (
         <Box display="flex" flexDirection="column" gap={1}>
@@ -118,10 +127,10 @@ export const RegistrationFormField: FC<IRegistrationFormFieldProps> = memo((prop
         <FormControlLabel
           name="withRegistrationForm"
           label={t("texts.requiredField")}
-          control={<Switch checked={required} />}
+          control={<Checkbox size="small" checked={required} />}
           onChange={(_, checked) => onChangeCheckbox?.(checked, fieldKey)}
         />
       )}
-    </Box>
+    </Card>
   );
 });

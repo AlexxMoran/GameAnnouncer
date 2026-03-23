@@ -1,14 +1,16 @@
+import type { IconButtonProps } from "@mui/material";
 import type { TMaybe } from "@shared/types/main.types";
 import type { Dispatch, FC, ReactNode, SetStateAction } from "react";
 
 export interface IMenuAction {
   id: number;
   title?: string;
-  onClick?: (actionId: number) => void;
+  onClick?: (actionId?: number) => void;
   disabled?: boolean;
   hidden?: boolean;
   tooltip?: string;
   icon?: ReactNode;
+  color?: IconButtonProps["color"];
 }
 
 export interface IActionsMenuProps {

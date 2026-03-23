@@ -34,7 +34,7 @@ export const CreateGameFields: FC = () => {
         value={values["description"]}
         error={!!errors["description"]}
         helperText={errors["description"]}
-        maxRows={4}
+        rows={4}
         required
         multiline
       />

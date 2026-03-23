@@ -2,17 +2,27 @@ import { EAnnouncementStatuses } from "@shared/services/api/announcements-api-se
 import { ERegistrationRequestStatuses } from "@shared/services/api/registration-requests-api-service/constants";
 
 export const translationRu = {
-  lang: {
-    ru: "Русский",
-    en: "Английский",
-  },
   countedEntities: {
     announcement: "{count, plural, =0{нет турниров} =1{1 турнир} few{# турнира} many{# турниров} other{# турнира}}",
     game: "{count, plural, =0{нет игр} =1{1 игра} few{# игр} many{# игр} other{# игр}}",
   },
   entities: {
-    announcement: "турнир",
-    game: "игра",
+    announcement: {
+      one: "турнир",
+      many: "турниры",
+    },
+    bid: {
+      one: "заявка",
+      many: "заявки",
+    },
+    account: {
+      one: "аккаунт",
+      many: "аккаунты",
+    },
+    game: {
+      one: "игра",
+      many: "игры",
+    },
     email: "электронная почта",
     password: "пароль",
     registration: "регистрация",
@@ -60,6 +70,9 @@ export const translationRu = {
     deleteField: "Удалить поле",
     addOption: "Добавить опцию",
     addField: "Добавить поле",
+    takePart: "Принять участие",
+    close: "Закрыть",
+    submitApplication: "Подать заявку",
   },
   texts: {
     allTournaments: "Все турниры",
@@ -75,7 +88,6 @@ export const translationRu = {
     requestSendingSuccess: "Запрос успешно отправлен",
     gameUploadSuccess: "Изображение успешно загружено",
     fileUploadTooltip: "Подходящие форматы - {formats}, размер не более {size} MB",
-    introduction: "Создавай турниры любого масштаба — от быстрых дуэлей до полноценных чемпионатов",
     welcome: "Добро пожаловать!",
     ok: "Хорошо!",
     registrationConfirmation:
@@ -105,9 +117,36 @@ export const translationRu = {
     cancelRequestSuccess: "Заявка успешно отменена",
     requiredField: "Обязательное поле",
     announcementInfo: "Сведения о турнире",
-    registrationForm: "Форма регистрации",
-    createRegistrationFormTooltip: "Добавьте поля формы для регистрации в турнире (опционально)",
+    applicationForm: "Форма заявки",
+    fillInBasicTournamentInfo: "Заполните основные сведения о турнире",
+    customizeForm: "Настройте форму заявки (опционально)",
     optionList: "Список опций",
+    fillTheFieldsToParticipate: "Заполните поля для участия в турнире",
+    mainTitleCompete: "Соревнуйтесь.",
+    mainTitleWin: "Побеждайте.",
+    mainTitleImprove: "Становитесь лучше.",
+    mainSubtitle:
+      "Платформа для организации и участия в киберспортивных турнирах. Создавайте свои турниры и отслеживайте результаты в реальном времени.",
+    nothingFound: "Ничего не найдено",
+    tryChangeSearchParameters: "Попробуйте изменить параметры поиска или сбросить фильтры",
+    fieldNumberText: "Поле #",
+    tournamentsCreatedAndOrganize: "Турниры, которые вы создали и организуете",
+    tournamentsParticipated: "Турниры, в которых вы участвуете или участвовали",
+    noTournaments: "Турниров нет",
+    howToParticipateInTournament:
+      "Чтобы принять участие в турнире, перейдите на страницу всех турниров и выберите подходящий",
+    howToCreateTournament: 'Для создания турнира нажмите кнопку "Создать турнир"',
+    startDate: "Дата начала",
+    participants: "Участников",
+    applyForTournamentMessage:
+      "Вы собираетесь подать заявку на участие в турнире. После подтверждения организатор рассмотрит вашу заявку.",
+    applyForTournamentFormMessage:
+      "Вы собираетесь подать заявку на участие в турнире. Для отправки заявки необходимо заполнить форму ниже. После подтверждения организатор рассмотрит вашу заявку.",
+    submittedDate: "Подана: {date}",
+    howToSubmitApplication:
+      'Чтобы отправить заявку, перейдите на страницу всех турниров, выберите подходящий и нажмите "Принять участие"',
+    noApplications: "Заявок нет",
+    pleaseLogin: "Пожалуйста, войдите в аккаунт",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",
@@ -131,10 +170,6 @@ export const translationRu = {
     select: "выберите",
     search: "поиск",
   },
-  pageTitles: {
-    games: "Игры",
-    announcements: "Турниры",
-  },
   enums: {
     announcementStatuses: {
       [EAnnouncementStatuses.PreRegistration]: "Ожидает регистрации",
@@ -151,6 +186,10 @@ export const translationRu = {
       [ERegistrationRequestStatuses.Expired]: "Истекла",
       [ERegistrationRequestStatuses.Pending]: "В ожидании",
       [ERegistrationRequestStatuses.Rejected]: "Отклонена",
+    },
+    langs: {
+      ru: "Русский",
+      en: "Английский",
     },
   },
 };

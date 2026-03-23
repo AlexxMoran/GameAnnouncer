@@ -22,7 +22,7 @@ export class GamesService extends EntityCrudService<IGameDto, IGetGamesDto, ICre
       const { data } = await this.gamesApiService.uploadGameImage(id, image);
 
       if (data) {
-        this.paginationService.setItem(data.data);
+        this.setItem(data.data);
       }
 
       return data;
