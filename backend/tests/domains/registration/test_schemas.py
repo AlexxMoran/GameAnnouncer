@@ -19,6 +19,7 @@ from domains.registration.form_schemas import (
     FormFieldResponseResponse,
     FormFieldResponseUpdate,
 )
+from domains.users.schemas import UserBrief
 from enums import FormFieldType
 
 
@@ -37,6 +38,19 @@ def _make_game_response(**overrides) -> GameForAnnouncementResponse:
     data = {"id": 1, "name": "CS2", "image_url": None, "category": "FPS"}
     data.update(overrides)
     return GameForAnnouncementResponse(**data)
+
+
+def _make_user_brief(**overrides) -> UserBrief:
+    data = {
+        "id": 2,
+        "first_name": "Alex",
+        "last_name": "Moran",
+        "nickname": "caster",
+        "avatar_icon_id": 7,
+        "avatar_color": "#AABBCC",
+    }
+    data.update(overrides)
+    return UserBrief(**data)
 
 
 def _make_announcement_for_registration(
@@ -90,16 +104,19 @@ def test_registration_request_create():
 def test_registration_request_response():
     now = datetime.now(timezone.utc)
     ann = _make_announcement_for_registration()
+    user = _make_user_brief()
     resp = RegistrationRequestResponse(
         id=1,
         announcement_id=ann.id,
         user_id=2,
+        user=user,
         status="pending",
         announcement=ann,
         created_at=now,
         updated_at=now,
     )
     assert resp.user_id == 2
+    assert resp.user.id == 2
     assert resp.status == "pending"
     assert resp.cancellation_reason is None
     assert resp.announcement.id == ann.id
@@ -109,10 +126,12 @@ def test_registration_request_response():
 def test_registration_request_response_with_cancellation_reason():
     now = datetime.now(timezone.utc)
     ann = _make_announcement_for_registration()
+    user = _make_user_brief()
     resp = RegistrationRequestResponse(
         id=1,
         announcement_id=ann.id,
         user_id=2,
+        user=user,
         status="cancelled",
         cancellation_reason="User cancelled",
         announcement=ann,
@@ -127,10 +146,12 @@ def test_registration_request_response_announcement_participants_count():
     ann = _make_announcement_for_registration(
         participants=[_make_participant(n) for n in range(1, 3)]
     )
+    user = _make_user_brief()
     resp = RegistrationRequestResponse(
         id=1,
         announcement_id=ann.id,
         user_id=2,
+        user=user,
         status="approved",
         announcement=ann,
         created_at=now,

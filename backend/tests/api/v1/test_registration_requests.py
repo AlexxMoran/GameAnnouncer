@@ -26,12 +26,32 @@ def _make_fake_announcement(**overrides) -> SimpleNamespace:
     return SimpleNamespace(**data)
 
 
+def _make_fake_user(**overrides) -> SimpleNamespace:
+    data = {
+        "id": 1,
+        "first_name": "Alex",
+        "last_name": "Moran",
+        "nickname": "caster",
+        "avatar_icon_id": 7,
+        "avatar_color": "#AABBCC",
+    }
+    data.update(overrides)
+    return SimpleNamespace(**data)
+
+
 def _make_fake_rr(**overrides) -> SimpleNamespace:
     ann = overrides.pop("announcement", _make_fake_announcement())
+    user_id = overrides.get("user_id")
+    user = overrides.pop("user", None)
+    if user is None:
+        user = _make_fake_user(id=user_id or 1)
+    elif user_id is not None:
+        user = SimpleNamespace(**{**vars(user), "id": user_id})
     data = {
         "id": 1,
         "announcement_id": ann.id,
-        "user_id": 1,
+        "user_id": user.id,
+        "user": user,
         "status": "pending",
         "cancellation_reason": None,
         "form_responses": [],
@@ -73,6 +93,8 @@ async def test_get_registration_request_includes_announcement(
     assert data["announcement"]["title"] == "Spring Cup"
     assert data["announcement"]["game"]["name"] == "CS2"
     assert data["announcement"]["game"]["category"] == "FPS"
+    assert data["user"]["id"] == user.id
+    assert data["user_id"] == user.id
     assert "participants_count" in data["announcement"]
 
 
@@ -113,6 +135,7 @@ async def test_get_registration_request_announcement_participants_count(
 
     assert r.status_code == 200
     assert r.json()["data"]["announcement"]["participants_count"] == 3
+    assert r.json()["data"]["user"]["id"] == user.id
 
 
 @pytest.mark.asyncio
@@ -160,6 +183,8 @@ async def test_create_registration_request_includes_announcement(
     data = r.json()["data"]
     assert data["announcement"]["id"] == fake_rr_after.announcement.id
     assert data["announcement"]["game"]["name"] == "CS2"
+    assert data["user"]["id"] == user.id
+    assert data["user_id"] == user.id
     assert "participants_count" in data["announcement"]
 
 
@@ -209,3 +234,5 @@ async def test_cancel_registration_request_includes_announcement(
     assert data["status"] == "cancelled"
     assert data["announcement"]["id"] == fake_rr_after.announcement.id
     assert data["announcement"]["game"]["name"] == "CS2"
+    assert data["user"]["id"] == user.id
+    assert data["user_id"] == user.id

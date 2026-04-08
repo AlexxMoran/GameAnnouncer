@@ -9,6 +9,7 @@ from domains.registration.form_schemas import (
     FormFieldResponseResponse,
 )
 from domains.announcements.schemas import AnnouncementForRegistrationResponse
+from domains.users.schemas import UserBrief
 
 
 class RegistrationRequestBase(BaseModel):
@@ -34,6 +35,9 @@ class RegistrationRequestResponse(RegistrationRequestBase):
     id: int
     user_id: int = Field(
         ..., description="The ID of the user who made the registration request"
+    )
+    user: UserBrief = Field(
+        ..., description="Basic info of the user who made the registration request"
     )
     status: str = Field(..., description="The status of the registration request")
     cancellation_reason: str | None = Field(

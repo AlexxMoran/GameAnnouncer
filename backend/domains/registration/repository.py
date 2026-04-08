@@ -45,7 +45,10 @@ class RegistrationRequestRepository:
 
         data_result = await self.session.execute(
             select(RegistrationRequest)
-            .options(selectinload(RegistrationRequest.announcement))
+            .options(
+                selectinload(RegistrationRequest.announcement),
+                selectinload(RegistrationRequest.user),
+            )
             .where(RegistrationRequest.user_id == user_id)
             .offset(skip)
             .limit(limit)
@@ -66,7 +69,10 @@ class RegistrationRequestRepository:
 
         data_result = await self.session.execute(
             select(RegistrationRequest)
-            .options(selectinload(RegistrationRequest.announcement))
+            .options(
+                selectinload(RegistrationRequest.announcement),
+                selectinload(RegistrationRequest.user),
+            )
             .where(RegistrationRequest.announcement_id == announcement_id)
             .offset(skip)
             .limit(limit)
@@ -92,13 +98,14 @@ class RegistrationRequestRepository:
     async def find_by_id_with_form_responses(
         self, registration_request_id: int
     ) -> RegistrationRequest | None:
-        """Fetch a registration request with form_responses and form_field loaded."""
+        """Fetch a registration request with form_responses, form_field, and user loaded."""
         result = await self.session.execute(
             select(RegistrationRequest)
             .options(
                 selectinload(RegistrationRequest.form_responses).selectinload(
                     FormFieldResponse.form_field
-                )
+                ),
+                selectinload(RegistrationRequest.user),
             )
             .where(RegistrationRequest.id == registration_request_id)
         )
