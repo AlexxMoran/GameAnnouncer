@@ -57,16 +57,21 @@ class BaseMailer(ABC):
 
         mjml_content = mjml_template.render(**context)
         result = mjml_to_html(mjml_content)
+        html_body, errors = self._extract_mjml_result(result)
 
-        if result.get("errors"):
-            logger.error(
-                f"MJML compilation errors for '{template_name}': {result['errors']}"
-            )
+        if errors:
+            logger.error(f"MJML compilation errors for '{template_name}': {errors}")
 
-        html_body = result.get("html", "")
         plain_body = self._html_to_text(html_body)
 
         return plain_body, html_body
+
+    def _extract_mjml_result(self, result: Any) -> tuple[str, list[Any]]:
+        """Support both legacy dict results and ParseResult objects from mjml."""
+        if isinstance(result, dict):
+            return result.get("html", ""), result.get("errors", []) or []
+
+        return getattr(result, "html", "") or "", getattr(result, "errors", []) or []
 
     def _html_to_text(self, html: str) -> str:
         """Convert HTML to plain text."""

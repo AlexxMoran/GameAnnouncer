@@ -40,6 +40,30 @@ def test_render_template_and_html_to_text():
     assert html == "<h1>Hello</h1>"
 
 
+def test_render_template_with_parse_result_object():
+    import mailers.base_mailer as bm
+
+    from mailers.base_mailer import BaseMailer
+
+    mailer = BaseMailer()
+
+    class FakeTemplate:
+        def render(self, **ctx):
+            return "<mjml>dummy</mjml>"
+
+    class FakeParseResult:
+        html = "<h1>Hello object</h1>"
+        errors = []
+
+    mailer.jinja_env = SimpleNamespace(get_template=lambda name: FakeTemplate())
+
+    with patch.object(bm, "mjml_to_html", lambda mjml: FakeParseResult()):
+        plain, html = mailer.render_template("any")
+
+    assert "Hello object" in plain
+    assert html == "<h1>Hello object</h1>"
+
+
 def test_mail_with_template_and_without():
     from mailers.base_mailer import BaseMailer, Mail
 

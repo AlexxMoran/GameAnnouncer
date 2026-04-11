@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError, DataError
 
 from exceptions.exception_handler import (
     _extract_regex,
+    _sanitize_validation_errors,
     app_exception_handler,
     http_exception_handler,
     validation_exception_handler,
@@ -31,6 +32,23 @@ def test_extract_regex_basic():
     assert _extract_regex(pattern, text, group=1) == "email"
     assert _extract_regex(pattern, text, group=2) == "user@example.com"
     assert _extract_regex(pattern, "no match here") is None
+
+
+def test_sanitize_validation_errors_removes_raw_input():
+    errors = [
+        {
+            "loc": ("body", "password"),
+            "msg": "String should have at least 8 characters",
+            "input": "super-secret",
+        }
+    ]
+
+    assert _sanitize_validation_errors(errors) == [
+        {
+            "loc": ("body", "password"),
+            "msg": "String should have at least 8 characters",
+        }
+    ]
 
 
 @pytest.mark.asyncio

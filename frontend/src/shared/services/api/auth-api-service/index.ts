@@ -46,28 +46,16 @@ export class AuthApiService {
   };
 
   verifyEmail = (token: string) => {
-    const body = new URLSearchParams();
-
-    body.set("token", token);
-
-    return this.baseApiService.post<TApiResponseWrapper<IUserDto>>(`${AUTH_ENDPOINT}/verify?${body}`);
+    return this.baseApiService.post<TApiResponseWrapper<IUserDto>>(`${AUTH_ENDPOINT}/verify`, { token });
   };
 
   register = (params: IRegisterDto) => {
-    const body = new URLSearchParams();
-
-    Object.entries(params).forEach(([key, value]) => body.set(key, value));
-
-    return this.baseApiService.post<TApiResponseWrapper<IUserDto>>(`${AUTH_ENDPOINT}/register?${body}`);
+    return this.baseApiService.post<TApiResponseWrapper<IUserDto>>(`${AUTH_ENDPOINT}/register`, params);
   };
 
   refreshToken = (config?: IApiConfig) => {
     // чтоб не было циклических зависимостей
     // TODO разобраться с base_api
-    return axios.post<IAccessToken>(
-      `http://localhost:4200/api/auth/jwt/refresh`,
-      {},
-      { withCredentials: true, ...config }
-    );
+    return axios.post<IAccessToken>("/api/auth/jwt/refresh", {}, { withCredentials: true, ...config });
   };
 }

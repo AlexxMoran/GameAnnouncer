@@ -15,6 +15,7 @@ from core.users import current_user, current_user_or_none
 from core.permissions import authorize_action, get_permissions, get_batch_permissions
 
 from domains.announcements.model import Announcement
+from domains.announcements.queries import AnnouncementQueries
 from domains.announcements.repository import AnnouncementRepository
 from domains.announcements.search import AnnouncementSearch
 from domains.announcements.schemas import (
@@ -23,7 +24,6 @@ from domains.announcements.schemas import (
     AnnouncementUpdate,
     AnnouncementFilter,
 )
-from domains.participants.repository import ParticipantRepository
 from domains.participants.schemas import (
     AnnouncementParticipantResponse,
     AnnouncementParticipantScoreUpdate,
@@ -36,10 +36,11 @@ from domains.announcements.services.finalize_qualification import (
 )
 from domains.announcements.services.generate_bracket import GenerateBracketService
 from domains.announcements.utils.bracket import get_bracket
-from domains.matches.repository import MatchRepository
+from domains.matches.queries import MatchQueries
 from domains.matches.schemas import BracketResponse, MatchResponse
 
-from domains.registration.repository import RegistrationRequestRepository
+from domains.registration.queries import RegistrationRequestQueries
+from domains.participants.queries import ParticipantQueries
 
 router = APIRouter(prefix="/announcements", tags=["announcements"])
 
@@ -48,8 +49,8 @@ async def get_announcement_dependency(
     session: SessionDep,
     announcement_id: int,
 ) -> Announcement:
-    repo = AnnouncementRepository(session)
-    announcement = await repo.find_by_id(announcement_id)
+    queries = AnnouncementQueries(session)
+    announcement = await queries.find_by_id(announcement_id)
     if not announcement:
         raise AppException("Announcement not found", status_code=404)
     return announcement
@@ -96,8 +97,8 @@ async def get_announcement_participants(
     limit: int = 10,
     announcement: Announcement = Depends(get_announcement_dependency),
 ) -> PaginatedResponse[AnnouncementParticipantResponse]:
-    repo = ParticipantRepository(session)
-    participants, total = await repo.find_all_by_announcement_id(
+    queries = ParticipantQueries(session)
+    participants, total = await queries.find_all_by_announcement_id(
         announcement_id=announcement.id, skip=skip, limit=limit
     )
     return PaginatedResponse(
@@ -149,8 +150,8 @@ async def get_announcement_registration_requests(
     Returns 401 if unauthenticated, 403 if authenticated but unauthorized.
     """
     authorize_action(user, announcement, "edit")
-    repo = RegistrationRequestRepository(session)
-    registration_requests, total = await repo.find_all_by_announcement_id(
+    queries = RegistrationRequestQueries(session)
+    registration_requests, total = await queries.find_all_by_announcement_id(
         announcement_id=announcement.id, skip=skip, limit=limit
     )
     return PaginatedResponse(
@@ -264,8 +265,8 @@ async def get_announcement_matches(
     limit: int = Query(default=100, ge=1, le=500),
     announcement: Announcement = Depends(get_announcement_dependency),
 ) -> PaginatedResponse[MatchResponse]:
-    repo = MatchRepository(session)
-    matches, total = await repo.find_all_by_announcement_id(
+    queries = MatchQueries(session)
+    matches, total = await queries.find_all_by_announcement_id(
         announcement_id=announcement.id, skip=skip, limit=limit
     )
     return PaginatedResponse(

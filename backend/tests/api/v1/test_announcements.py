@@ -559,7 +559,7 @@ async def test_get_bracket_returns_rounds(async_client, announcement_factory):
 
     try:
         with patch(
-            "domains.announcements.utils.bracket.MatchRepository",
+            "domains.announcements.utils.bracket.MatchQueries",
             return_value=MagicMock(
                 find_all_unpaginated_by_announcement_id=AsyncMock(
                     return_value=[match1, match2]
@@ -596,7 +596,7 @@ async def test_get_bracket_returns_404_when_no_matches(
 
     try:
         with patch(
-            "domains.announcements.utils.bracket.MatchRepository",
+            "domains.announcements.utils.bracket.MatchQueries",
             return_value=MagicMock(
                 find_all_unpaginated_by_announcement_id=AsyncMock(return_value=[])
             ),
@@ -688,7 +688,7 @@ async def test_get_announcement_registration_requests_allowed_for_organizer(
         with (
             patch("api.v1.announcements.authorize_action"),
             patch(
-                "api.v1.announcements.RegistrationRequestRepository",
+                "api.v1.announcements.RegistrationRequestQueries",
                 return_value=MagicMock(
                     find_all_by_announcement_id=AsyncMock(return_value=([], 0))
                 ),

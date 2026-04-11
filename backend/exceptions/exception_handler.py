@@ -47,6 +47,17 @@ def _extract_regex(pattern: str, text: str, group: int = 1):
     return match.group(group) if match else None
 
 
+def _sanitize_validation_errors(errors: list[dict]) -> list[dict]:
+    """Drop raw input values from validation errors before logging."""
+    sanitized_errors: list[dict] = []
+
+    for error in errors:
+        sanitized_error = {key: value for key, value in error.items() if key != "input"}
+        sanitized_errors.append(sanitized_error)
+
+    return sanitized_errors
+
+
 async def app_exception_handler(request: Request, exc: AppException) -> JSONResponse:
     """Handle custom AppException."""
     logger.error(f"AppException on {request.method} {request.url.path}: {exc.message}")
@@ -93,12 +104,13 @@ async def validation_exception_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
     """Handle Pydantic validation errors."""
+    sanitized_errors = _sanitize_validation_errors(exc.errors())
     logger.warning(
-        f"ValidationError on {request.method} {request.url.path}: {exc.errors()}"
+        f"ValidationError on {request.method} {request.url.path}: {sanitized_errors}"
     )
 
     error_messages = []
-    for error in exc.errors():
+    for error in sanitized_errors:
         field = ".".join(str(loc) for loc in error["loc"] if loc != "body")
         message = error["msg"]
         error_messages.append(f"{field}: {message}")

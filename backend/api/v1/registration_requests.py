@@ -8,9 +8,9 @@ from core.deps import SessionDep
 from domains.users.model import User
 from core.users import current_user
 
-from domains.announcements.repository import AnnouncementRepository
+from domains.announcements.queries import AnnouncementQueries
 from domains.registration.models import RegistrationRequest
-from domains.registration.repository import RegistrationRequestRepository
+from domains.registration.queries import RegistrationRequestQueries
 from domains.registration.schemas import (
     RegistrationRequestCreate,
     RegistrationRequestResponse,
@@ -35,8 +35,8 @@ async def get_registration_request_dependency(
     session: SessionDep,
     registration_request_id: int,
 ) -> RegistrationRequest:
-    repo = RegistrationRequestRepository(session)
-    registration_request = await repo.find_by_id(registration_request_id)
+    queries = RegistrationRequestQueries(session)
+    registration_request = await queries.find_by_id(registration_request_id)
     if not registration_request:
         raise AppException("Registration Request not found", status_code=404)
     return registration_request
@@ -62,8 +62,8 @@ async def create(
     registration_request_in: RegistrationRequestCreate,
     user: User = Depends(current_user),
 ) -> DataResponse[RegistrationRequestResponse]:
-    announcement_repo = AnnouncementRepository(session)
-    announcement = await announcement_repo.find_by_id(
+    announcement_queries = AnnouncementQueries(session)
+    announcement = await announcement_queries.find_by_id(
         registration_request_in.announcement_id
     )
     if not announcement:
@@ -76,8 +76,8 @@ async def create(
         registration_request_in=registration_request_in,
     ).call()
     await session.commit()
-    repo = RegistrationRequestRepository(session)
-    result = await repo.find_by_id(registration_request.id)
+    queries = RegistrationRequestQueries(session)
+    result = await queries.find_by_id(registration_request.id)
     if result is None:
         raise AppException(
             "Registration request not found after commit", status_code=500
@@ -114,8 +114,8 @@ async def update_registration_request_status(
         raise AppException("Invalid action", status_code=400)
 
     await session.commit()
-    repo = RegistrationRequestRepository(session)
-    refreshed = await repo.find_by_id(result.id)
+    queries = RegistrationRequestQueries(session)
+    refreshed = await queries.find_by_id(result.id)
     if refreshed is None:
         raise AppException(
             "Registration request not found after update", status_code=500

@@ -157,22 +157,22 @@ async def test_create_registration_request_includes_announcement(
             return fake_rr_before
 
     with (
-        patch("api.v1.registration_requests.AnnouncementRepository") as MockAnnRepo,
+        patch("api.v1.registration_requests.AnnouncementQueries") as MockAnnQueries,
         patch(
             "api.v1.registration_requests.CreateRegistrationRequestService",
             new=FakeCreateService,
         ),
         patch(
-            "api.v1.registration_requests.RegistrationRequestRepository"
-        ) as MockRRRepo,
+            "api.v1.registration_requests.RegistrationRequestQueries"
+        ) as MockRRQueries,
     ):
-        mock_ann_repo = AsyncMock()
-        mock_ann_repo.find_by_id.return_value = fake_announcement
-        MockAnnRepo.return_value = mock_ann_repo
+        mock_ann_queries = AsyncMock()
+        mock_ann_queries.find_by_id.return_value = fake_announcement
+        MockAnnQueries.return_value = mock_ann_queries
 
-        mock_rr_repo = AsyncMock()
-        mock_rr_repo.find_by_id.return_value = fake_rr_after
-        MockRRRepo.return_value = mock_rr_repo
+        mock_rr_queries = AsyncMock()
+        mock_rr_queries.find_by_id.return_value = fake_rr_after
+        MockRRQueries.return_value = mock_rr_queries
 
         r = await client.post(
             "/api/v1/registration_requests",
@@ -209,8 +209,8 @@ async def test_cancel_registration_request_includes_announcement(
         with (
             patch("api.v1.registration_requests.authorize_action"),
             patch(
-                "api.v1.registration_requests.RegistrationRequestRepository"
-            ) as MockRRRepo,
+                "api.v1.registration_requests.RegistrationRequestQueries"
+            ) as MockRRQueries,
             patch(
                 "api.v1.registration_requests.RegistrationLifecycleService"
             ) as MockLifecycle,
@@ -219,9 +219,9 @@ async def test_cancel_registration_request_includes_announcement(
             mock_lifecycle.cancel.return_value = fake_rr
             MockLifecycle.return_value = mock_lifecycle
 
-            mock_rr_repo = AsyncMock()
-            mock_rr_repo.find_by_id.return_value = fake_rr_after
-            MockRRRepo.return_value = mock_rr_repo
+            mock_rr_queries = AsyncMock()
+            mock_rr_queries.find_by_id.return_value = fake_rr_after
+            MockRRQueries.return_value = mock_rr_queries
 
             r = await client.patch("/api/v1/registration_requests/5/cancel")
     finally:

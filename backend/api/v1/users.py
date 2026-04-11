@@ -5,9 +5,9 @@ from domains.users.model import User
 from core.deps import SessionDep
 from core.users import current_user
 
-from domains.announcements.repository import AnnouncementRepository
+from domains.announcements.queries import AnnouncementQueries
+from domains.registration.queries import RegistrationRequestQueries
 from domains.announcements.schemas import AnnouncementResponse
-from domains.registration.repository import RegistrationRequestRepository
 from domains.registration.schemas import RegistrationRequestResponse
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -23,8 +23,8 @@ async def get_my_organized_announcements(
     limit: int = 10,
     user: User = Depends(current_user),
 ) -> PaginatedResponse[AnnouncementResponse]:
-    repo = AnnouncementRepository(session)
-    announcements, total = await repo.find_all_by_organizer_id(
+    queries = AnnouncementQueries(session)
+    announcements, total = await queries.find_all_by_organizer_id(
         user.id, skip=skip, limit=limit
     )
     return PaginatedResponse(
@@ -46,8 +46,8 @@ async def get_my_participated_announcements(
     limit: int = 10,
     user: User = Depends(current_user),
 ) -> PaginatedResponse[AnnouncementResponse]:
-    repo = AnnouncementRepository(session)
-    announcements, total = await repo.find_all_by_participant_id(
+    queries = AnnouncementQueries(session)
+    announcements, total = await queries.find_all_by_participant_id(
         user.id, skip=skip, limit=limit
     )
     return PaginatedResponse(
@@ -69,8 +69,8 @@ async def get_my_registration_requests(
     limit: int = 10,
     user: User = Depends(current_user),
 ) -> PaginatedResponse[RegistrationRequestResponse]:
-    repo = RegistrationRequestRepository(session)
-    registration_requests, total = await repo.find_all_by_user_id(
+    queries = RegistrationRequestQueries(session)
+    registration_requests, total = await queries.find_all_by_user_id(
         user.id, skip=skip, limit=limit
     )
     return PaginatedResponse(
@@ -92,8 +92,8 @@ async def get_user_organized_announcements(
     skip: int = 0,
     limit: int = 10,
 ) -> PaginatedResponse[AnnouncementResponse]:
-    repo = AnnouncementRepository(session)
-    announcements, total = await repo.find_all_by_organizer_id(
+    queries = AnnouncementQueries(session)
+    announcements, total = await queries.find_all_by_organizer_id(
         user_id, skip=skip, limit=limit
     )
     return PaginatedResponse(

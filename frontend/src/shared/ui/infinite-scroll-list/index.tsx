@@ -50,12 +50,14 @@ export const InfiniteScrollList = observer(<T extends TObjectAny>(props: IInfini
     itemKeyExtractor,
     renderItem,
     onLoadMore,
-    noDataIcon: NoDataIcon,
+    noDataIcon: NoDataIcon = SearchOffIcon,
     noDataSubtitle,
     noDataTitle,
   } = props;
 
   const { t } = useTranslation();
+  const resolvedNoDataTitle = noDataTitle || t("texts.nothingFound");
+  const resolvedNoDataSubtitle = noDataSubtitle || t("texts.tryChangeSearchParameters");
 
   if (isInitialLoading) {
     return <Spinner type="backdrop" />;
@@ -75,10 +77,10 @@ export const InfiniteScrollList = observer(<T extends TObjectAny>(props: IInfini
       >
         <NoDataIcon sx={{ fontSize: 56, color: "text.disabled", mb: 2 }} />
         <T variant="h6" sx={{ color: "text.secondary", mb: 1 }}>
-          {noDataTitle}
+          {resolvedNoDataTitle}
         </T>
         <T variant="body2" sx={{ color: "text.disabled", maxWidth: 360, hyphens: "none" }}>
-          {noDataSubtitle}
+          {resolvedNoDataSubtitle}
         </T>
       </Box>
     );

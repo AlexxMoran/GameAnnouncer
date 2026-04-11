@@ -10,9 +10,9 @@ export interface IEntityListProps<T extends TObjectAny> {
 }
 
 export interface IInfiniteScrollListProps<T extends TObjectAny> extends IEntityListProps<T> {
-  noDataTitle: string;
-  noDataSubtitle: string;
-  noDataIcon: SvgIconComponent;
+  noDataTitle?: string;
+  noDataSubtitle?: string;
+  noDataIcon?: SvgIconComponent;
   isInitialLoading: boolean;
   isPaginating: boolean;
   hasMore: boolean;

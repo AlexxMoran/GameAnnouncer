@@ -122,6 +122,9 @@ services:
       - /frontend/node_modules
     environment:
       - ENVIRONMENT=development
+      - VITE_API_PROXY_TARGET=http://backend:3000
+    depends_on:
+      - backend
     stdin_open: true
     tty: true
 

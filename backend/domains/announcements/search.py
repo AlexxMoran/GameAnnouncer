@@ -1,9 +1,10 @@
 from sqlalchemy import select, or_, case, desc, func
-from sqlalchemy.orm import contains_eager
+from sqlalchemy.orm import selectinload
 
 from domains.announcements.model import Announcement
 from domains.announcements.schemas import AnnouncementFilter
 from domains.games.model import Game
+from domains.registration.models import RegistrationForm
 from core.search.base_search import BaseSearch
 
 
@@ -14,7 +15,13 @@ class AnnouncementSearch(BaseSearch):
     MIN_SEARCH_LENGTH = 2
 
     def base_query(self):
-        query = select(self.model)
+        query = select(self.model).options(
+            selectinload(Announcement.game),
+            selectinload(Announcement.participants),
+            selectinload(Announcement.registration_form).selectinload(
+                RegistrationForm.fields
+            ),
+        )
         query = self.apply_filters(query)
         query = query.order_by(desc(Announcement.created_at))
         return query
@@ -28,9 +35,7 @@ class AnnouncementSearch(BaseSearch):
         if len(value) < self.MIN_SEARCH_LENGTH:
             return query
 
-        query = query.join(Game, Announcement.game_id == Game.id).options(
-            contains_eager(Announcement.game)
-        )
+        query = query.join(Game, Announcement.game_id == Game.id)
 
         search_pattern = f"%{value}%"
 

@@ -5,9 +5,9 @@ from core.permissions import authorize_action
 from core.schemas.base import DataResponse
 from core.users import current_user
 from domains.announcements.model import Announcement
-from domains.announcements.repository import AnnouncementRepository
+from domains.announcements.queries import AnnouncementQueries
 from domains.matches.model import Match
-from domains.matches.repository import MatchRepository
+from domains.matches.queries import MatchQueries
 from domains.matches.schemas import MatchResponse, MatchResultUpdate
 from domains.matches.services.match_progression import MatchProgressionService
 from domains.users.model import User
@@ -18,8 +18,8 @@ router = APIRouter(prefix="/matches", tags=["matches"])
 
 async def get_match_dependency(match_id: int, session: SessionDep) -> Match:
     """Load a match by ID or raise 404."""
-    repo = MatchRepository(session)
-    match = await repo.find_by_id(match_id)
+    queries = MatchQueries(session)
+    match = await queries.find_by_id(match_id)
     if not match:
         raise AppException("Match not found", status_code=404)
     return match
@@ -30,8 +30,8 @@ async def get_announcement_for_match_dependency(
     match: Match = Depends(get_match_dependency),
 ) -> Announcement:
     """Load the announcement that owns the match, or raise 404."""
-    repo = AnnouncementRepository(session)
-    announcement = await repo.find_by_id(match.announcement_id)
+    queries = AnnouncementQueries(session)
+    announcement = await queries.find_by_id(match.announcement_id)
     if not announcement:
         raise AppException("Announcement not found", status_code=404)
     return announcement

@@ -17,7 +17,7 @@ class FakeStrategy:
 @pytest.mark.asyncio
 async def test_register(async_client, user_factory):
     payload = user_factory.build()
-    r = await async_client.post("/api/auth/register", params=payload)
+    r = await async_client.post("/api/auth/register", json=payload)
     assert r.status_code == 200
     data = r.json()
     assert data["data"]["email"] == payload["email"]
@@ -167,19 +167,19 @@ async def test_forgot_and_reset_and_verify(async_client, create_user):
     await create_user(email="fp@example.com", password="secret")
 
     r = await async_client.post(
-        "/api/auth/forgot-password", params={"email": "fp@example.com"}
+        "/api/auth/forgot-password", json={"email": "fp@example.com"}
     )
     assert r.status_code == 200
 
     r = await async_client.post(
-        "/api/auth/reset-password", params={"token": "bad", "password": "x"}
+        "/api/auth/reset-password", json={"token": "bad", "password": "x"}
     )
     assert r.status_code == 400
 
     r = await async_client.post(
-        "/api/auth/request-verify-token", params={"email": "fp@example.com"}
+        "/api/auth/request-verify-token", json={"email": "fp@example.com"}
     )
     assert r.status_code == 200
 
-    r = await async_client.post("/api/auth/verify", params={"token": "bad"})
+    r = await async_client.post("/api/auth/verify", json={"token": "bad"})
     assert r.status_code == 400

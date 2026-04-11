@@ -3,7 +3,7 @@ import math
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domains.announcements.model import Announcement
-from domains.matches.repository import MatchRepository
+from domains.matches.queries import MatchQueries
 from domains.matches.schemas import BracketResponse, MatchResponse
 from exceptions import AppException
 
@@ -17,7 +17,7 @@ async def get_bracket(
     Raises:
         AppException: If no matches exist (bracket not yet generated).
     """
-    matches = await MatchRepository(session).find_all_unpaginated_by_announcement_id(
+    matches = await MatchQueries(session).find_all_unpaginated_by_announcement_id(
         announcement.id
     )
     if not matches:

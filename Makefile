@@ -4,6 +4,7 @@
 COMPOSE = docker compose
 BACKEND_ENV_FILE = backend/.env
 BACKEND_ENV_TEMPLATE = backend/.env.template
+COMPOSE_WITH_ENV = $(COMPOSE) --env-file $(BACKEND_ENV_FILE)
 
 # Default target
 help: ## Show this help message
@@ -42,41 +43,41 @@ project-up: backend-up frontend-up ## 🚀 Complete setup - build and start ever
 
 project-down: ## 🛑 Stop all containers
 	@echo "🛑 Stopping GameAnnouncer containers..."
-	$(COMPOSE) down
+	$(COMPOSE_WITH_ENV) down
 
 project-rebuild: check-backend-env ## 🔨 Force rebuild and restart containers
 	@echo "🔨 Force rebuilding containers..."
-	$(COMPOSE) up --build -d
+	$(COMPOSE_WITH_ENV) up --build -d
 
 project-logs: ## 📊 Show all services logs
-	$(COMPOSE) logs -f
+	$(COMPOSE_WITH_ENV) logs -f
 
 project-logs-backend: ## 📊 Show backend logs
-	$(COMPOSE) logs -f backend
+	$(COMPOSE_WITH_ENV) logs -f backend
 
 project-logs-all: ## 📊 Show all containers logs
-	$(COMPOSE) logs -f
+	$(COMPOSE_WITH_ENV) logs -f
 
 project-shell: ## 🐚 Get shell in backend container
-	$(COMPOSE) exec backend bash
+	$(COMPOSE_WITH_ENV) exec backend bash
 
 project-db-shell: ## 🗄️ Get PostgreSQL shell
-	$(COMPOSE) exec db psql -U postgres -d game_announcer
+	$(COMPOSE_WITH_ENV) exec db psql -U postgres -d game_announcer
 
 project-status: ## 📋 Show containers status
 	@echo "📋 GameAnnouncer containers status:"
-	$(COMPOSE) ps
+	$(COMPOSE_WITH_ENV) ps
 
 project-reset: check-backend-env ## 🧹 Reset everything and restart (removes all data!)
 	@echo "🧹 Resetting development environment..."
 	@echo "⚠️  This will remove all database data!"
 	@read -p "Are you sure? (y/N): " confirm; \
 	if [ "$$confirm" = "y" ] || [ "$$confirm" = "Y" ]; then \
-		$(COMPOSE) down -v; \
-		$(COMPOSE) up --build -d; \
+		$(COMPOSE_WITH_ENV) down -v || exit $$?; \
+		$(COMPOSE_WITH_ENV) up --build -d || exit $$?; \
 		echo "⏳ Waiting for database..."; \
 		timeout=60; \
-		while ! $(COMPOSE) exec -T db pg_isready -U postgres >/dev/null 2>&1; do \
+		while ! $(COMPOSE_WITH_ENV) exec -T db pg_isready -U postgres >/dev/null 2>&1; do \
 			sleep 2; \
 			timeout=$$((timeout - 2)); \
 			if [ $$timeout -le 0 ]; then \
@@ -84,7 +85,7 @@ project-reset: check-backend-env ## 🧹 Reset everything and restart (removes a
 				exit 1; \
 			fi; \
 		done; \
-		$(COMPOSE) exec backend uv run alembic upgrade head; \
+		$(COMPOSE_WITH_ENV) exec backend uv run alembic upgrade head; \
 		echo "🎉 Environment reset complete!"; \
 	else \
 		echo "❌ Reset cancelled"; \
@@ -92,21 +93,21 @@ project-reset: check-backend-env ## 🧹 Reset everything and restart (removes a
 
 # Configuration commands
 config: check-backend-env ## 🔧 Show docker-compose configuration
-	$(COMPOSE) --env-file backend/.env config
+	$(COMPOSE_WITH_ENV) config
 
 validate: check-backend-env ## ✅ Validate docker-compose configuration
-	$(COMPOSE) --env-file backend/.env config --quiet && echo "✅ Configuration is valid"
+	$(COMPOSE_WITH_ENV) config --quiet && echo "✅ Configuration is valid"
 
 # Backend and DB only (without frontend)
 backend-up: check-backend-env ## 🔧 Start only backend and database
 	@echo "🔧 Starting backend services (DB + Redis + Mailpit + API + Worker + Scheduler)..."
 	@echo "📦 Checking container status..."
-	@db_running=$$($(COMPOSE) --env-file backend/.env ps -q db 2>/dev/null | wc -l | tr -d ' '); \
-	redis_running=$$($(COMPOSE) --env-file backend/.env ps -q redis 2>/dev/null | wc -l | tr -d ' '); \
-	mailpit_running=$$($(COMPOSE) --env-file backend/.env ps -q mailpit 2>/dev/null | wc -l | tr -d ' '); \
-	backend_running=$$($(COMPOSE) --env-file backend/.env ps -q backend 2>/dev/null | wc -l | tr -d ' '); \
-	worker_running=$$($(COMPOSE) --env-file backend/.env ps -q worker 2>/dev/null | wc -l | tr -d ' '); \
-	scheduler_running=$$($(COMPOSE) --env-file backend/.env ps -q scheduler 2>/dev/null | wc -l | tr -d ' '); \
+	@db_running=$$($(COMPOSE_WITH_ENV) ps -q db 2>/dev/null | wc -l | tr -d ' '); \
+	redis_running=$$($(COMPOSE_WITH_ENV) ps -q redis 2>/dev/null | wc -l | tr -d ' '); \
+	mailpit_running=$$($(COMPOSE_WITH_ENV) ps -q mailpit 2>/dev/null | wc -l | tr -d ' '); \
+	backend_running=$$($(COMPOSE_WITH_ENV) ps -q backend 2>/dev/null | wc -l | tr -d ' '); \
+	worker_running=$$($(COMPOSE_WITH_ENV) ps -q worker 2>/dev/null | wc -l | tr -d ' '); \
+	scheduler_running=$$($(COMPOSE_WITH_ENV) ps -q scheduler 2>/dev/null | wc -l | tr -d ' '); \
 	services_to_start=""; \
 	if [ "$$db_running" -eq 0 ]; then \
 		echo "📊 Database not running, will start it"; \
@@ -146,7 +147,7 @@ backend-up: check-backend-env ## 🔧 Start only backend and database
 	fi; \
 	if [ -n "$$services_to_start" ]; then \
 		echo "🚀 Starting:$$services_to_start"; \
-		$(COMPOSE) --env-file backend/.env up -d$$services_to_start; \
+		$(COMPOSE_WITH_ENV) up -d$$services_to_start || exit $$?; \
 		echo "⏳ Waiting for services to be ready..."; \
 		sleep 5; \
 	else \
@@ -154,7 +155,7 @@ backend-up: check-backend-env ## 🔧 Start only backend and database
 	fi
 	@echo "⏳ Waiting for database to accept connections..."
 	@timeout=90; \
-	while ! $(COMPOSE) --env-file backend/.env exec -T db pg_isready -U postgres >/dev/null 2>&1; do \
+	while ! $(COMPOSE_WITH_ENV) exec -T db pg_isready -U postgres >/dev/null 2>&1; do \
 		sleep 3; \
 		timeout=$$((timeout - 3)); \
 		if [ $$timeout -le 0 ]; then \
@@ -165,7 +166,7 @@ backend-up: check-backend-env ## 🔧 Start only backend and database
 	done
 	@echo "⏳ Waiting for Redis to accept connections..."
 	@timeout=30; \
-	while ! $(COMPOSE) --env-file backend/.env exec -T redis redis-cli ping >/dev/null 2>&1; do \
+	while ! $(COMPOSE_WITH_ENV) exec -T redis redis-cli ping >/dev/null 2>&1; do \
 		sleep 2; \
 		timeout=$$((timeout - 2)); \
 		if [ $$timeout -le 0 ]; then \
@@ -175,24 +176,24 @@ backend-up: check-backend-env ## 🔧 Start only backend and database
 		echo "⏳ Still waiting for Redis... ($$timeout seconds left)"; \
 	done
 	@echo "📊 Running migrations..."
-	@$(COMPOSE) --env-file backend/.env exec backend uv run alembic upgrade head
+	@$(COMPOSE_WITH_ENV) exec backend uv run alembic upgrade head
 	@echo "✅ Backend services ready!"
 
 backend-down: ## 🛑 Stop only backend services
-	$(COMPOSE) stop backend worker db redis mailpit
+	$(COMPOSE_WITH_ENV) stop backend worker db redis mailpit
 
 backend-logs: ## 📊 Show backend services logs
-	$(COMPOSE) logs -f backend worker db redis mailpit
+	$(COMPOSE_WITH_ENV) logs -f backend worker db redis mailpit
 
 # Frontend Management (React + Vite)
-frontend-up: ## 🎨 Start only frontend services (React)
+frontend-up: check-backend-env ## 🎨 Start only frontend services (React)
 	@echo "🎨 Starting frontend services (React + Vite)..."
 	@echo "📦 Checking frontend container status..."
-	@frontend_running=$$($(COMPOSE) ps -q frontend 2>/dev/null | wc -l | tr -d ' '); \
+	@frontend_running=$$($(COMPOSE_WITH_ENV) ps -q frontend 2>/dev/null | wc -l | tr -d ' '); \
 	if [ "$$frontend_running" -eq 0 ]; then \
 		echo "🎨 Frontend not running, will start it"; \
 		echo "🚀 Starting frontend..."; \
-		$(COMPOSE) up -d frontend; \
+		$(COMPOSE_WITH_ENV) up -d frontend || exit $$?; \
 		echo "⏳ Waiting for frontend to be ready..."; \
 		sleep 10; \
 		echo "✅ Frontend services ready!"; \
@@ -203,10 +204,10 @@ frontend-up: ## 🎨 Start only frontend services (React)
 	fi
 
 frontend-down: ## 🛑 Stop only frontend services
-	$(COMPOSE) stop frontend
+	$(COMPOSE_WITH_ENV) stop frontend
 
 frontend-logs: ## 📊 Show frontend services logs
-	$(COMPOSE) logs -f frontend
+	$(COMPOSE_WITH_ENV) logs -f frontend
 
 # Quick shortcuts for common actions
 up: project-up ## Alias for project-up

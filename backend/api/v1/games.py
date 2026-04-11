@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Depends
 
 from domains.games.model import Game
+from domains.games.queries import GameQueries
 from domains.games.repository import GameRepository
 from domains.games.schemas import GameCreate, GameResponse, GameUpdate, GameFilter
 from domains.games.search import GameSearch
@@ -19,8 +20,8 @@ async def get_game_dependency(
     session: SessionDep,
     game_id: int,
 ) -> Game:
-    repo = GameRepository(session)
-    game = await repo.find_by_id(game_id)
+    queries = GameQueries(session)
+    game = await queries.find_by_id(game_id)
     if not game:
         raise AppException("Game not found", status_code=404)
     return game

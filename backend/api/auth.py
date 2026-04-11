@@ -3,7 +3,6 @@ from fastapi.security import (
     HTTPBearer,
     OAuth2PasswordRequestForm,
 )
-from pydantic import EmailStr
 from exceptions import AppException
 from core.config import get_settings
 from core.deps import get_user_manager
@@ -11,7 +10,13 @@ from core.users import current_user
 from jwt.exceptions import InvalidTokenError
 from core.auth import get_refresh_jwt_strategy, get_jwt_strategy
 from domains.users.schemas import UserResponse, UserCreate, UserUpdate
-from core.schemas.auth import TokenResponse
+from core.schemas.auth import (
+    TokenResponse,
+    ForgotPasswordRequest,
+    RequestVerifyTokenRequest,
+    VerifyEmailRequest,
+    ResetPasswordRequest,
+)
 from core.schemas.base import DataResponse
 from domains.users.model import User
 from core.permissions import get_user_permissions
@@ -24,9 +29,7 @@ router = APIRouter(
 
 
 @router.post("/register", response_model=DataResponse[UserResponse])
-async def register(
-    user_create: UserCreate = Depends(), user_manager=Depends(get_user_manager)
-):
+async def register(user_create: UserCreate, user_manager=Depends(get_user_manager)):
     user = await user_manager.create(user_create, safe=True, request=None)
     return DataResponse(data=user)
 
@@ -58,12 +61,14 @@ async def update_current_user_wrapped(
 
 @router.post("/reset-password", response_model=DataResponse[dict])
 async def reset_password(
-    token: str,
-    password: str,
+    payload: ResetPasswordRequest,
     user_manager=Depends(get_user_manager),
 ):
     try:
-        await user_manager.reset_password(token, password)
+        await user_manager.reset_password(
+            payload.token.get_secret_value(),
+            payload.password.get_secret_value(),
+        )
         return DataResponse(data={"detail": "Password successfully reset"})
     except Exception:
         raise AppException("Invalid or expired token", status_code=400)
@@ -71,11 +76,11 @@ async def reset_password(
 
 @router.post("/forgot-password", response_model=DataResponse[dict])
 async def forgot_password(
-    email: EmailStr,
+    payload: ForgotPasswordRequest,
     request: Request,
     user_manager=Depends(get_user_manager),
 ):
-    user = await user_manager.get_by_email(email)
+    user = await user_manager.get_by_email(payload.email)
     if user:
         await user_manager.forgot_password(user, request)
     return DataResponse(data={"detail": "Password reset email sent"})
@@ -83,11 +88,11 @@ async def forgot_password(
 
 @router.post("/request-verify-token", response_model=DataResponse[dict])
 async def request_verify_token(
-    email: EmailStr,
+    payload: RequestVerifyTokenRequest,
     request: Request,
     user_manager=Depends(get_user_manager),
 ):
-    user = await user_manager.get_by_email(email)
+    user = await user_manager.get_by_email(payload.email)
     if user and not user.is_verified:
         await user_manager.request_verify(user, request)
     return DataResponse(data={"detail": "Verification email sent"})
@@ -95,11 +100,11 @@ async def request_verify_token(
 
 @router.post("/verify", response_model=DataResponse[UserResponse])
 async def verify(
-    token: str,
+    payload: VerifyEmailRequest,
     user_manager=Depends(get_user_manager),
 ):
     try:
-        user = await user_manager.verify(token)
+        user = await user_manager.verify(payload.token.get_secret_value())
         return DataResponse(data=user)
     except Exception:
         raise AppException("Invalid or expired verification token", status_code=400)

@@ -43,7 +43,7 @@ async def test_get_match_returns_200(async_client):
     match = _make_match()
 
     with patch(
-        "api.v1.matches.MatchRepository.find_by_id",
+        "api.v1.matches.MatchQueries.find_by_id",
         new=AsyncMock(return_value=match),
     ):
         r = await async_client.get("/api/v1/matches/1")
@@ -56,7 +56,7 @@ async def test_get_match_returns_200(async_client):
 @pytest.mark.asyncio
 async def test_get_match_returns_404_when_not_found(async_client):
     with patch(
-        "api.v1.matches.MatchRepository.find_by_id",
+        "api.v1.matches.MatchQueries.find_by_id",
         new=AsyncMock(return_value=None),
     ):
         r = await async_client.get("/api/v1/matches/999")
@@ -88,11 +88,11 @@ async def test_set_match_result_returns_200_for_organizer(
     with (
         patch("api.v1.matches.authorize_action"),
         patch(
-            "api.v1.matches.MatchRepository.find_by_id",
+            "api.v1.matches.MatchQueries.find_by_id",
             new=AsyncMock(return_value=match),
         ),
         patch(
-            "api.v1.matches.AnnouncementRepository.find_by_id",
+            "api.v1.matches.AnnouncementQueries.find_by_id",
             new=AsyncMock(return_value=announcement),
         ),
         patch("api.v1.matches.MatchProgressionService", new=FakeService),
@@ -120,11 +120,11 @@ async def test_set_match_result_returns_401_for_unauthenticated(async_client):
 
     with (
         patch(
-            "api.v1.matches.MatchRepository.find_by_id",
+            "api.v1.matches.MatchQueries.find_by_id",
             new=AsyncMock(return_value=match),
         ),
         patch(
-            "api.v1.matches.AnnouncementRepository.find_by_id",
+            "api.v1.matches.AnnouncementQueries.find_by_id",
             new=AsyncMock(return_value=announcement),
         ),
     ):
@@ -151,11 +151,11 @@ async def test_set_match_result_returns_403_for_non_organizer(
 
     with (
         patch(
-            "api.v1.matches.MatchRepository.find_by_id",
+            "api.v1.matches.MatchQueries.find_by_id",
             new=AsyncMock(return_value=match),
         ),
         patch(
-            "api.v1.matches.AnnouncementRepository.find_by_id",
+            "api.v1.matches.AnnouncementQueries.find_by_id",
             new=AsyncMock(return_value=announcement),
         ),
         patch(
@@ -176,7 +176,7 @@ async def test_set_match_result_returns_404_when_match_not_found(
     client = authenticated_client(user)
 
     with patch(
-        "api.v1.matches.MatchRepository.find_by_id",
+        "api.v1.matches.MatchQueries.find_by_id",
         new=AsyncMock(return_value=None),
     ):
         r = await client.patch(
