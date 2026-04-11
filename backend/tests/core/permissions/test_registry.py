@@ -100,8 +100,9 @@ def test_load_skips_non_class_attribute_ending_in_policy(tmp_path):
     assert result == {}
 
 
-def test_load_broken_import_logs_warning_and_continues(tmp_path, caplog):
+def test_load_broken_import_logs_warning_and_continues(tmp_path, caplog, monkeypatch):
     """An ImportError in a domain policy logs a warning but does not crash."""
+    monkeypatch.setattr(logging.getLogger("gameannouncer"), "propagate", True)
     domain = tmp_path / "broken"
     domain.mkdir()
     (domain / "policy.py").touch()
@@ -114,8 +115,9 @@ def test_load_broken_import_logs_warning_and_continues(tmp_path, caplog):
     assert any("broken" in record.message for record in caplog.records)
 
 
-def test_load_warns_on_key_collision(tmp_path, caplog):
+def test_load_warns_on_key_collision(tmp_path, caplog, monkeypatch):
     """Registering two policies with the same model name logs a warning."""
+    monkeypatch.setattr(logging.getLogger("gameannouncer"), "propagate", True)
     for name in ("alpha", "beta"):
         d = tmp_path / name
         d.mkdir()
