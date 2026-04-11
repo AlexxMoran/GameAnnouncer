@@ -35,13 +35,20 @@ class AuthorizationService:
         try:
             policy_method = getattr(policy, method_name)
             can_perform_action = policy_method()
-
-            if not can_perform_action:
-                policy.deny()
         except AppException:
             raise
-        except Exception as e:
-            logger.error(f"Error in policy check: {e}")
+        except Exception:
+            logger.exception(
+                "Unexpected error evaluating policy '%s.%s'",
+                policy_class.__name__,
+                method_name,
+            )
+            raise AppException(
+                "Authorization check failed due to an internal error",
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        if not can_perform_action:
             policy.deny()
 
         return True

@@ -1,4 +1,4 @@
-from core.policies.base_policy import BasePolicy
+from core.permissions.base_policy import BasePolicy
 
 
 class GamePolicy(BasePolicy):

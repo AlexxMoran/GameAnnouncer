@@ -1,5 +1,4 @@
 import importlib
-import pkgutil
 import inspect
 import threading
 from pathlib import Path
@@ -7,6 +6,7 @@ from functools import lru_cache
 from typing import Any
 
 from core.logger import logger
+from core.permissions.base_policy import BasePolicy as _BasePolicy
 from exceptions import AppException
 from fastapi import status
 
@@ -14,24 +14,23 @@ from fastapi import status
 class PoliciesRegistry:
     """Manages policy discovery and caching.
 
-    Scans both ``core/policies/`` (legacy) and ``domains/*/policy.py`` (new)
-    so the two locations can coexist during migration.
+    Scans ``domains/*/policy.py`` files to discover all concrete policy classes.
     """
 
     def __init__(self):
         self._cache: dict[str, type] | None = None
         self._lock = threading.Lock()
-        self._legacy_policies_dir = Path(__file__).parent.parent / "policies"
         self._domains_dir = Path(__file__).parent.parent.parent / "domains"
 
-    @lru_cache(maxsize=128)
-    def get_policy_methods(self, policy_class: type) -> dict[str, bool]:
+    @staticmethod
+    @lru_cache(maxsize=None)
+    def get_policy_methods(policy_class: type) -> dict[str, bool]:
         """Get cached methods: {"edit": False, "create": True} (value = is_global)."""
         from core.permissions.constants import GLOBAL_PERMISSIONS
 
         methods = {}
         for method_name in dir(policy_class):
-            if method_name.startswith("can_") and not method_name.startswith("_"):
+            if method_name.startswith("can_"):
                 action = method_name.replace("can_", "")
                 methods[action] = action in GLOBAL_PERMISSIONS
         return methods
@@ -58,30 +57,6 @@ class PoliciesRegistry:
             )
         return policy_class
 
-    def _load_policies_from_dir(
-        self, module_prefix: str, policies_dir: Path, skip_names: set[str]
-    ) -> dict[str, type]:
-        """Discover Policy classes from all modules inside a flat directory."""
-        policies: dict[str, type] = {}
-
-        for module_info in pkgutil.iter_modules([str(policies_dir)]):
-            if module_info.name in skip_names:
-                continue
-
-            module_name = f"{module_prefix}.{module_info.name}"
-            try:
-                module = importlib.import_module(module_name)
-                for attr_name in dir(module):
-                    if attr_name.endswith("Policy") and attr_name != "BasePolicy":
-                        policy_class = getattr(module, attr_name)
-                        if inspect.isclass(policy_class):
-                            model_name = attr_name.replace("Policy", "")
-                            policies[model_name] = policy_class
-            except (ImportError, ModuleNotFoundError, AttributeError) as e:
-                logger.warning(f"Failed to import policy module {module_name}: {e}")
-
-        return policies
-
     def _load_domain_policies(self) -> dict[str, type]:
         """Discover Policy classes from ``domains/<domain>/policy.py`` files."""
         policies: dict[str, type] = {}
@@ -89,7 +64,9 @@ class PoliciesRegistry:
         if not self._domains_dir.exists():
             return policies
 
-        for domain_dir in self._domains_dir.iterdir():
+        for domain_dir in sorted(self._domains_dir.iterdir()):
+            if not domain_dir.is_dir():
+                continue
             policy_file = domain_dir / "policy.py"
             if not policy_file.exists():
                 continue
@@ -98,20 +75,30 @@ class PoliciesRegistry:
             try:
                 module = importlib.import_module(module_name)
                 for attr_name in dir(module):
-                    if attr_name.endswith("Policy") and attr_name != "BasePolicy":
-                        policy_class = getattr(module, attr_name)
-                        if inspect.isclass(policy_class):
-                            model_name = attr_name.replace("Policy", "")
-                            policies[model_name] = policy_class
-            except (ImportError, ModuleNotFoundError, AttributeError) as e:
-                logger.warning(f"Failed to import domain policy {module_name}: {e}")
+                    policy_class = getattr(module, attr_name)
+                    if not (
+                        inspect.isclass(policy_class)
+                        and issubclass(policy_class, _BasePolicy)
+                        and policy_class is not _BasePolicy
+                    ):
+                        continue
+                    model_name = attr_name.replace("Policy", "")
+                    if model_name in policies:
+                        logger.warning(
+                            "Policy key '%s' already registered by '%s'; overwriting with '%s'",
+                            model_name,
+                            policies[model_name].__module__,
+                            policy_class.__module__,
+                        )
+                    policies[model_name] = policy_class
+            except (ImportError, AttributeError) as e:
+                logger.warning("Failed to import domain policy %s: %s", module_name, e)
 
         return policies
 
     def get_all_policies(self) -> dict[str, type]:
-        """Discover all policies from both legacy and domain locations.
+        """Discover all policies from ``domains/*/policy.py``.
 
-        Domain policies take precedence over legacy ones with the same name.
         Thread-safe with double-checked locking.
         """
         if self._cache is not None:
@@ -121,18 +108,7 @@ class PoliciesRegistry:
             if self._cache is not None:
                 return self._cache
 
-            policies: dict[str, type] = {}
-
-            if self._legacy_policies_dir.exists():
-                legacy = self._load_policies_from_dir(
-                    "core.policies",
-                    self._legacy_policies_dir,
-                    skip_names={"base_policy", "permissions"},
-                )
-                policies.update(legacy)
-
-            domain_policies = self._load_domain_policies()
-            policies.update(domain_policies)
+            policies = self._load_domain_policies()
 
             self._cache = policies
             logger.info(f"Discovered {len(policies)} policy classes")
@@ -142,4 +118,4 @@ class PoliciesRegistry:
         """Clear cache (for testing)."""
         with self._lock:
             self._cache = None
-            self.get_policy_methods.cache_clear()
+            PoliciesRegistry.get_policy_methods.cache_clear()
