@@ -3,7 +3,6 @@ import types
 from pathlib import Path
 from unittest.mock import patch
 
-import pytest
 
 from core.permissions.base_policy import BasePolicy
 from core.permissions.registry import PoliciesRegistry
