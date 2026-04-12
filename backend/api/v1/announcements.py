@@ -187,9 +187,9 @@ async def update_announcement(
 ) -> DataResponse[AnnouncementResponse]:
     authorize_action(user, announcement, "edit")
     repo = AnnouncementRepository(session)
-    for field, value in announcement_in.model_dump(exclude_unset=True).items():
-        setattr(announcement, field, value)
-    announcement = await repo.save(announcement)
+    announcement = await repo.update(
+        announcement, announcement_in.model_dump(exclude_unset=True)
+    )
     await session.commit()
     return DataResponse(data=announcement)
 

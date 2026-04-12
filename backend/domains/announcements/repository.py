@@ -21,6 +21,16 @@ class AnnouncementRepository:
         )
         return result.scalar_one_or_none()
 
+    async def update(self, announcement: Announcement, data: dict) -> Announcement:
+        """Apply a partial update to an announcement and persist it.
+
+        Accepts a pre-validated dict (e.g. from ``model_dump(exclude_unset=True)``)
+        and sets only the provided fields, then delegates to ``save``.
+        """
+        for field, value in data.items():
+            setattr(announcement, field, value)
+        return await self.save(announcement)
+
     async def save(self, announcement: Announcement) -> Announcement:
         """Persist an announcement (create or update). Flushes but does not commit."""
         self.session.add(announcement)
