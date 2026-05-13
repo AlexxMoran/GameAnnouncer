@@ -3,5 +3,5 @@ import type { IGameDto } from "@shared/services/api/games-api-service/types";
 import type { TMaybe } from "@shared/types/main.types";
 
 export interface ICreateAnnouncementsFields extends Omit<ICreateAnnouncementDto, "game_id" | "registration_form"> {
-  game: TMaybe<IGameDto>;
+  game: TMaybe<Pick<IGameDto, "id" | "name">>;
 }

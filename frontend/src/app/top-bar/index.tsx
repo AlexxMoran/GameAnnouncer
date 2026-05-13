@@ -46,44 +46,47 @@ export const TopBar: FC<ITopBarProps> = ({ navItemList }) => {
   ];
 
   return (
-    <TopBarStyled position="sticky" elevation={0}>
-      <Toolbar
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          maxWidth: "1280px",
-          width: "100%",
-          mx: "auto",
-        }}
-      >
-        <div>LOGO</div>
-        {!isMobile && (
-          <>
-            <Box display="flex" alignItems="center" gap={4}>
-              {navItemList.map(({ url, label }) => (
-                <Link key={url} to={url}>
-                  {label}
-                </Link>
-              ))}
-            </Box>
-            <Box display="flex" alignItems="center">
-              {isAuthenticated ? (
-                <ActionsMenu actionList={actionList}>
-                  {({ onClick, ref }) => (
-                    <Tooltip title={me?.email}>
-                      <IconButton onClick={onClick} ref={ref}>
-                        <AccountCircleIcon />
-                      </IconButton>
-                    </Tooltip>
-                  )}
-                </ActionsMenu>
-              ) : (
-                <Link to={EAppRoutes.Login}>{t("actions.login")}</Link>
-              )}
-            </Box>
-          </>
-        )}
-      </Toolbar>
-    </TopBarStyled>
+    <>
+      <TopBarStyled position="fixed" elevation={0}>
+        <Toolbar
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            maxWidth: "1280px",
+            width: "100%",
+            mx: "auto",
+          }}
+        >
+          <div>LOGO</div>
+          {!isMobile && (
+            <>
+              <Box display="flex" alignItems="center" gap={4}>
+                {navItemList.map(({ url, label }) => (
+                  <Link key={url} to={url}>
+                    {label}
+                  </Link>
+                ))}
+              </Box>
+              <Box display="flex" alignItems="center">
+                {isAuthenticated ? (
+                  <ActionsMenu actionList={actionList}>
+                    {({ onClick, ref }) => (
+                      <Tooltip title={me?.email}>
+                        <IconButton onClick={onClick} ref={ref}>
+                          <AccountCircleIcon />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </ActionsMenu>
+                ) : (
+                  <Link to={EAppRoutes.Login}>{t("actions.login")}</Link>
+                )}
+              </Box>
+            </>
+          )}
+        </Toolbar>
+      </TopBarStyled>
+      <Box sx={(theme) => theme.mixins.toolbar} />
+    </>
   );
 };

@@ -4,7 +4,7 @@ import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
 import type { IAnnouncementDto } from "@shared/services/api/announcements-api-service/types";
 import type { ICreateRegistrationRequestDto } from "@shared/services/api/registration-requests-api-service/types";
-import { isEmpty } from "lodash";
+import isEmpty from "lodash/isEmpty";
 import { useSnackbar } from "notistack";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
@@ -24,7 +24,7 @@ export const useCreateRegistrationRequest = () => {
           enqueueSnackbar(t("texts.sendRequestSuccess"), { variant: "success" });
           closeDialog();
         }
-      } finally {
+      } catch (_) {
         /* empty */
       }
     },

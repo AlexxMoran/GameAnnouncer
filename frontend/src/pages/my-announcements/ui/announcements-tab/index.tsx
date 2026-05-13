@@ -2,8 +2,9 @@ import { AnnouncementCard } from "@entities/announcement/ui/announcement-card";
 import { CreateAnnouncementForm } from "@features/create-announcement/ui/create-announcement-form";
 import AddIcon from "@mui/icons-material/Add";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
+
 import type { IAnnouncementsTabProps } from "@pages/my-announcements/ui/announcements-tab/types";
-import { EMyAnnouncementsTabs } from "@shared/constants/appRoutes";
+import { EAppRoutes, EMyAnnouncementsTabs } from "@shared/constants/appRoutes";
 import { useDialog } from "@shared/hooks/use-dialog";
 import { useRootService } from "@shared/hooks/use-root-service";
 import type { IAnnouncementDto, ICreateAnnouncementDto } from "@shared/services/api/announcements-api-service/types";
@@ -12,6 +13,7 @@ import { Badge } from "@shared/ui/badge";
 import { Box } from "@shared/ui/box";
 import { Button } from "@shared/ui/button";
 import { InfiniteScrollList } from "@shared/ui/infinite-scroll-list";
+import { Link } from "@shared/ui/link";
 import { T } from "@shared/ui/typography";
 import { observer } from "mobx-react-lite";
 import { useSnackbar } from "notistack";
@@ -27,7 +29,6 @@ export const AnnouncementsTab: FC<IAnnouncementsTabProps> = observer(({ canAddAn
   const { announcementsApiService } = useRootService();
 
   const tabType = location.pathname.split("/").at(-1) as EMyAnnouncementsTabs;
-
   const isParticipatedAnnouncements = tabType === EMyAnnouncementsTabs.Participated;
 
   const [announcementsService] = useState(
@@ -74,7 +75,9 @@ export const AnnouncementsTab: FC<IAnnouncementsTabProps> = observer(({ canAddAn
 
   const renderItem = useCallback(
     (announcement: IAnnouncementDto) => (
-      <AnnouncementCard height={275} key={announcement.id} announcement={announcement} />
+      <Link to={`${EAppRoutes.AnnouncementManagement.replace(":id", announcement.id.toString())}`}>
+        <AnnouncementCard height={275} key={announcement.id} announcement={announcement} />
+      </Link>
     ),
     [t]
   );

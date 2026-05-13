@@ -354,7 +354,13 @@ export const THEME = createTheme({
     },
     MuiLink: {
       styleOverrides: {
-        root: { "&::first-letter": { textTransform: "capitalize" } },
+        root: {
+          "&::first-letter": { textTransform: "capitalize" },
+          textDecoration: "none",
+          "&:hover": {
+            textDecoration: "none",
+          },
+        },
       },
     },
     MuiStepLabel: {

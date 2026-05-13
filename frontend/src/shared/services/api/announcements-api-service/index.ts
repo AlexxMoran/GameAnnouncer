@@ -32,6 +32,24 @@ export class AnnouncementsApiService {
   deleteAnnouncement = (id: number) =>
     this.baseApiService.delete<TApiResponseWrapper<IAnnouncementDto>>(`/v1/${ANNOUNCEMENTS_ENDPOINT}/${id}`);
 
+  cancelAnnouncement = (id: number) =>
+    this.baseApiService.post<TApiResponseWrapper<IAnnouncementDto>>(`/v1/${ANNOUNCEMENTS_ENDPOINT}/${id}/cancel`);
+
+  generateAnnouncementBracket = (id: number) =>
+    this.baseApiService.post<TApiResponseWrapper<IAnnouncementDto>>(
+      `/v1/${ANNOUNCEMENTS_ENDPOINT}/${id}/generate_bracket`
+    );
+
+  startAnnouncementQualification = (id: number) =>
+    this.baseApiService.post<TApiResponseWrapper<IAnnouncementDto>>(
+      `/v1/${ANNOUNCEMENTS_ENDPOINT}/${id}/start_qualification`
+    );
+
+  finalizeAnnouncementQualification = (id: number) =>
+    this.baseApiService.post<TApiResponseWrapper<IAnnouncementDto>>(
+      `/v1/${ANNOUNCEMENTS_ENDPOINT}/${id}/finalize_qualification`
+    );
+
   getParticipatedAnnouncements = (params: IGetParticipatedAnnouncementsDto) =>
     this.baseApiService.get<TApiResponseWrapper<IAnnouncementDto[]>, IPaginationMeta>(
       `/v1/${USERS_ME_ENDPOINT}/participated_announcements`,

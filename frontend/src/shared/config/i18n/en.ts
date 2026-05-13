@@ -37,6 +37,17 @@ export const translationEn = {
     organizer: "organizer",
     status: "status",
     type: "type",
+    qualification: {
+      one: "qualification",
+      many: "qualifications",
+    },
+    broadcast: {
+      one: "трансляция",
+    },
+    action: {
+      one: "action",
+      many: "actions",
+    },
   },
   actions: {
     login: "Login",
@@ -50,7 +61,8 @@ export const translationEn = {
     editGame: "Edit game",
     addAnnouncement: "Add tournament",
     editAnnouncement: "Edit tournament",
-    deleteAnnouncement: "Delete announcement",
+    deleteAnnouncement: "Delete tournament",
+    cancelAnnouncement: "Cancel tournament",
     viewAnnouncement: "View tournament",
     deleteGame: "Delete game",
     add: "Add",
@@ -73,6 +85,9 @@ export const translationEn = {
     takePart: "Take part",
     close: "Close",
     submitApplication: "Submit application",
+    startTournament: "Start tournament",
+    start: "Start",
+    editTournament: "Edit tournament",
   },
   texts: {
     allTournaments: "All tournaments",
@@ -97,6 +112,7 @@ export const translationEn = {
     logoutConfirmation: "Are you sure you want to log out of your account?",
     notFoundPage: "Page does not exist",
     announcementStartDate: "Tournament start date",
+    announcementEndDate: "Tournament end date",
     registrationStartDate: "Registration start date",
     registrationEndDate: "Registration end date",
     invalidDate: "Invalid date",
@@ -148,6 +164,15 @@ export const translationEn = {
       'To submit an application, go to the all tournaments page, select the one that suits you, and click "Participate"',
     noApplications: "No applications",
     pleaseLogin: "Please log in to your account",
+    noTournamentsCreatedYet: "No one has created a tournament yet",
+    noGames: "No games",
+    tournamentBracket: "Tournament bracket",
+    cancelTournamentIrreversibleConfirm:
+      "Tournament cancellation is irreversible. Are you sure you want to cancel the tournament?",
+    tournamentCancelledSuccessfully: "Tournament cancelled successfully",
+    confirmStartTournament: "Are you sure you want to start the tournament?",
+    tournamentStartedMayTheBestWin: "The tournament has started, may the best win!",
+    tournamentEditedSuccessfully: "Tournament edited successfully",
   },
   validationErrors: {
     unknown: "Unexpected error",

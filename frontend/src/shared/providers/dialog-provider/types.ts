@@ -1,3 +1,4 @@
+import type { IButtonProps } from "@shared/ui/button/types";
 import type { IDialogProps } from "@shared/ui/dialog/types";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -10,6 +11,7 @@ export interface IDialogProviderContext {
 export interface IOpenDialogOptions extends Omit<IDialogProps, "open"> {
   confirmationText?: string;
   cancellationText?: string;
+  confirmationColor?: IButtonProps["color"];
 }
 
 export interface IConfirmReturnResult {
