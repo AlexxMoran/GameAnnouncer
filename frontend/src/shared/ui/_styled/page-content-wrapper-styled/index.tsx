@@ -6,7 +6,7 @@ export const PageContentWrapperStyled = styled("div")(({ theme }) => ({
   marginInline: "auto",
   paddingInline: theme.spacing(2),
   paddingTop: theme.spacing(4),
-  paddingBottom: theme.spacing(9),
+  paddingBottom: theme.spacing(2),
   flex: "1 1 0%",
   position: "relative",
   display: "flex",

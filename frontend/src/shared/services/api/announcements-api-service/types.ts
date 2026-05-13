@@ -21,12 +21,16 @@ export interface IAnnouncementDto extends IEntityDateFields, IEntityIdField {
   max_participants: number;
   participants_count: number;
   format: EAnnouncementFormat;
+  has_qualification: boolean;
+  qualification_finished: boolean;
   registration_form?: {
     fields: IRegistrationFormFieldWithId[];
   };
 }
 
-export interface IRegistrationFormFieldWithId extends IRegistrationFormField, IEntityIdField {}
+export interface IRegistrationFormFieldWithId extends IRegistrationFormField, IEntityIdField {
+  options?: string[];
+}
 
 export interface IRegistrationFormField {
   field_type: ERegistrationFormFieldTypes;
@@ -56,7 +60,7 @@ export interface IAnnouncementListFilters {
   status?: EAnnouncementStatuses;
 }
 
-export interface IEditAnnouncementDto extends Partial<Omit<ICreateAnnouncementDto, "game_id">> {}
+export interface IEditAnnouncementDto extends Partial<Omit<ICreateAnnouncementDto, "start_at">> {}
 export interface IGetAnnouncementsDto extends IPaginationParams, IAnnouncementListFilters {}
 export interface IGetParticipatedAnnouncementsDto extends IPaginationParams {}
 export interface IGetOrganizedAnnouncementsDto extends IPaginationParams {}

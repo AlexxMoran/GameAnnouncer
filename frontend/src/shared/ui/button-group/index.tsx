@@ -7,7 +7,16 @@ import type { FC } from "react";
 import { useTranslation } from "react-i18next";
 
 export const ButtonGroup: FC<IButtonGroupProps> = (props) => {
-  const { onCancel, onConfirm, isLoading, cancellationText, confirmationText, disabled, isForDialog } = props;
+  const {
+    onCancel,
+    onConfirm,
+    isLoading,
+    cancellationText,
+    confirmationText,
+    disabled,
+    isForDialog,
+    confirmationColor,
+  } = props;
 
   const { t } = useTranslation();
   const { isMobile } = useDeviceType();
@@ -24,6 +33,7 @@ export const ButtonGroup: FC<IButtonGroupProps> = (props) => {
           fullWidth={isMobile}
           sx={{ order: isMobile ? 1 : 2 }}
           disabled={disabled}
+          color={confirmationColor}
         >
           {confirmationText || t("actions.confirm")}
         </Button>
