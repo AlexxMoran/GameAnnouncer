@@ -1,6 +1,7 @@
 import { BottomBarStyled } from "@app/bottom-bar/styles";
 import type { IBottomBarProps } from "@app/bottom-bar/types";
 import { BottomNavigation, BottomNavigationAction } from "@mui/material";
+import { Box } from "@shared/ui/box";
 import { Link } from "@shared/ui/link";
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,12 +16,15 @@ export const BottomBar: FC<IBottomBarProps> = ({ navItemList }) => {
   });
 
   return (
-    <BottomBarStyled>
-      <BottomNavigation value={currentIndex === -1 ? 0 : currentIndex} sx={{ backgroundColor: "initial" }} showLabels>
-        {navItemList.map(({ url, label, icon }) => (
-          <BottomNavigationAction key={url} label={t(label)} icon={icon} component={Link} to={url} />
-        ))}
-      </BottomNavigation>
-    </BottomBarStyled>
+    <>
+      <BottomBarStyled>
+        <BottomNavigation value={currentIndex === -1 ? 0 : currentIndex} sx={{ backgroundColor: "initial" }} showLabels>
+          {navItemList.map(({ url, label, icon }) => (
+            <BottomNavigationAction key={url} label={t(label)} icon={icon} component={Link} to={url} />
+          ))}
+        </BottomNavigation>
+      </BottomBarStyled>
+      <Box sx={(theme) => theme.mixins.toolbar} />
+    </>
   );
 };

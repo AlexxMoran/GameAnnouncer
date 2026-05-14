@@ -37,6 +37,17 @@ export const translationRu = {
     organizer: "организатор",
     status: "статус",
     type: "тип",
+    qualification: {
+      one: "квалификация",
+      many: "квалификации",
+    },
+    broadcast: {
+      one: "трансляция",
+    },
+    action: {
+      one: "действие",
+      many: "действия",
+    },
   },
   actions: {
     login: "Войти",
@@ -51,6 +62,7 @@ export const translationRu = {
     addAnnouncement: "Добавить турнир",
     editAnnouncement: "Редактировать турнир",
     deleteAnnouncement: "Удалить турнир",
+    cancelAnnouncement: "Отменить турнир",
     viewAnnouncement: "Просмотреть турнир",
     deleteGame: "Удалить игру",
     add: "Добавить",
@@ -73,6 +85,9 @@ export const translationRu = {
     takePart: "Принять участие",
     close: "Закрыть",
     submitApplication: "Подать заявку",
+    startTournament: "Начать турнир",
+    start: "Начать",
+    editTournament: "Редактировать турнир",
   },
   texts: {
     allTournaments: "Все турниры",
@@ -97,6 +112,7 @@ export const translationRu = {
     logoutConfirmation: "Вы уверены, что хотите выйти из аккаунта?",
     notFoundPage: "Страница не существует",
     announcementStartDate: "Дата начала турнира",
+    announcementEndDate: "Дата окончания турнира",
     registrationStartDate: "Дата начала регистрации",
     registrationEndDate: "Дата окончания регистрации",
     participantsCount: "Количество участников",
@@ -147,6 +163,14 @@ export const translationRu = {
       'Чтобы отправить заявку, перейдите на страницу всех турниров, выберите подходящий и нажмите "Принять участие"',
     noApplications: "Заявок нет",
     pleaseLogin: "Пожалуйста, войдите в аккаунт",
+    noTournamentsCreatedYet: "На данный момент никто еще не создал турнир",
+    noGames: "Игр нет",
+    tournamentBracket: "Турнирная сетка",
+    cancelTournamentIrreversibleConfirm: "Отмена турнира необратима. Вы уверены, что хотите отменить турнир?",
+    tournamentCancelledSuccessfully: "Турнир успешно отменен",
+    confirmStartTournament: "Вы уверены, что хотите начать турнир?",
+    tournamentStartedMayTheBestWin: "Турнир начался, победит сильнейший!",
+    tournamentEditedSuccessfully: "Турнир успешно отредактирован",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",

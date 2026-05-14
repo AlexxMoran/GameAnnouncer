@@ -21,7 +21,7 @@ export const RegistrationRequestFields: FC<IRegistrationRequestFieldsProps> = ({
 
   return (
     <>
-      {fieldList.map(({ field_type, label, id, options }) => {
+      {fieldList.map(({ field_type, label, id, options, required }) => {
         const name = id.toString();
 
         if (field_type === ERegistrationFormFieldTypes.Text) {
@@ -34,7 +34,7 @@ export const RegistrationRequestFields: FC<IRegistrationRequestFieldsProps> = ({
               value={values[name]}
               error={!!errors[name]}
               helperText={errors[name]}
-              required
+              required={required}
             />
           );
         }
@@ -50,7 +50,7 @@ export const RegistrationRequestFields: FC<IRegistrationRequestFieldsProps> = ({
               error={!!errors[name]}
               helperText={errors[name]}
               options={options}
-              required
+              required={required}
             />
           );
         }

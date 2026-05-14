@@ -1,4 +1,5 @@
 import AddIcon from "@mui/icons-material/Add";
+import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import { createGameActionList } from "@pages/games/model/create-game-action-list";
 import { GamesService } from "@pages/games/model/games-service";
 import { useCreateGame } from "@pages/games/model/use-create-game";
@@ -59,7 +60,13 @@ export const GamesPage: FC = observer(() => {
           {t("actions.addGame")}
         </Button>
       </Box>
-      <InfiniteScrollList renderItem={renderItem} onLoadMore={paginate} {...listData} />
+      <InfiniteScrollList
+        renderItem={renderItem}
+        onLoadMore={paginate}
+        noDataIcon={SportsEsportsIcon}
+        noDataTitle={t("texts.noGames")}
+        {...listData}
+      />
     </PageContentWrapperStyled>
   );
 });

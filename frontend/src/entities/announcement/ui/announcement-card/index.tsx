@@ -1,7 +1,7 @@
 import { createAnnouncementStatusColor } from "@entities/announcement/lib/create-announcement-status-color";
 import type { IAnnouncementCardProps } from "@entities/announcement/ui/announcement-card/types";
+import { AnnouncementParticipantsCountInfo } from "@entities/announcement/ui/announcement-participants-count-info";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
-import PeopleIcon from "@mui/icons-material/People";
 import SportsEsportsIcon from "@mui/icons-material/SportsEsports";
 import { useTheme } from "@mui/material";
 import { formatDateRange } from "@shared/lib/date/formatDateRange";
@@ -12,10 +12,9 @@ import { Button } from "@shared/ui/button";
 import { Card } from "@shared/ui/card";
 import { Chip } from "@shared/ui/chip";
 import { IconButton } from "@shared/ui/icon-button";
-import { LinearProgress } from "@shared/ui/linear-progress";
 import { Tooltip } from "@shared/ui/tooltip";
 import { T } from "@shared/ui/typography";
-import { type FC } from "react";
+import { type FC, type MouseEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 export const AnnouncementCard: FC<IAnnouncementCardProps> = (props) => {
@@ -24,23 +23,15 @@ export const AnnouncementCard: FC<IAnnouncementCardProps> = (props) => {
   const { t } = useTranslation();
   const theme = useTheme();
 
-  const {
-    game,
-    title,
-    content,
-    participants_count,
-    max_participants,
-    status,
-    registration_start_at,
-    registration_end_at,
-  } = announcement;
-
+  const { game, title, content, status, registration_start_at, registration_end_at } = announcement;
   const { image_url, name } = game;
 
-  const participantsInfo = `${participants_count} / ${max_participants}`;
-  const participationPercent = max_participants > 0 ? (participants_count / max_participants) * 100 : 0;
   const statusColor = createAnnouncementStatusColor(theme, status);
-  const progressColor = participationPercent >= 90 ? "error" : participationPercent >= 50 ? "warning" : "success";
+
+  const handleButtonClick = (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    button?.onClick();
+  };
 
   return (
     <Card
@@ -64,7 +55,7 @@ export const AnnouncementCard: FC<IAnnouncementCardProps> = (props) => {
             position: "absolute",
             top: (theme) => theme.spacing(1.5),
             left: (theme) => theme.spacing(1.5),
-            color: theme.palette.getContrastText(statusColor),
+            color: (theme) => theme.palette.getContrastText(statusColor),
             backgroundColor: statusColor,
           }}
         />
@@ -110,23 +101,10 @@ export const AnnouncementCard: FC<IAnnouncementCardProps> = (props) => {
               {formatDateRange(registration_start_at, registration_end_at)}
             </T>
           </Box>
-          <div>
-            <Box display="flex" alignItems="center" justifyContent="space-between">
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <PeopleIcon color="secondary" sx={{ fontSize: 16 }} />
-                <T variant="caption" color="textSecondary">
-                  {t("texts.participants")}
-                </T>
-              </Box>
-              <T variant="caption" color="textPrimary">
-                <b>{participantsInfo}</b>
-              </T>
-            </Box>
-            <LinearProgress variant="determinate" value={participationPercent} color={progressColor} />
-          </div>
+          <AnnouncementParticipantsCountInfo announcement={announcement} />
         </Box>
         {button && (
-          <Button sx={{ marginTop: "auto" }} onClick={button.onClick} startIcon={button.icon}>
+          <Button sx={{ marginTop: "auto" }} onClick={handleButtonClick} startIcon={button.icon}>
             {button.title}
           </Button>
         )}

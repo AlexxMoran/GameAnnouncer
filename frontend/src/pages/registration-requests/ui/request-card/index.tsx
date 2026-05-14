@@ -44,7 +44,7 @@ export const RequestCard: FC<IRequestCardProps> = ({ request, onCancelRequest })
         overflow="hidden"
       >
         <Box display="flex" alignItems="center" gap={1.5}>
-          <T variant="subtitle2" color="textDisabled" sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <T variant="subtitle2" color="textSecondary" sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             № {id}
           </T>
           <T variant="subtitle2" sx={{ textOverflow: "ellipsis", whiteSpace: "nowrap", overflow: "hidden" }}>

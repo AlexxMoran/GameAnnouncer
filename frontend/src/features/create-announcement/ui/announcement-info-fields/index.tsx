@@ -1,4 +1,5 @@
 import type { ICreateAnnouncementsFields } from "@features/create-announcement/model/create-validation-schema/types";
+import type { IAnnouncementInfoFieldsProps } from "@features/create-announcement/ui/announcement-info-fields/types";
 import { MenuItem } from "@mui/material";
 import type { PickerValue } from "@mui/x-date-pickers/internals";
 import { useRootService } from "@shared/hooks/use-root-service";
@@ -18,7 +19,7 @@ import { observer } from "mobx-react-lite";
 import { useCallback, useMemo, useState, type ChangeEvent, type FC, type SyntheticEvent } from "react";
 import { useTranslation } from "react-i18next";
 
-export const AnnouncementInfoFields: FC = observer(() => {
+export const AnnouncementInfoFields: FC<IAnnouncementInfoFieldsProps> = observer(({ isEdit }) => {
   const { t } = useTranslation();
   const { gamesApiService } = useRootService();
   const [input, setInput] = useState("");
@@ -112,7 +113,7 @@ export const AnnouncementInfoFields: FC = observer(() => {
     setFieldValue("max_participants", value);
   };
 
-  const handleChangeGame = useCallback((_: SyntheticEvent, value: TMaybe<IGameDto>) => {
+  const handleChangeGame = useCallback((_: SyntheticEvent, value: TMaybe<Pick<IGameDto, "id" | "name">>) => {
     setFieldValue("game", value);
   }, []);
 
@@ -199,6 +200,7 @@ export const AnnouncementInfoFields: FC = observer(() => {
         onChange={handleAnnouncementStartChange}
         value={startAtValue}
         minDateTime={startAtMin}
+        readOnly={isEdit}
         disablePast
       />
       <TextField

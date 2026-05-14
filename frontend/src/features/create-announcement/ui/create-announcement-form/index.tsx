@@ -1,3 +1,4 @@
+import { createInitialFields } from "@features/create-announcement/model/create-initial-fields";
 import { createValidationSchema } from "@features/create-announcement/model/create-validation-schema";
 import type { ICreateAnnouncementsFields } from "@features/create-announcement/model/create-validation-schema/types";
 import { validateRegistrationFormFields } from "@features/create-announcement/model/validate-registration-form-fields";
@@ -13,11 +14,11 @@ import { Form } from "@shared/ui/form";
 import { Stepper } from "@shared/ui/stepper";
 import { T } from "@shared/ui/typography";
 import isEmpty from "lodash/isEmpty";
-import { useState, type FC } from "react";
+import { useMemo, useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
 
 export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) => {
-  const { onSubmit } = props;
+  const { onSubmit, announcement } = props;
 
   const { closeDialog } = useDialog();
   const { t } = useTranslation();
@@ -25,16 +26,16 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
   const [cashedValues, setCashedValues] = useState<TMaybe<ICreateAnnouncementsFields & IRegistrationFormFields>>(null);
 
   const initialValues = cashedValues || {
-    title: "",
-    content: "",
-    game: null,
-    start_at: "",
-    registration_start_at: "",
-    registration_end_at: "",
-    max_participants: 0,
-    format: EAnnouncementFormat.SingleElimination,
-    has_qualification: false,
-    fields: {},
+    title: announcement?.title || "",
+    content: announcement?.content || "",
+    game: announcement?.game || null,
+    start_at: announcement?.start_at || "",
+    registration_start_at: announcement?.registration_start_at || "",
+    registration_end_at: announcement?.registration_end_at || "",
+    max_participants: announcement?.max_participants || 0,
+    format: announcement?.format || EAnnouncementFormat.SingleElimination,
+    has_qualification: announcement?.has_qualification || false,
+    fields: createInitialFields(announcement?.registration_form),
   };
 
   const validationSchema = createValidationSchema(t);
@@ -96,20 +97,24 @@ export const CreateAnnouncementForm: FC<ICreateAnnouncementFormProps> = (props) 
     return handleBackStep;
   })();
 
-  const fields = (() => {
-    if (activeStep === 0) {
-      return AnnouncementInfoFields;
-    }
+  const fields = useMemo(
+    () =>
+      (() => {
+        if (activeStep === 0) {
+          return () => <AnnouncementInfoFields isEdit={!!announcement} />;
+        }
 
-    return RegistrationFormFields;
-  })();
+        return RegistrationFormFields;
+      })(),
+    [announcement, activeStep]
+  );
 
   const confirmButtonText = (() => {
     if (activeStep === 0) {
       return t("actions.next");
     }
 
-    return t("actions.add");
+    return announcement ? t("actions.save") : t("actions.add");
   })();
 
   const subtitle = (() => {

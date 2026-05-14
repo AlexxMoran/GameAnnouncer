@@ -1,3 +1,5 @@
+import type { IEntityIdField } from "@shared/types/commonEntity.types";
+
 export interface ILoginDto {
   username: string;
   password: string;
@@ -20,7 +22,7 @@ export interface IEditUserDto {
   nickname?: string;
 }
 
-export interface IUserDto {
+export interface IUserDto extends IEntityIdField {
   first_name: string;
   last_name: string;
   nickname: string;
