@@ -43,7 +43,7 @@ export const Layout: FC<PropsWithChildren> = ({ children }) => {
         url: EAppRoutes.MyAnnouncements,
       },
       {
-        label: t("entities.bid.many"),
+        label: t("texts.myRequests"),
         icon: <AssignmentIcon />,
         url: EAppRoutes.RegistrationRequests,
       },

@@ -57,7 +57,6 @@ export const InfiniteScrollList = observer(<T extends TObjectAny>(props: IInfini
 
   const { t } = useTranslation();
   const resolvedNoDataTitle = noDataTitle || t("texts.nothingFound");
-  const resolvedNoDataSubtitle = noDataSubtitle || t("texts.tryChangeSearchParameters");
 
   if (isInitialLoading) {
     return <Spinner type="backdrop" />;
@@ -79,9 +78,11 @@ export const InfiniteScrollList = observer(<T extends TObjectAny>(props: IInfini
         <T variant="h6" sx={{ color: "text.secondary", mb: 1 }}>
           {resolvedNoDataTitle}
         </T>
-        <T variant="body2" sx={{ color: "text.disabled", maxWidth: 360, hyphens: "none" }}>
-          {resolvedNoDataSubtitle}
-        </T>
+        {noDataSubtitle && (
+          <T variant="body2" sx={{ color: "text.disabled", maxWidth: 360, hyphens: "none" }}>
+            {noDataSubtitle}
+          </T>
+        )}
       </Box>
     );
   }

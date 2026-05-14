@@ -48,6 +48,15 @@ export const translationRu = {
       one: "действие",
       many: "действия",
     },
+    avatar: {
+      one: "аватар",
+    },
+    icon: {
+      one: "иконка",
+    },
+    color: {
+      one: "цвет",
+    },
   },
   actions: {
     login: "Войти",
@@ -88,6 +97,8 @@ export const translationRu = {
     startTournament: "Начать турнир",
     start: "Начать",
     editTournament: "Редактировать турнир",
+    reject: "Отклонить",
+    accept: "Принять",
   },
   texts: {
     allTournaments: "Все турниры",
@@ -171,6 +182,9 @@ export const translationRu = {
     confirmStartTournament: "Вы уверены, что хотите начать турнир?",
     tournamentStartedMayTheBestWin: "Турнир начался, победит сильнейший!",
     tournamentEditedSuccessfully: "Турнир успешно отредактирован",
+    noApplicationsYet: "Заявок пока нет",
+    allJoinRequestsWillBeShownHere: "Здесь будут отображаться все заявки на вступление в турнир",
+    chooseIconAndColorForAvatar: "Выберите иконку и цвет для вашего аватара",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",

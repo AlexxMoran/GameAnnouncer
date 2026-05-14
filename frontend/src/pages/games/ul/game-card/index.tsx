@@ -41,7 +41,7 @@ export const GameCard: FC<IGameCardProps> = (props) => {
           </Box>
         )}
       </ImgStyled>
-      <Box display="flex" flexDirection="column" gap={0.5} flex={1} pb={3} pt={1.5} px={1.5}>
+      <Box display="flex" flexDirection="column" gap={0.5} flex={1} pb={3} pt={1.5} px={2}>
         <WithLineClampStyled lineClamp={1} variant="h6">
           {name}
         </WithLineClampStyled>

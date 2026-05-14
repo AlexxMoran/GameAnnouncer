@@ -5,6 +5,7 @@ import type { IOutletContextData } from "@pages/announcement-management/model/ty
 import { AnnouncementActions } from "@pages/announcement-management/ui/announcement-actions";
 import { AnnouncementInfo } from "@pages/announcement-management/ui/announcement-info";
 import { AnnouncementManagementPageHeader } from "@pages/announcement-management/ui/announcement-management-page-header";
+import { GAPS } from "@shared/constants/gaps";
 import { useRootService } from "@shared/hooks/use-root-service";
 import { useTabs } from "@shared/hooks/use-tabs";
 import { PageContentWrapperStyled } from "@shared/ui/_styled/page-content-wrapper-styled";
@@ -34,11 +35,15 @@ export const AnnouncementManagementPage: FC = observer(() => {
     return <Spinner type="backdrop" />;
   }
 
+  if (!announcement) {
+    return null;
+  }
+
   return (
     <>
       <AnnouncementManagementPageHeader announcement={announcement} />
       <PageContentWrapperStyled>
-        <Box sx={{ display: "flex", gap: { xs: 2, md: 3 }, flexDirection: { xs: "column", md: "row" } }}>
+        <Box sx={{ display: "flex", gap: GAPS, flexDirection: { xs: "column", md: "row" } }}>
           <Box sx={{ flex: 1, order: { xs: 1, md: 0 } }}>
             <Tabs tabList={tabList} onChange={handleChangeTab} value={tabValue}>
               <Outlet context={{ announcement } as IOutletContextData} />
@@ -48,7 +53,7 @@ export const AnnouncementManagementPage: FC = observer(() => {
             sx={{
               display: "flex",
               flexDirection: "column",
-              gap: { xs: 2, md: 3 },
+              gap: GAPS,
               width: { md: "35%" },
               maxWidth: { md: "350px" },
               position: { md: "sticky" },

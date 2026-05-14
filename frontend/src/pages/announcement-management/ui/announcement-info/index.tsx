@@ -38,7 +38,7 @@ export const AnnouncementInfo: FC<IAnnouncementInfoProps> = observer(({ announce
       sx={{
         display: "flex",
         flexDirection: "column",
-        padding: 3,
+        padding: { xs: 2, sm: 3 },
         gap: 2,
       }}
     >

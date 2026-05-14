@@ -7,5 +7,6 @@ declare module "@emotion/react" {
 declare module "@mui/material/styles" {
   interface TypeBackground {
     accent: string;
+    info: string;
   }
 }
