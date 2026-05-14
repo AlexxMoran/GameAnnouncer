@@ -4,7 +4,11 @@ from exceptions import AppException
 from domains.users.model import User
 from core.services.avatar_uploader import upload_avatar
 from core.schemas.base import PaginatedResponse, DataResponse
-from domains.registration.schemas import RegistrationRequestResponse
+from domains.registration.schemas import (
+    RegistrationRequestFilter,
+    RegistrationRequestResponse,
+)
+from domains.registration.search import RegistrationRequestSearch
 from domains.registration.form_schemas import (
     RegistrationFormCreate,
     RegistrationFormResponse,
@@ -39,7 +43,6 @@ from domains.announcements.utils.bracket import get_bracket
 from domains.matches.queries import MatchQueries
 from domains.matches.schemas import BracketResponse, MatchResponse
 
-from domains.registration.queries import RegistrationRequestQueries
 from domains.participants.queries import ParticipantQueries
 
 router = APIRouter(prefix="/announcements", tags=["announcements"])
@@ -140,6 +143,7 @@ async def get_announcement_registration_requests(
     session: SessionDep,
     skip: int = 0,
     limit: int = 10,
+    filters: RegistrationRequestFilter = Depends(),
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
 ) -> PaginatedResponse[RegistrationRequestResponse]:
@@ -150,16 +154,21 @@ async def get_announcement_registration_requests(
     Returns 401 if unauthenticated, 403 if authenticated but unauthorized.
     """
     authorize_action(user, announcement, "edit")
-    queries = RegistrationRequestQueries(session)
-    registration_requests, total = await queries.find_all_by_announcement_id(
-        announcement_id=announcement.id, skip=skip, limit=limit
+    search = RegistrationRequestSearch(
+        session=session,
+        filters=filters,
+        scope=announcement,
     )
+    registration_requests = await search.results(skip=skip, limit=limit)
+    filtered_count = await search.filtered_count()
+    total_count = await search.total_count()
+
     return PaginatedResponse(
         data=registration_requests,
         skip=skip,
         limit=limit,
-        filtered_count=total,
-        total_count=total,
+        filtered_count=filtered_count,
+        total_count=total_count,
     )
 
 

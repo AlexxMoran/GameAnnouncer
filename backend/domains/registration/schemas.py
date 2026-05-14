@@ -10,6 +10,8 @@ from domains.registration.form_schemas import (
 )
 from domains.announcements.schemas import AnnouncementForRegistrationResponse
 from domains.users.schemas import UserBrief
+from core.search.base_filter import BaseFilter
+from enums.registration_status import RegistrationStatus
 
 
 class RegistrationRequestBase(BaseModel):
@@ -52,3 +54,13 @@ class RegistrationRequestResponse(RegistrationRequestBase):
     )
     created_at: datetime
     updated_at: datetime
+
+
+class RegistrationRequestFilter(BaseFilter):
+    """
+    Filter for RegistrationRequest queries.
+
+    Allows filtering only by status.
+    """
+
+    status: RegistrationStatus | None = None

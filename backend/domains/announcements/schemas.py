@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 from domains.games.schemas import GameForAnnouncementResponse
 from core.schemas.base import BaseSchemaWithPermissions
@@ -135,14 +135,3 @@ class AnnouncementFilter(BaseFilter):
     game_id: int | None = None
     status: str | None = None
     q: str | None = Field(None, max_length=100)
-
-    @field_validator("q")
-    @classmethod
-    def validate_search_query(cls, v: str | None) -> str | None:
-        """Validate search query: trim whitespace and return None for empty strings."""
-        if v is None:
-            return v
-        v = v.strip()
-        if not v:
-            return None
-        return v

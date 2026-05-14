@@ -685,13 +685,16 @@ async def test_get_announcement_registration_requests_allowed_for_organizer(
     app.dependency_overrides[get_announcement_dependency] = override_announcement
 
     try:
+        mock_search = MagicMock()
+        mock_search.results = AsyncMock(return_value=[])
+        mock_search.filtered_count = AsyncMock(return_value=0)
+        mock_search.total_count = AsyncMock(return_value=0)
+
         with (
             patch("api.v1.announcements.authorize_action"),
             patch(
-                "api.v1.announcements.RegistrationRequestQueries",
-                return_value=MagicMock(
-                    find_all_by_announcement_id=AsyncMock(return_value=([], 0))
-                ),
+                "api.v1.announcements.RegistrationRequestSearch",
+                return_value=mock_search,
             ),
         ):
             r = await client.get(
@@ -703,6 +706,7 @@ async def test_get_announcement_registration_requests_allowed_for_organizer(
     assert r.status_code == 200
     assert r.json()["data"] == []
     assert r.json()["filtered_count"] == 0
+    assert r.json()["total_count"] == 0
 
 
 @pytest.mark.asyncio
