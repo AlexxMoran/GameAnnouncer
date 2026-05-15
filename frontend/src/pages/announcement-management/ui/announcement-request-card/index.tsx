@@ -38,8 +38,8 @@ export const AnnouncementRequestCard: FC<IAnnouncementRequestCardProps> = observ
         borderColor: isPending ? theme.palette.secondary.dark : undefined,
       }}
     >
-      <Box minHeight="80px" display="flex">
-        <Box height="100%" display="flex" flexDirection="column" justifyContent="space-between" flex={1}>
+      <Box display="flex">
+        <Box height="100%" display="flex" flexDirection="column" justifyContent="space-between" flex={1} gap={2}>
           <Box display="flex" alignItems="center" gap={1}>
             <Avatar size={30} icon={SelectedIcon} color={avatar_color} username={nickname} />
             <T variant="body2">{nickname}</T>

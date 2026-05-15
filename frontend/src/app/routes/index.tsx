@@ -1,3 +1,4 @@
+import { App } from "@app/index";
 import { AccountSettingsPage } from "@pages/account-settings/ui/account-settings-page";
 import { AnnouncementBroadcast } from "@pages/announcement-management/ui/announcement-broadcast";
 import { AnnouncementManagementPage } from "@pages/announcement-management/ui/announcement-management-page";
@@ -15,42 +16,48 @@ import { RegistrationRequestsPage } from "@pages/registration-requests/ui/regist
 import { RegistrationPage } from "@pages/registration/ui/registration-page";
 import { EAnnouncementManagementTabs, EAppRoutes, EMyAnnouncementsTabs } from "@shared/constants/appRoutes";
 import withAuth from "@shared/hocs/with-auth";
-import type { FC } from "react";
-import { Navigate, Route, Routes, useLocation } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 
 const AccountSettingsPageWithAuth = withAuth(AccountSettingsPage);
 const MyAnnouncementsPageWithAuth = withAuth(MyAnnouncementsPage);
 const RegistrationRequestsPageWithAuth = withAuth(RegistrationRequestsPage);
 
-export const Pages: FC = () => {
-  const location = useLocation();
-
-  return (
-    <Routes>
-      <Route path="/" element={<Navigate to={EAppRoutes.Announcements} replace />} />
-      <Route path={EAppRoutes.AnnouncementManagement} element={<AnnouncementManagementPage />}>
-        <Route index element={<Navigate to={EAnnouncementManagementTabs.Requests} replace />} />
-        <Route path={EAnnouncementManagementTabs.Requests} element={<AnnouncementRequests />} />
-        <Route path={EAnnouncementManagementTabs.Qualification} element={<AnnouncementQualification />} />
-        <Route path={EAnnouncementManagementTabs.TournamentGrid} element={<AnnouncementTournamentBracket />} />
-        <Route path={EAnnouncementManagementTabs.Broadcast} element={<AnnouncementBroadcast />} />
-      </Route>
-      <Route path={EAppRoutes.Announcements} element={<AnnouncementsPage />} />
-      <Route path={EAppRoutes.Games} element={<GamesPage />} />
-      <Route path={EAppRoutes.Login} element={<LoginPage />} />
-      <Route path={EAppRoutes.Registration} element={<RegistrationPage />} />
-      <Route path={EAppRoutes.AccountSettings} element={<AccountSettingsPageWithAuth />} />
-      <Route path={EAppRoutes.VerifyEmail} element={<EmailVerificationPage />} />
-      <Route path={EAppRoutes.MyAnnouncements} element={<MyAnnouncementsPageWithAuth />}>
-        <Route index element={<Navigate to={EMyAnnouncementsTabs.Participated} replace />} />
-        <Route path={EMyAnnouncementsTabs.Participated} element={<AnnouncementsTab key={location.pathname} />} />
-        <Route
-          path={EMyAnnouncementsTabs.Organized}
-          element={<AnnouncementsTab key={location.pathname} canAddAnnouncements />}
-        />
-      </Route>
-      <Route path={EAppRoutes.RegistrationRequests} element={<RegistrationRequestsPageWithAuth />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
-  );
-};
+export const router = createBrowserRouter([
+  {
+    element: <App />,
+    children: [
+      {
+        path: "/",
+        element: <Navigate to={EAppRoutes.Announcements} replace />,
+      },
+      {
+        path: EAppRoutes.AnnouncementManagement,
+        element: <AnnouncementManagementPage />,
+        children: [
+          { index: true, element: <Navigate to={EAnnouncementManagementTabs.Requests} replace /> },
+          { path: EAnnouncementManagementTabs.Requests, element: <AnnouncementRequests /> },
+          { path: EAnnouncementManagementTabs.Qualification, element: <AnnouncementQualification /> },
+          { path: EAnnouncementManagementTabs.TournamentGrid, element: <AnnouncementTournamentBracket /> },
+          { path: EAnnouncementManagementTabs.Broadcast, element: <AnnouncementBroadcast /> },
+        ],
+      },
+      { path: EAppRoutes.Announcements, element: <AnnouncementsPage /> },
+      { path: EAppRoutes.Games, element: <GamesPage /> },
+      { path: EAppRoutes.Login, element: <LoginPage /> },
+      { path: EAppRoutes.Registration, element: <RegistrationPage /> },
+      { path: EAppRoutes.AccountSettings, element: <AccountSettingsPageWithAuth /> },
+      { path: EAppRoutes.VerifyEmail, element: <EmailVerificationPage /> },
+      {
+        path: EAppRoutes.MyAnnouncements,
+        element: <MyAnnouncementsPageWithAuth />,
+        children: [
+          { index: true, element: <Navigate to={EMyAnnouncementsTabs.Participated} replace /> },
+          { path: EMyAnnouncementsTabs.Participated, element: <AnnouncementsTab /> },
+          { path: EMyAnnouncementsTabs.Organized, element: <AnnouncementsTab canAddAnnouncements /> },
+        ],
+      },
+      { path: EAppRoutes.RegistrationRequests, element: <RegistrationRequestsPageWithAuth /> },
+      { path: "*", element: <NotFoundPage /> },
+    ],
+  },
+]);

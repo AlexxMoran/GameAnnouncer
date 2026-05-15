@@ -4,9 +4,10 @@ import type { IRequestCardProps } from "@pages/registration-requests/ui/request-
 import { formatDate } from "@shared/lib/date/formatDate";
 import { ERegistrationRequestStatuses } from "@shared/services/api/registration-requests-api-service/constants";
 import { Box } from "@shared/ui/box";
-import { Button } from "@shared/ui/button";
 import { Card } from "@shared/ui/card";
 import { Chip } from "@shared/ui/chip";
+import { IconButton } from "@shared/ui/icon-button";
+import { Tooltip } from "@shared/ui/tooltip";
 import { T } from "@shared/ui/typography";
 import { type FC } from "react";
 import { useTranslation } from "react-i18next";
@@ -55,9 +56,11 @@ export const RequestCard: FC<IRequestCardProps> = ({ request, onCancelRequest })
       <Box display="flex" alignItems="center" justifyContent="space-between" gap={2} flex={1}>
         <Chip label={t(`enums.registrationRequestStatuses.${status}`)} color={createRequestStatusColor(status)} />
         {showCancelButton && (
-          <Button variant="text" color="error" startIcon={<CancelIcon />} onClick={onCancelRequest}>
-            {t("actions.cancel")}
-          </Button>
+          <Tooltip title={t("actions.cancel")} placement="left">
+            <IconButton onClick={onCancelRequest}>
+              <CancelIcon color="error" fontSize="medium" />
+            </IconButton>
+          </Tooltip>
         )}
       </Box>
     </Card>

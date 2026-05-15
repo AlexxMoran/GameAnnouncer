@@ -9,7 +9,6 @@ import { EAppRoutes } from "@shared/constants/appRoutes";
 import { EAnnouncementStatuses } from "@shared/services/api/announcements-api-service/constants";
 import type { IAnnouncementDto } from "@shared/services/api/announcements-api-service/types";
 import { PageContentWrapperStyled } from "@shared/ui/_styled/page-content-wrapper-styled";
-import { Box } from "@shared/ui/box";
 import { InfiniteScrollList } from "@shared/ui/infinite-scroll-list";
 import { Link } from "@shared/ui/link";
 import { PageTitle } from "@shared/ui/page-title";
@@ -48,17 +47,15 @@ export const AnnouncementsPage: FC = observer(() => {
       <AnnouncementsWelcomeImg />
       <PageContentWrapperStyled>
         <PageTitle title={t("entities.announcement.many")} count={listData.filteredCount} />
-        <Box display="flex" flexDirection="column" gap={2} flex={1}>
-          <AnnouncementsFilters filters={filters} handleFilter={setFilter} />
-          <InfiniteScrollList
-            renderItem={renderItem}
-            onLoadMore={paginate}
-            noDataIcon={EmojiEventsIcon}
-            noDataTitle={t("texts.noTournaments")}
-            noDataSubtitle={t("texts.noTournamentsCreatedYet")}
-            {...listData}
-          />
-        </Box>
+        <AnnouncementsFilters filters={filters} handleFilter={setFilter} />
+        <InfiniteScrollList
+          renderItem={renderItem}
+          onLoadMore={paginate}
+          noDataIcon={EmojiEventsIcon}
+          noDataTitle={t("texts.noTournaments")}
+          noDataSubtitle={t("texts.noTournamentsCreatedYet")}
+          {...listData}
+        />
       </PageContentWrapperStyled>
     </>
   );

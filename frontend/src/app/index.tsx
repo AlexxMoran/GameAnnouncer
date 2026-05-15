@@ -1,5 +1,4 @@
 import { Layout } from "@app/layout";
-import { Pages } from "@app/routes";
 import CloseIcon from "@mui/icons-material/Close";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -15,9 +14,9 @@ import { RootService } from "@shared/services/root-service";
 import { Button } from "@shared/ui/button";
 import { Spinner } from "@shared/ui/spinner";
 import { closeSnackbar, enqueueSnackbar, SnackbarProvider } from "notistack";
-import { useEffect, useState, type FC } from "react";
+import { useState, type FC } from "react";
 import { I18nextProvider } from "react-i18next";
-import { useLocation, useNavigate } from "react-router";
+import { Outlet, ScrollRestoration, useNavigate } from "react-router";
 import { useAsync } from "react-use";
 
 import "@app/styles/fonts.scss";
@@ -35,7 +34,6 @@ const action = (snackbarId: string | number) => (
 
 export const App: FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const { isMobile } = useDeviceType();
 
   const [rootService] = useState(
@@ -55,12 +53,6 @@ export const App: FC = () => {
       /* empty */
     }
   });
-
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-    });
-  }, [location]);
 
   // TODO добавить ErrorBoundary
   // TODO вынести в общие стили элементы карточек и стили их позиционаирования
@@ -85,7 +77,8 @@ export const App: FC = () => {
                   <Spinner type="backdrop" />
                 ) : (
                   <Layout>
-                    <Pages />
+                    <ScrollRestoration />
+                    <Outlet />
                   </Layout>
                 )}
               </DialogProvider>
