@@ -21,7 +21,7 @@ import { useCallback, useState, type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation } from "react-router";
 
-export const AnnouncementsTab: FC<IAnnouncementsTabProps> = observer(({ canAddAnnouncements }) => {
+const AnnouncementsTabComponent: FC<IAnnouncementsTabProps> = observer(({ canAddAnnouncements }) => {
   const location = useLocation();
   const { t } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
@@ -112,3 +112,9 @@ export const AnnouncementsTab: FC<IAnnouncementsTabProps> = observer(({ canAddAn
     </Box>
   );
 });
+
+export const AnnouncementsTab: FC<IAnnouncementsTabProps> = ({ canAddAnnouncements }) => {
+  const location = useLocation();
+
+  return <AnnouncementsTabComponent key={location.pathname} canAddAnnouncements={canAddAnnouncements} />;
+};

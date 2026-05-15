@@ -3,7 +3,6 @@ import type { IOutletContextData } from "@pages/announcement-management/model/ty
 import { useAnnouncementRequestsService } from "@pages/announcement-management/model/use-announcement-request-service";
 import { AnnouncementRequestCard } from "@pages/announcement-management/ui/announcement-request-card";
 import { AnnouncementRequestFilters } from "@pages/announcement-management/ui/announcement-request-filters";
-import { RequestCardsWrapperStyled } from "@pages/announcement-management/ui/request-cards-wrapper-styled";
 import { GAPS } from "@shared/constants/gaps";
 import type { IAnnouncementDto } from "@shared/services/api/announcements-api-service/types";
 import type { IUserDto } from "@shared/services/api/auth-api-service/types";
@@ -11,7 +10,6 @@ import { EGameCategories } from "@shared/services/api/games-api-service/constant
 import type { IGameDto } from "@shared/services/api/games-api-service/types";
 import { ERegistrationRequestStatuses } from "@shared/services/api/registration-requests-api-service/constants";
 import type { IRegistrationRequestDto } from "@shared/services/api/registration-requests-api-service/types";
-import { Box } from "@shared/ui/box";
 import { Card } from "@shared/ui/card";
 import { InfiniteScrollList } from "@shared/ui/infinite-scroll-list";
 import { PageTitle } from "@shared/ui/page-title";
@@ -183,23 +181,20 @@ export const AnnouncementRequests: FC = observer(() => {
   );
 
   return (
-    <Card sx={{ padding: GAPS, flex: 1, display: "flex", flexDirection: "column", gap: GAPS }}>
+    <Card sx={{ padding: GAPS, flex: 1, display: "flex", flexDirection: "column", gap: GAPS, minHeight: 640 }}>
       <PageTitle title={t("entities.bid.many")} count={listData.filteredCount} type="tab" />
-      <Box display="flex" flexDirection="column" gap={2} flex={1}>
-        <AnnouncementRequestFilters filters={filters} handleFilter={setFilter} />
-        <InfiniteScrollList
-          renderItem={renderItem}
-          onLoadMore={paginate}
-          noDataIcon={PendingActionsIcon}
-          noDataTitle={t("texts.noApplicationsYet")}
-          noDataSubtitle={t("texts.allJoinRequestsWillBeShownHere")}
-          containerComponent={RequestCardsWrapperStyled}
-          {...listData}
-          list={registrationRequestMocks}
-          hasMore={false}
-          totalCount={20}
-        />
-      </Box>
+      <AnnouncementRequestFilters filters={filters} handleFilter={setFilter} />
+      <InfiniteScrollList
+        renderItem={renderItem}
+        onLoadMore={paginate}
+        noDataIcon={PendingActionsIcon}
+        noDataTitle={t("texts.noApplicationsYet")}
+        noDataSubtitle={t("texts.allJoinRequestsWillBeShownHere")}
+        {...listData}
+        list={registrationRequestMocks}
+        hasMore={false}
+        totalCount={20}
+      />
     </Card>
   );
 });
