@@ -1,3 +1,4 @@
+import { ANNOUNCEMENTS_ENDPOINT } from "@shared/services/api/announcements-api-service/constants";
 import type { BaseApiService } from "@shared/services/api/base-api-service";
 import type { TApiResponseWrapper } from "@shared/services/api/base-api-service/types";
 import { USERS_ME_ENDPOINT } from "@shared/services/api/constants";
@@ -31,5 +32,13 @@ export class RegistrationRequestsApiService {
     this.baseApiService.patch<TApiResponseWrapper<IRegistrationRequestDto>>(
       `v1/${REGISTRATION_REQUEST_ENDPOINT}/${id}/${action}`,
       {}
+    );
+
+  getAnnouncementRequests = (id: number, params?: IGetRegistrationRequestsDto) =>
+    this.baseApiService.get<TApiResponseWrapper<IRegistrationRequestDto[]>, IPaginationMeta>(
+      `v1/${ANNOUNCEMENTS_ENDPOINT}/${id}/registration_requests`,
+      {
+        params,
+      }
     );
 }

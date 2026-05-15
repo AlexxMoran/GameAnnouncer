@@ -19,6 +19,7 @@ export const THEME = createTheme({
       default: "#1a1e24",
       paper: "#14181c",
       accent: "#1b2026",
+      info: "#22221F",
     },
     text: {
       primary: "#e8eaed",
@@ -378,6 +379,13 @@ export const THEME = createTheme({
           hyphens: "auto",
           wordBreak: "break-word",
         },
+      },
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: ({ theme }) => ({
+          backgroundColor: theme.palette.action.disabledBackground,
+        }),
       },
     },
   },

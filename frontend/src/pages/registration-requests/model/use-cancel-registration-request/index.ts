@@ -21,7 +21,7 @@ export const useCancelRegistrationRequest = (
       const result = await confirm({
         title: t("actions.cancelRequest"),
         children: t("texts.cancelRequestConfirmation"),
-        confirmationText: t("actions.cancel"),
+        confirmationText: t("actions.cancelRequest"),
       });
 
       if (result) {

@@ -2,7 +2,6 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import { RegistrationRequestsService } from "@pages/registration-requests/model/registration-requests-service";
 import { useCancelRegistrationRequest } from "@pages/registration-requests/model/use-cancel-registration-request";
 import { RequestCard } from "@pages/registration-requests/ui/request-card";
-import { RequestCardsContainer } from "@pages/registration-requests/ui/request-cards-container";
 import { useRootService } from "@shared/hooks/use-root-service";
 import type { IRegistrationRequestDto } from "@shared/services/api/registration-requests-api-service/types";
 import { PageContentWrapperStyled } from "@shared/ui/_styled/page-content-wrapper-styled";
@@ -37,7 +36,6 @@ export const RegistrationRequestsPage: FC = observer(() => {
         noDataTitle={t("texts.noApplications")}
         noDataSubtitle={t("texts.howToSubmitApplication")}
         noDataIcon={AssignmentIcon}
-        containerComponent={RequestCardsContainer}
         {...listData}
       />
     </PageContentWrapperStyled>

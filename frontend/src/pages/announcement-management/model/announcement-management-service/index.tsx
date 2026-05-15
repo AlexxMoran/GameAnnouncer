@@ -52,7 +52,9 @@ export class AnnouncementManagementService {
           this.isLoading = false;
         });
       } catch (_) {
-        /* empty */
+        runInAction(() => {
+          this.isLoading = false;
+        });
       }
     }
   }

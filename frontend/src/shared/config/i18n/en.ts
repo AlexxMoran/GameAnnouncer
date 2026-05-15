@@ -42,11 +42,20 @@ export const translationEn = {
       many: "qualifications",
     },
     broadcast: {
-      one: "трансляция",
+      one: "broadcast",
     },
     action: {
       one: "action",
       many: "actions",
+    },
+    avatar: {
+      one: "avatar",
+    },
+    icon: {
+      one: "icon",
+    },
+    color: {
+      one: "color",
     },
   },
   actions: {
@@ -88,6 +97,8 @@ export const translationEn = {
     startTournament: "Start tournament",
     start: "Start",
     editTournament: "Edit tournament",
+    reject: "Reject",
+    accept: "Accept",
   },
   texts: {
     allTournaments: "All tournaments",
@@ -173,6 +184,9 @@ export const translationEn = {
     confirmStartTournament: "Are you sure you want to start the tournament?",
     tournamentStartedMayTheBestWin: "The tournament has started, may the best win!",
     tournamentEditedSuccessfully: "Tournament edited successfully",
+    noApplicationsYet: "No applications yet",
+    allJoinRequestsWillBeShownHere: "All join requests for the tournament will be shown here",
+    chooseIconAndColorForAvatar: "Choose an icon and color for your avatar",
   },
   validationErrors: {
     unknown: "Unexpected error",
