@@ -39,10 +39,29 @@ export const AnnouncementRequestCard: FC<IAnnouncementRequestCardProps> = observ
       }}
     >
       <Box display="flex">
-        <Box height="100%" display="flex" flexDirection="column" justifyContent="space-between" flex={1} gap={2}>
+        <Box
+          height="100%"
+          display="flex"
+          flexDirection="column"
+          justifyContent="space-between"
+          flex={1}
+          gap={2}
+          minWidth={0}
+        >
           <Box display="flex" alignItems="center" gap={1}>
             <Avatar size={30} icon={SelectedIcon} color={avatar_color} username={nickname} />
-            <T variant="body2">{nickname}</T>
+            <T
+              sx={{
+                flex: 1,
+                minWidth: 0,
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+              }}
+              variant="body2"
+            >
+              {nickname}
+            </T>
           </Box>
           <Chip
             sx={{ alignSelf: "flex-start" }}
