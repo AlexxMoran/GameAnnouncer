@@ -5,10 +5,10 @@ import { useTheme } from "@mui/material";
 import type { IAnnouncementManagementPageHeaderProps } from "@pages/announcement-management/ui/announcement-management-page-header/types";
 import { MainPageImgContentStyled } from "@shared/ui/_styled/main-page-img-content-style";
 import { MainPageImgStyled } from "@shared/ui/_styled/main-page-img-styled";
+import { WithLineClampStyled } from "@shared/ui/_styled/with-line-clamp-styled";
 import { Box } from "@shared/ui/box";
 import { Chip } from "@shared/ui/chip";
 import { IconButton } from "@shared/ui/icon-button";
-import { T } from "@shared/ui/typography";
 import { observer } from "mobx-react-lite";
 import type { FC } from "react";
 import { useTranslation } from "react-i18next";
@@ -56,7 +56,9 @@ export const AnnouncementManagementPageHeader: FC<IAnnouncementManagementPageHea
               }}
             />
           </Box>
-          <T variant="h3">{title}</T>
+          <WithLineClampStyled lineClamp={3} variant="h3">
+            {title}
+          </WithLineClampStyled>
         </MainPageImgContentStyled>
       </MainPageImgStyled>
     );

@@ -17,13 +17,9 @@ export const UserInfoSettings: FC = () => {
   const { me, setMe } = authService;
 
   const handleEditMe = async (values: IEditUserDto) => {
-    try {
-      const { data } = await authApiService.editMe(values);
+    const { data } = await authApiService.editMe(values);
 
-      setMe(data.data);
-    } catch (_) {
-      /* empty */
-    }
+    setMe(data.data);
   };
 
   const getValidationSchema = (name: keyof IEditUserDto) => {
