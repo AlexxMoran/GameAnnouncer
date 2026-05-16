@@ -3,7 +3,7 @@ from typing import Any
 from core.logger import logger
 from core.permissions.registry import PoliciesRegistry
 from exceptions import AppException
-from domains.users.model import User
+from modules.users.model import User
 
 
 class PermissionsService:

@@ -1,11 +1,11 @@
 from fastapi import APIRouter, UploadFile, File, Depends
 
-from domains.games.model import Game
-from domains.games.queries import GameQueries
-from domains.games.repository import GameRepository
-from domains.games.schemas import GameCreate, GameResponse, GameUpdate, GameFilter
-from domains.games.search import GameSearch
-from domains.users.model import User
+from modules.games.model import Game
+from modules.games.queries import GameQueries
+from modules.games.repository import GameRepository
+from modules.games.schemas import GameCreate, GameResponse, GameUpdate, GameFilter
+from modules.games.search import GameSearch
+from modules.users.model import User
 from exceptions import AppException
 from core.services.avatar_uploader import upload_avatar
 from core.deps import SessionDep

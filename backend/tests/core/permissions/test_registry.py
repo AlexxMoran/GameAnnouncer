@@ -8,10 +8,10 @@ from core.permissions.base_policy import BasePolicy
 from core.permissions.registry import PoliciesRegistry
 
 
-def make_registry(domains_dir: Path) -> PoliciesRegistry:
-    """Return a fresh registry pointed at *domains_dir* instead of the real domains/."""
+def make_registry(modules_dir: Path) -> PoliciesRegistry:
+    """Return a fresh registry pointed at *modules_dir* instead of the real modules/."""
     reg = PoliciesRegistry()
-    reg._domains_dir = domains_dir
+    reg._modules_dir = modules_dir
     return reg
 
 
@@ -36,23 +36,23 @@ class OtherPolicy(BasePolicy):
         return False
 
 
-def test_load_returns_empty_when_domains_dir_missing():
-    """Missing domains/ directory must produce an empty dict, not an exception."""
+def test_load_returns_empty_when_modules_dir_missing():
+    """Missing modules/ directory must produce an empty dict, not an exception."""
     reg = PoliciesRegistry()
-    reg._domains_dir = Path("/nonexistent/path/domains")
-    assert reg._load_domain_policies() == {}
+    reg._modules_dir = Path("/nonexistent/path/modules")
+    assert reg._load_module_policies() == {}
 
 
 def test_load_returns_empty_when_domain_has_no_policy_file(tmp_path):
     """Domains without a policy.py file are silently skipped."""
     (tmp_path / "games").mkdir()
-    assert make_registry(tmp_path)._load_domain_policies() == {}
+    assert make_registry(tmp_path)._load_module_policies() == {}
 
 
-def test_load_skips_files_at_domains_root(tmp_path):
-    """Regular files (e.g. __init__.py) at the domains/ root are not iterated."""
+def test_load_skips_files_at_modules_root(tmp_path):
+    """Regular files (e.g. __init__.py) at the modules/ root are not iterated."""
     (tmp_path / "__init__.py").write_text("")
-    assert make_registry(tmp_path)._load_domain_policies() == {}
+    assert make_registry(tmp_path)._load_module_policies() == {}
 
 
 def test_load_discovers_valid_policy(tmp_path):
@@ -61,9 +61,9 @@ def test_load_discovers_valid_policy(tmp_path):
     domain.mkdir()
     (domain / "policy.py").touch()
 
-    mod = fake_policy_module("domains.sample.policy", SamplePolicy)
+    mod = fake_policy_module("modules.sample.policy", SamplePolicy)
     with patch("importlib.import_module", return_value=mod):
-        result = make_registry(tmp_path)._load_domain_policies()
+        result = make_registry(tmp_path)._load_module_policies()
 
     assert "Sample" in result
     assert result["Sample"] is SamplePolicy
@@ -75,11 +75,11 @@ def test_load_excludes_base_policy_itself(tmp_path):
     domain.mkdir()
     (domain / "policy.py").touch()
 
-    mod = types.ModuleType("domains.games.policy")
+    mod = types.ModuleType("modules.games.policy")
     mod.BasePolicy = BasePolicy
 
     with patch("importlib.import_module", return_value=mod):
-        result = make_registry(tmp_path)._load_domain_policies()
+        result = make_registry(tmp_path)._load_module_policies()
 
     assert "Base" not in result
     assert result == {}
@@ -91,11 +91,11 @@ def test_load_skips_non_class_attribute_ending_in_policy(tmp_path):
     domain.mkdir()
     (domain / "policy.py").touch()
 
-    mod = types.ModuleType("domains.games.policy")
+    mod = types.ModuleType("modules.games.policy")
     mod.GamePolicy = "not-a-class"
 
     with patch("importlib.import_module", return_value=mod):
-        result = make_registry(tmp_path)._load_domain_policies()
+        result = make_registry(tmp_path)._load_module_policies()
 
     assert result == {}
 
@@ -109,7 +109,7 @@ def test_load_broken_import_logs_warning_and_continues(tmp_path, caplog, monkeyp
 
     with patch("importlib.import_module", side_effect=ImportError("oops")):
         with caplog.at_level(logging.WARNING):
-            result = make_registry(tmp_path)._load_domain_policies()
+            result = make_registry(tmp_path)._load_module_policies()
 
     assert result == {}
     assert any("broken" in record.message for record in caplog.records)
@@ -134,7 +134,7 @@ def test_load_warns_on_key_collision(tmp_path, caplog, monkeypatch):
 
     with patch("importlib.import_module", side_effect=fake_import):
         with caplog.at_level(logging.WARNING):
-            result = make_registry(tmp_path)._load_domain_policies()
+            result = make_registry(tmp_path)._load_module_policies()
 
     assert "Sample" in result
     assert any("Sample" in record.message for record in caplog.records)

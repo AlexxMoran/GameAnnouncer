@@ -1,49 +1,49 @@
 from fastapi import APIRouter, UploadFile, File, Depends, Query
 
 from exceptions import AppException
-from domains.users.model import User
+from modules.users.model import User
 from core.services.avatar_uploader import upload_avatar
 from core.schemas.base import PaginatedResponse, DataResponse
-from domains.registration.schemas import (
+from modules.registration.schemas import (
     RegistrationRequestFilter,
     RegistrationRequestResponse,
 )
-from domains.registration.search import RegistrationRequestSearch
-from domains.registration.form_schemas import (
+from modules.registration.search import RegistrationRequestSearch
+from modules.registration.form_schemas import (
     RegistrationFormCreate,
     RegistrationFormResponse,
 )
-from domains.registration.services.upsert_form import UpsertRegistrationFormService
+from modules.registration.services.upsert_form import UpsertRegistrationFormService
 from core.deps import SessionDep
 from core.users import current_user, current_user_or_none
 from core.permissions import authorize_action, get_permissions, get_batch_permissions
 
-from domains.announcements.model import Announcement
-from domains.announcements.queries import AnnouncementQueries
-from domains.announcements.repository import AnnouncementRepository
-from domains.announcements.search import AnnouncementSearch
-from domains.announcements.schemas import (
+from modules.announcements.model import Announcement
+from modules.announcements.queries import AnnouncementQueries
+from modules.announcements.repository import AnnouncementRepository
+from modules.announcements.search import AnnouncementSearch
+from modules.announcements.schemas import (
     AnnouncementCreate,
     AnnouncementResponse,
     AnnouncementUpdate,
     AnnouncementFilter,
 )
-from domains.participants.schemas import (
+from modules.participants.schemas import (
     AnnouncementParticipantResponse,
     AnnouncementParticipantScoreUpdate,
 )
-from domains.participants.services.update_score import update_participant_score
-from domains.announcements.services.create import CreateAnnouncementService
-from domains.announcements.services.lifecycle import AnnouncementLifecycleService
-from domains.announcements.services.finalize_qualification import (
+from modules.participants.services.update_score import update_participant_score
+from modules.announcements.services.create import CreateAnnouncementService
+from modules.announcements.services.lifecycle import AnnouncementLifecycleService
+from modules.announcements.services.finalize_qualification import (
     FinalizeQualificationService,
 )
-from domains.announcements.services.generate_bracket import GenerateBracketService
-from domains.announcements.utils.bracket import get_bracket
-from domains.matches.queries import MatchQueries
-from domains.matches.schemas import BracketResponse, MatchResponse
+from modules.announcements.services.generate_bracket import GenerateBracketService
+from modules.announcements.utils.bracket import get_bracket
+from modules.matches.queries import MatchQueries
+from modules.matches.schemas import BracketResponse, MatchResponse
 
-from domains.participants.queries import ParticipantQueries
+from modules.participants.queries import ParticipantQueries
 
 router = APIRouter(prefix="/announcements", tags=["announcements"])
 

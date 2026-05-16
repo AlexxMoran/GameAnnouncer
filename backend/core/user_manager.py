@@ -5,7 +5,7 @@ from core.config import get_settings
 
 from fastapi import Request
 from fastapi_users import BaseUserManager, IntegerIDMixin
-from domains.users.model import User
+from modules.users.model import User
 
 
 class UserManager(IntegerIDMixin, BaseUserManager[User, int]):

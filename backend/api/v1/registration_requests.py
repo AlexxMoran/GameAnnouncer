@@ -5,20 +5,20 @@ from fastapi import APIRouter, Depends
 from exceptions import AppException
 from core.schemas.base import DataResponse
 from core.deps import SessionDep
-from domains.users.model import User
+from modules.users.model import User
 from core.users import current_user
 
-from domains.announcements.queries import AnnouncementQueries
-from domains.registration.models import RegistrationRequest
-from domains.registration.queries import RegistrationRequestQueries
-from domains.registration.schemas import (
+from modules.announcements.queries import AnnouncementQueries
+from modules.registration.models import RegistrationRequest
+from modules.registration.queries import RegistrationRequestQueries
+from modules.registration.schemas import (
     RegistrationRequestCreate,
     RegistrationRequestResponse,
 )
-from domains.registration.services.create_request import (
+from modules.registration.services.create_request import (
     CreateRegistrationRequestService,
 )
-from domains.registration.services.lifecycle import RegistrationLifecycleService
+from modules.registration.services.lifecycle import RegistrationLifecycleService
 from core.permissions import authorize_action
 from enums.registration_trigger import RegistrationTrigger
 

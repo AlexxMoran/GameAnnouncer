@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends
 
 from core.schemas.base import PaginatedResponse
-from domains.users.model import User
+from modules.users.model import User
 from core.deps import SessionDep
 from core.users import current_user
 
-from domains.announcements.queries import AnnouncementQueries
-from domains.registration.search import RegistrationRequestSearch
-from domains.announcements.schemas import AnnouncementResponse
-from domains.registration.schemas import (
+from modules.announcements.queries import AnnouncementQueries
+from modules.registration.search import RegistrationRequestSearch
+from modules.announcements.schemas import AnnouncementResponse
+from modules.registration.schemas import (
     RegistrationRequestFilter,
     RegistrationRequestResponse,
 )

@@ -8,8 +8,8 @@ from tests.factories import (
     RegistrationRequestDictFactory,
     GameDictFactory,
 )
-from domains.users.model import User
-from domains.users.schemas import UserCreate
+from modules.users.model import User
+from modules.users.schemas import UserCreate
 from pydantic import ValidationError
 
 register(UserDictFactory, "user")
@@ -91,8 +91,8 @@ async def create_announcement(db_session):
     Uses AnnouncementDictFactory for defaults, allowing field overrides.
     Similar to Rails FactoryBot pattern.
     """
-    from domains.announcements.model import Announcement
-    from domains.games.model import Game
+    from modules.announcements.model import Announcement
+    from modules.games.model import Game
     from datetime import datetime
 
     async def _create(**overrides):
@@ -158,7 +158,7 @@ async def create_participant(db_session):
 
     Requires announcement_id and user_id. Other fields can be overridden.
     """
-    from domains.participants.model import AnnouncementParticipant
+    from modules.participants.model import AnnouncementParticipant
 
     async def _create(**overrides):
         if "announcement_id" not in overrides or "user_id" not in overrides:
@@ -181,7 +181,7 @@ async def create_match(db_session):
     Requires announcement_id, round_number, and match_number.
     Other fields can be overridden.
     """
-    from domains.matches.model import Match
+    from modules.matches.model import Match
     from enums import MatchStatus
 
     async def _create(**overrides):

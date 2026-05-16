@@ -2,8 +2,8 @@ import pytest
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, AsyncMock
 from tasks.announcement_tasks import update_announcement_statuses
-from domains.announcements.model import Announcement
-from domains.games.model import Game
+from modules.announcements.model import Announcement
+from modules.games.model import Game
 from enums import AnnouncementStatus, AnnouncementFormat, SeedMethod
 
 

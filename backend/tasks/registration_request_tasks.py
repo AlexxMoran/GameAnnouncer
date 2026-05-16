@@ -1,9 +1,9 @@
 from tasks.broker import broker
 from core.logger import logger
 from core.db.container import get_db
-from domains.registration.models import RegistrationRequest
-from domains.announcements.model import Announcement
-from domains.registration.services.lifecycle import RegistrationLifecycleService
+from modules.registration.models import RegistrationRequest
+from modules.announcements.model import Announcement
+from modules.registration.services.lifecycle import RegistrationLifecycleService
 from enums.registration_status import RegistrationStatus
 from sqlalchemy import select, and_
 from datetime import datetime, timezone

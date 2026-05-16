@@ -9,7 +9,7 @@ from core.deps import get_user_manager
 from core.users import current_user
 from jwt.exceptions import InvalidTokenError
 from core.auth import get_refresh_jwt_strategy, get_jwt_strategy
-from domains.users.schemas import UserResponse, UserCreate, UserUpdate
+from modules.users.schemas import UserResponse, UserCreate, UserUpdate
 from core.schemas.auth import (
     TokenResponse,
     ForgotPasswordRequest,
@@ -18,7 +18,7 @@ from core.schemas.auth import (
     ResetPasswordRequest,
 )
 from core.schemas.base import DataResponse
-from domains.users.model import User
+from modules.users.model import User
 from core.permissions import get_user_permissions
 
 http_bearer = HTTPBearer(auto_error=False)

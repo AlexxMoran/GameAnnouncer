@@ -14,13 +14,13 @@ from fastapi import status
 class PoliciesRegistry:
     """Manages policy discovery and caching.
 
-    Scans ``domains/*/policy.py`` files to discover all concrete policy classes.
+    Scans ``modules/*/policy.py`` files to discover all concrete policy classes.
     """
 
     def __init__(self):
         self._cache: dict[str, type] | None = None
         self._lock = threading.Lock()
-        self._domains_dir = Path(__file__).parent.parent.parent / "domains"
+        self._modules_dir = Path(__file__).parent.parent.parent / "modules"
 
     @staticmethod
     @lru_cache(maxsize=None)
@@ -57,21 +57,21 @@ class PoliciesRegistry:
             )
         return policy_class
 
-    def _load_domain_policies(self) -> dict[str, type]:
-        """Discover Policy classes from ``domains/<domain>/policy.py`` files."""
+    def _load_module_policies(self) -> dict[str, type]:
+        """Discover Policy classes from ``modules/<domain>/policy.py`` files."""
         policies: dict[str, type] = {}
 
-        if not self._domains_dir.exists():
+        if not self._modules_dir.exists():
             return policies
 
-        for domain_dir in sorted(self._domains_dir.iterdir()):
+        for domain_dir in sorted(self._modules_dir.iterdir()):
             if not domain_dir.is_dir():
                 continue
             policy_file = domain_dir / "policy.py"
             if not policy_file.exists():
                 continue
 
-            module_name = f"domains.{domain_dir.name}.policy"
+            module_name = f"modules.{domain_dir.name}.policy"
             try:
                 module = importlib.import_module(module_name)
                 for attr_name in dir(module):
@@ -92,12 +92,12 @@ class PoliciesRegistry:
                         )
                     policies[model_name] = policy_class
             except (ImportError, AttributeError) as e:
-                logger.warning("Failed to import domain policy %s: %s", module_name, e)
+                logger.warning("Failed to import module policy %s: %s", module_name, e)
 
         return policies
 
     def get_all_policies(self) -> dict[str, type]:
-        """Discover all policies from ``domains/*/policy.py``.
+        """Discover all policies from ``modules/*/policy.py``.
 
         Thread-safe with double-checked locking.
         """
@@ -108,7 +108,7 @@ class PoliciesRegistry:
             if self._cache is not None:
                 return self._cache
 
-            policies = self._load_domain_policies()
+            policies = self._load_module_policies()
 
             self._cache = policies
             logger.info(f"Discovered {len(policies)} policy classes")

@@ -4,13 +4,13 @@ from core.deps import SessionDep
 from core.permissions import authorize_action
 from core.schemas.base import DataResponse
 from core.users import current_user
-from domains.announcements.model import Announcement
-from domains.announcements.queries import AnnouncementQueries
-from domains.matches.model import Match
-from domains.matches.queries import MatchQueries
-from domains.matches.schemas import MatchResponse, MatchResultUpdate
-from domains.matches.services.match_progression import MatchProgressionService
-from domains.users.model import User
+from modules.announcements.model import Announcement
+from modules.announcements.queries import AnnouncementQueries
+from modules.matches.model import Match
+from modules.matches.queries import MatchQueries
+from modules.matches.schemas import MatchResponse, MatchResultUpdate
+from modules.matches.services.match_progression import MatchProgressionService
+from modules.users.model import User
 from exceptions import AppException
 
 router = APIRouter(prefix="/matches", tags=["matches"])

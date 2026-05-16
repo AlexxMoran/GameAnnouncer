@@ -16,7 +16,7 @@ SessionDep = Annotated[AsyncSession, Depends(_session_getter_dep)]
 
 
 async def get_user_db(session: SessionDep):
-    from domains.users.model import User
+    from modules.users.model import User
 
     yield User.get_db(session=session)
 

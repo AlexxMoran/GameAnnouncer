@@ -2,7 +2,7 @@ import pytest
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-from domains.games.policy import GamePolicy
+from modules.games.policy import GamePolicy
 
 
 def test_game_policy_can_view_is_public():
