@@ -1,6 +1,8 @@
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+from enums.registration_status import RegistrationStatus
+
 
 @pytest.mark.asyncio
 async def test_get_my_registration_requests_requires_auth(async_client):
@@ -44,4 +46,4 @@ async def test_get_my_registration_requests_uses_search_with_status_filter(
     search_cls.assert_called_once()
     called_kwargs = search_cls.call_args.kwargs
     assert called_kwargs["scope"].id == user.id
-    assert called_kwargs["filters"].status == "pending"
+    assert called_kwargs["filters"].status == RegistrationStatus.PENDING

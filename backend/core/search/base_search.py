@@ -1,5 +1,8 @@
-from sqlalchemy import String, select, func
+from enum import Enum as PyEnum
 from typing import Type
+
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import String, func, select
 
 
 class BaseSearch:
@@ -15,12 +18,20 @@ class BaseSearch:
 
         return self.apply_filters(query)
 
+    @staticmethod
+    def _normalize_filter_value(value: object) -> object:
+        if isinstance(value, PyEnum):
+            return value.value
+        return value
+
     def apply_filters(self, query):
         values = self.filters.model_dump(exclude_none=True)
 
         for field, value in values.items():
             if value is None:
                 continue
+
+            value = self._normalize_filter_value(value)
 
             handler = getattr(self, f"filter_by_{field}", None)
 
@@ -29,7 +40,9 @@ class BaseSearch:
             else:
                 column = getattr(self.model, field, None)
                 if column is not None:
-                    if isinstance(column.type, String):
+                    if isinstance(column.type, SQLEnum):
+                        query = query.where(column == value)
+                    elif isinstance(column.type, String):
                         query = query.where(column.ilike(f"%{value}%"))
                     else:
                         query = query.where(column == value)

@@ -225,7 +225,7 @@ async def update_game(game_id: int, user: User, session: AsyncSession):
 | Layer | Responsibility |
 |---|---|
 | `api/**` routes | Call `authorize_action(user, resource, "action")` **before** delegating to a service |
-| `domains/**/services/` | Business logic only — no imports from `core.permissions`, no `user` argument for auth purposes |
+| `modules/**/services/` | Business logic only — no imports from `core.permissions`, no `user` argument for auth purposes |
 | `tasks/` | System entrypoints — no user context, no `authorize_action` |
 
 **Correct pattern in endpoints:**
@@ -242,7 +242,7 @@ async def patch_participant_score(
 
 **Service files must NOT contain:**
 ```python
-# NEVER in domains/**/services/*.py
+# NEVER in modules/**/services/*.py
 from core.permissions import authorize_action
 authorize_action(user, resource, "action")
 ```
