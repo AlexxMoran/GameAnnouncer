@@ -1,6 +1,7 @@
 FROM python:3.13-slim
 
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONBREAKPOINT=pdb.set_trace
 
 WORKDIR /backend
 
@@ -38,4 +39,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 EXPOSE 3000
 
-CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000", "--reload"]

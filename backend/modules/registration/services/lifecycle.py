@@ -15,6 +15,10 @@ FORM_CHANGED_REASON = (
     "Registration form has been updated by the organizer. "
     "Please submit a new registration request with the updated form."
 )
+TOURNAMENT_UPDATED_REASON = (
+    "Tournament conditions have been updated by the organizer. "
+    "Please submit a new registration request to participate."
+)
 
 
 class RegistrationLifecycleService:
@@ -139,9 +143,10 @@ class RegistrationLifecycleService:
         requests: list[RegistrationRequest],
         announcement: Announcement,
         session: AsyncSession,
+        reason: str = FORM_CHANGED_REASON,
     ) -> None:
         """
-        Reject multiple active requests due to form change with bulk participant removal.
+        Reject multiple active requests with bulk participant removal.
 
         Deletes all affected participants in a single query, then transitions
         each request via the state machine individually.
@@ -164,7 +169,7 @@ class RegistrationLifecycleService:
             sm = RegistrationStateMachine(req)
             new_status = await sm.fire(RegistrationTrigger.SYSTEM_REJECT)
             req.status = new_status
-            req.cancellation_reason = FORM_CHANGED_REASON
+            req.cancellation_reason = reason
 
     async def _remove_participant(self) -> None:
         """Delete the participant record for this request's announcement and user."""

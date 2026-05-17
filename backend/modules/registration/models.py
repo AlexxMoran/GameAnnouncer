@@ -28,7 +28,11 @@ class RegistrationForm(Base):
         uselist=False,
     )
     fields: Mapped[list["FormField"]] = relationship(
-        "FormField", back_populates="form", passive_deletes=True, lazy="selectin"
+        "FormField",
+        back_populates="form",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
+        lazy="selectin",
     )
 
 
@@ -66,7 +70,10 @@ class FormField(Base):
         "RegistrationForm", back_populates="fields", passive_deletes=True
     )
     responses: Mapped[list["FormFieldResponse"]] = relationship(
-        "FormFieldResponse", back_populates="form_field", passive_deletes=True
+        "FormFieldResponse",
+        back_populates="form_field",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 
@@ -127,6 +134,7 @@ class RegistrationRequest(Base):
     form_responses: Mapped[list["FormFieldResponse"]] = relationship(
         "FormFieldResponse",
         back_populates="registration_request",
+        cascade="all, delete-orphan",
         passive_deletes=True,
         lazy="selectin",
     )

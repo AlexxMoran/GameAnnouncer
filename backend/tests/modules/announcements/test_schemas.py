@@ -28,8 +28,14 @@ def test_announcement_create_and_update_models():
         format=AnnouncementFormat.SINGLE_ELIMINATION,
     )
     assert create.title == "T"
-    upd = AnnouncementUpdate(title="New", max_participants=20)
+    upd = AnnouncementUpdate(
+        title="New",
+        max_participants=20,
+        has_qualification=True,
+    )
     assert upd.title == "New"
+    assert upd.max_participants == 20
+    assert upd.has_qualification is True
 
 
 def test_announcement_response_includes_permissions_and_timestamps():

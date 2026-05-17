@@ -2,19 +2,12 @@ import pytest
 from datetime import datetime, timedelta
 from sqlalchemy import select
 
+from enums import AnnouncementFormat, FormFieldType, SeedMethod
 from modules.announcements.model import Announcement
 from modules.games.model import Game
-from modules.participants.model import AnnouncementParticipant
-from modules.participants.repository import ParticipantRepository
-from modules.registration.models import RegistrationRequest, RegistrationForm, FormField
-from modules.registration.form_schemas import (
-    RegistrationFormCreate,
-    FormFieldCreate,
-)
+from modules.registration.form_schemas import FormFieldCreate, RegistrationFormCreate
+from modules.registration.models import FormField, RegistrationForm
 from modules.registration.services.upsert_form import UpsertRegistrationFormService
-from enums import AnnouncementStatus, FormFieldType, AnnouncementFormat, SeedMethod
-from enums.registration_status import RegistrationStatus
-from exceptions import ValidationException
 
 
 def _make_announcement(game_id: int, organizer_id: int) -> Announcement:
@@ -34,199 +27,192 @@ def _make_announcement(game_id: int, organizer_id: int) -> Announcement:
     )
 
 
-@pytest.mark.asyncio
-async def test_create_new_registration_form(db_session, create_user):
-    """Creates a new form when none exists."""
-    user = await create_user(email="organizer@example.com")
-    game = Game(name="UpsertForm Game", category="RTS", description="Test")
+async def _create_announcement(db_session, create_user, email: str) -> Announcement:
+    user = await create_user(email=email)
+    game = Game(name=email, category="RTS", description="Test")
     db_session.add(game)
     await db_session.commit()
     await db_session.refresh(game)
 
-    ann = _make_announcement(game.id, user.id)
-    db_session.add(ann)
+    announcement = _make_announcement(game.id, user.id)
+    db_session.add(announcement)
     await db_session.commit()
-    await db_session.refresh(ann)
+    await db_session.refresh(announcement)
+    return announcement
+
+
+@pytest.mark.asyncio
+async def test_create_new_registration_form(db_session, create_user):
+    announcement = await _create_announcement(
+        db_session, create_user, "organizer@example.com"
+    )
 
     form_in = RegistrationFormCreate(
         fields=[
             FormFieldCreate(
-                label="Discord Username", field_type=FormFieldType.TEXT, required=True
+                label="Discord Username",
+                field_type=FormFieldType.TEXT,
+                required=True,
+            ),
+            FormFieldCreate(
+                label="Rank",
+                field_type=FormFieldType.SELECT,
+                required=False,
+                options=["Bronze", "Silver", "Gold"],
+            ),
+        ]
+    )
+    result = await UpsertRegistrationFormService(
+        session=db_session,
+        announcement=announcement,
+        registration_form_in=form_in,
+    ).call()
+
+    assert result.id is not None
+    assert result.announcement_id == announcement.id
+    assert announcement.registration_form is result
+    assert len(result.fields) == 2
+    assert result.fields[0].label == "Discord Username"
+    assert result.fields[0].required is True
+    assert result.fields[1].label == "Rank"
+    assert result.fields[1].options == ["Bronze", "Silver", "Gold"]
+
+
+@pytest.mark.asyncio
+async def test_replace_existing_registration_form(db_session, create_user):
+    announcement = await _create_announcement(
+        db_session, create_user, "organizer2@example.com"
+    )
+
+    existing_form = RegistrationForm(announcement_id=announcement.id)
+    db_session.add(existing_form)
+    await db_session.flush()
+    db_session.add(
+        FormField(
+            form_id=existing_form.id,
+            label="Old Field",
+            field_type=FormFieldType.TEXT,
+            required=True,
+        )
+    )
+    await db_session.commit()
+
+    form_in = RegistrationFormCreate(
+        fields=[
+            FormFieldCreate(
+                label="New Field",
+                field_type=FormFieldType.TEXT,
+                required=False,
             )
         ]
     )
-    service = UpsertRegistrationFormService(
-        session=db_session, announcement=ann, registration_form_in=form_in
-    )
-    result = await service.call()
+    result = await UpsertRegistrationFormService(
+        session=db_session,
+        announcement=announcement,
+        registration_form_in=form_in,
+    ).call()
 
-    assert result.id is not None
-    assert result.announcement_id == ann.id
-
-    fields_result = await db_session.execute(
-        select(FormField).where(FormField.form_id == result.id)
+    forms_result = await db_session.execute(
+        select(RegistrationForm).where(
+            RegistrationForm.announcement_id == announcement.id
+        )
     )
+    forms = list(forms_result.scalars().all())
+    assert len(forms) == 1
+    assert forms[0].id == result.id
+    assert len(result.fields) == 1
+    assert result.fields[0].label == "New Field"
+
+    fields_result = await db_session.execute(select(FormField))
     fields = list(fields_result.scalars().all())
     assert len(fields) == 1
-    assert fields[0].label == "Discord Username"
+    assert fields[0].label == "New Field"
 
 
 @pytest.mark.asyncio
-async def test_replace_existing_form_rejects_active_requests(db_session, create_user):
-    """Replacing an existing form rejects all active registration requests."""
-    organizer = await create_user(email="organizer2@example.com")
-    applicant = await create_user(email="applicant@example.com")
-    game = Game(name="UpsertForm Game 2", category="RTS", description="Test")
-    db_session.add(game)
-    await db_session.commit()
-    await db_session.refresh(game)
+async def test_empty_fields_treated_as_no_form(db_session, create_user):
+    announcement = await _create_announcement(
+        db_session, create_user, "organizer3@example.com"
+    )
 
-    ann = _make_announcement(game.id, organizer.id)
-    db_session.add(ann)
-    await db_session.commit()
-    await db_session.refresh(ann)
+    result = await UpsertRegistrationFormService(
+        session=db_session,
+        announcement=announcement,
+        registration_form_in=RegistrationFormCreate(fields=[]),
+    ).call()
 
-    existing_form = RegistrationForm(announcement_id=ann.id)
+    assert result is None
+    assert announcement.registration_form is None
+
+
+@pytest.mark.asyncio
+async def test_delete_existing_registration_form(db_session, create_user):
+    announcement = await _create_announcement(
+        db_session, create_user, "organizer4@example.com"
+    )
+
+    existing_form = RegistrationForm(announcement_id=announcement.id)
     db_session.add(existing_form)
+    await db_session.flush()
+    db_session.add(
+        FormField(
+            form_id=existing_form.id,
+            label="Old Field",
+            field_type=FormFieldType.TEXT,
+            required=True,
+        )
+    )
     await db_session.commit()
 
-    rr = RegistrationRequest(
-        announcement_id=ann.id,
-        user_id=applicant.id,
-        status=RegistrationStatus.PENDING,
-    )
-    db_session.add(rr)
-    await db_session.commit()
-    await db_session.refresh(rr)
+    result = await UpsertRegistrationFormService(
+        session=db_session,
+        announcement=announcement,
+        registration_form_in=None,
+    ).call()
 
-    new_form_in = RegistrationFormCreate(
-        fields=[
-            FormFieldCreate(
-                label="New Field", field_type=FormFieldType.TEXT, required=False
-            )
-        ]
+    forms_result = await db_session.execute(
+        select(RegistrationForm).where(
+            RegistrationForm.announcement_id == announcement.id
+        )
     )
-    service = UpsertRegistrationFormService(
-        session=db_session, announcement=ann, registration_form_in=new_form_in
-    )
-    await service.call()
-
-    await db_session.refresh(rr)
-    assert rr.status == RegistrationStatus.REJECTED
-    assert rr.cancellation_reason is not None
+    assert result is None
+    assert forms_result.scalar_one_or_none() is None
+    assert announcement.registration_form is None
 
 
 @pytest.mark.asyncio
-async def test_form_update_removes_participants_for_approved(db_session, create_user):
-    """Form update removes participants for previously approved users."""
-    organizer = await create_user(email="organizer3@example.com")
-    applicant = await create_user(email="applicant3@example.com")
-    game = Game(name="UpsertForm Game 3", category="RTS", description="Test")
-    db_session.add(game)
-    await db_session.commit()
-    await db_session.refresh(game)
+async def test_replace_with_empty_fields_removes_form(db_session, create_user):
+    announcement = await _create_announcement(
+        db_session, create_user, "organizer5@example.com"
+    )
 
-    ann = _make_announcement(game.id, organizer.id)
-    db_session.add(ann)
-    await db_session.commit()
-    await db_session.refresh(ann)
-
-    existing_form = RegistrationForm(announcement_id=ann.id)
+    existing_form = RegistrationForm(announcement_id=announcement.id)
     db_session.add(existing_form)
+    await db_session.flush()
+    db_session.add(
+        FormField(
+            form_id=existing_form.id,
+            label="Old Field",
+            field_type=FormFieldType.TEXT,
+            required=True,
+        )
+    )
     await db_session.commit()
 
-    rr = RegistrationRequest(
-        announcement_id=ann.id,
-        user_id=applicant.id,
-        status=RegistrationStatus.APPROVED,
+    result = await UpsertRegistrationFormService(
+        session=db_session,
+        announcement=announcement,
+        registration_form_in=RegistrationFormCreate(fields=[]),
+    ).call()
+
+    forms_result = await db_session.execute(
+        select(RegistrationForm).where(
+            RegistrationForm.announcement_id == announcement.id
+        )
     )
-    db_session.add(rr)
+    fields_result = await db_session.execute(select(FormField))
 
-    participant = AnnouncementParticipant(
-        announcement_id=ann.id,
-        user_id=applicant.id,
-        is_qualified=False,
-    )
-    db_session.add(participant)
-    await db_session.commit()
-
-    repo = ParticipantRepository(db_session)
-    assert await repo.find_by_announcement_and_user(ann.id, applicant.id) is not None
-
-    new_form_in = RegistrationFormCreate(
-        fields=[
-            FormFieldCreate(
-                label="Updated Field", field_type=FormFieldType.TEXT, required=False
-            )
-        ]
-    )
-    service = UpsertRegistrationFormService(
-        session=db_session, announcement=ann, registration_form_in=new_form_in
-    )
-    await service.call()
-
-    await db_session.refresh(rr)
-    assert rr.status == RegistrationStatus.REJECTED
-    assert await repo.find_by_announcement_and_user(ann.id, applicant.id) is None
-
-
-@pytest.mark.asyncio
-async def test_form_update_blocked_for_live_announcement(db_session, create_user):
-    """Form update raises ValidationException when announcement is LIVE."""
-    organizer = await create_user(email="organizer4@example.com")
-    game = Game(name="UpsertForm Game 4", category="RTS", description="Test")
-    db_session.add(game)
-    await db_session.commit()
-    await db_session.refresh(game)
-
-    ann = _make_announcement(game.id, organizer.id)
-    ann.status = AnnouncementStatus.LIVE
-    db_session.add(ann)
-    await db_session.commit()
-    await db_session.refresh(ann)
-
-    form_in = RegistrationFormCreate(
-        fields=[
-            FormFieldCreate(
-                label="Some Field", field_type=FormFieldType.TEXT, required=False
-            )
-        ]
-    )
-    service = UpsertRegistrationFormService(
-        session=db_session, announcement=ann, registration_form_in=form_in
-    )
-
-    with pytest.raises(ValidationException) as exc_info:
-        await service.call()
-
-    assert "PRE_REGISTRATION or REGISTRATION_OPEN" in str(exc_info.value)
-
-
-@pytest.mark.asyncio
-async def test_form_update_allowed_for_pre_registration(db_session, create_user):
-    """Form update is allowed when announcement is in PRE_REGISTRATION."""
-    organizer = await create_user(email="organizer5@example.com")
-    game = Game(name="UpsertForm Game 5", category="RTS", description="Test")
-    db_session.add(game)
-    await db_session.commit()
-    await db_session.refresh(game)
-
-    ann = _make_announcement(game.id, organizer.id)
-    ann.status = AnnouncementStatus.PRE_REGISTRATION
-    db_session.add(ann)
-    await db_session.commit()
-    await db_session.refresh(ann)
-
-    form_in = RegistrationFormCreate(
-        fields=[
-            FormFieldCreate(
-                label="Discord", field_type=FormFieldType.TEXT, required=True
-            )
-        ]
-    )
-    service = UpsertRegistrationFormService(
-        session=db_session, announcement=ann, registration_form_in=form_in
-    )
-    result = await service.call()
-
-    assert result.id is not None
+    assert result is None
+    assert forms_result.scalar_one_or_none() is None
+    assert announcement.registration_form is None
+    assert list(fields_result.scalars().all()) == []

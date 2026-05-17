@@ -9,11 +9,6 @@ from modules.registration.schemas import (
     RegistrationRequestResponse,
 )
 from modules.registration.search import RegistrationRequestSearch
-from modules.registration.form_schemas import (
-    RegistrationFormCreate,
-    RegistrationFormResponse,
-)
-from modules.registration.services.upsert_form import UpsertRegistrationFormService
 from core.deps import SessionDep
 from core.users import current_user, current_user_or_none
 from core.permissions import authorize_action, get_permissions, get_batch_permissions
@@ -34,6 +29,7 @@ from modules.participants.schemas import (
 )
 from modules.participants.services.update_score import update_participant_score
 from modules.announcements.services.create import CreateAnnouncementService
+from modules.announcements.services.update import UpdateAnnouncementService
 from modules.announcements.services.lifecycle import AnnouncementLifecycleService
 from modules.announcements.services.finalize_qualification import (
     FinalizeQualificationService,
@@ -195,10 +191,13 @@ async def update_announcement(
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
     authorize_action(user, announcement, "edit")
-    repo = AnnouncementRepository(session)
-    announcement = await repo.update(
-        announcement, announcement_in.model_dump(exclude_unset=True)
+
+    service = UpdateAnnouncementService(
+        session=session,
+        announcement=announcement,
+        announcement_in=announcement_in,
     )
+    announcement = await service.call()
     await session.commit()
     return DataResponse(data=announcement)
 
@@ -310,28 +309,6 @@ async def cancel_announcement(
     announcement = await service.cancel()
     await session.commit()
     return DataResponse(data=announcement)
-
-
-@router.put(
-    "/{announcement_id}/registration_form",
-    response_model=DataResponse[RegistrationFormResponse],
-)
-async def upsert_registration_form(
-    session: SessionDep,
-    registration_form_in: RegistrationFormCreate,
-    announcement: Announcement = Depends(get_announcement_dependency),
-    user: User = Depends(current_user),
-) -> DataResponse[RegistrationFormResponse]:
-    authorize_action(user, announcement, "edit")
-    service = UpsertRegistrationFormService(
-        session=session,
-        announcement=announcement,
-        registration_form_in=registration_form_in,
-    )
-    registration_form = await service.call()
-    await session.commit()
-    await session.refresh(registration_form)
-    return DataResponse(data=registration_form)
 
 
 @router.post(

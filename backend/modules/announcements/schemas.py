@@ -61,6 +61,12 @@ class AnnouncementUpdate(BaseModel):
     max_participants: int | None = Field(
         None, gt=0, description="The maximum number of participants allowed"
     )
+    has_qualification: bool | None = Field(
+        None, description="Whether this announcement has a qualification stage"
+    )
+    registration_form: RegistrationFormCreate | None = Field(
+        None, description="Optional replacement registration form for this announcement"
+    )
 
 
 class AnnouncementAvatarUpdate(BaseModel):

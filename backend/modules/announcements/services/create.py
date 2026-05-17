@@ -6,6 +6,7 @@ from sqlalchemy.orm import selectinload
 
 from modules.announcements.model import Announcement
 from modules.announcements.schemas import AnnouncementCreate
+from modules.announcements.validators import AnnouncementValidator
 from modules.users.model import User
 from modules.registration.models import RegistrationForm
 from modules.registration.models import FormField
@@ -84,6 +85,7 @@ class CreateAnnouncementService:
         announcement_data = self.announcement_in.model_dump(
             exclude={"registration_form"}
         )
+        AnnouncementValidator().validate_create(announcement_data)
         announcement = Announcement(**announcement_data)
         self._prepare_announcement(announcement)
 

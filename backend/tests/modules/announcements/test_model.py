@@ -2,7 +2,6 @@ import pytest
 from datetime import datetime, timedelta
 from modules.announcements.model import Announcement
 from modules.games.model import Game
-from exceptions import ValidationException
 from enums import AnnouncementFormat, SeedMethod
 
 
@@ -84,93 +83,6 @@ async def test_start_equals_registration_end(db_session, create_user):
     await db_session.commit()
 
     assert ann.id is not None
-
-
-@pytest.mark.asyncio
-async def test_invalid_start_before_registration_end(db_session, create_user):
-    user = await create_user(email="invalid1@example.com", password="x")
-    game = Game(name="Invalid1", category="RTS", description="d")
-    db_session.add(game)
-    await db_session.commit()
-    await db_session.refresh(game)
-
-    now = datetime.now()
-    with pytest.raises(ValidationException) as exc_info:
-        Announcement(
-            title="Invalid",
-            content="c",
-            game_id=game.id,
-            organizer_id=user.id,
-            registration_start_at=now,
-            registration_end_at=now + timedelta(days=30),
-            start_at=now + timedelta(days=29),
-            max_participants=10,
-            format=AnnouncementFormat.SINGLE_ELIMINATION,
-            has_qualification=False,
-            seed_method=SeedMethod.RANDOM,
-        )
-
-    assert "start_at must be after or equal to registration_end_at" in str(
-        exc_info.value
-    )
-
-
-@pytest.mark.asyncio
-async def test_invalid_registration_start_equals_end(db_session, create_user):
-    user = await create_user(email="invalid2@example.com", password="x")
-    game = Game(name="Invalid2", category="RTS", description="d")
-    db_session.add(game)
-    await db_session.commit()
-    await db_session.refresh(game)
-
-    now = datetime.now()
-    with pytest.raises(ValidationException) as exc_info:
-        Announcement(
-            title="Invalid",
-            content="c",
-            game_id=game.id,
-            organizer_id=user.id,
-            registration_start_at=now,
-            registration_end_at=now,
-            start_at=now + timedelta(days=1),
-            max_participants=10,
-            format=AnnouncementFormat.SINGLE_ELIMINATION,
-            has_qualification=False,
-            seed_method=SeedMethod.RANDOM,
-        )
-
-    assert "registration_start_at must be before registration_end_at" in str(
-        exc_info.value
-    )
-
-
-@pytest.mark.asyncio
-async def test_invalid_registration_start_after_end(db_session, create_user):
-    user = await create_user(email="invalid3@example.com", password="x")
-    game = Game(name="Invalid3", category="RTS", description="d")
-    db_session.add(game)
-    await db_session.commit()
-    await db_session.refresh(game)
-
-    now = datetime.now()
-    with pytest.raises(ValidationException) as exc_info:
-        Announcement(
-            title="Invalid",
-            content="c",
-            game_id=game.id,
-            organizer_id=user.id,
-            registration_start_at=now + timedelta(days=30),
-            registration_end_at=now + timedelta(days=29),
-            start_at=now + timedelta(days=31),
-            max_participants=10,
-            format=AnnouncementFormat.SINGLE_ELIMINATION,
-            has_qualification=False,
-            seed_method=SeedMethod.RANDOM,
-        )
-
-    assert "registration_start_at must be before registration_end_at" in str(
-        exc_info.value
-    )
 
 
 @pytest.mark.asyncio

@@ -195,3 +195,36 @@ async def test_create_announcement_seed_method_from_qualification(
 
     assert result.has_qualification is True
     assert result.seed_method == SeedMethod.QUALIFICATION_SCORE
+
+
+@pytest.mark.asyncio
+async def test_create_announcement_validates_date_order(db_session, create_user):
+    """Validator rejects invalid date combinations on create."""
+    user = await create_user(email="invalid-dates@example.com")
+    game = Game(name="Test Game Val", category="RTS", description="Test")
+    db_session.add(game)
+    await db_session.commit()
+    await db_session.refresh(game)
+
+    from exceptions import ValidationException
+
+    now = datetime.now(timezone.utc)
+    announcement_in = AnnouncementCreate(
+        title="Bad Dates",
+        content="c",
+        game_id=game.id,
+        registration_start_at=now + timedelta(days=2),
+        registration_end_at=now + timedelta(days=1),
+        start_at=now + timedelta(days=3),
+        max_participants=10,
+        format=AnnouncementFormat.SINGLE_ELIMINATION,
+        has_qualification=False,
+    )
+
+    with pytest.raises(
+        ValidationException,
+        match="registration_start_at must be before registration_end_at",
+    ):
+        await CreateAnnouncementService(
+            session=db_session, announcement_in=announcement_in, user=user
+        ).call()

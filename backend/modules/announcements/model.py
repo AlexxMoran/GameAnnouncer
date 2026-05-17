@@ -4,10 +4,9 @@ from typing import TYPE_CHECKING
 from datetime import datetime, timezone
 
 from core.db.base import Base
-from sqlalchemy.orm import mapped_column, Mapped, relationship, validates
+from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy import ForeignKey, String, Text, DateTime, Enum
 from sqlalchemy.ext.associationproxy import association_proxy, AssociationProxy
-from exceptions import ValidationException
 from enums import AnnouncementStatus, AnnouncementFormat, SeedMethod
 
 if TYPE_CHECKING:
@@ -86,6 +85,7 @@ class Announcement(Base):
     registration_form: Mapped["RegistrationForm"] = relationship(
         "RegistrationForm",
         back_populates="announcement",
+        cascade="all, delete-orphan",
         passive_deletes=True,
         uselist=False,
         lazy="selectin",
@@ -96,32 +96,6 @@ class Announcement(Base):
         back_populates="announcement",
         passive_deletes=True,
     )
-
-    @validates("start_at", "registration_start_at", "registration_end_at")
-    def validate_datetimes(self, key: str, value: datetime) -> datetime:
-        """Validate announcement dates are in correct order."""
-        reg_start = getattr(self, "registration_start_at", None)
-        reg_end = getattr(self, "registration_end_at", None)
-        start = getattr(self, "start_at", None)
-
-        if key == "registration_start_at":
-            reg_start = value
-        elif key == "registration_end_at":
-            reg_end = value
-        elif key == "start_at":
-            start = value
-
-        if reg_start and reg_end and reg_start >= reg_end:
-            raise ValidationException(
-                "registration_start_at must be before registration_end_at"
-            )
-
-        if reg_end and start and start < reg_end:
-            raise ValidationException(
-                "start_at must be after or equal to registration_end_at"
-            )
-
-        return value
 
     @property
     def is_registration_open(self) -> bool:
