@@ -117,7 +117,11 @@ def _find_cache_attrs(cls: ast.ClassDef) -> set[str]:
     These are the gateway's cached-entity slots that load() is expected to fill.
     """
     init = next(
-        (n for n in cls.body if isinstance(n, ast.FunctionDef) and n.name == "__init__"),
+        (
+            n
+            for n in cls.body
+            if isinstance(n, ast.FunctionDef) and n.name == "__init__"
+        ),
         None,
     )
     if init is None:

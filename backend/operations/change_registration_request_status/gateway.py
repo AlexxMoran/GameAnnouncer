@@ -45,7 +45,9 @@ class ChangeRegistrationRequestStatusGateway:
         self,
         decision: ChangeRegistrationRequestStatusDecision,
     ) -> RegistrationRequest:
-        assert self._registration_request is not None, "load() must be called before apply()"
+        assert (
+            self._registration_request is not None
+        ), "load() must be called before apply()"
         registration_request = self._registration_request
 
         if decision.check_capacity:

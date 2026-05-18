@@ -59,9 +59,9 @@ class SubmitMatchResultGateway:
         )
 
     async def apply(self, decision: SubmitMatchResultDecision) -> Match:
-        assert self._match is not None and self._announcement is not None, (
-            "load() must be called before apply()"
-        )
+        assert (
+            self._match is not None and self._announcement is not None
+        ), "load() must be called before apply()"
         match = self._match
         announcement = self._announcement
 
