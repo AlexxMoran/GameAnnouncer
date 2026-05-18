@@ -21,6 +21,7 @@ class ChangeRegistrationRequestStatusGateway:
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
         self._participant_repo = ParticipantRepository(session)
+        self._registration_request: RegistrationRequest | None = None
 
     async def load(
         self,
@@ -29,6 +30,7 @@ class ChangeRegistrationRequestStatusGateway:
         registration_request = await self._load_registration_request(
             contract.registration_request_id
         )
+        self._registration_request = registration_request
         announcement = registration_request.announcement
 
         return ChangeRegistrationRequestStatusSnapshot(
@@ -43,9 +45,8 @@ class ChangeRegistrationRequestStatusGateway:
         self,
         decision: ChangeRegistrationRequestStatusDecision,
     ) -> RegistrationRequest:
-        registration_request = await self._load_registration_request(
-            decision.registration_request_id
-        )
+        assert self._registration_request is not None, "load() must be called before apply()"
+        registration_request = self._registration_request
 
         if decision.check_capacity:
             locked = await AnnouncementRepository(self._session).find_by_id_for_update(

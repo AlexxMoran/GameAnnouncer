@@ -23,12 +23,14 @@ class UpdateAnnouncementGateway:
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+        self._announcement: Announcement | None = None
 
     async def load(
         self,
         contract: UpdateAnnouncementContract,
     ) -> UpdateAnnouncementSnapshot:
         announcement = await self._load_announcement(contract.announcement_id)
+        self._announcement = announcement
 
         return UpdateAnnouncementSnapshot(
             announcement_id=announcement.id,
@@ -45,7 +47,8 @@ class UpdateAnnouncementGateway:
         )
 
     async def apply(self, decision: UpdateAnnouncementDecision) -> Announcement:
-        announcement = await self._load_announcement(decision.announcement_id)
+        assert self._announcement is not None, "load() must be called before apply()"
+        announcement = self._announcement
 
         announcement_data = {
             **decision.announcement_data,

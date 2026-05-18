@@ -22,12 +22,16 @@ class SubmitMatchResultGateway:
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+        self._match: Match | None = None
+        self._announcement: Announcement | None = None
 
     async def load(
         self, contract: SubmitMatchResultContract
     ) -> SubmitMatchResultSnapshot:
         match = await self._load_match(contract.match_id)
         announcement = await self._load_announcement(match.announcement_id)
+        self._match = match
+        self._announcement = announcement
         next_match = (
             await self._load_match(match.next_match_winner_id)
             if match.next_match_winner_id is not None
@@ -55,8 +59,11 @@ class SubmitMatchResultGateway:
         )
 
     async def apply(self, decision: SubmitMatchResultDecision) -> Match:
-        match = await self._load_match(decision.match_id)
-        announcement = await self._load_announcement(match.announcement_id)
+        assert self._match is not None and self._announcement is not None, (
+            "load() must be called before apply()"
+        )
+        match = self._match
+        announcement = self._announcement
 
         match.winner_id = decision.winner_id
         match.status = MatchStatus.COMPLETED
