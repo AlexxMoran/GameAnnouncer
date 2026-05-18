@@ -4,11 +4,21 @@ from sqlalchemy import select
 
 from modules.announcements.model import Announcement
 from modules.announcements.schemas import AnnouncementCreate
-from modules.announcements.services.create import CreateAnnouncementService
+from operations.create_announcement.contract import CreateAnnouncementContract
+from operations.create_announcement.scenario import CreateAnnouncementScenario
 from modules.registration.models import RegistrationForm, FormField
 from modules.registration.form_schemas import RegistrationFormCreate, FormFieldCreate
 from modules.games.model import Game
 from enums import AnnouncementStatus, FormFieldType, AnnouncementFormat, SeedMethod
+
+
+async def _create_announcement(db_session, announcement_in, user):
+    return await CreateAnnouncementScenario(db_session).run(
+        CreateAnnouncementContract(
+            announcement_in=announcement_in,
+            organizer_id=user.id,
+        )
+    )
 
 
 @pytest.mark.asyncio
@@ -33,10 +43,7 @@ async def test_create_announcement_without_form(db_session, create_user):
         has_qualification=False,
     )
 
-    service = CreateAnnouncementService(
-        session=db_session, announcement_in=announcement_in, user=user
-    )
-    result = await service.call()
+    result = await _create_announcement(db_session, announcement_in, user)
 
     assert isinstance(result, Announcement)
     assert result.title == "Test Tournament"
@@ -85,10 +92,7 @@ async def test_create_announcement_with_registration_form(db_session, create_use
         has_qualification=False,
     )
 
-    service = CreateAnnouncementService(
-        session=db_session, announcement_in=announcement_in, user=user
-    )
-    result = await service.call()
+    result = await _create_announcement(db_session, announcement_in, user)
 
     assert result.title == "Pro Tournament"
 
@@ -129,9 +133,7 @@ async def test_create_announcement_status_pre_registration(db_session, create_us
         has_qualification=False,
     )
 
-    result = await CreateAnnouncementService(
-        session=db_session, announcement_in=announcement_in, user=user
-    ).call()
+    result = await _create_announcement(db_session, announcement_in, user)
 
     assert result.status == AnnouncementStatus.PRE_REGISTRATION
 
@@ -158,9 +160,7 @@ async def test_create_announcement_status_registration_open(db_session, create_u
         has_qualification=False,
     )
 
-    result = await CreateAnnouncementService(
-        session=db_session, announcement_in=announcement_in, user=user
-    ).call()
+    result = await _create_announcement(db_session, announcement_in, user)
 
     assert result.status == AnnouncementStatus.REGISTRATION_OPEN
 
@@ -189,9 +189,7 @@ async def test_create_announcement_seed_method_from_qualification(
         has_qualification=True,
     )
 
-    result = await CreateAnnouncementService(
-        session=db_session, announcement_in=announcement_in, user=user
-    ).call()
+    result = await _create_announcement(db_session, announcement_in, user)
 
     assert result.has_qualification is True
     assert result.seed_method == SeedMethod.QUALIFICATION_SCORE
@@ -225,6 +223,4 @@ async def test_create_announcement_validates_date_order(db_session, create_user)
         ValidationException,
         match="registration_start_at must be before registration_end_at",
     ):
-        await CreateAnnouncementService(
-            session=db_session, announcement_in=announcement_in, user=user
-        ).call()
+        await _create_announcement(db_session, announcement_in, user)

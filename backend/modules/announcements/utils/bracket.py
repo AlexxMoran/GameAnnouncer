@@ -47,3 +47,26 @@ def compute_bracket_size(n: int) -> int:
     if n - lower < upper - n:
         return lower
     return upper
+
+
+def compute_bracket_slots(size: int) -> list[int]:
+    """
+    Compute the ordered slot list for standard single-elimination seeding.
+
+    Produces an interleaved list where index pairs (0,1), (2,3)... define R1 matches
+    such that seed 1 faces seed N, seed 4 faces seed N-3, etc.
+    Example: size=4 → [1, 4, 2, 3] → R1 matches: (1v4, 2v3).
+
+    Raises:
+        ValueError: If size is not a power of two >= 2.
+    """
+    if size < 2 or (size & (size - 1)) != 0:
+        raise ValueError(f"bracket_size must be a power of two >= 2, got {size}")
+    if size == 2:
+        return [1, 2]
+    half = compute_bracket_slots(size // 2)
+    result = []
+    for seed in half:
+        result.append(seed)
+        result.append(size + 1 - seed)
+    return result

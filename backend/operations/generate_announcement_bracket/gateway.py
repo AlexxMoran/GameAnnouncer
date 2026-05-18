@@ -23,12 +23,14 @@ class GenerateAnnouncementBracketGateway:
 
     def __init__(self, session: AsyncSession) -> None:
         self._session = session
+        self._announcement: Announcement | None = None
 
     async def load(
         self,
         contract: GenerateAnnouncementBracketContract,
     ) -> GenerateAnnouncementBracketSnapshot:
         announcement = await self._load_announcement(contract.announcement_id)
+        self._announcement = announcement
 
         match_repo = MatchRepository(self._session)
         has_existing_matches = await match_repo.exists_for_announcement(announcement.id)
@@ -55,19 +57,27 @@ class GenerateAnnouncementBracketGateway:
         self,
         decision: GenerateAnnouncementBracketDecision,
     ) -> Announcement:
-        announcement = await self._load_announcement(decision.announcement_id)
+        """
+        Apply the bracket decision: assign seeds, create matches, and advance the lifecycle.
+
+        Match rows are flushed before the lifecycle transition so that the ORM assigns
+        their IDs — the match builder needs those IDs to wire next_match_winner_id links.
+        The lifecycle call must come after the flush for this reason.
+        """
+        assert self._announcement is not None, "load() must be called before apply()"
+        announcement = self._announcement
         announcement.bracket_size = decision.bracket_size
 
         participant_by_id = {
             participant.id: participant for participant in announcement.participants
         }
-        eligible_participants = []
+        seeded_participants = []
         for seed_decision in decision.participant_seeds:
             participant = participant_by_id.get(seed_decision.participant_id)
             if participant is None:
                 raise ValidationException("Participant not found")
             participant.seed = seed_decision.seed
-            eligible_participants.append(participant)
+            seeded_participants.append(participant)
 
         match_repo = MatchRepository(self._session)
         builder = BracketMatchBuilder(
@@ -75,7 +85,7 @@ class GenerateAnnouncementBracketGateway:
             third_place_match=decision.third_place_match,
         )
         await builder.call(
-            eligible_participants,
+            seeded_participants,
             decision.bracket_size,
             decision.seeding_slots,
             match_repo,

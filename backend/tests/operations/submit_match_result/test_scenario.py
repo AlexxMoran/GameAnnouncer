@@ -3,7 +3,8 @@ from sqlalchemy import select
 
 from modules.matches.model import Match
 from modules.matches.schemas import MatchResultUpdate
-from modules.matches.services.match_progression import MatchProgressionService
+from operations.submit_match_result.contract import SubmitMatchResultContract
+from operations.submit_match_result.scenario import SubmitMatchResultScenario
 from enums import AnnouncementStatus, MatchStatus
 from exceptions import ValidationException
 
@@ -16,6 +17,14 @@ async def _reload_match(db_session, match_id: int) -> Match:
         .execution_options(populate_existing=True)
     )
     return result.scalar_one()
+
+
+async def _submit_match_result(
+    db_session, match: Match, body: MatchResultUpdate
+) -> Match:
+    return await SubmitMatchResultScenario(db_session).run(
+        SubmitMatchResultContract(match_id=match.id, winner=body.winner)
+    )
 
 
 @pytest.mark.asyncio
@@ -42,7 +51,7 @@ async def test_winner_is_set_and_match_completed(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(final, announcement, body, db_session).call()
+    await _submit_match_result(db_session, final, body)
     await db_session.commit()
 
     final = await _reload_match(db_session, final.id)
@@ -85,7 +94,7 @@ async def test_winner_advances_to_next_match_odd_slot(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(semi, announcement, body, db_session).call()
+    await _submit_match_result(db_session, semi, body)
     await db_session.commit()
 
     final = await _reload_match(db_session, final.id)
@@ -127,7 +136,7 @@ async def test_winner_advances_to_next_match_even_slot(
     )
 
     body = MatchResultUpdate(winner="participant2")
-    await MatchProgressionService(semi, announcement, body, db_session).call()
+    await _submit_match_result(db_session, semi, body)
     await db_session.commit()
 
     final = await _reload_match(db_session, final.id)
@@ -169,7 +178,7 @@ async def test_next_match_becomes_ready_when_both_slots_filled(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(semi, announcement, body, db_session).call()
+    await _submit_match_result(db_session, semi, body)
     await db_session.commit()
 
     final = await _reload_match(db_session, final.id)
@@ -222,7 +231,7 @@ async def test_semifinal_loser_fills_third_place_odd_slot(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(semi, announcement, body, db_session).call()
+    await _submit_match_result(db_session, semi, body)
     await db_session.commit()
 
     third_place = await _reload_match(db_session, third_place.id)
@@ -283,12 +292,12 @@ async def test_third_place_match_becomes_ready_after_both_semis(
     )
 
     body1 = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(semi1, announcement, body1, db_session).call()
+    await _submit_match_result(db_session, semi1, body1)
     await db_session.flush()
 
     semi2 = await _reload_match(db_session, semi2.id)
     body2 = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(semi2, announcement, body2, db_session).call()
+    await _submit_match_result(db_session, semi2, body2)
     await db_session.commit()
 
     third_place = await _reload_match(db_session, third_place.id)
@@ -321,7 +330,7 @@ async def test_final_assigns_placements_1_and_2(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(final, announcement, body, db_session).call()
+    await _submit_match_result(db_session, final, body)
     await db_session.commit()
 
     await db_session.refresh(p1)
@@ -364,7 +373,7 @@ async def test_third_place_match_assigns_placements_3_and_4(
     )
 
     body = MatchResultUpdate(winner="participant2")
-    await MatchProgressionService(third_place, announcement, body, db_session).call()
+    await _submit_match_result(db_session, third_place, body)
     await db_session.commit()
 
     await db_session.refresh(p1)
@@ -397,7 +406,7 @@ async def test_tournament_completes_and_announcement_becomes_finished(
     )
 
     body = MatchResultUpdate(winner="participant1")
-    await MatchProgressionService(final, announcement, body, db_session).call()
+    await _submit_match_result(db_session, final, body)
     await db_session.commit()
 
     await db_session.refresh(announcement)
@@ -428,12 +437,11 @@ async def test_raises_when_match_not_ready(
     )
 
     with pytest.raises(ValidationException, match="not ready"):
-        await MatchProgressionService(
-            match,
-            announcement,
-            MatchResultUpdate(winner="participant1"),
+        await _submit_match_result(
             db_session,
-        ).call()
+            match,
+            MatchResultUpdate(winner="participant1"),
+        )
 
 
 @pytest.mark.asyncio
@@ -459,12 +467,11 @@ async def test_raises_when_match_is_bye(
     )
 
     with pytest.raises(ValidationException, match="BYE"):
-        await MatchProgressionService(
-            bye_match,
-            announcement,
-            MatchResultUpdate(winner="participant1"),
+        await _submit_match_result(
             db_session,
-        ).call()
+            bye_match,
+            MatchResultUpdate(winner="participant1"),
+        )
 
 
 @pytest.mark.asyncio
@@ -489,9 +496,8 @@ async def test_raises_when_selected_winner_slot_is_empty(
     )
 
     with pytest.raises(ValidationException, match="winner slot is empty"):
-        await MatchProgressionService(
-            match,
-            announcement,
-            MatchResultUpdate(winner="participant2"),
+        await _submit_match_result(
             db_session,
-        ).call()
+            match,
+            MatchResultUpdate(winner="participant2"),
+        )

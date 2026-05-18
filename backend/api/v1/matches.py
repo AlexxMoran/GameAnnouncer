@@ -9,8 +9,9 @@ from modules.announcements.queries import AnnouncementQueries
 from modules.matches.model import Match
 from modules.matches.queries import MatchQueries
 from modules.matches.schemas import MatchResponse, MatchResultUpdate
-from modules.matches.services.match_progression import MatchProgressionService
 from modules.users.model import User
+from operations.submit_match_result.contract import SubmitMatchResultContract
+from operations.submit_match_result.scenario import SubmitMatchResultScenario
 from exceptions import AppException
 
 router = APIRouter(prefix="/matches", tags=["matches"])
@@ -58,7 +59,9 @@ async def set_match_result(
     Requires organizer or admin privileges on the announcement.
     """
     authorize_action(user, announcement, "manage_lifecycle")
-    service = MatchProgressionService(match, announcement, result_in, session)
-    match = await service.call()
+    scenario = SubmitMatchResultScenario(session)
+    match = await scenario.run(
+        SubmitMatchResultContract(match_id=match.id, winner=result_in.winner)
+    )
     await session.commit()
     return DataResponse(data=match)

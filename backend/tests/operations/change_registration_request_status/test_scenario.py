@@ -8,9 +8,16 @@ from modules.games.model import Game
 from modules.participants.model import AnnouncementParticipant
 from modules.participants.repository import ParticipantRepository
 from modules.registration.models import RegistrationRequest
-from modules.registration.services.lifecycle import RegistrationLifecycleService
+from modules.registration.reasons import FORM_CHANGED_REASON
+from operations.change_registration_request_status.contract import (
+    ChangeRegistrationRequestStatusContract,
+)
+from operations.change_registration_request_status.scenario import (
+    ChangeRegistrationRequestStatusScenario,
+)
 from enums import AnnouncementFormat, SeedMethod
 from enums.registration_status import RegistrationStatus
+from enums.registration_trigger import RegistrationTrigger
 from exceptions import ValidationException
 
 
@@ -50,6 +57,16 @@ async def _setup(db_session, create_user, max_participants=10):
     return organizer, applicant, ann
 
 
+async def _change_status(db_session, registration_request, trigger, reason=None):
+    return await ChangeRegistrationRequestStatusScenario(db_session).run(
+        ChangeRegistrationRequestStatusContract(
+            registration_request_id=registration_request.id,
+            trigger=trigger,
+            cancellation_reason=reason,
+        )
+    )
+
+
 @pytest.mark.asyncio
 async def test_approve_creates_participant(db_session, create_user):
     """Approving a pending request creates an AnnouncementParticipant."""
@@ -63,8 +80,7 @@ async def test_approve_creates_participant(db_session, create_user):
     db_session.add(rr)
     await db_session.flush()
 
-    lifecycle = RegistrationLifecycleService(rr, ann, db_session)
-    result = await lifecycle.approve()
+    result = await _change_status(db_session, rr, RegistrationTrigger.APPROVE)
 
     assert result.status == RegistrationStatus.APPROVED
 
@@ -86,8 +102,12 @@ async def test_reject_pending_does_not_create_participant(db_session, create_use
     db_session.add(rr)
     await db_session.flush()
 
-    lifecycle = RegistrationLifecycleService(rr, ann, db_session)
-    result = await lifecycle.reject(reason="Not eligible")
+    result = await _change_status(
+        db_session,
+        rr,
+        RegistrationTrigger.REJECT,
+        reason="Not eligible",
+    )
 
     assert result.status == RegistrationStatus.REJECTED
     assert result.cancellation_reason == "Not eligible"
@@ -110,14 +130,12 @@ async def test_cancel_approved_removes_participant(db_session, create_user):
     db_session.add(rr)
     await db_session.flush()
 
-    lifecycle = RegistrationLifecycleService(rr, ann, db_session)
-    await lifecycle.approve()
+    await _change_status(db_session, rr, RegistrationTrigger.APPROVE)
 
     repo = ParticipantRepository(db_session)
     assert await repo.find_by_announcement_and_user(ann.id, applicant.id) is not None
 
-    lifecycle2 = RegistrationLifecycleService(rr, ann, db_session)
-    result = await lifecycle2.cancel()
+    result = await _change_status(db_session, rr, RegistrationTrigger.CANCEL)
 
     assert result.status == RegistrationStatus.CANCELLED
     assert await repo.find_by_announcement_and_user(ann.id, applicant.id) is None
@@ -145,10 +163,8 @@ async def test_approve_fails_when_capacity_reached(db_session, create_user):
     db_session.add(rr)
     await db_session.flush()
 
-    lifecycle = RegistrationLifecycleService(rr, ann, db_session)
-
     with pytest.raises(ValidationException) as exc_info:
-        await lifecycle.approve()
+        await _change_status(db_session, rr, RegistrationTrigger.APPROVE)
 
     assert "maximum number of participants" in str(exc_info.value)
     assert rr.status == RegistrationStatus.PENDING
@@ -167,10 +183,8 @@ async def test_illegal_transition_raises(db_session, create_user):
     db_session.add(rr)
     await db_session.flush()
 
-    lifecycle = RegistrationLifecycleService(rr, ann, db_session)
-
     with pytest.raises(ValidationException):
-        await lifecycle.approve()
+        await _change_status(db_session, rr, RegistrationTrigger.APPROVE)
 
 
 @pytest.mark.asyncio
@@ -191,10 +205,8 @@ async def test_approve_invalid_transition_does_not_lock_announcement(
     lock_mock = AsyncMock(side_effect=AssertionError("lock should not be called"))
     monkeypatch.setattr(AnnouncementRepository, "find_by_id_for_update", lock_mock)
 
-    lifecycle = RegistrationLifecycleService(rr, ann, db_session)
-
     with pytest.raises(ValidationException):
-        await lifecycle.approve()
+        await _change_status(db_session, rr, RegistrationTrigger.APPROVE)
 
     lock_mock.assert_not_awaited()
 
@@ -220,10 +232,8 @@ async def test_approve_raises_when_announcement_not_found(
         AsyncMock(return_value=None),
     )
 
-    lifecycle = RegistrationLifecycleService(rr, ann, db_session)
-
     with pytest.raises(ValidationException) as exc_info:
-        await lifecycle.approve()
+        await _change_status(db_session, rr, RegistrationTrigger.APPROVE)
 
     assert "Announcement not found" in str(exc_info.value)
     assert rr.status == RegistrationStatus.PENDING
@@ -242,8 +252,7 @@ async def test_expire_updates_status(db_session, create_user):
     db_session.add(rr)
     await db_session.flush()
 
-    lifecycle = RegistrationLifecycleService(rr, ann, db_session)
-    await lifecycle.expire()
+    await _change_status(db_session, rr, RegistrationTrigger.EXPIRE)
 
     assert rr.status == RegistrationStatus.EXPIRED
 
@@ -263,14 +272,17 @@ async def test_system_reject_for_form_change_removes_participant(
     db_session.add(rr)
     await db_session.flush()
 
-    lifecycle = RegistrationLifecycleService(rr, ann, db_session)
-    await lifecycle.approve()
+    await _change_status(db_session, rr, RegistrationTrigger.APPROVE)
 
     repo = ParticipantRepository(db_session)
     assert await repo.find_by_announcement_and_user(ann.id, applicant.id) is not None
 
-    lifecycle2 = RegistrationLifecycleService(rr, ann, db_session)
-    await lifecycle2.system_reject_for_form_change()
+    await _change_status(
+        db_session,
+        rr,
+        RegistrationTrigger.SYSTEM_REJECT,
+        reason=FORM_CHANGED_REASON,
+    )
 
     assert rr.status == RegistrationStatus.REJECTED
     assert "Registration form has been updated" in rr.cancellation_reason

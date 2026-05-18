@@ -8,13 +8,14 @@ from enums.registration_status import RegistrationStatus
 from exceptions import ValidationException
 from modules.announcements.model import Announcement
 from modules.announcements.schemas import AnnouncementUpdate
-from modules.announcements.services.update import UpdateAnnouncementService
 from modules.games.model import Game
 from modules.participants.model import AnnouncementParticipant
 from modules.participants.repository import ParticipantRepository
 from modules.registration.form_schemas import FormFieldCreate, RegistrationFormCreate
 from modules.registration.models import FormField, RegistrationForm, RegistrationRequest
-from modules.registration.services.lifecycle import TOURNAMENT_UPDATED_REASON
+from modules.registration.reasons import TOURNAMENT_UPDATED_REASON
+from operations.update_announcement.contract import UpdateAnnouncementContract
+from operations.update_announcement.scenario import UpdateAnnouncementScenario
 
 
 async def _create_game(db_session) -> Game:
@@ -40,6 +41,15 @@ def _make_announcement(game_id: int, organizer_id: int) -> Announcement:
         format=AnnouncementFormat.SINGLE_ELIMINATION,
         has_qualification=False,
         seed_method=SeedMethod.RANDOM,
+    )
+
+
+async def _update_announcement(db_session, announcement, announcement_in):
+    return await UpdateAnnouncementScenario(db_session).run(
+        UpdateAnnouncementContract(
+            announcement_id=announcement.id,
+            announcement_in=announcement_in,
+        )
     )
 
 
@@ -104,11 +114,7 @@ async def test_update_rejects_active_requests_and_replaces_form(
         ),
     )
 
-    result = await UpdateAnnouncementService(
-        session=db_session,
-        announcement=announcement,
-        announcement_in=update_in,
-    ).call()
+    result = await _update_announcement(db_session, announcement, update_in)
 
     await db_session.refresh(pending_request)
     await db_session.refresh(approved_request)
@@ -186,10 +192,10 @@ async def test_update_replaces_loaded_registration_form_fields(db_session, creat
     loaded_announcement = loaded_result.scalar_one()
     assert len(loaded_announcement.registration_form.fields) == 2
 
-    await UpdateAnnouncementService(
-        session=db_session,
-        announcement=loaded_announcement,
-        announcement_in=AnnouncementUpdate(
+    await _update_announcement(
+        db_session,
+        loaded_announcement,
+        AnnouncementUpdate(
             registration_form=RegistrationFormCreate(
                 fields=[
                     FormFieldCreate(
@@ -200,7 +206,7 @@ async def test_update_replaces_loaded_registration_form_fields(db_session, creat
                 ]
             )
         ),
-    ).call()
+    )
     await db_session.commit()
 
     forms_result = await db_session.execute(
@@ -236,11 +242,11 @@ async def test_update_rejects_when_participant_limit_changes(db_session, create_
     db_session.add(request)
     await db_session.commit()
 
-    await UpdateAnnouncementService(
-        session=db_session,
-        announcement=announcement,
-        announcement_in=AnnouncementUpdate(max_participants=12),
-    ).call()
+    await _update_announcement(
+        db_session,
+        announcement,
+        AnnouncementUpdate(max_participants=12),
+    )
 
     await db_session.refresh(request)
     assert request.status == RegistrationStatus.REJECTED
@@ -257,11 +263,11 @@ async def test_update_changes_qualification_settings(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(announcement)
 
-    result = await UpdateAnnouncementService(
-        session=db_session,
-        announcement=announcement,
-        announcement_in=AnnouncementUpdate(has_qualification=True),
-    ).call()
+    result = await _update_announcement(
+        db_session,
+        announcement,
+        AnnouncementUpdate(has_qualification=True),
+    )
 
     assert result.has_qualification is True
     assert result.seed_method == SeedMethod.QUALIFICATION_SCORE
@@ -297,11 +303,11 @@ async def test_update_persists_frontend_payload_fields(db_session, create_user):
         },
     }
 
-    await UpdateAnnouncementService(
-        session=db_session,
-        announcement=announcement,
-        announcement_in=AnnouncementUpdate.model_validate(payload),
-    ).call()
+    await _update_announcement(
+        db_session,
+        announcement,
+        AnnouncementUpdate.model_validate(payload),
+    )
     await db_session.commit()
 
     result = await db_session.execute(
@@ -337,10 +343,10 @@ async def test_update_creates_registration_form_when_missing(db_session, create_
     await db_session.commit()
     await db_session.refresh(announcement)
 
-    await UpdateAnnouncementService(
-        session=db_session,
-        announcement=announcement,
-        announcement_in=AnnouncementUpdate(
+    await _update_announcement(
+        db_session,
+        announcement,
+        AnnouncementUpdate(
             registration_form=RegistrationFormCreate(
                 fields=[
                     FormFieldCreate(
@@ -351,7 +357,7 @@ async def test_update_creates_registration_form_when_missing(db_session, create_
                 ]
             )
         ),
-    ).call()
+    )
 
     forms_result = await db_session.execute(
         select(RegistrationForm).where(
@@ -390,11 +396,11 @@ async def test_update_deletes_registration_form_when_null(db_session, create_use
     )
     await db_session.commit()
 
-    await UpdateAnnouncementService(
-        session=db_session,
-        announcement=announcement,
-        announcement_in=AnnouncementUpdate(registration_form=None),
-    ).call()
+    await _update_announcement(
+        db_session,
+        announcement,
+        AnnouncementUpdate(registration_form=None),
+    )
 
     forms_result = await db_session.execute(
         select(RegistrationForm).where(
@@ -437,13 +443,11 @@ async def test_update_replaces_registration_form_with_empty_fields(
     db_session.add(request)
     await db_session.commit()
 
-    await UpdateAnnouncementService(
-        session=db_session,
-        announcement=announcement,
-        announcement_in=AnnouncementUpdate(
-            registration_form=RegistrationFormCreate(fields=[])
-        ),
-    ).call()
+    await _update_announcement(
+        db_session,
+        announcement,
+        AnnouncementUpdate(registration_form=RegistrationFormCreate(fields=[])),
+    )
 
     await db_session.refresh(request)
     assert request.status == RegistrationStatus.REJECTED
@@ -468,15 +472,15 @@ async def test_update_sets_registration_closed_status(db_session, create_user):
     await db_session.refresh(announcement)
 
     now = datetime.now(timezone.utc)
-    result = await UpdateAnnouncementService(
-        session=db_session,
-        announcement=announcement,
-        announcement_in=AnnouncementUpdate(
+    result = await _update_announcement(
+        db_session,
+        announcement,
+        AnnouncementUpdate(
             registration_start_at=now - timedelta(days=2),
             registration_end_at=now - timedelta(days=1),
             start_at=now + timedelta(days=1),
         ),
-    ).call()
+    )
 
     assert result.status == AnnouncementStatus.REGISTRATION_CLOSED
 
@@ -521,11 +525,7 @@ async def test_update_validates_final_date_order(
     await db_session.refresh(announcement)
 
     with pytest.raises(ValidationException) as exc_info:
-        await UpdateAnnouncementService(
-            session=db_session,
-            announcement=announcement,
-            announcement_in=update_in,
-        ).call()
+        await _update_announcement(db_session, announcement, update_in)
 
     assert message in str(exc_info.value)
 
@@ -542,10 +542,10 @@ async def test_update_is_blocked_after_tournament_starts(db_session, create_user
     await db_session.refresh(announcement)
 
     with pytest.raises(ValidationException) as exc_info:
-        await UpdateAnnouncementService(
-            session=db_session,
-            announcement=announcement,
-            announcement_in=AnnouncementUpdate(max_participants=12),
-        ).call()
+        await _update_announcement(
+            db_session,
+            announcement,
+            AnnouncementUpdate(max_participants=12),
+        )
 
     assert "before the tournament starts" in str(exc_info.value)

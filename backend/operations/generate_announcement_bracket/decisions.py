@@ -1,6 +1,9 @@
 from enums import AnnouncementStatus
 from exceptions import ValidationException
-from modules.announcements.utils.bracket import compute_bracket_size
+from modules.announcements.utils.bracket import (
+    compute_bracket_size,
+    compute_bracket_slots,
+)
 from operations.generate_announcement_bracket.structures import (
     BracketParticipantSnapshot,
     GenerateAnnouncementBracketDecision,
@@ -33,7 +36,7 @@ class GenerateAnnouncementBracketDecisions:
                 for seed, participant in enumerate(eligible, start=1)
             ],
             bracket_size=bracket_size,
-            seeding_slots=self._bracket_slots(bracket_size),
+            seeding_slots=compute_bracket_slots(bracket_size),
             third_place_match=snapshot.third_place_match,
         )
 
@@ -42,7 +45,7 @@ class GenerateAnnouncementBracketDecisions:
         snapshot: GenerateAnnouncementBracketSnapshot,
     ) -> list[BracketParticipantSnapshot]:
         if snapshot.has_qualification:
-            self._validate_qualification_bracket(snapshot)
+            self._validate_qualification_status(snapshot)
             return sorted(
                 [p for p in snapshot.participants if p.is_qualified],
                 key=lambda p: (
@@ -52,7 +55,7 @@ class GenerateAnnouncementBracketDecisions:
                 ),
             )
 
-        self._validate_direct_bracket(snapshot)
+        self._validate_direct_status(snapshot)
         return sorted(
             snapshot.participants,
             key=lambda p: p.created_at,
@@ -66,11 +69,15 @@ class GenerateAnnouncementBracketDecisions:
         if snapshot.has_qualification:
             if snapshot.bracket_size is None:
                 raise ValidationException("Bracket size is not set")
+            if len(eligible) > snapshot.bracket_size:
+                raise ValidationException(
+                    f"Qualified participants ({len(eligible)}) exceed bracket size ({snapshot.bracket_size})"
+                )
             return snapshot.bracket_size
         return compute_bracket_size(len(eligible))
 
     @staticmethod
-    def _validate_qualification_bracket(
+    def _validate_qualification_status(
         snapshot: GenerateAnnouncementBracketSnapshot,
     ) -> None:
         if not snapshot.qualification_finished:
@@ -83,19 +90,8 @@ class GenerateAnnouncementBracketDecisions:
             )
 
     @staticmethod
-    def _validate_direct_bracket(snapshot: GenerateAnnouncementBracketSnapshot) -> None:
+    def _validate_direct_status(snapshot: GenerateAnnouncementBracketSnapshot) -> None:
         if snapshot.status != AnnouncementStatus.REGISTRATION_CLOSED:
             raise ValidationException(
                 f"'generate_bracket' is not allowed when status is '{snapshot.status}'"
             )
-
-    def _bracket_slots(self, size: int) -> list[int]:
-        if size == 2:
-            return [1, 2]
-
-        half = self._bracket_slots(size // 2)
-        result = []
-        for seed in half:
-            result.append(seed)
-            result.append(size + 1 - seed)
-        return result

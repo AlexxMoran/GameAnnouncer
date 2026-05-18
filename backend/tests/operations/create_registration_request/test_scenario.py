@@ -1,6 +1,5 @@
 import pytest
 from datetime import datetime, timedelta, timezone
-from unittest.mock import AsyncMock
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import async_sessionmaker
 
@@ -9,11 +8,24 @@ from modules.games.model import Game
 from modules.registration.models import RegistrationRequest
 from modules.users.model import User
 from modules.registration.schemas import RegistrationRequestCreate
-from modules.registration.services.create_request import (
-    CreateRegistrationRequestService,
+from modules.registration.repository import RegistrationRequestRepository
+from operations.create_registration_request.contract import (
+    CreateRegistrationRequestContract,
+)
+from operations.create_registration_request.scenario import (
+    CreateRegistrationRequestScenario,
 )
 from exceptions import ValidationException
 from enums import AnnouncementFormat, SeedMethod
+
+
+async def _create_registration_request(db_session, user, registration_request_in):
+    return await CreateRegistrationRequestScenario(db_session).run(
+        CreateRegistrationRequestContract(
+            registration_request_in=registration_request_in,
+            user_id=user.id,
+        )
+    )
 
 
 def _make_announcement(
@@ -51,13 +63,11 @@ async def test_create_registration_request_success(db_session, create_user):
     await db_session.commit()
     await db_session.refresh(ann)
 
-    service = CreateRegistrationRequestService(
-        session=db_session,
-        announcement=ann,
-        user=user,
-        registration_request_in=RegistrationRequestCreate(announcement_id=ann.id),
+    result = await _create_registration_request(
+        db_session,
+        user,
+        RegistrationRequestCreate(announcement_id=ann.id),
     )
-    result = await service.call()
 
     assert isinstance(result, RegistrationRequest)
     assert result.user_id == user.id
@@ -77,15 +87,12 @@ async def test_create_registration_request_closed_raises(db_session, create_user
     await db_session.commit()
     await db_session.refresh(ann)
 
-    service = CreateRegistrationRequestService(
-        session=db_session,
-        announcement=ann,
-        user=user,
-        registration_request_in=RegistrationRequestCreate(announcement_id=ann.id),
-    )
-
     with pytest.raises(ValidationException) as exc_info:
-        await service.call()
+        await _create_registration_request(
+            db_session,
+            user,
+            RegistrationRequestCreate(announcement_id=ann.id),
+        )
 
     assert "Registration is currently closed" in str(exc_info.value)
 
@@ -106,17 +113,10 @@ async def test_create_registration_request_duplicate_raises(db_session, create_u
 
     rr_in = RegistrationRequestCreate(announcement_id=ann.id)
 
-    await CreateRegistrationRequestService(
-        session=db_session, announcement=ann, user=user, registration_request_in=rr_in
-    ).call()
+    await _create_registration_request(db_session, user, rr_in)
 
     with pytest.raises(ValidationException) as exc_info:
-        await CreateRegistrationRequestService(
-            session=db_session,
-            announcement=ann,
-            user=user,
-            registration_request_in=rr_in,
-        ).call()
+        await _create_registration_request(db_session, user, rr_in)
 
     assert "already exists" in str(exc_info.value)
 
@@ -154,20 +154,21 @@ async def test_create_registration_request_integrity_error_path_raises(
         session.add(existing)
         await session.commit()
 
-        service = CreateRegistrationRequestService(
-            session=session,
-            announcement=ann,
-            user=user,
-            registration_request_in=RegistrationRequestCreate(announcement_id=ann.id),
-        )
+        async def no_existing_request(self, user_id, announcement_id):
+            return None
+
         monkeypatch.setattr(
-            service,
-            "_validate_registration",
-            AsyncMock(return_value=None),
+            RegistrationRequestRepository,
+            "find_by_user_and_announcement",
+            no_existing_request,
         )
 
         with pytest.raises(ValidationException) as exc_info:
-            await service.call()
+            await _create_registration_request(
+                session,
+                user,
+                RegistrationRequestCreate(announcement_id=ann.id),
+            )
 
         assert "already exists" in str(exc_info.value)
 
@@ -188,13 +189,14 @@ async def test_create_registration_request_non_duplicate_integrity_error_propaga
     await db_session.commit()
     await db_session.refresh(ann)
 
-    service = CreateRegistrationRequestService(
-        session=db_session,
-        announcement=ann,
-        user=user,
-        registration_request_in=RegistrationRequestCreate(announcement_id=ann.id),
+    async def no_existing_request(self, user_id, announcement_id):
+        return None
+
+    monkeypatch.setattr(
+        RegistrationRequestRepository,
+        "find_by_user_and_announcement",
+        no_existing_request,
     )
-    monkeypatch.setattr(service, "_validate_registration", AsyncMock(return_value=None))
 
     async def raise_other_integrity_error():
         raise IntegrityError(
@@ -206,4 +208,8 @@ async def test_create_registration_request_non_duplicate_integrity_error_propaga
     monkeypatch.setattr(db_session, "flush", raise_other_integrity_error)
 
     with pytest.raises(IntegrityError):
-        await service.call()
+        await _create_registration_request(
+            db_session,
+            user,
+            RegistrationRequestCreate(announcement_id=ann.id),
+        )
