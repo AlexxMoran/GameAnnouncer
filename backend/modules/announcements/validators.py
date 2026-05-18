@@ -1,9 +1,17 @@
 from datetime import datetime, timezone
+from typing import Protocol
 
 from core.utils import as_utc
 from enums import AnnouncementStatus
 from exceptions import ValidationException
-from modules.announcements.model import Announcement
+
+
+class AnnouncementUpdateSubject(Protocol):
+    status: AnnouncementStatus | str
+    start_at: datetime
+    registration_start_at: datetime
+    registration_end_at: datetime
+
 
 PRE_START_STATUSES = {
     AnnouncementStatus.PRE_REGISTRATION,
@@ -23,7 +31,9 @@ class AnnouncementValidator:
             start_at=data["start_at"],
         )
 
-    def validate_update(self, announcement: Announcement, data: dict) -> None:
+    def validate_update(
+        self, announcement: AnnouncementUpdateSubject, data: dict
+    ) -> None:
         """Validate that the announcement can be updated and the new dates are valid."""
         now = datetime.now(timezone.utc)
         status = AnnouncementStatus(announcement.status)

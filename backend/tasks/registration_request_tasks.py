@@ -3,8 +3,14 @@ from core.logger import logger
 from core.db.container import get_db
 from modules.registration.models import RegistrationRequest
 from modules.announcements.model import Announcement
-from modules.registration.services.lifecycle import RegistrationLifecycleService
 from enums.registration_status import RegistrationStatus
+from enums.registration_trigger import RegistrationTrigger
+from operations.change_registration_request_status.contract import (
+    ChangeRegistrationRequestStatusContract,
+)
+from operations.change_registration_request_status.scenario import (
+    ChangeRegistrationRequestStatusScenario,
+)
 from sqlalchemy import select, and_
 from datetime import datetime, timezone
 
@@ -32,12 +38,12 @@ async def expire_registration_requests_task():
         expired_pairs = result.all()
 
         for registration_request, announcement in expired_pairs:
-            lifecycle = RegistrationLifecycleService(
-                registration_request,
-                announcement,
-                session,
+            await ChangeRegistrationRequestStatusScenario(session).run(
+                ChangeRegistrationRequestStatusContract(
+                    registration_request_id=registration_request.id,
+                    trigger=RegistrationTrigger.EXPIRE,
+                )
             )
-            await lifecycle.expire()
 
         expired_count = len(expired_pairs)
 

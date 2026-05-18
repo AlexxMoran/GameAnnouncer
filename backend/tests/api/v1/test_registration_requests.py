@@ -147,29 +147,23 @@ async def test_create_registration_request_includes_announcement(
 
     fake_rr_before = _make_fake_rr(user_id=user.id, id=42)
     fake_rr_after = _make_fake_rr(user_id=user.id, id=42)
-    fake_announcement = _make_fake_announcement(id=10)
 
-    class FakeCreateService:
-        def __init__(self, **kwargs):
+    class FakeCreateScenario:
+        def __init__(self, session):
             pass
 
-        async def call(self):
+        async def run(self, contract):
             return fake_rr_before
 
     with (
-        patch("api.v1.registration_requests.AnnouncementQueries") as MockAnnQueries,
         patch(
-            "api.v1.registration_requests.CreateRegistrationRequestService",
-            new=FakeCreateService,
+            "api.v1.registration_requests.CreateRegistrationRequestScenario",
+            new=FakeCreateScenario,
         ),
         patch(
             "api.v1.registration_requests.RegistrationRequestQueries"
         ) as MockRRQueries,
     ):
-        mock_ann_queries = AsyncMock()
-        mock_ann_queries.find_by_id.return_value = fake_announcement
-        MockAnnQueries.return_value = mock_ann_queries
-
         mock_rr_queries = AsyncMock()
         mock_rr_queries.find_by_id.return_value = fake_rr_after
         MockRRQueries.return_value = mock_rr_queries
@@ -205,6 +199,14 @@ async def test_cancel_registration_request_includes_announcement(
     client._transport.app.dependency_overrides[
         rr_module.get_registration_request_dependency
     ] = _fake_dep
+
+    class FakeChangeScenario:
+        def __init__(self, session):
+            pass
+
+        async def run(self, contract):
+            return fake_rr
+
     try:
         with (
             patch("api.v1.registration_requests.authorize_action"),
@@ -212,13 +214,10 @@ async def test_cancel_registration_request_includes_announcement(
                 "api.v1.registration_requests.RegistrationRequestQueries"
             ) as MockRRQueries,
             patch(
-                "api.v1.registration_requests.RegistrationLifecycleService"
-            ) as MockLifecycle,
+                "api.v1.registration_requests.ChangeRegistrationRequestStatusScenario",
+                new=FakeChangeScenario,
+            ),
         ):
-            mock_lifecycle = AsyncMock()
-            mock_lifecycle.cancel.return_value = fake_rr
-            MockLifecycle.return_value = mock_lifecycle
-
             mock_rr_queries = AsyncMock()
             mock_rr_queries.find_by_id.return_value = fake_rr_after
             MockRRQueries.return_value = mock_rr_queries

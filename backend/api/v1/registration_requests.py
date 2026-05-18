@@ -8,17 +8,24 @@ from core.deps import SessionDep
 from modules.users.model import User
 from core.users import current_user
 
-from modules.announcements.queries import AnnouncementQueries
 from modules.registration.models import RegistrationRequest
 from modules.registration.queries import RegistrationRequestQueries
 from modules.registration.schemas import (
     RegistrationRequestCreate,
     RegistrationRequestResponse,
 )
-from modules.registration.services.create_request import (
-    CreateRegistrationRequestService,
+from operations.create_registration_request.contract import (
+    CreateRegistrationRequestContract,
 )
-from modules.registration.services.lifecycle import RegistrationLifecycleService
+from operations.create_registration_request.scenario import (
+    CreateRegistrationRequestScenario,
+)
+from operations.change_registration_request_status.contract import (
+    ChangeRegistrationRequestStatusContract,
+)
+from operations.change_registration_request_status.scenario import (
+    ChangeRegistrationRequestStatusScenario,
+)
 from core.permissions import authorize_action
 from enums.registration_trigger import RegistrationTrigger
 
@@ -62,19 +69,12 @@ async def create(
     registration_request_in: RegistrationRequestCreate,
     user: User = Depends(current_user),
 ) -> DataResponse[RegistrationRequestResponse]:
-    announcement_queries = AnnouncementQueries(session)
-    announcement = await announcement_queries.find_by_id(
-        registration_request_in.announcement_id
+    registration_request = await CreateRegistrationRequestScenario(session).run(
+        CreateRegistrationRequestContract(
+            registration_request_in=registration_request_in,
+            user_id=user.id,
+        )
     )
-    if not announcement:
-        raise AppException("Announcement not found", status_code=404)
-
-    registration_request = await CreateRegistrationRequestService(
-        session=session,
-        announcement=announcement,
-        user=user,
-        registration_request_in=registration_request_in,
-    ).call()
     await session.commit()
     queries = RegistrationRequestQueries(session)
     result = await queries.find_by_id(registration_request.id)
@@ -100,18 +100,13 @@ async def update_registration_request_status(
 ) -> DataResponse[RegistrationRequestResponse]:
     authorize_action(user, registration_request, action.value)
 
-    lifecycle = RegistrationLifecycleService(
-        registration_request, registration_request.announcement, session
+    result = await ChangeRegistrationRequestStatusScenario(session).run(
+        ChangeRegistrationRequestStatusContract(
+            registration_request_id=registration_request.id,
+            trigger=RegistrationTrigger(action.value),
+            cancellation_reason=cancellation_reason,
+        )
     )
-
-    if action == RegistrationAction.APPROVE:
-        result = await lifecycle.approve()
-    elif action == RegistrationAction.REJECT:
-        result = await lifecycle.reject(reason=cancellation_reason)
-    elif action == RegistrationAction.CANCEL:
-        result = await lifecycle.cancel()
-    else:
-        raise AppException("Invalid action", status_code=400)
 
     await session.commit()
     queries = RegistrationRequestQueries(session)

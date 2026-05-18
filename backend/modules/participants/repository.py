@@ -56,6 +56,32 @@ class ParticipantRepository:
         )
         await self.session.flush()
 
+    async def delete_by_announcement_id(self, announcement_id: int) -> None:
+        """Delete all participants for an announcement. Flushes but does not commit."""
+        await self.session.execute(
+            delete(AnnouncementParticipant).where(
+                AnnouncementParticipant.announcement_id == announcement_id,
+            )
+        )
+        await self.session.flush()
+
+    async def delete_by_announcement_and_user_ids(
+        self,
+        announcement_id: int,
+        user_ids: list[int],
+    ) -> None:
+        """Delete participants for a list of users in an announcement."""
+        if not user_ids:
+            return
+
+        await self.session.execute(
+            delete(AnnouncementParticipant).where(
+                AnnouncementParticipant.announcement_id == announcement_id,
+                AnnouncementParticipant.user_id.in_(user_ids),
+            )
+        )
+        await self.session.flush()
+
     async def save(
         self, participant: AnnouncementParticipant
     ) -> AnnouncementParticipant:

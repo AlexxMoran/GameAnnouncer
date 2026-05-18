@@ -28,13 +28,23 @@ from modules.participants.schemas import (
     AnnouncementParticipantScoreUpdate,
 )
 from modules.participants.services.update_score import update_participant_score
-from modules.announcements.services.create import CreateAnnouncementService
-from modules.announcements.services.update import UpdateAnnouncementService
 from modules.announcements.services.lifecycle import AnnouncementLifecycleService
-from modules.announcements.services.finalize_qualification import (
-    FinalizeQualificationService,
+from operations.create_announcement.contract import CreateAnnouncementContract
+from operations.create_announcement.scenario import CreateAnnouncementScenario
+from operations.update_announcement.contract import UpdateAnnouncementContract
+from operations.update_announcement.scenario import UpdateAnnouncementScenario
+from operations.finalize_announcement_qualification.contract import (
+    FinalizeAnnouncementQualificationContract,
 )
-from modules.announcements.services.generate_bracket import GenerateBracketService
+from operations.finalize_announcement_qualification.scenario import (
+    FinalizeAnnouncementQualificationScenario,
+)
+from operations.generate_announcement_bracket.contract import (
+    GenerateAnnouncementBracketContract,
+)
+from operations.generate_announcement_bracket.scenario import (
+    GenerateAnnouncementBracketScenario,
+)
 from modules.announcements.utils.bracket import get_bracket
 from modules.matches.queries import MatchQueries
 from modules.matches.schemas import BracketResponse, MatchResponse
@@ -175,10 +185,13 @@ async def create_announcement(
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
     authorize_action(user, Announcement, "create")
-    service = CreateAnnouncementService(
-        session=session, announcement_in=announcement_in, user=user
+    scenario = CreateAnnouncementScenario(session)
+    announcement = await scenario.run(
+        CreateAnnouncementContract(
+            announcement_in=announcement_in,
+            organizer_id=user.id,
+        )
     )
-    announcement = await service.call()
     await session.commit()
     return DataResponse(data=announcement)
 
@@ -192,12 +205,13 @@ async def update_announcement(
 ) -> DataResponse[AnnouncementResponse]:
     authorize_action(user, announcement, "edit")
 
-    service = UpdateAnnouncementService(
-        session=session,
-        announcement=announcement,
-        announcement_in=announcement_in,
+    scenario = UpdateAnnouncementScenario(session)
+    announcement = await scenario.run(
+        UpdateAnnouncementContract(
+            announcement_id=announcement.id,
+            announcement_in=announcement_in,
+        )
     )
-    announcement = await service.call()
     await session.commit()
     return DataResponse(data=announcement)
 
@@ -241,8 +255,10 @@ async def finalize_qualification(
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
     authorize_action(user, announcement, "manage_lifecycle")
-    service = FinalizeQualificationService(announcement, session)
-    announcement = await service.call()
+    scenario = FinalizeAnnouncementQualificationScenario(session)
+    announcement = await scenario.run(
+        FinalizeAnnouncementQualificationContract(announcement_id=announcement.id)
+    )
     await session.commit()
     return DataResponse(data=announcement)
 
@@ -257,8 +273,10 @@ async def generate_bracket(
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
     authorize_action(user, announcement, "manage_lifecycle")
-    service = GenerateBracketService(announcement, session)
-    announcement = await service.call()
+    scenario = GenerateAnnouncementBracketScenario(session)
+    announcement = await scenario.run(
+        GenerateAnnouncementBracketContract(announcement_id=announcement.id)
+    )
     await session.commit()
     return DataResponse(data=announcement)
 

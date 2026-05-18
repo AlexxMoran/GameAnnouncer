@@ -78,11 +78,11 @@ async def test_set_match_result_returns_200_for_organizer(
         third_place_match=False,
     )
 
-    class FakeService:
-        def __init__(self, match, announcement, result_in, session):
+    class FakeScenario:
+        def __init__(self, session):
             pass
 
-        async def call(self):
+        async def run(self, contract):
             return completed_match
 
     with (
@@ -95,7 +95,7 @@ async def test_set_match_result_returns_200_for_organizer(
             "api.v1.matches.AnnouncementQueries.find_by_id",
             new=AsyncMock(return_value=announcement),
         ),
-        patch("api.v1.matches.MatchProgressionService", new=FakeService),
+        patch("api.v1.matches.SubmitMatchResultScenario", new=FakeScenario),
     ):
         r = await client.patch(
             "/api/v1/matches/1/result", json={"winner": "participant1"}

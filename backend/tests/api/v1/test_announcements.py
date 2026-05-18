@@ -51,18 +51,18 @@ async def test_create_announcement_sets_pre_registration_status(
     ann_obj = SimpleNamespace(**announcement_data)
     ann_obj.status = AnnouncementStatus.PRE_REGISTRATION
 
-    class FakeService:
-        def __init__(self, session, announcement_in, user):
+    class FakeScenario:
+        def __init__(self, session):
             pass
 
-        async def call(self):
+        async def run(self, contract):
             return ann_obj
 
     with (
         patch("api.v1.announcements.authorize_action"),
         patch(
-            "api.v1.announcements.CreateAnnouncementService",
-            new=FakeService,
+            "api.v1.announcements.CreateAnnouncementScenario",
+            new=FakeScenario,
         ),
         patch("api.v1.announcements.get_permissions", return_value={}),
     ):
@@ -87,18 +87,18 @@ async def test_create_announcement_sets_registration_open_status(
     ann_obj = SimpleNamespace(**announcement_data)
     ann_obj.status = AnnouncementStatus.REGISTRATION_OPEN
 
-    class FakeService:
-        def __init__(self, session, announcement_in, user):
+    class FakeScenario:
+        def __init__(self, session):
             pass
 
-        async def call(self):
+        async def run(self, contract):
             return ann_obj
 
     with (
         patch("api.v1.announcements.authorize_action"),
         patch(
-            "api.v1.announcements.CreateAnnouncementService",
-            new=FakeService,
+            "api.v1.announcements.CreateAnnouncementScenario",
+            new=FakeScenario,
         ),
         patch("api.v1.announcements.get_permissions", return_value={}),
     ):
@@ -176,18 +176,18 @@ async def test_create_announcement_with_format(
     ann_obj = SimpleNamespace(**announcement_data)
     ann_obj.status = AnnouncementStatus.REGISTRATION_OPEN
 
-    class FakeService:
-        def __init__(self, session, announcement_in, user):
+    class FakeScenario:
+        def __init__(self, session):
             pass
 
-        async def call(self):
+        async def run(self, contract):
             return ann_obj
 
     with (
         patch("api.v1.announcements.authorize_action"),
         patch(
-            "api.v1.announcements.CreateAnnouncementService",
-            new=FakeService,
+            "api.v1.announcements.CreateAnnouncementScenario",
+            new=FakeScenario,
         ),
         patch("api.v1.announcements.get_permissions", return_value={}),
     ):
@@ -362,8 +362,8 @@ async def test_finalize_qualification_returns_200(
         with (
             patch("api.v1.announcements.authorize_action"),
             patch(
-                "api.v1.announcements.FinalizeQualificationService",
-                return_value=MagicMock(call=AsyncMock(return_value=ann_obj)),
+                "api.v1.announcements.FinalizeAnnouncementQualificationScenario",
+                return_value=MagicMock(run=AsyncMock(return_value=ann_obj)),
             ),
         ):
             r = await client.post(
@@ -398,8 +398,8 @@ async def test_generate_bracket_transitions_to_live(
         with (
             patch("api.v1.announcements.authorize_action"),
             patch(
-                "api.v1.announcements.GenerateBracketService",
-                return_value=MagicMock(call=AsyncMock(return_value=ann_obj)),
+                "api.v1.announcements.GenerateAnnouncementBracketScenario",
+                return_value=MagicMock(run=AsyncMock(return_value=ann_obj)),
             ),
         ):
             r = await client.post(

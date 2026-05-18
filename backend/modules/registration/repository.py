@@ -28,6 +28,21 @@ class RegistrationRequestRepository:
         )
         return result.scalar_one_or_none()
 
+    async def find_active_by_announcement_id(
+        self,
+        announcement_id: int,
+    ) -> list[RegistrationRequest]:
+        """Find active requests for an announcement."""
+        result = await self.session.execute(
+            select(RegistrationRequest).where(
+                RegistrationRequest.announcement_id == announcement_id,
+                RegistrationRequest.status.in_(
+                    [RegistrationStatus.PENDING, RegistrationStatus.APPROVED]
+                ),
+            )
+        )
+        return list(result.scalars().all())
+
 
 class RegistrationFormRepository:
     def __init__(self, session: AsyncSession) -> None:

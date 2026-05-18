@@ -1,0 +1,1 @@
+"""Generate announcement bracket operation."""
