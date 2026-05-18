@@ -53,7 +53,8 @@ uv run python script.py
 
 When the user asks you to work on a task, identify which part of the stack is involved:
 
-- **Backend work** (API routes, database, services, Python files in `backend/`) → Read [docs/BACKEND.md](docs/BACKEND.md)
+- **Backend work** (API routes, database, operations, services, Python files in `backend/`) → Read [docs/BACKEND.md](docs/BACKEND.md)
+- **Complex backend business behavior** (multi-step workflows, lifecycle/status changes, cross-module logic, registration/bracket/match flows) → Read [docs/operation-oriented-architecture.md](docs/operation-oriented-architecture.md) in addition to backend docs
 - **Frontend work** (React components, UI, TypeScript files in `frontend/`) → Read [docs/FRONTEND.md](docs/FRONTEND.md)
 
 ### 2. Load Required Documentation
@@ -65,6 +66,13 @@ Example workflow:
 User: "Add a new API endpoint for games"
 Assistant: [Uses Read tool to read docs/BACKEND.md]
 Assistant: [Follows backend guidelines from the documentation]
+```
+
+```
+User: "Move bracket generation into a new workflow"
+Assistant: [Uses Read tool to read docs/BACKEND.md]
+Assistant: [Uses Read tool to read docs/operation-oriented-architecture.md]
+Assistant: [Implements complex behavior as an operation when appropriate]
 ```
 
 ```
@@ -105,10 +113,16 @@ Once you've read the appropriate documentation, follow ALL guidelines and patter
 
 **Backend layers:**
 1. Routes (`/api/`) - HTTP handling only
-2. CRUD (`/api/v1/crud/`) - Database operations
-3. Services (`/services/`) - Business logic
-4. Models (`/models/`) - Database schema
-5. Schemas (`/schemas/`) - Validation models
+2. Operations (`/operations/`) - complex cross-module business operations
+3. Modules (`/modules/`) - domain models, schemas, queries, repositories, lifecycle, validators, and simple services
+4. Core (`/core/`) - platform-level application support
+5. Tasks (`/tasks/`) - background/system entrypoints
+
+**Operation-oriented backend rule:**
+- Keep simple CRUD, search, and one-step behavior inside modules/routes/repositories.
+- Put meaningful multi-step business behavior in `backend/operations/{verb_object}/`.
+- Follow the operation flow from `docs/operation-oriented-architecture.md`: `Contract -> Scenario -> Gateway.load -> Snapshot -> Decisions -> Decision -> Gateway.apply -> Result`.
+- Keep authorization in entrypoints unless the authorization model is explicitly changed.
 
 **Frontend layers:**
 1. Pages (`/pages/`) - Route components
@@ -194,6 +208,7 @@ refactor(module): description
 ## Documentation Structure
 
 - **[docs/BACKEND.md](docs/BACKEND.md)** - Detailed backend guidelines (Database, API, Services, Tasks, Testing)
+- **[docs/operation-oriented-architecture.md](docs/operation-oriented-architecture.md)** - Backend operation architecture for complex business workflows
 - **[docs/FRONTEND.md](docs/FRONTEND.md)** - Detailed frontend guidelines (MobX, Components, Forms, Styling, Routing)
 
 ---

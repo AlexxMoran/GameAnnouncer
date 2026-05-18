@@ -34,7 +34,12 @@ from modules.announcements.services.lifecycle import AnnouncementLifecycleServic
 from modules.announcements.services.finalize_qualification import (
     FinalizeQualificationService,
 )
-from modules.announcements.services.generate_bracket import GenerateBracketService
+from operations.generate_announcement_bracket.contract import (
+    GenerateAnnouncementBracketContract,
+)
+from operations.generate_announcement_bracket.scenario import (
+    GenerateAnnouncementBracketScenario,
+)
 from modules.announcements.utils.bracket import get_bracket
 from modules.matches.queries import MatchQueries
 from modules.matches.schemas import BracketResponse, MatchResponse
@@ -257,8 +262,10 @@ async def generate_bracket(
     user: User = Depends(current_user),
 ) -> DataResponse[AnnouncementResponse]:
     authorize_action(user, announcement, "manage_lifecycle")
-    service = GenerateBracketService(announcement, session)
-    announcement = await service.call()
+    scenario = GenerateAnnouncementBracketScenario(session)
+    announcement = await scenario.run(
+        GenerateAnnouncementBracketContract(announcement_id=announcement.id)
+    )
     await session.commit()
     return DataResponse(data=announcement)
 

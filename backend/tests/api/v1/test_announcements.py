@@ -398,8 +398,8 @@ async def test_generate_bracket_transitions_to_live(
         with (
             patch("api.v1.announcements.authorize_action"),
             patch(
-                "api.v1.announcements.GenerateBracketService",
-                return_value=MagicMock(call=AsyncMock(return_value=ann_obj)),
+                "api.v1.announcements.GenerateAnnouncementBracketScenario",
+                return_value=MagicMock(run=AsyncMock(return_value=ann_obj)),
             ),
         ):
             r = await client.post(
