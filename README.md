@@ -1,96 +1,174 @@
-# 🎮 GameAnnouncer
+# GameAnnouncer
 
-GameAnnouncer is an internal platform for publishing game announcements and managing gaming events.
-
-In short: a full-stack web application with a FastAPI backend and an Angular frontend for creating games, posting announcements, managing registrations, and sending notifications.
+GameAnnouncer is a platform for managing gaming events — creating announcements, handling participant registration, running qualification rounds, generating tournament brackets, and recording match results.
 
 ---
 
 ## Technology Stack
 
-- Backend: Python, FastAPI, SQLAlchemy (async), Alembic
-- Configuration and validation: pydantic v2 / pydantic-settings
-- Authentication: fastapi-users
-- Task queue / worker: Taskiq
+**Backend**
+- Python 3.13 · FastAPI 0.117+ · SQLAlchemy 2.0 async · Alembic
+- Authentication: fastapi-users (JWT)
+- Task queue: Taskiq + Redis
 - Database: PostgreSQL
-- Testing: pytest, testcontainers, unittest
-- Containerization: Docker
-- Frontend: Angular, TypeScript
-- Cache / Message Broker: Redis
+- Package manager: UV
 
-## Code Quality & Tooling
+**Frontend** *(active)*
+- React 19 · TypeScript 5 · Vite · MobX · Material UI v7
 
-- Formatting: Black
-- Linting: Ruff
-- Dependency & Environment Management: uv
+**Frontend** *(deprecated)*
+- Angular app in `frontend/` — being phased out, ignore for new development
+
+**Tooling**
+- Formatter: Black · Linter: Ruff
+- Tests: pytest + pytest-asyncio + testcontainers
+- Containers: Docker Compose
 
 ---
 
-## Project Structure (top-level)
+## Architecture
+
+The backend follows a **layered operation-oriented architecture**. Each layer has a single responsibility and strict import rules.
+
+```
+api/          HTTP interface — routes, auth guards, request/response schemas
+operations/   Complex multi-step business operations (see below)
+modules/      Domain layer — models, repositories, state machines, simple services
+core/         Platform support — config, permissions, DI, middleware
+tasks/        Background and scheduled entrypoints
+```
+
+### Operation-Oriented Approach
+
+Meaningful multi-step business behavior lives in `operations/{verb_object}/` rather than in large service files. Each operation is a self-contained folder:
+
+```
+operations/generate_announcement_bracket/
+  contract.py    — input definition (Pydantic, no framework knowledge)
+  scenario.py    — orchestration: load → decide → apply
+  gateway.py     — DB reads and writes, ORM ↔ operation data translation
+  structures.py  — frozen dataclasses: Snapshot (facts) and Decision (plan)
+  decisions.py   — pure business rules, no I/O, testable without a database
+  README.md      — invariants, reads, writes, danger zones (on risky operations)
+```
+
+Data flow:
+```
+Contract → Scenario → Gateway.load() → Snapshot → Decisions.make() → Decision → Gateway.apply() → Result
+```
+
+**Layer rules (enforced by `tests/unit/test_architecture.py`):**
+- `decisions.py` must not import SQLAlchemy or FastAPI
+- `modules/` must not import from `operations/`
+- Module service files must not import `core.permissions`
+- `gateway.apply()` must use entities cached by `gateway.load()`, not re-query the DB
+
+Simple CRUD, searches, and single-step updates stay inside `modules/`.
+
+---
+
+## Project Structure
 
 ```
 GameAnnouncer/
-├── backend/                # FastAPI backend and project code
-│   ├── alembic/            # DB migrations
-│   ├── api/                # API routers (v1, auth, endpoints)
-│   │   └── v1/
-│   ├── core/               # config, deps, middleware, utils
-│   ├── models/             # SQLAlchemy models
-│   ├── schemas/            # Pydantic schemas
-│   ├── services/           # business logic and helpers
-│   ├── tasks/              # background tasks / broker config
-│   ├── static/             # static assets (images, etc.)
-│   ├── tests/              # test suite (pytest)
-│   ├── main.py             # ASGI app entrypoint
-│   ├── console.py          # interactive console for devs
-│   └── pyproject.toml / Dockerfile / Makefile
-├── frontend/               # Angular application
-│   ├── angular.json
-│   ├── package.json
-│   └── src/
-│       ├── app/
-│       ├── features/
-│       ├── pages/
-│       └── shared/
-├── docker-compose.yml      # Docker Compose configuration for local env
-└── Makefile                # high-level project commands (project-up, project-rebuild...)
+├── backend/
+│   ├── api/v1/                   # Route handlers (HTTP + auth only)
+│   ├── operations/               # Complex business operations
+│   │   ├── create_announcement/
+│   │   ├── update_announcement/
+│   │   ├── create_registration_request/
+│   │   ├── change_registration_request_status/
+│   │   ├── finalize_announcement_qualification/
+│   │   ├── generate_announcement_bracket/
+│   │   └── submit_match_result/
+│   ├── modules/                  # Domain models, repos, state machines
+│   │   ├── announcements/
+│   │   ├── matches/
+│   │   ├── participants/
+│   │   ├── registration/
+│   │   ├── games/
+│   │   └── users/
+│   ├── core/                     # Config, DI, permissions facade, middleware
+│   ├── tasks/                    # Background tasks (Taskiq)
+│   ├── tests/                    # Test suite (mirrors backend structure)
+│   │   └── unit/test_architecture.py  # Layer boundary guardrails
+│   ├── alembic/                  # DB migrations
+│   ├── main.py                   # ASGI entrypoint
+│   └── pyproject.toml
+├── react-frontend/               # Active React frontend
+├── frontend/                     # Angular app (deprecated)
+├── docs/
+│   ├── BACKEND.md
+│   ├── FRONTEND.md
+│   └── operation-oriented-architecture.md
+├── docker-compose.yml
+└── Makefile
 ```
 
 ---
 
-## Quick Start for New Developers
+## Quick Start
 
-1. Copy the backend environment template and fill in environment-specific values:
+1. Copy the environment template:
 
 ```bash
 cp backend/.env.template backend/.env
-# Edit backend/.env (DB credentials, hostnames, secrets, etc.)
+# Fill in DB credentials, Redis URL, secrets, etc.
 ```
 
-2. Bring up all services from the repository root:
+2. Start all services:
 
 ```bash
 make project-up
 ```
 
-This will start the required containers: PostgreSQL, Redis, Mailpit, backend, frontend and worker.
+This brings up PostgreSQL, Redis, Mailpit, the backend API, the React frontend, and the Taskiq worker.
 
 ---
 
-## Default local URLs
+## Running Backend Commands
 
-- Frontend: http://localhost:4200
-- API: http://localhost:3000
-- API Docs (Swagger): http://localhost:3000/docs
-- Mail UI (Mailpit): http://localhost:8025
-- PgAdmin (if enabled): http://localhost:5050
+This project uses **UV** as the package manager. Always prefix Python commands with `uv run`:
 
-Check `docker-compose.yml` and `backend/.env` if ports have been changed.
+```bash
+uv run pytest                          # run all tests
+uv run pytest tests/unit/ -v           # architecture guardrails only
+uv run ruff check .                    # lint
+uv run black .                         # format
+uv run alembic upgrade head            # apply migrations
+```
+
+Or via Make shortcuts:
+
+```bash
+make test
+make lint
+make format
+```
+
+---
+
+## Local URLs
+
+| Service | URL |
+|---|---|
+| React frontend | http://localhost:5173 |
+| API | http://localhost:3000 |
+| API docs (Swagger) | http://localhost:3000/docs |
+| Mailpit (email UI) | http://localhost:8025 |
+
+Check `docker-compose.yml` if ports differ.
+
+---
+
+## Developer Docs
+
+- [docs/BACKEND.md](docs/BACKEND.md) — backend guidelines, patterns, conventions
+- [docs/FRONTEND.md](docs/FRONTEND.md) — frontend guidelines (React/MobX)
+- [docs/operation-oriented-architecture.md](docs/operation-oriented-architecture.md) — full operation pattern reference
 
 ---
 
 ## License
 
-This project is licensed under the MIT License — see the `LICENSE` file.
-
----
+MIT — see `LICENSE`.
