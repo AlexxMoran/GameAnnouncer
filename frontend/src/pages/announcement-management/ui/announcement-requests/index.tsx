@@ -9,7 +9,11 @@ import type { IUserDto } from "@shared/services/api/auth-api-service/types";
 import { EGameCategories } from "@shared/services/api/games-api-service/constants";
 import type { IGameDto } from "@shared/services/api/games-api-service/types";
 import { ERegistrationRequestStatuses } from "@shared/services/api/registration-requests-api-service/constants";
-import type { IRegistrationRequestDto } from "@shared/services/api/registration-requests-api-service/types";
+import type {
+  IFormResponse,
+  IRegistrationRequestDto,
+} from "@shared/services/api/registration-requests-api-service/types";
+import { Box } from "@shared/ui/box";
 import { Card } from "@shared/ui/card";
 import { InfiniteScrollList } from "@shared/ui/infinite-scroll-list";
 import { PageTitle } from "@shared/ui/page-title";
@@ -18,6 +22,34 @@ import { useCallback, type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { useOutletContext } from "react-router";
 // ---- МОКИ ДАННЫХ ----
+
+const form_responses: IFormResponse[] = [
+  {
+    form_field_id: 1,
+    value: "Короткий ответ",
+    label: "EightLen", // 8 символов
+  },
+  {
+    form_field_id: 2,
+    value: "Числовое значение 100",
+    label: "MediumLenLabel", // 15 символов
+  },
+  {
+    form_field_id: 3,
+    value: "true",
+    label: "TwentyThreeCharactersHere", // 23 символа
+  },
+  {
+    form_field_id: 4,
+    value: "user@example.com",
+    label: "ThirtyTwoCharsLongLabelExactly!!", // 32 символа (без учёта восклицательных знаков — ровно 32)
+  },
+  {
+    form_field_id: 5,
+    value: "Дополнительные сведения",
+    label: "LabelIsJust11", // 11 символов (LabelIsJust11 — 13? Проверим: L(1)a2b3e4l5I6s7J8u9s10t11 = 11? Нет, "LabelIsJust11" — L a b e l I s J u s t 1 1 — 13 символов. Возьмём "Lbl_11Chars" — 11)
+  },
+];
 
 // Игры (Pick для game в объявлении)
 const mockGames: Pick<IGameDto, "category" | "id" | "image_url" | "name">[] = [
@@ -77,6 +109,7 @@ const registrationRequestMocks: IRegistrationRequestDto[] = [
     user: mockUsers[0],
     status: ERegistrationRequestStatuses.Approved,
     cancellation_reason: null,
+    form_responses,
   },
   {
     id: 2,
@@ -87,6 +120,7 @@ const registrationRequestMocks: IRegistrationRequestDto[] = [
     user: mockUsers[1],
     status: ERegistrationRequestStatuses.Cancelled,
     cancellation_reason: null,
+    form_responses,
   },
   {
     id: 3,
@@ -97,6 +131,7 @@ const registrationRequestMocks: IRegistrationRequestDto[] = [
     user: mockUsers[2],
     status: ERegistrationRequestStatuses.Expired,
     cancellation_reason: "Не соответствует требованиям рейтинга",
+    form_responses,
   },
   {
     id: 4,
@@ -107,6 +142,7 @@ const registrationRequestMocks: IRegistrationRequestDto[] = [
     user: mockUsers[3],
     status: ERegistrationRequestStatuses.Pending,
     cancellation_reason: "Пользователь передумал",
+    form_responses,
   },
   {
     id: 5,
@@ -125,7 +161,7 @@ const registrationRequestMocks: IRegistrationRequestDto[] = [
     announcement_id: 106,
     announcement: mockAnnouncements.find((a) => a.id === 106)!,
     user: mockUsers[5],
-    status: ERegistrationRequestStatuses.Rejected,
+    status: ERegistrationRequestStatuses.Pending,
     cancellation_reason: null,
   },
   {
@@ -167,17 +203,20 @@ const registrationRequestMocks: IRegistrationRequestDto[] = [
     user: mockUsers[9],
     status: ERegistrationRequestStatuses.Approved,
     cancellation_reason: null,
+    form_responses,
   },
 ];
 
 export const AnnouncementRequests: FC = observer(() => {
   const { announcement } = useOutletContext<IOutletContextData>();
-  const { listData, filters, paginate, setFilter } = useAnnouncementRequestsService(announcement);
+  const { listData, filters, paginate, setFilter, editEntity } = useAnnouncementRequestsService(announcement);
   const { t } = useTranslation();
 
   const renderItem = useCallback(
-    (request: IRegistrationRequestDto) => <AnnouncementRequestCard key={request.id} request={request} />,
-    []
+    (request: IRegistrationRequestDto) => (
+      <AnnouncementRequestCard key={request.id} request={request} changeRequestStatus={editEntity} />
+    ),
+    [editEntity]
   );
 
   return (
@@ -190,6 +229,11 @@ export const AnnouncementRequests: FC = observer(() => {
         noDataIcon={PendingActionsIcon}
         noDataTitle={t("texts.noApplicationsYet")}
         noDataSubtitle={t("texts.allJoinRequestsWillBeShownHere")}
+        containerComponent={({ children }) => (
+          <Box display="flex" flexDirection="column" gap={GAPS}>
+            {children}
+          </Box>
+        )}
         {...listData}
         list={registrationRequestMocks}
         hasMore={false}

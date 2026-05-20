@@ -56,7 +56,7 @@ export const AnnouncementManagementPageHeader: FC<IAnnouncementManagementPageHea
               }}
             />
           </Box>
-          <WithLineClampStyled lineClamp={3} variant="h3">
+          <WithLineClampStyled lineClamp={3} variant="h3" sx={{ wordBreak: "break-word" }}>
             {title}
           </WithLineClampStyled>
         </MainPageImgContentStyled>

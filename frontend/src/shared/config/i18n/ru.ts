@@ -99,6 +99,10 @@ export const translationRu = {
     editTournament: "Редактировать турнир",
     reject: "Отклонить",
     accept: "Принять",
+    viewDetails: "Посмотреть детали",
+    hideDetails: "Скрыть детали",
+    rejectApplication: "Отклонить заявку",
+    acceptApplication: "Принять заявку",
   },
   texts: {
     allTournaments: "Все турниры",
@@ -185,6 +189,15 @@ export const translationRu = {
     noApplicationsYet: "Заявок пока нет",
     allJoinRequestsWillBeShownHere: "Здесь будут отображаться все заявки на вступление в турнир",
     chooseIconAndColorForAvatar: "Выберите иконку и цвет для вашего аватара",
+    applicationDetails: "Детали заявки",
+    details: "Детали",
+    applicationCancelledSuccessfully: "Заявка успешно отменена",
+    rejectApplicationIrreversibleConfirm:
+      "Это действие необратимо. Вы уверены, что хотите отклонить заявку от {nickname}?",
+    rejectionReason: "Причина отказа",
+    acceptApplicationIrreversibleConfirm:
+      "Это действие необратимо. Вы уверены, что хотите принять заявку от {nickname}?",
+    applicationAcceptedSuccessfully: "Заявка успешно принята",
   },
   validationErrors: {
     unknown: "Непредвиденная ошибка",
