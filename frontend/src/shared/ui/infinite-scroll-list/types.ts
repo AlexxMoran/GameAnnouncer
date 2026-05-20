@@ -1,12 +1,12 @@
 import type { SvgIconComponent } from "@mui/icons-material";
 import type { TMaybe, TObjectAny } from "@shared/types/main.types";
-import type { ElementType, ReactNode } from "react";
+import type { ElementType, PropsWithChildren, ReactNode } from "react";
 
 export interface IEntityListProps<T extends TObjectAny> {
   list: T[];
   renderItem: (item: T) => ReactNode;
   itemKeyExtractor?: (item: T) => string | number;
-  containerComponent?: ElementType;
+  containerComponent?: ElementType<PropsWithChildren>;
 }
 
 export interface IInfiniteScrollListProps<T extends TObjectAny> extends IEntityListProps<T> {

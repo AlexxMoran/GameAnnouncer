@@ -8,9 +8,12 @@ import type { IEntityDateFields, IEntityIdField } from "@shared/types/commonEnti
 import type { TMaybe } from "@shared/types/main.types";
 import type { IPaginationParams } from "@shared/types/pagination.types";
 
-export interface IFormResponse {
+export interface ICreationFormResponse {
   form_field_id: number;
   value: string;
+}
+export interface IFormResponse extends ICreationFormResponse {
+  label: string;
 }
 
 export interface IRegistrationRequestDto extends IEntityDateFields, IEntityIdField {
@@ -19,15 +22,17 @@ export interface IRegistrationRequestDto extends IEntityDateFields, IEntityIdFie
   user: Pick<IUserDto, "id" | "nickname" | "avatar_color" | "avatar_icon_id">;
   status: ERegistrationRequestStatuses;
   cancellation_reason: TMaybe<string>;
+  form_responses?: IFormResponse[];
 }
 
 export interface ICreateRegistrationRequestDto {
   announcement_id: number;
-  form_responses?: IFormResponse[];
+  form_responses?: ICreationFormResponse[];
 }
 
 export interface IEditRegistrationRequestDto {
   action: ERegistrationRequestActions;
+  cancellation_reason?: string;
 }
 
 export interface IRegistrationRequestFilters {

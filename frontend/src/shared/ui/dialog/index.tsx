@@ -44,11 +44,14 @@ export const Dialog: FC<IDialogProps> = (props) => {
           <CloseIcon />
         </IconButton>
       )}
-      {title && (
-        <DialogTitle variant="h6" sx={{ "&::first-letter": { textTransform: "capitalize" } }}>
-          {title}
-        </DialogTitle>
-      )}
+      {title &&
+        (typeof title === "string" ? (
+          <DialogTitle variant="h6" sx={{ "&::first-letter": { textTransform: "capitalize" } }}>
+            {title}
+          </DialogTitle>
+        ) : (
+          title
+        ))}
       {children}
     </MuiDialog>
   );

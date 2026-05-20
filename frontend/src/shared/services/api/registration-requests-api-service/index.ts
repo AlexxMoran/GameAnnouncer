@@ -28,10 +28,10 @@ export class RegistrationRequestsApiService {
       params
     );
 
-  editRegistrationRequest = (id: number, { action }: IEditRegistrationRequestDto) =>
+  editRegistrationRequest = (id: number, { action, cancellation_reason }: IEditRegistrationRequestDto) =>
     this.baseApiService.patch<TApiResponseWrapper<IRegistrationRequestDto>>(
       `v1/${REGISTRATION_REQUEST_ENDPOINT}/${id}/${action}`,
-      {}
+      { cancellation_reason }
     );
 
   getAnnouncementRequests = (id: number, params?: IGetRegistrationRequestsDto) =>

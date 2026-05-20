@@ -99,6 +99,10 @@ export const translationEn = {
     editTournament: "Edit tournament",
     reject: "Reject",
     accept: "Accept",
+    viewDetails: "View details",
+    hideDetails: "Hide details",
+    rejectApplication: "Reject application",
+    acceptApplication: "Accept application",
   },
   texts: {
     allTournaments: "All tournaments",
@@ -187,6 +191,15 @@ export const translationEn = {
     noApplicationsYet: "No applications yet",
     allJoinRequestsWillBeShownHere: "All join requests for the tournament will be shown here",
     chooseIconAndColorForAvatar: "Choose an icon and color for your avatar",
+    applicationDetails: "Application details",
+    details: "Details",
+    applicationCancelledSuccessfully: "Application cancelled successfully",
+    rejectApplicationIrreversibleConfirm:
+      "This action is irreversible. Are you sure you want to reject the application from {nickname}?",
+    rejectionReason: "Reason for rejection",
+    acceptApplicationIrreversibleConfirm:
+      "This action is irreversible. Are you sure you want to accept the application from {nickname}?",
+    applicationAcceptedSuccessfully: "Application accepted successfully",
   },
   validationErrors: {
     unknown: "Unexpected error",

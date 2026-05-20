@@ -1,12 +1,12 @@
 import { createRequestStatusColor } from "@entities/registration-request/lib/create-request-status-color";
-import CancelIcon from "@mui/icons-material/Cancel";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import type { IRequestCardProps } from "@pages/registration-requests/ui/request-card/types";
 import { formatDate } from "@shared/lib/date/formatDate";
 import { ERegistrationRequestStatuses } from "@shared/services/api/registration-requests-api-service/constants";
 import { Box } from "@shared/ui/box";
+import { Button } from "@shared/ui/button";
 import { Card } from "@shared/ui/card";
 import { Chip } from "@shared/ui/chip";
-import { IconButton } from "@shared/ui/icon-button";
 import { Tooltip } from "@shared/ui/tooltip";
 import { T } from "@shared/ui/typography";
 import { type FC } from "react";
@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
 export const RequestCard: FC<IRequestCardProps> = ({ request, onCancelRequest }) => {
   const { t } = useTranslation();
 
-  const { id, announcement, created_at, status } = request;
+  const { id, announcement, created_at, status, cancellation_reason } = request;
   const { game, title } = announcement;
   const { name } = game;
 
@@ -54,13 +54,17 @@ export const RequestCard: FC<IRequestCardProps> = ({ request, onCancelRequest })
         <T variant="body2">{t("texts.submittedDate", { date: formatDate(created_at) })}</T>
       </Box>
       <Box display="flex" alignItems="center" justifyContent="space-between" gap={2} flex={1}>
-        <Chip label={t(`enums.registrationRequestStatuses.${status}`)} color={createRequestStatusColor(status)} />
+        <Tooltip hidden={!cancellation_reason} title={cancellation_reason}>
+          <Chip
+            icon={cancellation_reason ? <RemoveRedEyeIcon /> : undefined}
+            label={t(`enums.registrationRequestStatuses.${status}`)}
+            color={createRequestStatusColor(status)}
+          />
+        </Tooltip>
         {showCancelButton && (
-          <Tooltip title={t("actions.cancel")} placement="left">
-            <IconButton onClick={onCancelRequest}>
-              <CancelIcon color="error" fontSize="medium" />
-            </IconButton>
-          </Tooltip>
+          <Button color="error" size="small" onClick={onCancelRequest}>
+            {t("actions.cancel")}
+          </Button>
         )}
       </Box>
     </Card>

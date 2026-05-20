@@ -56,8 +56,6 @@ export const AnnouncementManagementPage: FC = observer(() => {
               gap: GAPS,
               width: { md: "35%" },
               maxWidth: { md: "350px" },
-              position: { md: "sticky" },
-              top: 88,
               height: "fit-content",
               order: { xs: 0, md: 1 },
             }}

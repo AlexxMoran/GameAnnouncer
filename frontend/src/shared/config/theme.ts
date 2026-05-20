@@ -282,7 +282,7 @@ export const THEME = createTheme({
         label: {
           fontSize: "0.65rem",
           fontWeight: 500,
-          textTransform: "capitalize",
+          "&::first-letter": { textTransform: "capitalize" },
           "&.Mui-selected": {
             fontSize: "0.65rem",
             fontWeight: 600,
@@ -386,6 +386,13 @@ export const THEME = createTheme({
         tooltip: ({ theme }) => ({
           backgroundColor: theme.palette.action.disabledBackground,
         }),
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          minWidth: 0,
+        },
       },
     },
   },
