@@ -303,6 +303,146 @@ def _make_lifecycle_service_mock(method_name: str, return_value):
 
 
 @pytest.mark.asyncio
+async def test_open_registration_returns_registration_open_announcement(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /open_registration returns 200 and transitions announcement to REGISTRATION_OPEN."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    announcement_data = announcement_factory.build(organizer_id=user.id)
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.REGISTRATION_OPEN
+    ann_obj.registration_start_at = datetime.now(timezone.utc)
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with (
+            patch("api.v1.announcements.authorize_action"),
+            patch(
+                "api.v1.announcements.AnnouncementLifecycleService",
+                return_value=_make_lifecycle_service_mock("open_registration", ann_obj),
+            ),
+        ):
+            r = await client.post(
+                f"/api/v1/announcements/{ann_obj.id}/open_registration"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 200
+    body = r.json()["data"]
+    assert body["status"] == AnnouncementStatus.REGISTRATION_OPEN.value
+    assert body["registration_start_at"] is not None
+
+
+@pytest.mark.asyncio
+async def test_close_registration_returns_registration_closed_announcement(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /close_registration returns 200 and transitions announcement to REGISTRATION_CLOSED."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    announcement_data = announcement_factory.build(organizer_id=user.id)
+    ann_obj = SimpleNamespace(**announcement_data)
+    ann_obj.status = AnnouncementStatus.REGISTRATION_CLOSED
+    ann_obj.registration_end_at = datetime.now(timezone.utc)
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with (
+            patch("api.v1.announcements.authorize_action"),
+            patch(
+                "api.v1.announcements.AnnouncementLifecycleService",
+                return_value=_make_lifecycle_service_mock(
+                    "close_registration", ann_obj
+                ),
+            ),
+        ):
+            r = await client.post(
+                f"/api/v1/announcements/{ann_obj.id}/close_registration"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 200
+    body = r.json()["data"]
+    assert body["status"] == AnnouncementStatus.REGISTRATION_CLOSED.value
+    assert body["registration_end_at"] is not None
+
+
+@pytest.mark.asyncio
+async def test_open_registration_returns_403_for_non_organizer(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /open_registration returns 403 when the user is not the organizer."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    ann_obj = SimpleNamespace(**announcement_factory.build(organizer_id=user.id + 999))
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.authorize_action",
+            side_effect=AppException("Forbidden", status_code=403),
+        ):
+            r = await client.post(
+                f"/api/v1/announcements/{ann_obj.id}/open_registration"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_close_registration_returns_403_for_non_organizer(
+    async_client, announcement_factory, authenticated_client, user
+):
+    """POST /close_registration returns 403 when the user is not the organizer."""
+    from api.v1.announcements import get_announcement_dependency
+
+    client = authenticated_client(user)
+    ann_obj = SimpleNamespace(**announcement_factory.build(organizer_id=user.id + 999))
+
+    async def override_announcement():
+        return ann_obj
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+
+    try:
+        with patch(
+            "api.v1.announcements.authorize_action",
+            side_effect=AppException("Forbidden", status_code=403),
+        ):
+            r = await client.post(
+                f"/api/v1/announcements/{ann_obj.id}/close_registration"
+            )
+    finally:
+        del app.dependency_overrides[get_announcement_dependency]
+
+    assert r.status_code == 403
+
+
+@pytest.mark.asyncio
 async def test_start_qualification_returns_live_announcement(
     async_client, announcement_factory, authenticated_client, user
 ):

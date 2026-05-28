@@ -53,6 +53,18 @@ class AnnouncementValidator:
             start_at=data.get("start_at", announcement.start_at),
         )
 
+    def validate_manual_open(self, announcement: AnnouncementUpdateSubject) -> None:
+        """Validate that registration can be manually opened right now."""
+        now = datetime.now(timezone.utc)
+        if as_utc(announcement.registration_end_at) <= now:
+            raise ValidationException("registration_end_at is already in the past")
+
+    def validate_manual_close(self, announcement: AnnouncementUpdateSubject) -> None:
+        """Validate that registration can be manually closed right now."""
+        now = datetime.now(timezone.utc)
+        if as_utc(announcement.start_at) <= now:
+            raise ValidationException("start_at must be in the future")
+
     def _validate_dates(
         self,
         registration_start_at: datetime,
