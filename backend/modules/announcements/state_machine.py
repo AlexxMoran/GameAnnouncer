@@ -30,6 +30,16 @@ class AnnouncementStateMachine:
 
     transitions = [
         {
+            "trigger": AnnouncementTrigger.OPEN_REGISTRATION.value,
+            "source": AnnouncementStatus.PRE_REGISTRATION.value,
+            "dest": AnnouncementStatus.REGISTRATION_OPEN.value,
+        },
+        {
+            "trigger": AnnouncementTrigger.CLOSE_REGISTRATION.value,
+            "source": AnnouncementStatus.REGISTRATION_OPEN.value,
+            "dest": AnnouncementStatus.REGISTRATION_CLOSED.value,
+        },
+        {
             "trigger": AnnouncementTrigger.START_QUALIFICATION.value,
             "source": AnnouncementStatus.REGISTRATION_CLOSED.value,
             "dest": AnnouncementStatus.LIVE.value,

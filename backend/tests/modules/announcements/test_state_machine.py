@@ -2,7 +2,9 @@ import pytest
 from datetime import datetime, timedelta, timezone
 
 from modules.announcements.model import Announcement
+from modules.announcements.services.lifecycle import AnnouncementLifecycleService
 from modules.announcements.state_machine import AnnouncementStateMachine
+from core.utils import as_utc
 from modules.games.model import Game
 from enums import (
     AnnouncementFormat,
@@ -47,6 +49,159 @@ async def _setup(db_session, create_user, email: str, status: AnnouncementStatus
     await db_session.refresh(ann)
 
     return user, ann
+
+
+@pytest.mark.asyncio
+async def test_open_registration_transitions_to_registration_open(
+    db_session, create_user
+):
+    """open_registration moves PRE_REGISTRATION -> REGISTRATION_OPEN."""
+    _, ann = await _setup(
+        db_session, create_user, "sm-open@test.com", AnnouncementStatus.PRE_REGISTRATION
+    )
+
+    result = await AnnouncementStateMachine(ann, db_session).fire(
+        AnnouncementTrigger.OPEN_REGISTRATION
+    )
+
+    assert result.status == AnnouncementStatus.REGISTRATION_OPEN
+
+
+@pytest.mark.asyncio
+async def test_close_registration_transitions_to_registration_closed(
+    db_session, create_user
+):
+    """close_registration moves REGISTRATION_OPEN -> REGISTRATION_CLOSED."""
+    _, ann = await _setup(
+        db_session,
+        create_user,
+        "sm-close@test.com",
+        AnnouncementStatus.REGISTRATION_OPEN,
+    )
+
+    result = await AnnouncementStateMachine(ann, db_session).fire(
+        AnnouncementTrigger.CLOSE_REGISTRATION
+    )
+
+    assert result.status == AnnouncementStatus.REGISTRATION_CLOSED
+
+
+@pytest.mark.asyncio
+async def test_lifecycle_open_registration_sets_actual_start_time(
+    db_session, create_user
+):
+    """Manual registration opening records the actual opening time."""
+    _, ann = await _setup(
+        db_session,
+        create_user,
+        "sm-open-time@test.com",
+        AnnouncementStatus.PRE_REGISTRATION,
+    )
+    now = datetime.now(timezone.utc)
+    ann.registration_start_at = now + timedelta(hours=1)
+    ann.registration_end_at = now + timedelta(hours=2)
+    ann.start_at = now + timedelta(hours=3)
+    await db_session.commit()
+
+    before = datetime.now(timezone.utc)
+    result = await AnnouncementLifecycleService(ann, db_session).open_registration()
+    after = datetime.now(timezone.utc)
+
+    assert result.status == AnnouncementStatus.REGISTRATION_OPEN
+    assert before <= as_utc(result.registration_start_at) <= after
+
+
+@pytest.mark.asyncio
+async def test_lifecycle_close_registration_sets_actual_end_time(
+    db_session, create_user
+):
+    """Manual registration closing records the actual closing time."""
+    _, ann = await _setup(
+        db_session,
+        create_user,
+        "sm-close-time@test.com",
+        AnnouncementStatus.REGISTRATION_OPEN,
+    )
+    now = datetime.now(timezone.utc)
+    ann.registration_start_at = now - timedelta(hours=1)
+    ann.registration_end_at = now + timedelta(hours=1)
+    ann.start_at = now + timedelta(hours=2)
+    await db_session.commit()
+
+    before = datetime.now(timezone.utc)
+    result = await AnnouncementLifecycleService(ann, db_session).close_registration()
+    after = datetime.now(timezone.utc)
+
+    assert result.status == AnnouncementStatus.REGISTRATION_CLOSED
+    assert before <= as_utc(result.registration_end_at) <= after
+
+
+@pytest.mark.asyncio
+async def test_lifecycle_open_registration_rejects_invalid_dates(
+    db_session, create_user
+):
+    """Manual registration opening validates the updated registration window."""
+    _, ann = await _setup(
+        db_session,
+        create_user,
+        "sm-open-invalid-time@test.com",
+        AnnouncementStatus.PRE_REGISTRATION,
+    )
+
+    with pytest.raises(ValidationException, match="registration_end_at"):
+        await AnnouncementLifecycleService(ann, db_session).open_registration()
+
+
+@pytest.mark.asyncio
+async def test_lifecycle_close_registration_rejects_invalid_dates(
+    db_session, create_user
+):
+    """Manual registration closing validates the updated registration window."""
+    _, ann = await _setup(
+        db_session,
+        create_user,
+        "sm-close-invalid-time@test.com",
+        AnnouncementStatus.REGISTRATION_OPEN,
+    )
+
+    with pytest.raises(ValidationException, match="start_at"):
+        await AnnouncementLifecycleService(ann, db_session).close_registration()
+
+
+@pytest.mark.asyncio
+async def test_open_registration_from_wrong_status_raises_validation_exception(
+    db_session, create_user
+):
+    """open_registration from REGISTRATION_OPEN raises ValidationException."""
+    _, ann = await _setup(
+        db_session,
+        create_user,
+        "sm-open-wrong@test.com",
+        AnnouncementStatus.REGISTRATION_OPEN,
+    )
+
+    with pytest.raises(ValidationException, match="open_registration"):
+        await AnnouncementStateMachine(ann, db_session).fire(
+            AnnouncementTrigger.OPEN_REGISTRATION
+        )
+
+
+@pytest.mark.asyncio
+async def test_close_registration_from_wrong_status_raises_validation_exception(
+    db_session, create_user
+):
+    """close_registration from PRE_REGISTRATION raises ValidationException."""
+    _, ann = await _setup(
+        db_session,
+        create_user,
+        "sm-close-wrong@test.com",
+        AnnouncementStatus.PRE_REGISTRATION,
+    )
+
+    with pytest.raises(ValidationException, match="close_registration"):
+        await AnnouncementStateMachine(ann, db_session).fire(
+            AnnouncementTrigger.CLOSE_REGISTRATION
+        )
 
 
 @pytest.mark.asyncio

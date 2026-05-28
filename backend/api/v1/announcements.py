@@ -230,6 +230,38 @@ async def delete_announcement(
 
 
 @router.post(
+    "/{announcement_id}/open_registration",
+    response_model=DataResponse[AnnouncementResponse],
+)
+async def open_registration(
+    session: SessionDep,
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[AnnouncementResponse]:
+    authorize_action(user, announcement, "manage_lifecycle")
+    service = AnnouncementLifecycleService(announcement, session)
+    announcement = await service.open_registration()
+    await session.commit()
+    return DataResponse(data=announcement)
+
+
+@router.post(
+    "/{announcement_id}/close_registration",
+    response_model=DataResponse[AnnouncementResponse],
+)
+async def close_registration(
+    session: SessionDep,
+    announcement: Announcement = Depends(get_announcement_dependency),
+    user: User = Depends(current_user),
+) -> DataResponse[AnnouncementResponse]:
+    authorize_action(user, announcement, "manage_lifecycle")
+    service = AnnouncementLifecycleService(announcement, session)
+    announcement = await service.close_registration()
+    await session.commit()
+    return DataResponse(data=announcement)
+
+
+@router.post(
     "/{announcement_id}/start_qualification",
     response_model=DataResponse[AnnouncementResponse],
 )

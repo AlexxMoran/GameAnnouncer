@@ -3,7 +3,8 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from modules.announcements.model import Announcement
-from modules.announcements.state_machine import AnnouncementStateMachine
+1from modules.announcements.state_machine import AnnouncementStateMachine
+from modules.announcements.validators import AnnouncementValidator
 from enums import AnnouncementTrigger
 
 
@@ -24,6 +25,18 @@ class AnnouncementLifecycleService:
     def __init__(self, announcement: Announcement, session: AsyncSession) -> None:
         self._announcement = announcement
         self._sm = AnnouncementStateMachine(announcement, session)
+
+    async def open_registration(self) -> Announcement:
+        """Open registration manually and record the actual opening time."""
+        AnnouncementValidator().validate_manual_open(self._announcement)
+        self._announcement.registration_start_at = datetime.now(timezone.utc)
+        return await self._sm.fire(AnnouncementTrigger.OPEN_REGISTRATION)
+
+    async def close_registration(self) -> Announcement:
+        """Close registration manually and record the actual closing time."""
+        AnnouncementValidator().validate_manual_close(self._announcement)
+        self._announcement.registration_end_at = datetime.now(timezone.utc)
+        return await self._sm.fire(AnnouncementTrigger.CLOSE_REGISTRATION)
 
     async def start_qualification(self) -> Announcement:
         """Start the qualification stage, moving the announcement to LIVE."""

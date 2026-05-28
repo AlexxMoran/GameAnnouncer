@@ -9,6 +9,8 @@ class AnnouncementTrigger(str, Enum):
     AUTO_FINISH is system-only and is fired internally after the final match completes.
     """
 
+    OPEN_REGISTRATION = "open_registration"
+    CLOSE_REGISTRATION = "close_registration"
     START_QUALIFICATION = "start_qualification"
     FINALIZE_QUALIFICATION = "finalize_qualification"
     GENERATE_BRACKET = "generate_bracket"
