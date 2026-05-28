@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from modules.announcements.model import Announcement
-1from modules.announcements.state_machine import AnnouncementStateMachine
+from modules.announcements.state_machine import AnnouncementStateMachine
 from modules.announcements.validators import AnnouncementValidator
 from enums import AnnouncementTrigger
 
