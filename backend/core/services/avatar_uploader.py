@@ -15,7 +15,9 @@ async def upload_avatar(
     ext = os.path.splitext(file.filename)[1].lower()
 
     if ext not in ALLOWED_EXTENSIONS:
-        raise AppException("Invalid image format", status_code=400, message_key="invalid_image_format")
+        raise AppException(
+            "Invalid image format", status_code=400, message_key="invalid_image_format"
+        )
 
     target_dir = os.path.join(BASE_DIR, f"{object_type}s")
     await asyncio.to_thread(os.makedirs, target_dir, exist_ok=True)

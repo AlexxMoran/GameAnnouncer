@@ -20,7 +20,10 @@ class GenerateAnnouncementBracketDecisions:
         snapshot: GenerateAnnouncementBracketSnapshot,
     ) -> GenerateAnnouncementBracketDecision:
         if snapshot.has_existing_matches:
-            raise ValidationException("Bracket has already been generated", message_key="bracket_already_generated")
+            raise ValidationException(
+                "Bracket has already been generated",
+                message_key="bracket_already_generated",
+            )
 
         eligible = self._eligible_participants(snapshot)
         if len(eligible) < 2:
@@ -69,7 +72,9 @@ class GenerateAnnouncementBracketDecisions:
     ) -> int:
         if snapshot.has_qualification:
             if snapshot.bracket_size is None:
-                raise ValidationException("Bracket size is not set", message_key="bracket_size_not_set")
+                raise ValidationException(
+                    "Bracket size is not set", message_key="bracket_size_not_set"
+                )
             if len(eligible) > snapshot.bracket_size:
                 raise ValidationException(
                     f"Qualified participants ({len(eligible)}) exceed bracket size ({snapshot.bracket_size})",

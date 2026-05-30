@@ -33,7 +33,13 @@ class ValidationException(AppException):
     Custom exception for validation errors.
     """
 
-    def __init__(self, message: str, error: Any | None = None, message_key: str | None = None):
+    def __init__(
+        self, message: str, error: Any | None = None, message_key: str | None = None
+    ):
         super().__init__(
-            message, status_code=422, error_type="validation_error", error=error, message_key=message_key
+            message,
+            status_code=422,
+            error_type="validation_error",
+            error=error,
+            message_key=message_key,
         )

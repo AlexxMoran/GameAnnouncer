@@ -75,7 +75,9 @@ class GenerateAnnouncementBracketGateway:
         for seed_decision in decision.participant_seeds:
             participant = participant_by_id.get(seed_decision.participant_id)
             if participant is None:
-                raise ValidationException("Participant not found", message_key="not_found")
+                raise ValidationException(
+                    "Participant not found", message_key="not_found"
+                )
             participant.seed = seed_decision.seed
             seeded_participants.append(participant)
 
@@ -103,5 +105,7 @@ class GenerateAnnouncementBracketGateway:
         )
         announcement = result.scalar_one_or_none()
         if announcement is None:
-            raise AppException("Announcement not found", status_code=404, message_key="not_found")
+            raise AppException(
+                "Announcement not found", status_code=404, message_key="not_found"
+            )
         return announcement

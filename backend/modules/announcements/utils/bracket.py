@@ -21,7 +21,11 @@ async def get_bracket(
         announcement.id
     )
     if not matches:
-        raise AppException("Bracket has not been generated yet", status_code=404, message_key="not_found")
+        raise AppException(
+            "Bracket has not been generated yet",
+            status_code=404,
+            message_key="not_found",
+        )
 
     rounds: dict[int, list[MatchResponse]] = {}
     for match in matches:
