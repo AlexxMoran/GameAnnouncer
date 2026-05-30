@@ -85,7 +85,9 @@ class UpdateAnnouncementGateway:
         )
         announcement = result.scalar_one_or_none()
         if announcement is None:
-            raise AppException("Announcement not found", status_code=404)
+            raise AppException(
+                "Announcement not found", status_code=404, message_key="not_found"
+            )
         return announcement
 
     async def _reject_active_registration_requests(

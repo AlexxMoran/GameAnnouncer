@@ -55,14 +55,17 @@ class ChangeRegistrationRequestStatusGateway:
                 decision.announcement_id
             )
             if not locked:
-                raise ValidationException("Announcement not found")
+                raise ValidationException(
+                    "Announcement not found", message_key="not_found"
+                )
 
             participant_count = await self._participant_repo.count_by_announcement_id(
                 decision.announcement_id
             )
             if participant_count >= locked.max_participants:
                 raise ValidationException(
-                    "Cannot approve: maximum number of participants reached"
+                    "Cannot approve: maximum number of participants reached",
+                    message_key="max_participants_reached",
                 )
 
         registration_request.status = decision.new_status
@@ -108,5 +111,9 @@ class ChangeRegistrationRequestStatusGateway:
             self._session
         ).find_by_id(registration_request_id)
         if registration_request is None:
-            raise AppException("Registration Request not found", status_code=404)
+            raise AppException(
+                "Registration Request not found",
+                status_code=404,
+                message_key="not_found",
+            )
         return registration_request

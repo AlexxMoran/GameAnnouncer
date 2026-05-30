@@ -87,8 +87,12 @@ async def test_http_exception_handler_missing_and_invalid_token():
 async def test_validation_exception_handler_formats_errors():
     req = make_request("POST", "/create")
     errors = [
-        {"loc": ("body", "name"), "msg": "field required"},
-        {"loc": ("body", "age"), "msg": "value is not a valid integer"},
+        {"loc": ("body", "name"), "msg": "field required", "type": "missing"},
+        {
+            "loc": ("body", "age"),
+            "msg": "value is not a valid integer",
+            "type": "int_parsing",
+        },
     ]
     exc = RequestValidationError(errors)
     resp = await validation_exception_handler(req, exc)
@@ -96,6 +100,21 @@ async def test_validation_exception_handler_formats_errors():
     body = json.loads(resp.body)
     assert "name: field required" in body["detail"]
     assert "age: value is not a valid integer" in body["detail"]
+    assert body["message_key"] == "validation_error"
+    assert body["errors"] == [
+        {
+            "field": "name",
+            "message": "field required",
+            "message_key": "validation.missing",
+            "params": {"field": "name"},
+        },
+        {
+            "field": "age",
+            "message": "value is not a valid integer",
+            "message_key": "validation.int_parsing",
+            "params": {"field": "age"},
+        },
+    ]
 
 
 @pytest.mark.asyncio
@@ -110,12 +129,45 @@ async def test_database_exception_handler_integrity_and_data_error():
     assert resp.status_code == 409
     body = json.loads(resp.body)
     assert "email" in body["detail"]
+    assert body["message_key"] == "db.duplicate_key"
+    assert body["errors"] == [
+        {
+            "field": "email",
+            "message_key": "db.duplicate_key",
+            "params": {"field": "email"},
+        }
+    ]
 
     de = DataError("", {}, Exception("invalid input syntax for type integer"))
     resp2 = await database_exception_handler(req, de)
     assert resp2.status_code == 400
     body2 = json.loads(resp2.body)
     assert "Invalid data format" in body2["detail"]
+    assert body2["message_key"] == "db.invalid_data_format"
+
+
+@pytest.mark.asyncio
+async def test_database_exception_handler_not_null_error():
+    req = make_request("POST", "/db")
+    orig = Exception(
+        'null value in column "title" of relation "announcements" '
+        "violates not-null constraint"
+    )
+    exc = IntegrityError("", {}, orig)
+
+    resp = await database_exception_handler(req, exc)
+
+    assert resp.status_code == 400
+    body = json.loads(resp.body)
+    assert body["detail"] == "title: Field is required"
+    assert body["message_key"] == "db.not_null"
+    assert body["errors"] == [
+        {
+            "field": "title",
+            "message_key": "db.not_null",
+            "params": {"field": "title"},
+        }
+    ]
 
 
 @pytest.mark.asyncio

@@ -112,14 +112,19 @@ class Match(Base):
     def validate_scores(self, key: str, value: int | None) -> int | None:
         """Validate that scores are non-negative when set."""
         if value is not None and value < 0:
-            raise ValidationException(f"{key} cannot be negative")
+            raise ValidationException(
+                f"{key} cannot be negative", message_key="value_cannot_be_negative"
+            )
         return value
 
     @validates("round_number", "match_number")
     def validate_numbers(self, key: str, value: int) -> int:
         """Validate that round and match numbers are positive."""
         if value < 1:
-            raise ValidationException(f"{key} must be positive (got {value})")
+            raise ValidationException(
+                f"{key} must be positive (got {value})",
+                message_key="value_must_be_positive",
+            )
         return value
 
     def __repr__(self) -> str:

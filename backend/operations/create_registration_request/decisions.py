@@ -23,17 +23,20 @@ class CreateRegistrationRequestDecisions:
     def _validate(self, snapshot: CreateRegistrationRequestSnapshot) -> None:
         if not snapshot.is_registration_open:
             raise ValidationException(
-                "Registration is currently closed for this announcement"
+                "Registration is currently closed for this announcement",
+                message_key="registration_closed",
             )
 
         if snapshot.has_existing_active_request:
             raise ValidationException(
-                "Registration request already exists for this user and announcement"
+                "Registration request already exists for this user and announcement",
+                message_key="registration_request_already_exists",
             )
 
         if not snapshot.form_fields and snapshot.form_responses:
             raise ValidationException(
-                "This announcement does not have a registration form. No form responses are required."
+                "This announcement does not have a registration form. No form responses are required.",
+                message_key="announcement_no_registration_form",
             )
 
         if snapshot.form_fields:
@@ -53,7 +56,8 @@ class CreateRegistrationRequestDecisions:
         if invalid_field_ids:
             raise ValidationException(
                 f"Invalid form field IDs: {invalid_field_ids}. "
-                "These fields do not belong to this announcement's registration form."
+                "These fields do not belong to this announcement's registration form.",
+                message_key="invalid_form_field_ids",
             )
 
         missing_required_fields = required_field_ids - provided_field_ids
@@ -64,5 +68,6 @@ class CreateRegistrationRequestDecisions:
                 if field.id in missing_required_fields
             ]
             raise ValidationException(
-                f"Missing required fields: {', '.join(missing_labels)}"
+                f"Missing required fields: {', '.join(missing_labels)}",
+                message_key="missing_required_form_fields",
             )

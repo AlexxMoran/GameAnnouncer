@@ -32,7 +32,22 @@ API_RESPONSES = {
         "content": {
             "application/json": {
                 "example": {
-                    "detail": "email: Invalid email format; password: String should have at least 8 characters"
+                    "detail": "email: Invalid email format; password: String should have at least 8 characters",
+                    "message_key": "validation_error",
+                    "errors": [
+                        {
+                            "field": "email",
+                            "message": "Invalid email format",
+                            "message_key": "validation.value_error",
+                            "params": {"field": "email"},
+                        },
+                        {
+                            "field": "password",
+                            "message": "String should have at least 8 characters",
+                            "message_key": "validation.string_too_short",
+                            "params": {"field": "password", "min_length": 8},
+                        },
+                    ],
                 }
             }
         },

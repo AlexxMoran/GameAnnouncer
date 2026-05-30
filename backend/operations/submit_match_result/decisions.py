@@ -41,9 +41,13 @@ class SubmitMatchResultDecisions:
     @staticmethod
     def _validate(match: MatchSnapshot) -> None:
         if match.status != MatchStatus.READY:
-            raise ValidationException("Match is not ready")
+            raise ValidationException(
+                "Match is not ready", message_key="match_not_ready"
+            )
         if match.is_bye:
-            raise ValidationException("Cannot report result for a BYE match")
+            raise ValidationException(
+                "Cannot report result for a BYE match", message_key="match_is_bye"
+            )
 
     @staticmethod
     def _resolve_winner_and_loser_ids(
@@ -57,9 +61,14 @@ class SubmitMatchResultDecisions:
             loser_id = snapshot.match.participant1_id
 
         if winner_id is None:
-            raise ValidationException("Selected winner slot is empty")
+            raise ValidationException(
+                "Selected winner slot is empty", message_key="match_winner_slot_empty"
+            )
         if loser_id is None:
-            raise ValidationException("Match must have two participants")
+            raise ValidationException(
+                "Match must have two participants",
+                message_key="match_two_participants_required",
+            )
 
         return winner_id, loser_id
 

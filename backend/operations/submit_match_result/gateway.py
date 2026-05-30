@@ -85,7 +85,8 @@ class SubmitMatchResultGateway:
             )
             if participant is None:
                 raise ValidationException(
-                    "Participant record not found for placement assignment"
+                    "Participant record not found for placement assignment",
+                    message_key="not_found",
                 )
             participant.placement = placement.placement
 
@@ -115,13 +116,17 @@ class SubmitMatchResultGateway:
         result = await self._session.execute(select(Match).where(Match.id == match_id))
         match = result.scalar_one_or_none()
         if match is None:
-            raise AppException("Match not found", status_code=404)
+            raise AppException(
+                "Match not found", status_code=404, message_key="not_found"
+            )
         return match
 
     async def _load_announcement(self, announcement_id: int) -> Announcement:
         announcement = await self._session.get(Announcement, announcement_id)
         if announcement is None:
-            raise AppException("Announcement not found", status_code=404)
+            raise AppException(
+                "Announcement not found", status_code=404, message_key="not_found"
+            )
         return announcement
 
     async def _load_third_place_match(self, announcement_id: int) -> Match | None:

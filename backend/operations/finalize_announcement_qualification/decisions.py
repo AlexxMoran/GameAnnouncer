@@ -43,20 +43,26 @@ class FinalizeAnnouncementQualificationDecisions:
     def _validate(snapshot: FinalizeAnnouncementQualificationSnapshot) -> None:
         if snapshot.status != AnnouncementStatus.LIVE:
             raise ValidationException(
-                f"'finalize_qualification' is not allowed when status is '{snapshot.status}'"
+                f"'finalize_qualification' is not allowed when status is '{snapshot.status}'",
+                message_key="invalid_status_transition",
             )
 
         if not snapshot.has_qualification:
             raise ValidationException(
-                "This announcement does not have a qualification phase"
+                "This announcement does not have a qualification phase",
+                message_key="announcement_no_qualification",
             )
 
         if snapshot.qualification_finished:
-            raise ValidationException("Qualification has already been finalized")
+            raise ValidationException(
+                "Qualification has already been finalized",
+                message_key="qualification_already_finalized",
+            )
 
         if len(snapshot.participants) < 2:
             raise ValidationException(
-                "At least 2 participants are required to finalize qualification"
+                "At least 2 participants are required to finalize qualification",
+                message_key="not_enough_participants_for_qualification",
             )
 
     @staticmethod

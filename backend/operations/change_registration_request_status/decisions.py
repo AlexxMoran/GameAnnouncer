@@ -70,7 +70,8 @@ class ChangeRegistrationRequestStatusDecisions:
         new_status = TRANSITIONS.get((status, self._trigger))
         if new_status is None:
             raise ValidationException(
-                f"'{self._trigger.value}' is not allowed when status is '{status}'"
+                f"'{self._trigger.value}' is not allowed when status is '{status}'",
+                message_key="invalid_status_transition",
             )
         return new_status
 

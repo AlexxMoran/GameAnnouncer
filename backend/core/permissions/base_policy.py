@@ -11,6 +11,7 @@ class BasePolicy:
         raise AppException(
             "You do not have permission to perform this action",
             status_code=status.HTTP_403_FORBIDDEN,
+            message_key="forbidden",
         )
 
     @property

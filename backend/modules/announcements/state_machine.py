@@ -99,7 +99,8 @@ class AnnouncementStateMachine:
             await getattr(self, trigger.value)()
         except MachineError:
             raise ValidationException(
-                f"'{trigger.value}' is not allowed when status is '{self._ann.status}'"
+                f"'{trigger.value}' is not allowed when status is '{self._ann.status}'",
+                message_key="invalid_status_transition",
             )
         self._ann.status = AnnouncementStatus(self.state)
         return await AnnouncementRepository(self._session).save(self._ann)

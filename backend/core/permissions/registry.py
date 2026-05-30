@@ -54,6 +54,7 @@ class PoliciesRegistry:
             raise AppException(
                 f"Policy class '{policy_class_name}' not found for record type '{record_class_name}'",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                message_key="policy_not_found",
             )
         return policy_class
 
