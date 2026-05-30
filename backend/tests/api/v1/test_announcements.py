@@ -20,8 +20,13 @@ async def test_get_announcements_paginated(async_client, announcement_factory):
     mock_search.total_count = AsyncMock(return_value=2)
 
     with (
-        patch("api.v1.announcements.collection.AnnouncementSearch", return_value=mock_search),
-        patch("api.v1.announcements.collection.get_batch_permissions", return_value=None),
+        patch(
+            "api.v1.announcements.collection.AnnouncementSearch",
+            return_value=mock_search,
+        ),
+        patch(
+            "api.v1.announcements.collection.get_batch_permissions", return_value=None
+        ),
     ):
         r = await async_client.get(
             f"/api/v1/announcements?game_id={game_id}&skip=0&limit=10"
@@ -111,7 +116,9 @@ async def test_get_announcement_anonymous_has_no_registration_request(
     try:
         with (
             patch("api.v1.announcements.detail.get_permissions", return_value={}),
-            patch("api.v1.announcements.detail.RegistrationRequestRepository") as repo_cls,
+            patch(
+                "api.v1.announcements.detail.RegistrationRequestRepository"
+            ) as repo_cls,
         ):
             r = await async_client.get(f"/api/v1/announcements/{ann_obj.id}")
     finally:
@@ -209,8 +216,13 @@ async def test_get_announcements_with_game_filter(async_client, announcement_fac
     mock_search.total_count = AsyncMock(return_value=5)
 
     with (
-        patch("api.v1.announcements.collection.AnnouncementSearch", return_value=mock_search),
-        patch("api.v1.announcements.collection.get_batch_permissions", return_value=None),
+        patch(
+            "api.v1.announcements.collection.AnnouncementSearch",
+            return_value=mock_search,
+        ),
+        patch(
+            "api.v1.announcements.collection.get_batch_permissions", return_value=None
+        ),
     ):
         r = await async_client.get(f"/api/v1/announcements?game_id={game_id}")
         assert r.status_code == 200
@@ -237,8 +249,13 @@ async def test_get_all_announcements_without_filter(async_client, announcement_f
     mock_search.total_count = AsyncMock(return_value=3)
 
     with (
-        patch("api.v1.announcements.collection.AnnouncementSearch", return_value=mock_search),
-        patch("api.v1.announcements.collection.get_batch_permissions", return_value=None),
+        patch(
+            "api.v1.announcements.collection.AnnouncementSearch",
+            return_value=mock_search,
+        ),
+        patch(
+            "api.v1.announcements.collection.get_batch_permissions", return_value=None
+        ),
     ):
         r = await async_client.get("/api/v1/announcements")
         assert r.status_code == 200

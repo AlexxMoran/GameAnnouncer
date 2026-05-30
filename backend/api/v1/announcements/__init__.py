@@ -10,9 +10,13 @@ from .participants import router as participants_router
 from .registration_requests import router as registration_requests_router
 
 router = APIRouter()
-router.include_router(collection_router, prefix="/announcements", tags=["announcements"])
+router.include_router(
+    collection_router, prefix="/announcements", tags=["announcements"]
+)
 router.include_router(detail_router, prefix="/announcements", tags=["announcements"])
-router.include_router(participants_router, prefix="/announcements", tags=["announcements"])
+router.include_router(
+    participants_router, prefix="/announcements", tags=["announcements"]
+)
 router.include_router(
     registration_requests_router, prefix="/announcements", tags=["announcements"]
 )
