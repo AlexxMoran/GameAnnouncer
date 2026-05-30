@@ -3,7 +3,10 @@ from datetime import datetime
 
 from pydantic import ValidationError
 from modules.announcements.schemas.filters import AnnouncementFilter
-from modules.announcements.schemas.mutations import AnnouncementCreate, AnnouncementUpdate
+from modules.announcements.schemas.mutations import (
+    AnnouncementCreate,
+    AnnouncementUpdate,
+)
 from modules.announcements.schemas.responses import AnnouncementResponse
 from modules.participants.schemas.base import AnnouncementParticipantBase
 from modules.participants.schemas.responses import AnnouncementParticipantResponse

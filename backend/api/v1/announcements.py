@@ -18,7 +18,10 @@ from modules.announcements.repository import AnnouncementRepository
 from modules.announcements.search import AnnouncementSearch
 from modules.announcements.schemas.details import AnnouncementDetailResponse
 from modules.announcements.schemas.filters import AnnouncementFilter
-from modules.announcements.schemas.mutations import AnnouncementCreate, AnnouncementUpdate
+from modules.announcements.schemas.mutations import (
+    AnnouncementCreate,
+    AnnouncementUpdate,
+)
 from modules.announcements.schemas.responses import AnnouncementResponse
 from modules.participants.schemas.mutations import AnnouncementParticipantScoreUpdate
 from modules.participants.schemas.responses import AnnouncementParticipantResponse
@@ -82,7 +85,9 @@ async def get_announcements(
     )
 
 
-@router.get("/{announcement_id}", response_model=DataResponse[AnnouncementDetailResponse])
+@router.get(
+    "/{announcement_id}", response_model=DataResponse[AnnouncementDetailResponse]
+)
 async def get_announcement(
     session: SessionDep,
     announcement: Announcement = Depends(get_announcement_dependency),
@@ -91,9 +96,7 @@ async def get_announcement(
     announcement.permissions = get_permissions(user, announcement)
     if user is not None:
         announcement.my_active_registration_request = (
-            await RegistrationRequestRepository(
-                session
-            ).find_by_user_and_announcement(
+            await RegistrationRequestRepository(session).find_by_user_and_announcement(
                 user_id=user.id,
                 announcement_id=announcement.id,
             )

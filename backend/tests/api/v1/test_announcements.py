@@ -111,9 +111,7 @@ async def test_get_announcement_anonymous_has_no_registration_request(
     try:
         with (
             patch("api.v1.announcements.get_permissions", return_value={}),
-            patch(
-                "api.v1.announcements.RegistrationRequestRepository"
-            ) as repo_cls,
+            patch("api.v1.announcements.RegistrationRequestRepository") as repo_cls,
         ):
             r = await async_client.get(f"/api/v1/announcements/{ann_obj.id}")
     finally:

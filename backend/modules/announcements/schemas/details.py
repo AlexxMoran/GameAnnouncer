@@ -1,5 +1,7 @@
 from modules.announcements.schemas.responses import AnnouncementResponse
-from modules.registration.schemas.responses import CurrentUserRegistrationRequestResponse
+from modules.registration.schemas.responses import (
+    CurrentUserRegistrationRequestResponse,
+)
 
 
 class AnnouncementDetailResponse(AnnouncementResponse):
