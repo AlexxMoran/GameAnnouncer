@@ -92,6 +92,7 @@ class RegistrationStateMachine:
             await getattr(self, trigger.value)()
         except MachineError:
             raise ValidationException(
-                f"'{trigger.value}' is not allowed when status is '{self._request.status}'"
+                f"'{trigger.value}' is not allowed when status is '{self._request.status}'",
+                message_key="invalid_status_transition",
             )
         return RegistrationStatus(self.state)

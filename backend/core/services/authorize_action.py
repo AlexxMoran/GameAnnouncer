@@ -19,6 +19,7 @@ class AuthorizationService:
                 "Authentication required to perform this action",
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 error_type="missing_token",
+                message_key="unauthorized",
             )
 
         policy_class = self.registry.get_policy_for_record(record)
@@ -30,6 +31,7 @@ class AuthorizationService:
             raise AppException(
                 f"Policy method '{method_name}' not found in '{policy_class.__name__}'",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                message_key="policy_method_not_found",
             )
 
         try:
@@ -46,6 +48,7 @@ class AuthorizationService:
             raise AppException(
                 "Authorization check failed due to an internal error",
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                message_key="authorization_check_failed",
             )
 
         if not can_perform_action:

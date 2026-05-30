@@ -58,7 +58,7 @@ class FinalizeAnnouncementQualificationGateway:
         for participant_decision in decision.participant_decisions:
             participant = participant_by_id.get(participant_decision.participant_id)
             if participant is None:
-                raise ValidationException("Participant not found")
+                raise ValidationException("Participant not found", message_key="not_found")
             participant.qualification_rank = participant_decision.qualification_rank
             participant.is_qualified = participant_decision.is_qualified
 
@@ -78,5 +78,5 @@ class FinalizeAnnouncementQualificationGateway:
         )
         announcement = result.scalar_one_or_none()
         if announcement is None:
-            raise AppException("Announcement not found", status_code=404)
+            raise AppException("Announcement not found", status_code=404, message_key="not_found")
         return announcement

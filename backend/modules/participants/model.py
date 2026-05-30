@@ -64,7 +64,7 @@ class AnnouncementParticipant(Base):
     def validate_positive_values(self, key: str, value: int | None) -> int | None:
         """Validate that numeric fields are positive when set."""
         if value is not None and value <= 0:
-            raise ValidationException(f"{key} must be a positive number")
+            raise ValidationException(f"{key} must be a positive number", message_key="value_must_be_positive")
         return value
 
     def __repr__(self) -> str:

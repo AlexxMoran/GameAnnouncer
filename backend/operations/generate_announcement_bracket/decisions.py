@@ -20,12 +20,13 @@ class GenerateAnnouncementBracketDecisions:
         snapshot: GenerateAnnouncementBracketSnapshot,
     ) -> GenerateAnnouncementBracketDecision:
         if snapshot.has_existing_matches:
-            raise ValidationException("Bracket has already been generated")
+            raise ValidationException("Bracket has already been generated", message_key="bracket_already_generated")
 
         eligible = self._eligible_participants(snapshot)
         if len(eligible) < 2:
             raise ValidationException(
-                "At least 2 eligible participants are required to generate a bracket"
+                "At least 2 eligible participants are required to generate a bracket",
+                message_key="not_enough_participants_for_bracket",
             )
 
         bracket_size = self._resolve_bracket_size(snapshot, eligible)
@@ -68,10 +69,11 @@ class GenerateAnnouncementBracketDecisions:
     ) -> int:
         if snapshot.has_qualification:
             if snapshot.bracket_size is None:
-                raise ValidationException("Bracket size is not set")
+                raise ValidationException("Bracket size is not set", message_key="bracket_size_not_set")
             if len(eligible) > snapshot.bracket_size:
                 raise ValidationException(
-                    f"Qualified participants ({len(eligible)}) exceed bracket size ({snapshot.bracket_size})"
+                    f"Qualified participants ({len(eligible)}) exceed bracket size ({snapshot.bracket_size})",
+                    message_key="participants_exceed_bracket_size",
                 )
             return snapshot.bracket_size
         return compute_bracket_size(len(eligible))
@@ -82,16 +84,19 @@ class GenerateAnnouncementBracketDecisions:
     ) -> None:
         if not snapshot.qualification_finished:
             raise ValidationException(
-                "Qualification must be finalized before generating the bracket"
+                "Qualification must be finalized before generating the bracket",
+                message_key="qualification_not_finalized",
             )
         if snapshot.status != AnnouncementStatus.LIVE:
             raise ValidationException(
-                f"'generate_bracket' is not allowed when status is '{snapshot.status}'"
+                f"'generate_bracket' is not allowed when status is '{snapshot.status}'",
+                message_key="invalid_status_transition",
             )
 
     @staticmethod
     def _validate_direct_status(snapshot: GenerateAnnouncementBracketSnapshot) -> None:
         if snapshot.status != AnnouncementStatus.REGISTRATION_CLOSED:
             raise ValidationException(
-                f"'generate_bracket' is not allowed when status is '{snapshot.status}'"
+                f"'generate_bracket' is not allowed when status is '{snapshot.status}'",
+                message_key="invalid_status_transition",
             )

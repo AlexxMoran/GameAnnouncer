@@ -79,7 +79,8 @@ class CreateRegistrationRequestGateway:
             if not self._is_active_request_conflict(exc):
                 raise
             raise ValidationException(
-                "Registration request already exists for this user and announcement"
+                "Registration request already exists for this user and announcement",
+                message_key="registration_request_already_exists",
             ) from exc
 
         for response_data in decision.form_responses:
@@ -109,5 +110,5 @@ class CreateRegistrationRequestGateway:
         )
         announcement = result.scalar_one_or_none()
         if announcement is None:
-            raise AppException("Announcement not found", status_code=404)
+            raise AppException("Announcement not found", status_code=404, message_key="not_found")
         return announcement

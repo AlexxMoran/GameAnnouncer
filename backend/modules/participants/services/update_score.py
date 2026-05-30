@@ -23,7 +23,7 @@ async def update_participant_score(
     repo = ParticipantRepository(session)
     participant = await repo.find_by_id_in_announcement(participant_id, announcement.id)
     if not participant:
-        raise AppException("Participant not found", status_code=404)
+        raise AppException("Participant not found", status_code=404, message_key="not_found")
 
     participant.qualification_score = qualification_score
     return await repo.save(participant)

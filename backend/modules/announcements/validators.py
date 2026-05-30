@@ -40,7 +40,8 @@ class AnnouncementValidator:
 
         if status not in PRE_START_STATUSES or as_utc(announcement.start_at) <= now:
             raise ValidationException(
-                "Announcement can only be updated before the tournament starts"
+                "Announcement can only be updated before the tournament starts",
+                message_key="announcement_update_not_allowed",
             )
 
         self._validate_dates(
@@ -57,13 +58,19 @@ class AnnouncementValidator:
         """Validate that registration can be manually opened right now."""
         now = datetime.now(timezone.utc)
         if as_utc(announcement.registration_end_at) <= now:
-            raise ValidationException("registration_end_at is already in the past")
+            raise ValidationException(
+                "registration_end_at is already in the past",
+                message_key="registration_end_at_in_the_past",
+            )
 
     def validate_manual_close(self, announcement: AnnouncementUpdateSubject) -> None:
         """Validate that registration can be manually closed right now."""
         now = datetime.now(timezone.utc)
         if as_utc(announcement.start_at) <= now:
-            raise ValidationException("start_at must be in the future")
+            raise ValidationException(
+                "start_at must be in the future",
+                message_key="start_at_must_be_future",
+            )
 
     def _validate_dates(
         self,
@@ -75,13 +82,18 @@ class AnnouncementValidator:
 
         if as_utc(registration_start_at) >= as_utc(registration_end_at):
             raise ValidationException(
-                "registration_start_at must be before registration_end_at"
+                "registration_start_at must be before registration_end_at",
+                message_key="registration_dates_invalid_order",
             )
 
         if as_utc(start_at) < as_utc(registration_end_at):
             raise ValidationException(
-                "start_at must be after or equal to registration_end_at"
+                "start_at must be after or equal to registration_end_at",
+                message_key="start_at_before_registration_end",
             )
 
         if as_utc(start_at) <= now:
-            raise ValidationException("start_at must be in the future")
+            raise ValidationException(
+                "start_at must be in the future",
+                message_key="start_at_must_be_future",
+            )
