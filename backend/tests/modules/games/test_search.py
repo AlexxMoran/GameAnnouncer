@@ -1,7 +1,7 @@
 import pytest
 
 from modules.games.search import GameSearch
-from modules.games.schemas import GameFilter
+from modules.games.schemas.filters import GameFilter
 from modules.games.model import Game
 
 

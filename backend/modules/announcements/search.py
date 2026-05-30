@@ -2,7 +2,7 @@ from sqlalchemy import select, or_, case, desc, func
 from sqlalchemy.orm import selectinload
 
 from modules.announcements.model import Announcement
-from modules.announcements.schemas import AnnouncementFilter
+from modules.announcements.schemas.filters import AnnouncementFilter
 from modules.games.model import Game
 from modules.registration.models import RegistrationForm
 from core.search.base_search import BaseSearch

@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import select
 
 from modules.matches.model import Match
-from modules.matches.schemas import MatchResultUpdate
+from modules.matches.schemas.mutations import MatchResultUpdate
 from operations.submit_match_result.contract import SubmitMatchResultContract
 from operations.submit_match_result.scenario import SubmitMatchResultScenario
 from enums import AnnouncementStatus, MatchStatus

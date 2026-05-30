@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from modules.announcements.model import Announcement
 from modules.matches.queries import MatchQueries
-from modules.matches.schemas import BracketResponse, MatchResponse
+from modules.matches.schemas.responses import BracketResponse, MatchResponse
 from exceptions import AppException
 
 

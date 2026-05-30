@@ -3,7 +3,9 @@ from fastapi import APIRouter, UploadFile, File, Depends
 from modules.games.model import Game
 from modules.games.queries import GameQueries
 from modules.games.repository import GameRepository
-from modules.games.schemas import GameCreate, GameResponse, GameUpdate, GameFilter
+from modules.games.schemas.filters import GameFilter
+from modules.games.schemas.mutations import GameCreate, GameUpdate
+from modules.games.schemas.responses import GameResponse
 from modules.games.search import GameSearch
 from modules.users.model import User
 from exceptions import AppException

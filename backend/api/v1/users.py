@@ -7,11 +7,9 @@ from core.users import current_user
 
 from modules.announcements.queries import AnnouncementQueries
 from modules.registration.search import RegistrationRequestSearch
-from modules.announcements.schemas import AnnouncementResponse
-from modules.registration.schemas import (
-    RegistrationRequestFilter,
-    RegistrationRequestResponse,
-)
+from modules.announcements.schemas.responses import AnnouncementResponse
+from modules.registration.schemas.filters import RegistrationRequestFilter
+from modules.registration.schemas.responses import RegistrationRequestResponse
 
 router = APIRouter(prefix="/users", tags=["users"])
 

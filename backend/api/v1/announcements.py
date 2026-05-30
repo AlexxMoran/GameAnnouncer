@@ -4,10 +4,9 @@ from exceptions import AppException
 from modules.users.model import User
 from core.services.avatar_uploader import upload_avatar
 from core.schemas.base import PaginatedResponse, DataResponse
-from modules.registration.schemas import (
-    RegistrationRequestFilter,
-    RegistrationRequestResponse,
-)
+from modules.registration.schemas.filters import RegistrationRequestFilter
+from modules.registration.schemas.responses import RegistrationRequestResponse
+from modules.registration.repository import RegistrationRequestRepository
 from modules.registration.search import RegistrationRequestSearch
 from core.deps import SessionDep
 from core.users import current_user, current_user_or_none
@@ -17,16 +16,12 @@ from modules.announcements.model import Announcement
 from modules.announcements.queries import AnnouncementQueries
 from modules.announcements.repository import AnnouncementRepository
 from modules.announcements.search import AnnouncementSearch
-from modules.announcements.schemas import (
-    AnnouncementCreate,
-    AnnouncementResponse,
-    AnnouncementUpdate,
-    AnnouncementFilter,
-)
-from modules.participants.schemas import (
-    AnnouncementParticipantResponse,
-    AnnouncementParticipantScoreUpdate,
-)
+from modules.announcements.schemas.details import AnnouncementDetailResponse
+from modules.announcements.schemas.filters import AnnouncementFilter
+from modules.announcements.schemas.mutations import AnnouncementCreate, AnnouncementUpdate
+from modules.announcements.schemas.responses import AnnouncementResponse
+from modules.participants.schemas.mutations import AnnouncementParticipantScoreUpdate
+from modules.participants.schemas.responses import AnnouncementParticipantResponse
 from modules.participants.services.update_score import update_participant_score
 from modules.announcements.services.lifecycle import AnnouncementLifecycleService
 from operations.create_announcement.contract import CreateAnnouncementContract
@@ -47,7 +42,7 @@ from operations.generate_announcement_bracket.scenario import (
 )
 from modules.announcements.utils.bracket import get_bracket
 from modules.matches.queries import MatchQueries
-from modules.matches.schemas import BracketResponse, MatchResponse
+from modules.matches.schemas.responses import BracketResponse, MatchResponse
 
 from modules.participants.queries import ParticipantQueries
 
@@ -87,12 +82,22 @@ async def get_announcements(
     )
 
 
-@router.get("/{announcement_id}", response_model=DataResponse[AnnouncementResponse])
+@router.get("/{announcement_id}", response_model=DataResponse[AnnouncementDetailResponse])
 async def get_announcement(
+    session: SessionDep,
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User | None = Depends(current_user_or_none),
-) -> DataResponse[AnnouncementResponse]:
+) -> DataResponse[AnnouncementDetailResponse]:
     announcement.permissions = get_permissions(user, announcement)
+    if user is not None:
+        announcement.my_active_registration_request = (
+            await RegistrationRequestRepository(
+                session
+            ).find_by_user_and_announcement(
+                user_id=user.id,
+                announcement_id=announcement.id,
+            )
+        )
     return DataResponse(data=announcement)
 
 

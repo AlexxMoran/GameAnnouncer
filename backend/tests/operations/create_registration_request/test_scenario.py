@@ -7,7 +7,7 @@ from modules.announcements.model import Announcement
 from modules.games.model import Game
 from modules.registration.models import RegistrationRequest
 from modules.users.model import User
-from modules.registration.schemas import RegistrationRequestCreate
+from modules.registration.schemas.mutations import RegistrationRequestCreate
 from modules.registration.repository import RegistrationRequestRepository
 from operations.create_registration_request.contract import (
     CreateRegistrationRequestContract,

@@ -9,7 +9,8 @@ from core.deps import get_user_manager
 from core.users import current_user
 from jwt.exceptions import InvalidTokenError
 from core.auth import get_refresh_jwt_strategy, get_jwt_strategy
-from modules.users.schemas import UserResponse, UserCreate, UserUpdate
+from modules.users.schemas.mutations import UserCreate, UserUpdate
+from modules.users.schemas.responses import UserResponse
 from core.schemas.auth import (
     TokenResponse,
     ForgotPasswordRequest,

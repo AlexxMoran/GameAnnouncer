@@ -3,7 +3,9 @@ from datetime import datetime
 from typing import Any
 
 from enums import AnnouncementStatus, SeedMethod
-from modules.registration.form_schemas import RegistrationFormCreate
+from modules.registration.schemas.forms.mutations import (
+    RegistrationFormCreate,
+)
 
 
 @dataclass(frozen=True)

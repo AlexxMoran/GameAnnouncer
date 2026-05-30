@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from modules.announcements.schemas import AnnouncementUpdate
+from modules.announcements.schemas.mutations import AnnouncementUpdate
 
 
 class UpdateAnnouncementContract(BaseModel):

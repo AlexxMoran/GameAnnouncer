@@ -5,7 +5,10 @@ from sqlalchemy import select
 from enums import AnnouncementFormat, FormFieldType, SeedMethod
 from modules.announcements.model import Announcement
 from modules.games.model import Game
-from modules.registration.form_schemas import FormFieldCreate, RegistrationFormCreate
+from modules.registration.schemas.forms.fields.mutations import FormFieldCreate
+from modules.registration.schemas.forms.mutations import (
+    RegistrationFormCreate,
+)
 from modules.registration.models import FormField, RegistrationForm
 from modules.registration.services.upsert_form import UpsertRegistrationFormService
 

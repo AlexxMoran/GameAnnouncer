@@ -10,10 +10,8 @@ from core.users import current_user
 
 from modules.registration.models import RegistrationRequest
 from modules.registration.queries import RegistrationRequestQueries
-from modules.registration.schemas import (
-    RegistrationRequestCreate,
-    RegistrationRequestResponse,
-)
+from modules.registration.schemas.mutations import RegistrationRequestCreate
+from modules.registration.schemas.responses import RegistrationRequestResponse
 from operations.create_registration_request.contract import (
     CreateRegistrationRequestContract,
 )

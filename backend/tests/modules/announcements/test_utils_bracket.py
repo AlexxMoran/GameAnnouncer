@@ -1,7 +1,7 @@
 import pytest
 
 from modules.announcements.utils.bracket import compute_bracket_size, get_bracket
-from modules.matches.schemas import BracketResponse
+from modules.matches.schemas.responses import BracketResponse
 from enums import AnnouncementStatus
 from exceptions import AppException
 
