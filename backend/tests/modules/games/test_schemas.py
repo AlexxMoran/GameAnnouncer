@@ -1,6 +1,9 @@
 import pytest
 from datetime import datetime, timezone
-from modules.games.schemas import GameCreate, GameResponse, GAME_CATEGORIES, GameFilter
+from modules.games.schemas.base import GAME_CATEGORIES
+from modules.games.schemas.filters import GameFilter
+from modules.games.schemas.mutations import GameCreate
+from modules.games.schemas.responses import GameResponse
 
 
 def test_game_category_validator_accepts_known_category():

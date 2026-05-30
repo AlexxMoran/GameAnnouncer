@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Any
 
-from modules.registration.form_schemas import FormFieldResponseCreate
+from modules.registration.schemas.forms.field_responses.mutations import (
+    FormFieldResponseCreate,
+)
 
 
 @dataclass(frozen=True)

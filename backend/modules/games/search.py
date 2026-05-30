@@ -1,5 +1,5 @@
 from modules.games.model import Game
-from modules.games.schemas import GameFilter
+from modules.games.schemas.filters import GameFilter
 from core.search.base_search import BaseSearch
 
 

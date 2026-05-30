@@ -5,7 +5,7 @@ from sqlalchemy.orm import selectinload
 from core.search.base_search import BaseSearch
 from modules.announcements.model import Announcement
 from modules.registration.models import RegistrationRequest
-from modules.registration.schemas import RegistrationRequestFilter
+from modules.registration.schemas.filters import RegistrationRequestFilter
 from modules.users.model import User
 
 

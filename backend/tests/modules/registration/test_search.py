@@ -7,7 +7,7 @@ from enums.registration_status import RegistrationStatus
 from modules.announcements.model import Announcement
 from modules.games.model import Game
 from modules.registration.models import RegistrationRequest
-from modules.registration.schemas import RegistrationRequestFilter
+from modules.registration.schemas.filters import RegistrationRequestFilter
 from modules.registration.search import RegistrationRequestSearch
 
 

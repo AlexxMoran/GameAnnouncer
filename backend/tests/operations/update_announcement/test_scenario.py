@@ -7,11 +7,14 @@ from enums import AnnouncementFormat, AnnouncementStatus, FormFieldType, SeedMet
 from enums.registration_status import RegistrationStatus
 from exceptions import ValidationException
 from modules.announcements.model import Announcement
-from modules.announcements.schemas import AnnouncementUpdate
+from modules.announcements.schemas.mutations import AnnouncementUpdate
 from modules.games.model import Game
 from modules.participants.model import AnnouncementParticipant
 from modules.participants.repository import ParticipantRepository
-from modules.registration.form_schemas import FormFieldCreate, RegistrationFormCreate
+from modules.registration.schemas.forms.fields.mutations import FormFieldCreate
+from modules.registration.schemas.forms.mutations import (
+    RegistrationFormCreate,
+)
 from modules.registration.models import FormField, RegistrationForm, RegistrationRequest
 from modules.registration.reasons import TOURNAMENT_UPDATED_REASON
 from operations.update_announcement.contract import UpdateAnnouncementContract

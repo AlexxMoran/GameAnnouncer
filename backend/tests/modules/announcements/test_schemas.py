@@ -2,16 +2,14 @@ import pytest
 from datetime import datetime
 
 from pydantic import ValidationError
-from modules.announcements.schemas import (
+from modules.announcements.schemas.filters import AnnouncementFilter
+from modules.announcements.schemas.mutations import (
     AnnouncementCreate,
     AnnouncementUpdate,
-    AnnouncementResponse,
-    AnnouncementFilter,
 )
-from modules.participants.schemas import (
-    AnnouncementParticipantBase,
-    AnnouncementParticipantResponse,
-)
+from modules.announcements.schemas.responses import AnnouncementResponse
+from modules.participants.schemas.base import AnnouncementParticipantBase
+from modules.participants.schemas.responses import AnnouncementParticipantResponse
 from enums import AnnouncementFormat, SeedMethod
 
 

@@ -3,7 +3,9 @@ from sqlalchemy.orm.attributes import set_committed_value
 
 from modules.announcements.model import Announcement
 from modules.registration.models import RegistrationForm, FormField
-from modules.registration.form_schemas import RegistrationFormCreate
+from modules.registration.schemas.forms.mutations import (
+    RegistrationFormCreate,
+)
 from modules.registration.repository import RegistrationFormRepository
 
 

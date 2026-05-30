@@ -8,7 +8,8 @@ from modules.announcements.model import Announcement
 from modules.announcements.queries import AnnouncementQueries
 from modules.matches.model import Match
 from modules.matches.queries import MatchQueries
-from modules.matches.schemas import MatchResponse, MatchResultUpdate
+from modules.matches.schemas.mutations import MatchResultUpdate
+from modules.matches.schemas.responses import MatchResponse
 from modules.users.model import User
 from operations.submit_match_result.contract import SubmitMatchResultContract
 from operations.submit_match_result.scenario import SubmitMatchResultScenario

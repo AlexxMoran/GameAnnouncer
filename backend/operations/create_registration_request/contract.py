@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from modules.registration.schemas import RegistrationRequestCreate
+from modules.registration.schemas.mutations import RegistrationRequestCreate
 
 
 class CreateRegistrationRequestContract(BaseModel):

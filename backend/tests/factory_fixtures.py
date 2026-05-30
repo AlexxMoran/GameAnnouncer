@@ -9,7 +9,7 @@ from tests.factories import (
     GameDictFactory,
 )
 from modules.users.model import User
-from modules.users.schemas import UserCreate
+from modules.users.schemas.mutations import UserCreate
 from pydantic import ValidationError
 
 register(UserDictFactory, "user")

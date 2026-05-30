@@ -3,6 +3,7 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch, MagicMock
 from datetime import datetime, timedelta, timezone
 from enums import AnnouncementStatus, AnnouncementFormat
+from enums.registration_status import RegistrationStatus
 from exceptions import AppException, ValidationException
 
 
@@ -32,6 +33,94 @@ async def test_get_announcements_paginated(async_client, announcement_factory):
         assert body["skip"] == 0
         assert body["limit"] == 10
         assert body["filtered_count"] == 2
+
+
+@pytest.mark.asyncio
+async def test_get_announcement_includes_current_user_registration_request(
+    async_client, announcement_factory, user
+):
+    from api.v1.announcements import get_announcement_dependency
+    import core.users as users_mod
+
+    announcement_data = announcement_factory.build()
+    ann_obj = SimpleNamespace(**announcement_data)
+    request_obj = SimpleNamespace(id=77, status=RegistrationStatus.PENDING)
+
+    async def override_announcement():
+        return ann_obj
+
+    async def override_current_user_or_none():
+        return user
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+    app.dependency_overrides[users_mod.current_user_or_none] = (
+        override_current_user_or_none
+    )
+
+    mock_repo = MagicMock()
+    mock_repo.find_by_user_and_announcement = AsyncMock(return_value=request_obj)
+
+    try:
+        with (
+            patch("api.v1.announcements.get_permissions", return_value={}),
+            patch(
+                "api.v1.announcements.RegistrationRequestRepository",
+                return_value=mock_repo,
+            ),
+        ):
+            r = await async_client.get(f"/api/v1/announcements/{ann_obj.id}")
+    finally:
+        app.dependency_overrides.pop(get_announcement_dependency, None)
+        app.dependency_overrides.pop(users_mod.current_user_or_none, None)
+
+    assert r.status_code == 200
+    body = r.json()
+    assert body["data"]["my_active_registration_request"] == {
+        "id": 77,
+        "status": RegistrationStatus.PENDING.value,
+    }
+    mock_repo.find_by_user_and_announcement.assert_awaited_once_with(
+        user_id=user.id,
+        announcement_id=ann_obj.id,
+    )
+
+
+@pytest.mark.asyncio
+async def test_get_announcement_anonymous_has_no_registration_request(
+    async_client, announcement_factory
+):
+    from api.v1.announcements import get_announcement_dependency
+    import core.users as users_mod
+
+    announcement_data = announcement_factory.build()
+    ann_obj = SimpleNamespace(**announcement_data)
+
+    async def override_announcement():
+        return ann_obj
+
+    async def override_current_user_or_none():
+        return None
+
+    app = async_client._transport.app
+    app.dependency_overrides[get_announcement_dependency] = override_announcement
+    app.dependency_overrides[users_mod.current_user_or_none] = (
+        override_current_user_or_none
+    )
+
+    try:
+        with (
+            patch("api.v1.announcements.get_permissions", return_value={}),
+            patch("api.v1.announcements.RegistrationRequestRepository") as repo_cls,
+        ):
+            r = await async_client.get(f"/api/v1/announcements/{ann_obj.id}")
+    finally:
+        app.dependency_overrides.pop(get_announcement_dependency, None)
+        app.dependency_overrides.pop(users_mod.current_user_or_none, None)
+
+    assert r.status_code == 200
+    assert r.json()["data"]["my_active_registration_request"] is None
+    repo_cls.assert_not_called()
 
 
 @pytest.mark.asyncio

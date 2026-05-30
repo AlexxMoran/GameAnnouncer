@@ -1,25 +1,33 @@
 from datetime import datetime, timezone
 
-from modules.announcements.schemas import AnnouncementForRegistrationResponse
-from modules.games.schemas import GameForAnnouncementResponse
-from modules.participants.schemas import AnnouncementParticipantResponse
-from modules.registration.schemas import (
-    RegistrationRequestCreate,
-    RegistrationRequestResponse,
-    RegistrationRequestUpdate,
-)
-from modules.registration.form_schemas import (
-    RegistrationFormCreate,
-    RegistrationFormResponse,
-    RegistrationFormUpdate,
-    FormFieldCreate,
-    FormFieldResponse,
-    FormFieldUpdate,
+from modules.announcements.schemas.summaries import AnnouncementForRegistrationResponse
+from modules.games.schemas.responses import GameForAnnouncementResponse
+from modules.participants.schemas.responses import AnnouncementParticipantResponse
+from modules.registration.schemas.forms.field_responses.mutations import (
     FormFieldResponseCreate,
-    FormFieldResponseResponse,
     FormFieldResponseUpdate,
 )
-from modules.users.schemas import UserBrief
+from modules.registration.schemas.forms.field_responses.responses import (
+    FormFieldResponseResponse,
+)
+from modules.registration.schemas.forms.fields.mutations import (
+    FormFieldCreate,
+    FormFieldUpdate,
+)
+from modules.registration.schemas.forms.fields.responses import FormFieldResponse
+from modules.registration.schemas.forms.mutations import (
+    RegistrationFormCreate,
+    RegistrationFormUpdate,
+)
+from modules.registration.schemas.forms.responses import (
+    RegistrationFormResponse,
+)
+from modules.registration.schemas.mutations import (
+    RegistrationRequestCreate,
+    RegistrationRequestUpdate,
+)
+from modules.registration.schemas.responses import RegistrationRequestResponse
+from modules.users.schemas.responses import UserBrief
 from enums import FormFieldType
 
 

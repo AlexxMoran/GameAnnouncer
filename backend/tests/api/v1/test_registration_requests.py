@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 
-from modules.participants.schemas import AnnouncementParticipantResponse
+from modules.participants.schemas.responses import AnnouncementParticipantResponse
 
 
 def _make_fake_game(**overrides) -> SimpleNamespace:

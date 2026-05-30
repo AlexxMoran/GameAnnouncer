@@ -4,31 +4,12 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from modules.registration.form_schemas import (
-    FormFieldResponseCreate,
+from modules.announcements.schemas.summaries import AnnouncementForRegistrationResponse
+from modules.registration.schemas.base import RegistrationRequestBase
+from modules.registration.schemas.forms.field_responses.responses import (
     FormFieldResponseResponse,
 )
-from modules.announcements.schemas import AnnouncementForRegistrationResponse
-from modules.users.schemas import UserBrief
-from core.search.base_filter import BaseFilter
-from enums.registration_status import RegistrationStatus
-
-
-class RegistrationRequestBase(BaseModel):
-    announcement_id: int = Field(..., description="The ID of the announcement")
-
-
-class RegistrationRequestCreate(RegistrationRequestBase):
-    form_responses: list[FormFieldResponseCreate] = Field(
-        default_factory=list,
-        description="Responses to custom registration form fields, if announcement has a registration form",
-    )
-
-
-class RegistrationRequestUpdate(BaseModel):
-    status: str | None = Field(
-        None, description="The status of the registration request"
-    )
+from modules.users.schemas.responses import UserBrief
 
 
 class RegistrationRequestResponse(RegistrationRequestBase):
@@ -56,11 +37,8 @@ class RegistrationRequestResponse(RegistrationRequestBase):
     updated_at: datetime
 
 
-class RegistrationRequestFilter(BaseFilter):
-    """
-    Filter for RegistrationRequest queries.
+class CurrentUserRegistrationRequestResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
-    Allows filtering only by status.
-    """
-
-    status: RegistrationStatus | None = None
+    id: int
+    status: str = Field(..., description="The status of the registration request")

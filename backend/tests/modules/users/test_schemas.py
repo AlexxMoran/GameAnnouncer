@@ -1,4 +1,5 @@
-from modules.users.schemas import UserResponse, UserCreate
+from modules.users.schemas.mutations import UserCreate
+from modules.users.schemas.responses import UserResponse
 
 
 def test_user_schemas_have_optional_fields_and_permissions():

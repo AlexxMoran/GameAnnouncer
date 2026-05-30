@@ -3,11 +3,14 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import select
 
 from modules.announcements.model import Announcement
-from modules.announcements.schemas import AnnouncementCreate
+from modules.announcements.schemas.mutations import AnnouncementCreate
 from operations.create_announcement.contract import CreateAnnouncementContract
 from operations.create_announcement.scenario import CreateAnnouncementScenario
 from modules.registration.models import RegistrationForm, FormField
-from modules.registration.form_schemas import RegistrationFormCreate, FormFieldCreate
+from modules.registration.schemas.forms.fields.mutations import FormFieldCreate
+from modules.registration.schemas.forms.mutations import (
+    RegistrationFormCreate,
+)
 from modules.games.model import Game
 from enums import AnnouncementStatus, FormFieldType, AnnouncementFormat, SeedMethod
 
