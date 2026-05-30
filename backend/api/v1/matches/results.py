@@ -5,45 +5,16 @@ from core.permissions import authorize_action
 from core.schemas.base import DataResponse
 from core.users import current_user
 from modules.announcements.model import Announcement
-from modules.announcements.queries import AnnouncementQueries
 from modules.matches.model import Match
-from modules.matches.queries import MatchQueries
 from modules.matches.schemas.mutations import MatchResultUpdate
 from modules.matches.schemas.responses import MatchResponse
 from modules.users.model import User
 from operations.submit_match_result.contract import SubmitMatchResultContract
 from operations.submit_match_result.scenario import SubmitMatchResultScenario
-from exceptions import AppException
 
-router = APIRouter(prefix="/matches", tags=["matches"])
+from .dependencies import get_announcement_for_match_dependency, get_match_dependency
 
-
-async def get_match_dependency(match_id: int, session: SessionDep) -> Match:
-    """Load a match by ID or raise 404."""
-    queries = MatchQueries(session)
-    match = await queries.find_by_id(match_id)
-    if not match:
-        raise AppException("Match not found", status_code=404)
-    return match
-
-
-async def get_announcement_for_match_dependency(
-    session: SessionDep,
-    match: Match = Depends(get_match_dependency),
-) -> Announcement:
-    """Load the announcement that owns the match, or raise 404."""
-    queries = AnnouncementQueries(session)
-    announcement = await queries.find_by_id(match.announcement_id)
-    if not announcement:
-        raise AppException("Announcement not found", status_code=404)
-    return announcement
-
-
-@router.get("/{match_id}", response_model=DataResponse[MatchResponse])
-async def get_match(
-    match: Match = Depends(get_match_dependency),
-) -> DataResponse[MatchResponse]:
-    return DataResponse(data=match)
+router = APIRouter()
 
 
 @router.patch("/{match_id}/result", response_model=DataResponse[MatchResponse])

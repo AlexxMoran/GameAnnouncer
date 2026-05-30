@@ -20,8 +20,8 @@ async def test_get_announcements_paginated(async_client, announcement_factory):
     mock_search.total_count = AsyncMock(return_value=2)
 
     with (
-        patch("api.v1.announcements.AnnouncementSearch", return_value=mock_search),
-        patch("api.v1.announcements.get_batch_permissions", return_value=None),
+        patch("api.v1.announcements.collection.AnnouncementSearch", return_value=mock_search),
+        patch("api.v1.announcements.collection.get_batch_permissions", return_value=None),
     ):
         r = await async_client.get(
             f"/api/v1/announcements?game_id={game_id}&skip=0&limit=10"
@@ -63,9 +63,9 @@ async def test_get_announcement_includes_current_user_registration_request(
 
     try:
         with (
-            patch("api.v1.announcements.get_permissions", return_value={}),
+            patch("api.v1.announcements.detail.get_permissions", return_value={}),
             patch(
-                "api.v1.announcements.RegistrationRequestRepository",
+                "api.v1.announcements.detail.RegistrationRequestRepository",
                 return_value=mock_repo,
             ),
         ):
@@ -110,8 +110,8 @@ async def test_get_announcement_anonymous_has_no_registration_request(
 
     try:
         with (
-            patch("api.v1.announcements.get_permissions", return_value={}),
-            patch("api.v1.announcements.RegistrationRequestRepository") as repo_cls,
+            patch("api.v1.announcements.detail.get_permissions", return_value={}),
+            patch("api.v1.announcements.detail.RegistrationRequestRepository") as repo_cls,
         ):
             r = await async_client.get(f"/api/v1/announcements/{ann_obj.id}")
     finally:
@@ -148,12 +148,12 @@ async def test_create_announcement_sets_pre_registration_status(
             return ann_obj
 
     with (
-        patch("api.v1.announcements.authorize_action"),
+        patch("api.v1.announcements.collection.authorize_action"),
         patch(
-            "api.v1.announcements.CreateAnnouncementScenario",
+            "api.v1.announcements.collection.CreateAnnouncementScenario",
             new=FakeScenario,
         ),
-        patch("api.v1.announcements.get_permissions", return_value={}),
+        patch("api.v1.announcements.detail.get_permissions", return_value={}),
     ):
         r = await client.post("/api/v1/announcements", json=announcement_data)
         assert r.status_code == 201
@@ -184,12 +184,12 @@ async def test_create_announcement_sets_registration_open_status(
             return ann_obj
 
     with (
-        patch("api.v1.announcements.authorize_action"),
+        patch("api.v1.announcements.collection.authorize_action"),
         patch(
-            "api.v1.announcements.CreateAnnouncementScenario",
+            "api.v1.announcements.collection.CreateAnnouncementScenario",
             new=FakeScenario,
         ),
-        patch("api.v1.announcements.get_permissions", return_value={}),
+        patch("api.v1.announcements.detail.get_permissions", return_value={}),
     ):
         r = await client.post("/api/v1/announcements", json=announcement_data)
         assert r.status_code == 201
@@ -209,8 +209,8 @@ async def test_get_announcements_with_game_filter(async_client, announcement_fac
     mock_search.total_count = AsyncMock(return_value=5)
 
     with (
-        patch("api.v1.announcements.AnnouncementSearch", return_value=mock_search),
-        patch("api.v1.announcements.get_batch_permissions", return_value=None),
+        patch("api.v1.announcements.collection.AnnouncementSearch", return_value=mock_search),
+        patch("api.v1.announcements.collection.get_batch_permissions", return_value=None),
     ):
         r = await async_client.get(f"/api/v1/announcements?game_id={game_id}")
         assert r.status_code == 200
@@ -237,8 +237,8 @@ async def test_get_all_announcements_without_filter(async_client, announcement_f
     mock_search.total_count = AsyncMock(return_value=3)
 
     with (
-        patch("api.v1.announcements.AnnouncementSearch", return_value=mock_search),
-        patch("api.v1.announcements.get_batch_permissions", return_value=None),
+        patch("api.v1.announcements.collection.AnnouncementSearch", return_value=mock_search),
+        patch("api.v1.announcements.collection.get_batch_permissions", return_value=None),
     ):
         r = await async_client.get("/api/v1/announcements")
         assert r.status_code == 200
@@ -273,12 +273,12 @@ async def test_create_announcement_with_format(
             return ann_obj
 
     with (
-        patch("api.v1.announcements.authorize_action"),
+        patch("api.v1.announcements.collection.authorize_action"),
         patch(
-            "api.v1.announcements.CreateAnnouncementScenario",
+            "api.v1.announcements.collection.CreateAnnouncementScenario",
             new=FakeScenario,
         ),
-        patch("api.v1.announcements.get_permissions", return_value={}),
+        patch("api.v1.announcements.detail.get_permissions", return_value={}),
     ):
         r = await client.post("/api/v1/announcements", json=announcement_data)
         assert r.status_code == 201
@@ -338,9 +338,9 @@ async def test_patch_participant_score_updates_score(
 
     try:
         with (
-            patch("api.v1.announcements.authorize_action"),
+            patch("api.v1.announcements.participants.authorize_action"),
             patch(
-                "api.v1.announcements.update_participant_score",
+                "api.v1.announcements.participants.update_participant_score",
                 new=AsyncMock(return_value=participant_obj),
             ) as mock_service,
         ):
@@ -412,9 +412,9 @@ async def test_open_registration_returns_registration_open_announcement(
 
     try:
         with (
-            patch("api.v1.announcements.authorize_action"),
+            patch("api.v1.announcements.lifecycle.authorize_action"),
             patch(
-                "api.v1.announcements.AnnouncementLifecycleService",
+                "api.v1.announcements.lifecycle.AnnouncementLifecycleService",
                 return_value=_make_lifecycle_service_mock("open_registration", ann_obj),
             ),
         ):
@@ -451,9 +451,9 @@ async def test_close_registration_returns_registration_closed_announcement(
 
     try:
         with (
-            patch("api.v1.announcements.authorize_action"),
+            patch("api.v1.announcements.lifecycle.authorize_action"),
             patch(
-                "api.v1.announcements.AnnouncementLifecycleService",
+                "api.v1.announcements.lifecycle.AnnouncementLifecycleService",
                 return_value=_make_lifecycle_service_mock(
                     "close_registration", ann_obj
                 ),
@@ -489,7 +489,7 @@ async def test_open_registration_returns_403_for_non_organizer(
 
     try:
         with patch(
-            "api.v1.announcements.authorize_action",
+            "api.v1.announcements.lifecycle.authorize_action",
             side_effect=AppException("Forbidden", status_code=403),
         ):
             r = await client.post(
@@ -519,7 +519,7 @@ async def test_close_registration_returns_403_for_non_organizer(
 
     try:
         with patch(
-            "api.v1.announcements.authorize_action",
+            "api.v1.announcements.lifecycle.authorize_action",
             side_effect=AppException("Forbidden", status_code=403),
         ):
             r = await client.post(
@@ -551,9 +551,9 @@ async def test_start_qualification_returns_live_announcement(
 
     try:
         with (
-            patch("api.v1.announcements.authorize_action"),
+            patch("api.v1.announcements.lifecycle.authorize_action"),
             patch(
-                "api.v1.announcements.AnnouncementLifecycleService",
+                "api.v1.announcements.lifecycle.AnnouncementLifecycleService",
                 return_value=_make_lifecycle_service_mock(
                     "start_qualification", ann_obj
                 ),
@@ -589,9 +589,9 @@ async def test_finalize_qualification_returns_200(
 
     try:
         with (
-            patch("api.v1.announcements.authorize_action"),
+            patch("api.v1.announcements.lifecycle.authorize_action"),
             patch(
-                "api.v1.announcements.FinalizeAnnouncementQualificationScenario",
+                "api.v1.announcements.lifecycle.FinalizeAnnouncementQualificationScenario",
                 return_value=MagicMock(run=AsyncMock(return_value=ann_obj)),
             ),
         ):
@@ -625,9 +625,9 @@ async def test_generate_bracket_transitions_to_live(
 
     try:
         with (
-            patch("api.v1.announcements.authorize_action"),
+            patch("api.v1.announcements.lifecycle.authorize_action"),
             patch(
-                "api.v1.announcements.GenerateAnnouncementBracketScenario",
+                "api.v1.announcements.lifecycle.GenerateAnnouncementBracketScenario",
                 return_value=MagicMock(run=AsyncMock(return_value=ann_obj)),
             ),
         ):
@@ -661,9 +661,9 @@ async def test_cancel_announcement_returns_cancelled(
 
     try:
         with (
-            patch("api.v1.announcements.authorize_action"),
+            patch("api.v1.announcements.lifecycle.authorize_action"),
             patch(
-                "api.v1.announcements.AnnouncementLifecycleService",
+                "api.v1.announcements.lifecycle.AnnouncementLifecycleService",
                 return_value=_make_lifecycle_service_mock("cancel", ann_obj),
             ),
         ):
@@ -701,9 +701,9 @@ async def test_lifecycle_endpoint_returns_422_on_invalid_status(
 
     try:
         with (
-            patch("api.v1.announcements.authorize_action"),
+            patch("api.v1.announcements.lifecycle.authorize_action"),
             patch(
-                "api.v1.announcements.AnnouncementLifecycleService",
+                "api.v1.announcements.lifecycle.AnnouncementLifecycleService",
                 return_value=mock_service,
             ),
         ):
@@ -735,7 +735,7 @@ async def test_lifecycle_endpoint_returns_403_for_non_organizer(
 
     try:
         with patch(
-            "api.v1.announcements.authorize_action",
+            "api.v1.announcements.lifecycle.authorize_action",
             side_effect=AppException("Forbidden", status_code=403),
         ):
             r = await client.post(f"/api/v1/announcements/{ann_obj.id}/cancel")
@@ -885,7 +885,7 @@ async def test_get_announcement_registration_requests_forbidden_for_non_organize
 
     try:
         with patch(
-            "api.v1.announcements.authorize_action",
+            "api.v1.announcements.registration_requests.authorize_action",
             side_effect=AppException("Forbidden", status_code=403),
         ):
             r = await client.get(
@@ -920,9 +920,9 @@ async def test_get_announcement_registration_requests_allowed_for_organizer(
         mock_search.total_count = AsyncMock(return_value=0)
 
         with (
-            patch("api.v1.announcements.authorize_action"),
+            patch("api.v1.announcements.registration_requests.authorize_action"),
             patch(
-                "api.v1.announcements.RegistrationRequestSearch",
+                "api.v1.announcements.registration_requests.RegistrationRequestSearch",
                 return_value=mock_search,
             ),
         ):
@@ -973,7 +973,7 @@ async def test_create_announcement_returns_403_when_not_allowed(
     )
 
     with patch(
-        "api.v1.announcements.authorize_action",
+        "api.v1.announcements.collection.authorize_action",
         side_effect=AppException("Forbidden", status_code=403),
     ):
         r = await client.post("/api/v1/announcements", json=announcement_data)
@@ -999,7 +999,7 @@ async def test_patch_participant_score_returns_403_for_non_organizer(
 
     try:
         with patch(
-            "api.v1.announcements.authorize_action",
+            "api.v1.announcements.participants.authorize_action",
             side_effect=AppException("Forbidden", status_code=403),
         ):
             r = await client.patch(
@@ -1030,7 +1030,7 @@ async def test_finalize_qualification_returns_403_for_non_organizer(
 
     try:
         with patch(
-            "api.v1.announcements.authorize_action",
+            "api.v1.announcements.lifecycle.authorize_action",
             side_effect=AppException("Forbidden", status_code=403),
         ):
             r = await client.post(
@@ -1060,7 +1060,7 @@ async def test_generate_bracket_returns_403_for_non_organizer(
 
     try:
         with patch(
-            "api.v1.announcements.authorize_action",
+            "api.v1.announcements.lifecycle.authorize_action",
             side_effect=AppException("Forbidden", status_code=403),
         ):
             r = await client.post(

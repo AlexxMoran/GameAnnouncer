@@ -71,8 +71,11 @@ In this project:
 Operations should not move permission checks out of API routes unless the
 project explicitly changes its authorization model.
 
-Entrypoints should own transaction commit boundaries unless a specific operation
-needs a different transaction strategy.
+Entrypoints own transaction commit boundaries. Operations and module services
+should make changes on the provided session and use `flush()` when they need
+generated IDs or database-side state, but they should not commit or rollback by
+default. This keeps operations reusable from HTTP routes, tasks, CLI commands,
+and tests.
 
 ## Basic Operation Structure
 
@@ -237,7 +240,8 @@ class GenerateAnnouncementBracketDecision:
 - Gateway does not invent business rules.
 - Contract does not know the interface.
 - API owns user authorization.
-- Entrypoint owns commit unless the operation has a documented reason not to.
+- Entrypoints own commit/rollback boundaries.
+- Operations and module services do not commit by default.
 - Modules do not import operations.
 
 ## Extended Operation Structure

@@ -32,7 +32,7 @@ async def test_get_my_registration_requests_uses_search_with_status_filter(
     mock_search.total_count = AsyncMock(return_value=3)
 
     with patch(
-        "api.v1.users.RegistrationRequestSearch",
+        "api.v1.users.me.RegistrationRequestSearch",
         return_value=mock_search,
     ) as search_cls:
         r = await client.get("/api/v1/users/me/registration_requests?status=pending")

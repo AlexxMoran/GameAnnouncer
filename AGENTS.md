@@ -13,6 +13,9 @@ Repository guidance for Codex and other coding agents.
 
 - Simple CRUD, search, and one-step behavior should stay in `backend/modules/**`, routes, or repositories.
 - Meaningful multi-step business behavior should live in `backend/operations/{verb_object}/`.
+- API resources should use route packages under `backend/api/v1/{resource}/`.
+- Base route package files are `dependencies.py`, `collection.py`, and `detail.py`; add context files such as `lifecycle.py`, `media.py`, or `status.py` only when the resource needs them.
+- Routes own HTTP concerns, authorization, response wrapping, and commit boundaries.
 - Operation structure:
 
 ```text
