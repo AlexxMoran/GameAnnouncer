@@ -1,0 +1,29 @@
+from fastapi import Depends
+
+from core.deps import SessionDep
+from exceptions import AppException
+from modules.announcements.model import Announcement
+from modules.announcements.queries import AnnouncementQueries
+from modules.matches.model import Match
+from modules.matches.queries import MatchQueries
+
+
+async def get_match_dependency(match_id: int, session: SessionDep) -> Match:
+    """Load a match by ID or raise 404."""
+    queries = MatchQueries(session)
+    match = await queries.find_by_id(match_id)
+    if not match:
+        raise AppException("Match not found", status_code=404)
+    return match
+
+
+async def get_announcement_for_match_dependency(
+    session: SessionDep,
+    match: Match = Depends(get_match_dependency),
+) -> Announcement:
+    """Load the announcement that owns the match, or raise 404."""
+    queries = AnnouncementQueries(session)
+    announcement = await queries.find_by_id(match.announcement_id)
+    if not announcement:
+        raise AppException("Announcement not found", status_code=404)
+    return announcement

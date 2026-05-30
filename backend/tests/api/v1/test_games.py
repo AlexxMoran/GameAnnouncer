@@ -16,10 +16,18 @@ def test_game_policy_can_view_is_public():
 async def test_get_games_accessible_without_auth(async_client):
     """GET /games returns 200 for unauthenticated callers."""
     with (
-        patch("api.v1.games.GameSearch.results", new=AsyncMock(return_value=[])),
-        patch("api.v1.games.GameSearch.filtered_count", new=AsyncMock(return_value=0)),
-        patch("api.v1.games.GameSearch.total_count", new=AsyncMock(return_value=0)),
-        patch("api.v1.games.get_batch_permissions", return_value=None),
+        patch(
+            "api.v1.games.collection.GameSearch.results", new=AsyncMock(return_value=[])
+        ),
+        patch(
+            "api.v1.games.collection.GameSearch.filtered_count",
+            new=AsyncMock(return_value=0),
+        ),
+        patch(
+            "api.v1.games.collection.GameSearch.total_count",
+            new=AsyncMock(return_value=0),
+        ),
+        patch("api.v1.games.collection.get_batch_permissions", return_value=None),
     ):
         r = await async_client.get("/api/v1/games")
     assert r.status_code == 200
@@ -33,12 +41,18 @@ async def test_get_games_paginated(async_client, game_factory):
 
     with (
         patch(
-            "api.v1.games.GameSearch.results",
+            "api.v1.games.collection.GameSearch.results",
             new=AsyncMock(return_value=games),
         ),
-        patch("api.v1.games.GameSearch.filtered_count", new=AsyncMock(return_value=2)),
-        patch("api.v1.games.GameSearch.total_count", new=AsyncMock(return_value=5)),
-        patch("api.v1.games.get_batch_permissions", return_value=None),
+        patch(
+            "api.v1.games.collection.GameSearch.filtered_count",
+            new=AsyncMock(return_value=2),
+        ),
+        patch(
+            "api.v1.games.collection.GameSearch.total_count",
+            new=AsyncMock(return_value=5),
+        ),
+        patch("api.v1.games.collection.get_batch_permissions", return_value=None),
     ):
         r = await async_client.get("/api/v1/games?skip=0&limit=10")
         assert r.status_code == 200

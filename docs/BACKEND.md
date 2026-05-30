@@ -42,8 +42,10 @@ class Announcement(Base):
 
 **CRITICAL: Use AsyncSession for all database operations**
 
-- Get session from `get_async_session` dependency
-- NEVER manually commit/rollback in routes (handled automatically)
+- Get session from `SessionDep`
+- Commit transaction changes in the route/task entrypoint after the service or operation succeeds
+- Services, repositories, and operations should use `flush()` when they need generated IDs or DB-side state
+- Do not commit or rollback inside reusable services or operations unless that behavior is explicitly documented
 - Use modern SQLAlchemy 2.0 syntax: `session.execute()` + `select()`
 - NEVER use legacy 1.x API: `.query()`, `.filter()`, etc.
 
@@ -103,6 +105,72 @@ result = await session.execute(
   - `PATCH /api/v1/games/{id}` - update
   - `DELETE /api/v1/games/{id}` - delete
 
+### Route Package Pattern
+
+Use a package for each meaningful API resource under `backend/api/v1/`.
+Routes belong to the API layer, not to `modules/**`, because routes own HTTP
+concerns, dependencies, authorization, response wrapping, and transaction
+commit boundaries.
+
+Base structure:
+
+```text
+backend/api/v1/{resource}/
+  __init__.py
+  dependencies.py
+  collection.py
+  detail.py
+```
+
+File responsibilities:
+
+- `__init__.py` creates the resource router and includes subrouters with the resource `prefix` and `tags`.
+- `dependencies.py` contains resource-loading dependencies such as `get_game_dependency`.
+- `collection.py` contains collection endpoints: list/search and create.
+- `detail.py` contains single-resource endpoints: get, update, delete.
+
+Add context-specific files when a resource grows:
+
+```text
+lifecycle.py
+participants.py
+registration_requests.py
+bracket.py
+media.py
+status.py
+results.py
+```
+
+Name context files after the user-facing API area or action group, not after a
+technical layer. Prefer `media.py` or `lifecycle.py` over generic names like
+`handlers.py`, `services.py`, `logic.py`, or `utils.py`.
+
+Router assembly example:
+
+```python
+from fastapi import APIRouter
+
+from .collection import router as collection_router
+from .detail import router as detail_router
+from .media import router as media_router
+
+router = APIRouter()
+router.include_router(collection_router, prefix="/games", tags=["games"])
+router.include_router(detail_router, prefix="/games", tags=["games"])
+router.include_router(media_router, prefix="/games", tags=["games"])
+```
+
+Endpoint responsibilities:
+
+- Load dependencies and request schemas.
+- Authorize user actions before delegating.
+- Call a query/search, service, or operation.
+- Commit successful mutations in the route or task entrypoint.
+- Wrap responses in `DataResponse` or `PaginatedResponse`.
+
+Endpoints should not contain business rules. Move meaningful multi-step
+behavior to `operations/**` and small domain behavior to `modules/**/services`.
+
 ### Request/Response
 
 **Use Pydantic schemas from `/schemas/`:**
@@ -154,8 +222,9 @@ async def get_games(session: SessionDep, user: UserDep):
 
 **Structure:**
 - Services are stateless functions (not classes unless needed)
-- Services orchestrate CRUD, permissions, and async tasks
+- Services orchestrate domain behavior, repositories, and async tasks
 - Services contain complex business logic
+- Services should not own authorization or transaction commit boundaries
 
 **Example:**
 ```python
@@ -163,7 +232,7 @@ async def get_games(session: SessionDep, user: UserDep):
 
 async def create_announcement(
     data: AnnouncementCreate,
-    user: User,
+    organizer_id: int,
     session: AsyncSession,
 ) -> Announcement:
     # Validate dependencies
@@ -172,7 +241,7 @@ async def create_announcement(
         raise NotFoundException("Game not found")
 
     # Create the resource
-    announcement = await AnnouncementCRUD.create(data, session, user)
+    announcement = await AnnouncementCRUD.create(data, session, organizer_id)
 
     # Trigger async task for notifications
     await send_announcement_notification.kiq(announcement.id)
@@ -232,12 +301,14 @@ async def update_game(game_id: int, user: User, session: AsyncSession):
 ```python
 @router.patch("/{announcement_id}/participants/{participant_id}")
 async def patch_participant_score(
+    session: SessionDep,
     announcement: Announcement = Depends(get_announcement_dependency),
     user: User = Depends(current_user),
     ...
 ) -> ...:
     authorize_action(user, announcement, "edit")          # auth at entrypoint
     participant = await update_participant_score(...)     # service has no auth
+    await session.commit()                                # transaction boundary at entrypoint
 ```
 
 **Service files must NOT contain:**
@@ -465,7 +536,7 @@ def search_announcements(query: str, filters: dict) -> list[Announcement]:
 6. **DO NOT** return raw SQLAlchemy models from routes (use Pydantic schemas)
 7. **DO NOT** edit merged migrations
 8. **DO NOT** use `SELECT *` in queries
-9. **DO NOT** manually commit/rollback in routes
+9. **DO NOT** commit/rollback inside reusable services or operations by default
 10. **DO NOT** use inline comments (`# comment`) - use docstrings instead
 
 ---

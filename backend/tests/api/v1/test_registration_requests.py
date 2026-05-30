@@ -80,7 +80,7 @@ async def test_get_registration_request_includes_announcement(
         rr_module.get_registration_request_dependency
     ] = _fake_dep
     try:
-        with patch("api.v1.registration_requests.authorize_action"):
+        with patch("api.v1.registration_requests.detail.authorize_action"):
             r = await client.get("/api/v1/registration_requests/1")
     finally:
         client._transport.app.dependency_overrides.pop(
@@ -126,7 +126,7 @@ async def test_get_registration_request_announcement_participants_count(
         rr_module.get_registration_request_dependency
     ] = _fake_dep
     try:
-        with patch("api.v1.registration_requests.authorize_action"):
+        with patch("api.v1.registration_requests.detail.authorize_action"):
             r = await client.get("/api/v1/registration_requests/1")
     finally:
         client._transport.app.dependency_overrides.pop(
@@ -157,11 +157,11 @@ async def test_create_registration_request_includes_announcement(
 
     with (
         patch(
-            "api.v1.registration_requests.CreateRegistrationRequestScenario",
+            "api.v1.registration_requests.collection.CreateRegistrationRequestScenario",
             new=FakeCreateScenario,
         ),
         patch(
-            "api.v1.registration_requests.RegistrationRequestQueries"
+            "api.v1.registration_requests.collection.RegistrationRequestQueries"
         ) as MockRRQueries,
     ):
         mock_rr_queries = AsyncMock()
@@ -209,12 +209,12 @@ async def test_cancel_registration_request_includes_announcement(
 
     try:
         with (
-            patch("api.v1.registration_requests.authorize_action"),
+            patch("api.v1.registration_requests.status.authorize_action"),
             patch(
-                "api.v1.registration_requests.RegistrationRequestQueries"
+                "api.v1.registration_requests.status.RegistrationRequestQueries"
             ) as MockRRQueries,
             patch(
-                "api.v1.registration_requests.ChangeRegistrationRequestStatusScenario",
+                "api.v1.registration_requests.status.ChangeRegistrationRequestStatusScenario",
                 new=FakeChangeScenario,
             ),
         ):

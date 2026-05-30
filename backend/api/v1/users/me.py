@@ -1,17 +1,16 @@
 from fastapi import APIRouter, Depends
 
-from core.schemas.base import PaginatedResponse
-from modules.users.model import User
 from core.deps import SessionDep
+from core.schemas.base import PaginatedResponse
 from core.users import current_user
-
 from modules.announcements.queries import AnnouncementQueries
-from modules.registration.search import RegistrationRequestSearch
 from modules.announcements.schemas.responses import AnnouncementResponse
 from modules.registration.schemas.filters import RegistrationRequestFilter
 from modules.registration.schemas.responses import RegistrationRequestResponse
+from modules.registration.search import RegistrationRequestSearch
+from modules.users.model import User
 
-router = APIRouter(prefix="/users", tags=["users"])
+router = APIRouter()
 
 
 @router.get(
@@ -86,27 +85,4 @@ async def get_my_registration_requests(
         limit=limit,
         filtered_count=filtered_count,
         total_count=total_count,
-    )
-
-
-@router.get(
-    "/{user_id}/organized_announcements",
-    response_model=PaginatedResponse[AnnouncementResponse],
-)
-async def get_user_organized_announcements(
-    user_id: int,
-    session: SessionDep,
-    skip: int = 0,
-    limit: int = 10,
-) -> PaginatedResponse[AnnouncementResponse]:
-    queries = AnnouncementQueries(session)
-    announcements, total = await queries.find_all_by_organizer_id(
-        user_id, skip=skip, limit=limit
-    )
-    return PaginatedResponse(
-        data=announcements,
-        skip=skip,
-        limit=limit,
-        filtered_count=total,
-        total_count=total,
     )
